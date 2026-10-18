@@ -1,4 +1,6 @@
-# Wave 1, slice 1 validation
+# Validation record
+
+## Wave 1, slice 1 (historical)
 
 Validated 2026-10-18 on macOS arm64, Go 1.26.6 and Node 22.17.0.
 Current version: `0.1.0-dev.1`. This is a completed foundation slice, not the
@@ -54,7 +56,7 @@ request-device rejection, then Retry. Run from another working directory to
 verify no source files are required. Launch without `--no-open` to check the
 isolated app-window lifecycle.
 
-## Limits and next work
+## Slice 1 limits at completion
 
 Windows/Linux binaries compiled here but have not been run on those systems.
 Other browser engines and integrated/discrete GPU combinations remain untested.
@@ -68,3 +70,47 @@ There is no path tracer, scene save/autosave, image export, physical water,
 weather, vegetation or generated product site yet. W1.S2 next adds versioned
 scene files, undo and recovery; W1.S3 adds the first progressive tracer; W1.S4
 owns packaging, site generation and release readiness.
+
+## Wave 1, slice 2 — scene documents and recovery
+
+Validated 2026-10-18 on macOS arm64, Go 1.26.6 and Node 22.17.0.
+Build: `0.1.0-dev.2`. Slice 2 is complete; wave 1 is not yet a release.
+
+Automated checks passed:
+
+- All Go tests, including race detection, plus `go vet ./...`.
+- 34 JavaScript tests via `npm test`, including 21 shared schema fixtures used
+  by both validators, complete scene/geometry round trips, invalid imports,
+  bounded grouped history, serialized autosaves and retries after lost responses.
+- Server tests for token and Origin enforcement, JSON media type, body limits,
+  invalid/trailing/unknown input, stale revision conflicts and scoped recovery reads.
+- Storage tests for pre-publication write failure, orphan pending files, corrupt
+  newest-generation fallback, restart recovery, retention, idempotency and
+  concurrent writers. Failed requests leave the last valid snapshot untouched.
+- Six cgo-free cross-builds: macOS/Linux/Windows on amd64 and arm64. Native
+  Windows/Linux filesystem behavior remains to be validated on those platforms.
+
+Browser checks passed in isolated Chrome through Playwright CLI:
+
+- Seed, title, water visibility/level, palette and camera edits; Undo/Redo;
+  a multi-input slider drag is undone as one action.
+- Save downloads a valid named scene containing the edited camera and all
+  settings; Open restores it, and Open itself can be undone and redone.
+- Malformed, oversized and unsupported-version files are rejected without
+  changing the working seed/scene.
+- Reload presents recovery; Restore recovers the edited scene and resumes
+  autosave. A forced SIGKILL followed by a new server process also recovers the
+  acknowledged scene from the same isolated data directory.
+- A second tab with a stale revision cannot overwrite the newer saved seed.
+- WebGL backend changes preserve the scene; a 390 px layout has no horizontal
+  overflow. Visual inspection covered the document controls and recovery banner.
+- Final browser console contained zero errors/warnings. Screenshots are retained
+  in ignored `output/playwright/`. Tests used `/tmp` recovery data, not user data.
+
+Limits: autosave preserves acknowledged snapshots, not every keystroke before a
+crash. Power-loss guarantees vary by filesystem; directory sync is best effort.
+Named Save downloads a new file, rather than updating one in place. History is
+limited to 100 in-memory edits. See [scene format](scene-format.md) for recovery
+retention, data locations and conflict handling. The remote CI matrix has not
+been executed here. Ray tracing, image export and the product site remain W1.S3
+and W1.S4 work.

@@ -621,3 +621,21 @@ body:has(dialog[open]) {
     padding-bottom:18px
   }
 }
+
+/* Scene documents and recovery */
+.document-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.document-actions button { font-size: 11px; }
+button:disabled { cursor: default; opacity: .45; }
+.document-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: -10px 0 15px; font-size: 11px; color: #bdccba; line-height: 1.6; }
+.document-status button { font-size: 11px; }
+.recovery-banner { padding: 18px; margin-bottom: 22px; background: #29372f; border: 1px solid #718467; border-radius: 7px; font-size: 12px; }
+.recovery-banner[hidden] { display: none; }
+.recovery-banner p { color: #c4d4be; line-height: 1.6; }
+.recovery-banner select { margin-bottom: 12px; }
+.recovery-banner button { margin-right: 6px; font-size: 11px; }
+.inspector-heading label { display: block; margin: 20px 0 8px; font-size: 11px; }
+#scene-title { width: 100%; border: 1px solid #3e4b49; background: #1d2729; color: #e3ebdc; border-radius: 5px; padding: 10px; font-size: 12px; }
+.check-label { display: flex !important; align-items: center; gap: 8px; }
+input[type=checkbox] { accent-color: var(--accent); }
+@media(max-width:1100px) { .workspace-toolbar { align-items: flex-start; gap: 15px; } .document-actions { max-width: 180px; } }
+@media(max-width:600px) { .workspace-toolbar { flex-wrap: wrap; } .document-actions { max-width: none; } }

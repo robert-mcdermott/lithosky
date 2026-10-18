@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"crypto/rand"
 	"embed"
 	"errors"
 	"flag"
@@ -12,16 +13,19 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/robert-mcdermott/lithosky/internal/desktop"
+	"github.com/robert-mcdermott/lithosky/internal/recovery"
 	"github.com/robert-mcdermott/lithosky/internal/server"
 )
 
 //go:embed web
 var embedded embed.FS
 
-var version = "0.1.0-dev.1"
+var version = "0.1.0-dev.2"
 
 func main() {
 	if err := run(); err != nil {
@@ -31,6 +35,7 @@ func main() {
 }
 
 func run() error {
+	dataDir := flag.String("data-dir", "", "directory for private recovery snapshots (default: user config directory/Lithosky)")
 	port := flag.Int("port", 0, "loopback port (0 chooses an available port)")
 	noOpen := flag.Bool("no-open", false, "serve without opening a window; stop with Ctrl+C")
 	window := flag.String("window", "app", "window mode: app or browser")
@@ -44,6 +49,18 @@ func run() error {
 	if flag.NArg() != 0 || *port < 0 || *port > 65535 || (*window != "app" && *window != "browser") {
 		return errors.New("expected --port 0..65535, --window app|browser, and no positional arguments")
 	}
+	if *dataDir == "" {
+		base, err := os.UserConfigDir()
+		if err != nil {
+			return err
+		}
+		*dataDir = filepath.Join(base, "Lithosky")
+	}
+	store, err := recovery.New(*dataDir)
+	if err != nil {
+		return fmt.Errorf("recovery storage: %w", err)
+	}
+	defer store.Close()
 	assets, err := fs.Sub(embedded, "web")
 	if err != nil {
 		return err
@@ -55,12 +72,12 @@ func run() error {
 	defer listener.Close()
 	address := listener.Addr().String()
 	srv := &http.Server{
-		Handler:           server.New(assets, address, version),
+		Handler:           server.New(assets, address, version, &server.Persistence{Store: store, Token: rand.Text()}),
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 		WriteTimeout:      30 * time.Second,
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	served := make(chan error, 1)
 	go func() { served <- srv.Serve(listener) }()

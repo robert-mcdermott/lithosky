@@ -4,3 +4,7 @@
 /output/
 /.playwright-cli/
 .DS_Store
+
+# Default go build outputs
+/lithosky
+/lithosky.exe

@@ -49,8 +49,10 @@ measure before splitting work into wavefront queues.
 
 ## Scene and project boundaries
 
-Scene state is independent of the renderer. W1.S2 adds a validated versioned
-`.lithosky` JSON schema, undo and atomic save/recovery. Later asset containers must
+Scene state is independent of the renderer. W1.S2 provides a validated versioned
+`.lithosky` JSON schema, grouped undo/redo, browser open/download and persistent
+recovery generations. Both validators consume the same embedded schema. See
+[scene format and recovery](scene-format.md) for storage and failure semantics. Later asset containers must
 bound expanded size, reject traversal/symlinks and migrate explicitly. Seeds
 stabilize procedural generation; GPU images use numerical tolerances and record
 renderer/browser/device/build, not a promise of universal bitwise equivalence.
@@ -59,9 +61,11 @@ renderer/browser/device/build, not a promise of universal bitwise equivalence.
 
 Bind only `127.0.0.1`, validate the exact Host and Origin, reject cross-site Fetch
 Metadata, and serve embedded assets only. Content security policy permits local
-scripts/styles/connects, forbids framing and external content. The foundation API
-is read-only build information. Before file writes or automation in W1.S2, add
-per-launch authenticated sessions, request size limits and scoped file access.
+scripts/styles/connects, forbids framing and external content. Recovery reads/writes
+require a per-launch session token. Writes require an explicit same Origin,
+bounded JSON body and a matching autosave revision. Storage uses a confined
+directory and generated filenames; clients cannot pass paths. Named files are
+opened/downloaded through the browser rather than an arbitrary-path server API.
 Loopback HTTP is eligible as a trustworthy local context for WebGPU.
 [Secure contexts](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Secure_Contexts).
 

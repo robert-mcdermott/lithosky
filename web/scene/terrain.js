@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export const defaults = Object.freeze({ seed: 1847, elevation: 1, sun: 38, palette: 'natural', yaw: 0.28, pitch: 0.3, distance: 23 });
+export const defaults = Object.freeze({ seed: 1847, elevation: 1, sun: 38, palette: 'natural', yaw: 0.28, pitch: 0.3, distance: 23, waterEnabled: true, waterLevel: 0.25 });
 
 function hash(x, z, seed) {
   let n = Math.imul(x, 374761393) ^ Math.imul(z, 668265263) ^ seed;
@@ -40,11 +40,11 @@ export function createTerrain(state, resolution = 128) {
   const point = (ix, iz) => {
     const x = (ix / resolution - 0.5) * 64;
     const z = (iz / resolution - 0.5) * 64;
-    const h = heightAt(x, z, state), water = h < 0.25;
+    const h = heightAt(x, z, state), water = state.waterEnabled && h < state.waterLevel;
     const normal = water ? [0, 1, 0] : normalize([heightAt(x - 0.08, z, state) - heightAt(x + 0.08, z, state), 0.16, heightAt(x, z - 0.08, state) - heightAt(x, z + 0.08, state)]);
     let color = water ? [0.14, 0.34, 0.36] : h > 5.4 ? [0.82, 0.85, 0.82] : normal[1] < 0.78 ? [0.39, 0.41, 0.37] : h < 0.6 ? [0.5, 0.48, 0.34] : [0.28, 0.35, 0.26];
     if (state.palette === 'otherworld') color = water ? [0.28, 0.31, 0.6] : h > 5.4 ? [0.83, 0.78, 0.93] : [0.35 + h * 0.022, 0.26 + normal[1] * 0.12, 0.4 + h * 0.017];
-    return [x, Math.max(0.25, h), z, ...normal, ...color];
+    return [x, water ? state.waterLevel : h, z, ...normal, ...color];
   };
   const grid = Array.from({ length: resolution + 1 }, (_, z) => Array.from({ length: resolution + 1 }, (_, x) => point(x, z)));
   for (let z = 0; z < resolution; z++) for (let x = 0; x < resolution; x++) {
