@@ -10,6 +10,12 @@ Development build: 0.3.0-dev.1. Wave 3, slice 1:
 - V6 scenes preserve atmosphere across terrain edits, portable heightmaps, undo and recovery.
 - Published analytic atmosphere and solar reference comparisons; single-scattering limits documented.
 
+Studio UI follow-up:
+
+- Fixed desktop scroll ownership: workspace and settings scroll inside the app frame.
+- Anchored, themed dropdown menus in supporting browsers, with native fallback.
+- Preserved single-page mobile scrolling and added responsive/keyboard browser checks.
+
 ## v0.2.0 — unreleased
 
 Development build: 0.2.0-dev.4. Wave 2, slice 4:

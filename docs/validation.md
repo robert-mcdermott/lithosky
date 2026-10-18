@@ -564,3 +564,30 @@ camera-altitude table. Water remains the previous simplified model; preview
 haze is approximate. The 128² geometry and existing export sizes remain unchanged.
 No native Windows/Linux execution, remote CI run, release tag or publication was
 performed. W3.S2 material/color work remains a separate slice.
+
+## Studio scrolling and dropdown follow-up
+
+Validated on macOS arm64 with Chrome 155. `tests/browser-layout.mjs` checks
+1728×1117, 1440×900, 1024×600, 768×700, 601×700, 600×700, 390×844 and 320×568.
+Desktop panels stay inside the frame without document overflow; inspector wheel
+input at its boundary does not move the page. Mobile uses document scrolling,
+with no panel scroll containers or horizontal overflow. Resizing from a scrolled
+phone layout back to desktop restores the fixed frame.
+
+Actual option rectangles remain next to their controls and within the viewport
+for scene, image-size, sample, atmosphere and graphics menus, including controls
+deep inside both panels. Escape restores control focus, keyboard and pointer
+selection work, and a physical-atmosphere still completes with export enabled.
+The quick guide remains accessible. No page errors occurred. Desktop menu and
+mobile screenshots were inspected; the product-site studio capture was refreshed.
+
+Menus progressively use the browser's [customizable native select](https://developer.chrome.com/blog/a-customizable-select)
+with its built-in anchor positioning and top-layer picker. Unsupported browsers
+retain their native select. The native CSS fallback was exercised in Chrome;
+Safari/Firefox and native Windows/Linux menus were not tested. No dependency,
+scene format or rendering change is included in this follow-up.
+
+`npm test` passes all 160 tests; `go test ./...` passes. The embedded binary was
+rebuilt. Fresh gallery capture passed scene/hash verification, and site build
+and link checks passed (four pages, 93 links, nine images). `git diff --check`
+passes.

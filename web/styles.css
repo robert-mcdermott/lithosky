@@ -498,6 +498,9 @@ summary {
 }
 .sr-only {
   position:absolute;
+  margin:-1px;
+  padding:0;
+  border:0;
   width:1px;
   height:1px;
   overflow:hidden;
@@ -673,9 +676,43 @@ input[type=checkbox] { accent-color: var(--accent); }
 .terrain-authoring progress { width:100%; height:5px; margin-top:12px; accent-color:#a7bd93; }
 #add-layer { margin-top:10px; }
 
+/* Desktop panels own scrolling; the document must not scroll around them. */
 @media(min-width:601px) {
-  .inspector { max-height:calc(100vh - 76px); overflow-y:auto; position:sticky; top:0; }
-  .inspector > * { flex-shrink:0; }
+  body { height:100vh; height:100dvh; overflow:hidden; }
+  main { height:calc(100% - 76px); min-height:0; overflow:hidden; }
+  .library,.workspace,.inspector {
+    min-height:0;
+    min-width:0;
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+    scrollbar-gutter:stable;
+    scroll-padding-block:20px;
+  }
+  .library > *,.workspace > *,.inspector > * { flex-shrink:0; }
+}
+
+/* Keep native select semantics and keyboard handling. Supporting browsers draw
+   the menu in the top layer, anchored to the control, instead of an OS popup.
+   Older browsers retain their native picker. */
+@supports (appearance:base-select) {
+  select,select::picker(select) { appearance:base-select; }
+  select { align-items:center; gap:10px; }
+  select::picker-icon { color:var(--muted); }
+  select::picker(select) {
+    color:#e3ebdc;
+    background:#1d2729;
+    border:1px solid #59665c;
+    border-radius:6px;
+    padding:4px;
+    box-shadow:0 8px 24px #0006;
+    max-block-size:min(320px,calc(100dvh - 24px));
+    overflow-y:auto;
+    overscroll-behavior:contain;
+  }
+  select option { padding:10px; border-radius:3px; }
+  select option:checked { background:#2b3b32; }
+  select option:hover,select option:focus-visible { background:#354b3b; outline:2px solid var(--accent); outline-offset:-2px; }
+  select option:disabled { color:var(--muted); }
 }
 
 /* The sculpt cursor never intercepts picking or camera gestures. */
