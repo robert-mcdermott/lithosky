@@ -1,1 +1,6 @@
-/product_research
+/product_research/
+/bin/
+/dist/
+/output/
+/.playwright-cli/
+.DS_Store
