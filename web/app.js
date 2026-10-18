@@ -19,6 +19,24 @@ import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
 
 const $ = id => document.getElementById(id);
+// Layout choices never edit the scene or invalidate a finished render.
+for (const [id, name] of [['scenes', 'Scenes'], ['controls', 'Controls']]) {
+  const button = $('toggle-' + id), panel = $(button.getAttribute('aria-controls'));
+  let scrollTop = 0;
+  button.addEventListener('click', () => {
+    if (!panel.hidden) {
+      scrollTop = panel.scrollTop;
+      if (panel.contains(document.activeElement)) button.focus();
+    }
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) panel.scrollTop = scrollTop;
+    button.setAttribute('aria-expanded', String(!panel.hidden));
+    const label = (panel.hidden ? 'Show ' : 'Hide ') + name + ' panel';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+  });
+}
+
 async function main() {
 const [schemaResponse, studiesResponse] = await Promise.all([fetch('/api/scene-schema'), fetch('/scenes/studies.json')]);
 if (!schemaResponse.ok) throw new Error('Cannot load the scene schema. Restart Lithosky.');

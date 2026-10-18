@@ -12,6 +12,8 @@ Development build: 0.3.0-dev.1. Wave 3, slice 1:
 
 Studio UI follow-up:
 
+- Independent Scenes and Controls panel toggles reclaim workspace width and preserve edits/renders.
+
 - Fixed desktop scroll ownership: workspace and settings scroll inside the app frame.
 - Anchored, themed dropdown menus in supporting browsers, with native fallback.
 - Preserved single-page mobile scrolling and added responsive/keyboard browser checks.

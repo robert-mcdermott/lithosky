@@ -591,3 +591,25 @@ scene format or rendering change is included in this follow-up.
 rebuilt. Fresh gallery capture passed scene/hash verification, and site build
 and link checks passed (four pages, 93 links, nine images). `git diff --check`
 passes.
+
+## Collapsible workspace panels
+
+The header's Scenes and Controls buttons independently hide/reopen their panels.
+Grid columns release the hidden panel's width, and the existing resize observer
+updates the preview. Hidden panels leave the focus order; each toggle exposes its
+controlled panel and expanded state. Reopening restores the panel scroll offset.
+Layout state belongs to the current window and resets on reload. Compact layouts
+continue to use the scene picker instead of the scene sidebar; Controls remains
+available on phones.
+
+`tests/browser-panels.mjs` passes on Chrome 155/macOS: independent collapse,
+reclaimed/restored width, preview backing-size updates, Space/Enter operation,
+expanded-state attributes, restored inspector scrolling, retained terrain edits
+and a finished exportable render. It checks open/closed controls at nine widths
+from 320 to 1728 pixels, including breakpoint boundaries. The existing
+`tests/browser-layout.mjs` also passes on the final build. Collapsed desktop and
+compact-header screenshots were visually inspected; no page errors occurred.
+
+All 160 JavaScript tests and Go tests pass. The binary was rebuilt, gallery
+capture verified scene/source hashes, and site build/check passes with four
+pages, 93 links and nine images. `git diff --check` passes.
