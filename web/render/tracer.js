@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { createHeightfield } from './heightfield.js';
+import { buildHierarchy, createHeightfield } from './heightfield.js';
 import { frameUniforms } from '../scene/terrain.js';
 export const TILE_WIDTH = 64, TILE_HEIGHT = 32;
 export function validateRenderOptions({ width, height, samples }) {
@@ -13,8 +13,10 @@ export function renderTiles(width, height) {
   for (let y=0;y<height;y+=TILE_HEIGHT) for (let x=0;x<width;x+=TILE_WIDTH) tiles.push([x,y,Math.min(TILE_WIDTH,width-x),Math.min(TILE_HEIGHT,height-y)]);
   return tiles;
 }
-export async function createTracer(state, options) {
+export async function createTracer(state, options, preparedField = null) {
   const { width, height, samples } = validateRenderOptions(options);
+  const constants={useHierarchy:options.traversal==='linear'?0:1};
+  if (['layers-v1','heightmap-v1'].includes(state.generator) && !preparedField) throw new Error('Generate the terrain before rendering.');
   if (!navigator.gpu) throw new Error('Final rendering requires WebGPU. The scene can still be edited and saved.');
   const adapter=await navigator.gpu.requestAdapter();
   if (!adapter) throw new Error('No WebGPU adapter is available for final rendering.');
@@ -34,12 +36,15 @@ export async function createTracer(state, options) {
     const compilation=await module.getCompilationInfo();
     const errors=compilation.messages.filter(m=>m.type==='error');
     if (errors.length) throw new Error(errors.map(m=>m.message).join('; '));
-    const pipeline=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'render'}});
-    const field=createHeightfield(state), imageBytes=width*height*4;
+    const pipeline=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'render',constants}});
+    const field=preparedField ?? createHeightfield(state), imageBytes=width*height*4;
     if (width*height*16>device.limits.maxStorageBufferBindingSize) throw new Error('This GPU cannot hold the selected image. Choose a smaller size.');
     device.pushErrorScope('validation');
     const uniform=buffer(144,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
     const vertices=buffer(field.vertices.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
+    const bounds=field.hierarchy??buildHierarchy(field);
+    const hierarchy=buffer(bounds.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
+    device.queue.writeBuffer(hierarchy,0,bounds);
     const accumulation=buffer(width*height*16,GPUBufferUsage.STORAGE);
     const pixels=buffer(imageBytes,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC);
     const invalid=buffer(4,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC);
@@ -50,7 +55,7 @@ export async function createTracer(state, options) {
     floats.set([field.low,field.high,Number(state.waterEnabled),state.waterLevel],24);
     uints.set([width,height,0,state.seed],28);
     device.queue.writeBuffer(uniform,0,config);
-    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[uniform,vertices,accumulation,pixels,invalid].map((b,binding)=>({binding,resource:{buffer:b}}))});
+    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[2,accumulation],[3,pixels],[4,invalid],[7,hierarchy]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
     const validation=await device.popErrorScope(); if (validation) throw new Error(validation.message);
     check();
     return {
@@ -91,13 +96,13 @@ export async function createTracer(state, options) {
       async probe(rays) {
         if (running) throw new Error('Cannot probe during a render.');
         if (!rays.length || rays.length>4096) throw new Error('Invalid probe count.');
-        const p=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'probe'}});
+        const p=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'probe',constants}});
         const input=buffer(rays.length*32,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
         const output=buffer(rays.length*16,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC);
         const read=buffer(rays.length*16,GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ);
         try {
           device.queue.writeBuffer(input,0,new Float32Array(rays.flatMap(({origin,direction})=>[...origin,0,...direction,0])));
-          const group=device.createBindGroup({layout:p.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[5,input],[6,output]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
+          const group=device.createBindGroup({layout:p.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
           const encoder=device.createCommandEncoder(), pass=encoder.beginComputePass();
           pass.setPipeline(p); pass.setBindGroup(0,group); pass.dispatchWorkgroups(Math.ceil(rays.length/64)); pass.end();
           encoder.copyBufferToBuffer(output,0,read,0,rays.length*16); device.queue.submit([encoder.finish()]);

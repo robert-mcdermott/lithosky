@@ -98,3 +98,90 @@ func TestRecoveryAPI(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestFullSculptRecovery(t *testing.T) {
+	testFullTerrainRecovery(t, "sculpted v3")
+}
+
+func TestFullMaterialRecovery(t *testing.T) {
+	testFullTerrainRecovery(t, "material rules on sculpted terrain v4")
+}
+
+func testFullTerrainRecovery(t *testing.T, fixture string) {
+	t.Helper()
+	fixtures, err := os.ReadFile("../../tests/fixtures/scenes.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases []struct {
+		Name  string
+		Scene map[string]any
+	}
+	if err := json.Unmarshal(fixtures, &cases); err != nil {
+		t.Fatal(err)
+	}
+	var document map[string]any
+	for _, c := range cases {
+		if c.Name == fixture {
+			document = c.Scene
+		}
+	}
+	if document == nil {
+		t.Fatal("missing sculpt fixture")
+	}
+	points := make([]any, 24)
+	for i := range points {
+		points[i] = []float64{1.2345678901234567e-200, -1.2345678901234567e-200}
+	}
+	strokes := make([]any, 32)
+	for i := range strokes {
+		strokes[i] = map[string]any{"tool": "smooth", "radius": 8, "strength": 1, "height": -64, "points": points}
+	}
+	document["terrain"].(map[string]any)["sculpt"] = strokes
+	data, err := json.Marshal(document)
+	if err != nil {
+		t.Fatal(err)
+	}
+	canonical, err := scene.Validate(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(data) <= 16*1024 || len(data) >= 60*1024 {
+		t.Fatalf("unexpected bounded sculpt size: %d", len(data))
+	}
+	root := t.TempDir()
+	store, err := recovery.New(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := store.ID
+	request := func(store *recovery.Store, method, path, body string) *httptest.ResponseRecorder {
+		h := New(fstest.MapFS{}, "127.0.0.1:8123", "test", &Persistence{Store: store, Token: "test-secret"})
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		r.Host = "127.0.0.1:8123"
+		r.Header.Set("X-Lithosky-Session", "test-secret")
+		r.Header.Set("Origin", "http://127.0.0.1:8123")
+		r.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	w := request(store, "PUT", "/api/autosave", `{"expectedRevision":0,"scene":`+string(data)+`}`)
+	store.Close()
+	if w.Code != 200 {
+		t.Fatal(w.Code, w.Body)
+	}
+	reopened, err := recovery.New(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer reopened.Close()
+	w = request(reopened, "GET", "/api/recovery/"+id, "")
+	if w.Code != 200 {
+		t.Fatal(w.Code, w.Body)
+	}
+	loaded, err := scene.Validate(w.Body.Bytes())
+	if err != nil || !scene.Equal(loaded, canonical) {
+		t.Fatal("full sculpt recovery differs", err)
+	}
+}

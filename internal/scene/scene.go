@@ -7,12 +7,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/robert-mcdermott/lithosky/internal/heightmap"
 	"math"
 	"reflect"
 	"unicode/utf8"
 )
 
-const MaxBytes = 16 * 1024
+const MaxBytes = 128 * 1024
 
 //go:embed schema.json
 var Schema []byte
@@ -20,6 +21,10 @@ var Schema []byte
 // Rule implements only the schema vocabulary used by our bundled scene schema.
 // It is not a general-purpose JSON Schema engine; untrusted schemas are never loaded.
 type Rule struct {
+	OneOf                []Rule          `json:"oneOf"`
+	Items                *Rule           `json:"items"`
+	MinItems             int             `json:"minItems"`
+	MaxItems             int             `json:"maxItems"`
 	Type                 string          `json:"type"`
 	Required             []string        `json:"required"`
 	Properties           map[string]Rule `json:"properties"`
@@ -41,7 +46,7 @@ var schema = func() Rule {
 
 func Validate(data []byte) ([]byte, error) {
 	if len(data) > MaxBytes {
-		return nil, errors.New("scene exceeds 16 KiB")
+		return nil, errors.New("scene exceeds 128 KiB")
 	}
 	if !utf8.Valid(data) {
 		return nil, errors.New("scene must be valid UTF-8")
@@ -50,18 +55,46 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) {
-		return nil, errors.New("unsupported scene version; this build opens version 1 only")
+	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) {
+		return nil, errors.New("unsupported scene version; this build opens versions 1, 2, 3, 4 and 5")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err
+	}
+	if obj, ok := value.(map[string]any); ok && obj["version"] == float64(5) {
+		t := obj["terrain"].(map[string]any)
+		if !heightmap.ValidHash(t["asset"].(string)) || t["minimum"].(float64) > t["maximum"].(float64) {
+			return nil, errors.New("invalid heightmap reference or range")
+		}
 	}
 	return json.Marshal(value)
 }
 
 func validate(value any, rule Rule, path string) error {
 	invalid := func(detail string) error { return fmt.Errorf("%s: %s", path, detail) }
+	if len(rule.OneOf) > 0 {
+		matches := 0
+		for _, branch := range rule.OneOf {
+			if validate(value, branch, path) == nil {
+				matches++
+			}
+		}
+		if matches != 1 {
+			return invalid("does not match a supported scene format")
+		}
+		return nil
+	}
 	switch rule.Type {
+	case "array":
+		items, ok := value.([]any)
+		if !ok || len(items) < rule.MinItems || len(items) > rule.MaxItems {
+			return invalid("array length is outside bounds")
+		}
+		for index, item := range items {
+			if err := validate(item, *rule.Items, fmt.Sprintf("%s[%d]", path, index)); err != nil {
+				return err
+			}
+		}
 	case "object":
 		obj, ok := value.(map[string]any)
 		if !ok {
@@ -120,3 +153,15 @@ func validate(value any, rule Rule, path string) error {
 }
 
 func Equal(a, b []byte) bool { return bytes.Equal(a, b) }
+
+func AssetInfo(data []byte) (string, int) {
+	var doc struct {
+		Terrain struct {
+			Asset      string
+			Resolution int
+		}
+	}
+	_ = json.Unmarshal(data, &doc)
+	return doc.Terrain.Asset, doc.Terrain.Resolution
+}
+func Asset(data []byte) string { id, _ := AssetInfo(data); return id }

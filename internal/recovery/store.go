@@ -63,6 +63,9 @@ func (s *Store) Save(expected uint64, input []byte) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
+	if err := s.checkAssets(data); err != nil {
+		return 0, err
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if expected != s.revision {
@@ -129,7 +132,14 @@ func (s *Store) read(name string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return scene.Validate(data)
+	valid, err := scene.Validate(data)
+	if err != nil {
+		return nil, err
+	}
+	if err = s.checkAssets(valid); err != nil {
+		return nil, err
+	}
+	return valid, nil
 }
 func (s *Store) Load(id string) ([]byte, error) {
 	if !validID.MatchString(id) {

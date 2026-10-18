@@ -1,20 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
+import { materialColor } from './materials.js';
+import { noise, layeredHeight } from './noise.js';
 export const defaults = Object.freeze({ seed: 1847, elevation: 1, sun: 38, palette: 'natural', yaw: 0.28, pitch: 0.3, distance: 23, waterEnabled: true, waterLevel: 0.25 });
 
-function hash(x, z, seed) {
-  let n = Math.imul(x, 374761393) ^ Math.imul(z, 668265263) ^ seed;
-  n = Math.imul(n ^ (n >>> 13), 1274126177);
-  return ((n ^ (n >>> 16)) >>> 0) / 4294967295;
-}
-function noise(x, z, seed) {
-  const ix = Math.floor(x), iz = Math.floor(z);
-  let u = x - ix, v = z - iz;
-  u = u * u * (3 - 2 * u); v = v * v * (3 - 2 * v);
-  const a = hash(ix, iz, seed), b = hash(ix + 1, iz, seed);
-  const c = hash(ix, iz + 1, seed), d = hash(ix + 1, iz + 1, seed);
-  return (a + (b - a) * u) * (1 - v) + (c + (d - c) * u) * v;
-}
 export function heightAt(x, z, state) {
+  if (state.generator === 'layers-v1') return layeredHeight(x, z, state);
   let sum = 0, amplitude = 1, frequency = 0.09;
   for (let i = 0; i < 6; i++) {
     sum += (1 - Math.abs(noise(x * frequency, z * frequency, state.seed + i * 37) * 2 - 1)) * amplitude;
@@ -34,13 +24,20 @@ export function cross(a, b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], 
 export function terrainPoint(x, z, state) {
   const h = heightAt(x, z, state), water = state.waterEnabled && h < state.waterLevel;
   const normal = water ? [0, 1, 0] : normalize([heightAt(x - 0.08, z, state) - heightAt(x + 0.08, z, state), 0.16, heightAt(x, z - 0.08, state) - heightAt(x, z + 0.08, state)]);
+  return surfacePoint(x, z, h, normal, state);
+}
+export function surfacePoint(x, z, h, normal, state) {
+  const water = state.waterEnabled && h < state.waterLevel;
+  if (water) normal = [0, 1, 0];
   let color = water ? [0.14, 0.34, 0.36] : h > 5.4 ? [0.82, 0.85, 0.82] : normal[1] < 0.78 ? [0.39, 0.41, 0.37] : h < 0.6 ? [0.5, 0.48, 0.34] : [0.28, 0.35, 0.26];
   if (state.palette === 'otherworld') color = water ? [0.28, 0.31, 0.6] : h > 5.4 ? [0.83, 0.78, 0.93] : [0.35 + h * 0.022, 0.26 + normal[1] * 0.12, 0.4 + h * 0.017];
+  if (!water && state.materials) color = materialColor(x,z,h,normal,state);
+  color = color.map(value => Math.max(0, Math.min(1, value)));
   return [x, water ? state.waterLevel : h, z, ...normal, ...color];
 }
 
-// A bounded fixture for exercising both renderers. The authoring library follows
-// in wave 2. Water is an opaque preview surface, with no optical simulation.
+// Bounded render mesh. Authoring grids are generated separately in a worker.
+// Water is an opaque preview surface, with no optical simulation.
 export function createTerrain(state, resolution = 128) {
   if (!Number.isInteger(resolution) || resolution < 2 || resolution > 256) throw new Error('Invalid preview resolution');
   const vertices = new Float32Array(resolution * resolution * 6 * 9);

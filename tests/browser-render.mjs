@@ -75,6 +75,7 @@ async (page) => {
   check(staleDownloads===0,'Stale PNG downloaded after scene edit');
   page.off('download',recordDownload); await page.evaluate(()=>window.restorePNG());
   await page.getByRole('button',{name:'Undo',exact:true}).click();
+  await page.waitForFunction(()=>!document.getElementById('render-start').disabled);
   // Cancel while adapter creation is unresolved, then reject initialization.
   await page.evaluate(()=>{
     const original=navigator.gpu.requestAdapter.bind(navigator.gpu);

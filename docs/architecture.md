@@ -45,18 +45,32 @@ haze, drawn only when parameters, camera or viewport size change. W1.S3 adds a
 bounded WebGPU compute kernel with grid traversal, sun/sky illumination, a simple
 reflective/refractive water plane and progressive linear accumulation. It owns a
 separate device and disposes its buffers at job end. Tile completion gates further
-submission; every scene edit cancels and invalidates pending output. PNG uses the
+submission; visual scene edits cancel and invalidate pending output. PNG uses the
 same tone-mapped sRGB pixels as the displayed still. The v1 scene stays independent
 of transient render options. See [rendering](rendering.md) for the algorithm,
 resource budgets, approximations and reproducible GPU checks.
+
+## Terrain generation
+
+An embedded ES module worker owns layered noise generation, bounded sculpt
+replay and dense scalar height grids. Pristine and sculpted fields are separate;
+undo stores scene parameter strings under a 4 MiB budget instead of dense grids. The editor manages a single cancellable job and rejects stale
+results. Seed/layer/resolution edits regenerate heights; elevation, palette and material rules
+reuse heights; water reuses traced terrain surfaces; camera and light changes
+submit no terrain job. Both graphics paths consume the worker's bounded 128²
+render geometry. V4 materials use original height/slope blends and seeded vertex
+color detail. A 16² block hierarchy bounds 8² cells per block for CPU/GPU traversal;
+material-only edits reuse those bounds. See [terrain authoring](terrain.md) for budgets and contracts.
 
 ## Scene and project boundaries
 
 Scene state is independent of the renderer. W1.S2 provides a validated versioned
 `.lithosky` JSON schema, grouped undo/redo, browser open/download and persistent
 recovery generations. Both validators consume the same embedded schema. See
-[scene format and recovery](scene-format.md) for storage and failure semantics. Later asset containers must
-bound expanded size, reject traversal/symlinks and migrate explicitly. Seeds
+[scene format and recovery](scene-format.md) for storage and failure semantics. W2.S4 implements fixed-entry portable containers with bounded expansion, exact
+entry names, CRC/SHA-256 checks and explicit v1-to-v5 heightmap migration. Imported
+samples live in immutable content-addressed files, outside undo/recovery JSON.
+The standard-library PNG codec preserves 16-bit grayscale samples. See [heightmaps](heightmaps.md). Seeds
 stabilize procedural generation; GPU images use numerical tolerances and record
 renderer/browser/device/build, not a promise of universal bitwise equivalence.
 

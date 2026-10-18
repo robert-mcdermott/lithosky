@@ -55,6 +55,9 @@ site build rejects stale source, mismatched scenes or changed image bytes.
 Captures must be refreshed after changes to the listed app/render sources or
 version. Gallery images may differ numerically across GPUs.
 
+The original heightmap examples are generated with `go run ./tools/examples`.
+They are data downloads, separate from the three render captures.
+
 All captures are original Lithosky procedural content under Apache-2.0. No stock,
 generated promotional imagery, third-party fonts or copied reference-app assets
 are used. The hero crops a real export in CSS; full exports are linked in the

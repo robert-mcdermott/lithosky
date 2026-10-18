@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
-import { createTerrain, frameUniforms } from './scene/terrain.js';
+import { heightmapControls } from './scene/heightmap-controls.js';
+import { MAX_PROJECT_BYTES } from './scene/heightmaps.js';
+import { frameUniforms } from './scene/terrain.js';
+import { TerrainGenerator } from './scene/generator.js';
+import { geometryKey, renderKey } from './scene/generation.js';
+import { materialControls } from './scene/material-controls.js';
+import { sculptControls } from './scene/sculpt-controls.js';
+import { terrainControls } from './scene/terrain-controls.js';
 import { selectRenderer } from './render/select.js';
 import { createWebGPU } from './render/webgpu.js';
 import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
-import { defaultScene, validateScene, parseScene, serializeScene, renderState, wrapYaw, MAX_SCENE_BYTES } from './scene/document.js';
+import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey } from './scene/document.js';
 import { validateStudies } from './scene/studies.js';
 import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
@@ -25,15 +32,21 @@ let state = renderState(history.value);
 let autosave = null, session = null, autosaveEnabled = false, changed = false, editVersion = 0;
 let downloaded = '', gestureTimer = null, connectingRecovery = false;
 const viewport = $('viewport');
-let mesh = createTerrain(state), active = null, activeKind = 'none';
-let generation = 0, redraw = 0, rebuild = 0;
-const finalRender = renderStudio(() => state, () => history.value.title);
+let mesh = null, field = null, terrainReady = false, active = null, activeKind = 'none';
+const terrainGenerator = new TerrainGenerator();
+let terrainEpoch = 0;
+let generation = 0, redraw = 0;
+const finalRender = renderStudio(() => state, () => history.value.title, () => field);
+const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const materials = materialControls(() => history.value, discrete);
+const layerControls = terrainControls(() => history.value, discrete);
+const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
 
 function draw() {
   if (redraw) return;
   redraw = requestAnimationFrame(() => {
     redraw = 0;
-    if (!active) return;
+    if (!active || !mesh) return;
     const canvas = active.canvas;
     const bounds = viewport.getBoundingClientRect();
     // A preview budget, not a claim about hardware performance.
@@ -41,7 +54,7 @@ function draw() {
     const width = Math.max(1, Math.floor(bounds.width * scale)), height = Math.max(1, Math.floor(bounds.height * scale));
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
-    try { active.draw(frameUniforms(state, width / height)); }
+    try { active.draw(frameUniforms(state, width / height)); sculpt.draw(); }
     catch (error) { void startGraphics(activeKind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   });
 }
@@ -49,7 +62,7 @@ function draw() {
 async function startGraphics(preference = $('graphics-mode').value, reasons = []) {
   const request = ++generation;
   finalRender.setAvailable(false);
-  active?.dispose(); active = null; activeKind = 'none';
+  sculpt.cancel();active?.dispose(); active = null; activeKind = 'none';sculpt.sync();
   viewport.replaceChildren();
   $('backend').textContent = 'Starting graphics…';
   $('empty-message').textContent = 'Checking available graphics…';
@@ -71,8 +84,8 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
     result.renderer?.dispose();
     return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [...result.reasons, losses.get(result.kind)]);
   }
-  active = result.renderer; activeKind = result.kind;
-  finalRender.setAvailable(activeKind === 'webgpu');
+  active = result.renderer; activeKind = result.kind;sculpt.sync();
+  finalRender.setAvailable(activeKind === 'webgpu' && terrainReady, activeKind === 'webgpu' && !terrainReady ? 'Generate terrain before rendering this scene.' : undefined);
   $('backend').textContent = result.kind === 'none' ? 'Preview unavailable' : result.kind === 'webgpu' ? 'WebGPU' : 'WebGL 2';
   $('graphics-info').textContent = active?.details || 'No active graphics backend. Your scene settings are still available.';
   $('graphics-reasons').textContent = result.reasons.join(' · ');
@@ -80,24 +93,40 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
   $('empty-message').textContent = preference === 'none' && !reasons.length ? 'GPU preview is disabled. Select Automatic under Graphics & compatibility to return to your landscape.' : 'No working GPU preview is available. Enable graphics acceleration in your browser, then use Retry graphics. Your scene settings are preserved.';
   if (active) {
     viewport.append(active.canvas);
-    try { active.setMesh(mesh); draw(); }
+    try { if (mesh) active.setMesh(mesh); draw(); }
     catch (error) { return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   }
   $('status').textContent = active ? `${$('backend').textContent} preview ready` : $('empty-message').textContent;
 }
 
-function updateGeometry() {
-  if (rebuild) return;
-  rebuild = requestAnimationFrame(() => {
-    rebuild = 0; mesh = createTerrain(state);
-    if (active) {
-      try { active.setMesh(mesh); } catch (error) { void startGraphics(activeKind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
-    }
+async function updateGeometry() {
+  const ticket=++terrainEpoch;
+  terrainReady=false;heightmaps.sync();sculpt.cancel();sculpt.sync();finalRender.setAvailable(false, 'Generating terrain before rendering…');
+  $('cancel-terrain').disabled=false;$('retry-terrain').hidden=true;
+  $('terrain-progress').value=0;
+  $('terrain-status').textContent='Generating terrain… The previous preview stays visible.';
+  try {
+    const result=await terrainGenerator.generate(state, progress=>{if(ticket===terrainEpoch)$('terrain-progress').value=progress;});
+    if(ticket!==terrainEpoch)return;
+    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;heightmaps.sync();sculpt.sync();
+    $('terrain-progress').value=1;
+    $('terrain-status').textContent=result.heightsChanged?'Terrain ready.':result.surfaceChanged?'Surface updated · heights reused.':'Water updated · terrain surface reused.';
+    $('geometry').textContent=`${result.resolution}² terrain cells · 128² render mesh · 32,768 triangles`;
+    finalRender.setAvailable(activeKind==='webgpu');
+    if(active) {try {active.setMesh(mesh);} catch(error) {void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}
     draw();
-  });
+  } catch(error) {
+    if(ticket!==terrainEpoch)return;
+    $('terrain-status').textContent=error.name==='AbortError'?'Generation canceled. Regenerate to preview these settings.':'Terrain generation failed: '+error.message;
+    $('retry-terrain').hidden=false;
+    finalRender.setAvailable(false, 'Generate terrain before rendering this scene.');
+  } finally {if(ticket===terrainEpoch)$('cancel-terrain').disabled=true;}
 }
+$('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
+$('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;
@@ -107,18 +136,18 @@ function syncControls() {
   $('water-value').textContent = scene.water.level.toFixed(2);
   $('elevation-value').textContent = state.elevation.toFixed(2) + '×';
   $('sun-value').textContent = state.sun + '°';
-  $('study-select').value = studies.find(study => JSON.stringify(scene) === JSON.stringify(study.scene))?.id || '';
+  $('study-select').value = studies.find(study => sceneKey(scene) === sceneKey(study.scene))?.id || '';
   $('undo').disabled = !history.canUndo; $('redo').disabled = !history.canRedo;
   document.querySelectorAll('.study').forEach(b => {
-    const selected = JSON.stringify(history.value) === JSON.stringify(presetScene(b.dataset.preset));
+    const selected = sceneKey(history.value) === sceneKey(presetScene(b.dataset.preset));
     b.classList.toggle('active', selected); b.setAttribute('aria-pressed', String(selected));
   });
 }
 function refresh() {
-  finalRender.invalidate();
   const next = renderState(history.value);
-  const geometryChanged = ['seed', 'elevation', 'palette', 'waterEnabled', 'waterLevel'].some(key => state[key] !== next[key]);
-  state = next; syncControls();
+  const geometryChanged = geometryKey(state) !== geometryKey(next);
+  if (renderKey(state) !== renderKey(next)) finalRender.invalidate();
+  sculpt.cancel();state = next; syncControls();
   if (geometryChanged) updateGeometry(); else draw();
   changed = true; editVersion++;
   if (autosaveEnabled) autosave.enqueue(history.value);
@@ -187,6 +216,11 @@ viewport.addEventListener('keydown', e => {
 viewport.addEventListener('keyup', finishGesture);
 viewport.addEventListener('blur', finishGesture);
 
+async function assetRequest(path,options={}) {
+  const token=session?.token??(await (await fetch('/api/session')).json()).token;
+  const response=await fetch(path,{method:'POST',...options,headers:{'Content-Type':'application/octet-stream','X-Lithosky-Session':token,...options.headers},signal:AbortSignal.timeout(60000)});
+  if(!response.ok)throw new Error((await response.text()).trim());return response;
+}
 async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers: { 'X-Lithosky-Session': session.token, ...options.headers }, signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error((await response.text()).trim());
@@ -249,24 +283,29 @@ $('scene-file').addEventListener('change', async () => {
   $('scene-file').value = ''; if (!file) return;
   $('open-scene').disabled = true;
   try {
-    if (file.size > MAX_SCENE_BYTES) throw new Error('Scene exceeds 16 KiB.');
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
-    const imported = parseScene(text, schema);
+    if (file.size > MAX_PROJECT_BYTES) throw new Error('Scene container exceeds 20 MiB.');
+    const bytes=await file.arrayBuffer();
+    const imported=validateScene(await (await assetRequest('/api/project/open',{body:bytes})).json(),schema);
     if (before !== editVersion) throw new Error('The scene changed while opening. Please open the file again.');
     finishGesture(); if (history.replace(imported)) refresh();
     $('file-status').textContent = 'Opened ' + file.name + '. Undo restores the previous scene.';
   } catch (error) { $('file-status').textContent = 'Could not open scene: ' + error.message; }
   finally { $('open-scene').disabled = false; }
 });
-function downloadScene() {
+async function downloadScene() {
+  if($('save-scene').disabled)return;
+  $('save-scene').disabled=true;
+  try {
   finishGesture();
   const scene = history.value;
-  const url = URL.createObjectURL(new Blob([serializeScene(scene, schema)], { type: 'application/json' }));
+  const blob=scene.version===5?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a'); anchor.href = url;
   anchor.download = (scene.title.replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '').slice(0, 60) || 'landscape') + '.lithosky';
   anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 30000);
   downloaded = JSON.stringify(scene);
   $('file-status').textContent = 'Download requested: ' + anchor.download;
+  }catch(error){$('file-status').textContent='Could not save scene: '+error.message;}finally{$('save-scene').disabled=false;}
 }
 $('save-scene').addEventListener('click', downloadScene);
 window.addEventListener('keydown', e => {
@@ -284,9 +323,9 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && aut
 void connectRecovery();
 $('help').addEventListener('click', () => $('guide').showModal());
 new ResizeObserver(draw).observe(viewport);
-window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
-window.addEventListener('pageshow', e => { if (e.persisted) void startGraphics(); });
-$('geometry').textContent = `${(mesh.length / 27).toLocaleString()} triangles · Seeded terrain`;
+window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; sculpt.cancel(); terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
+window.addEventListener('pageshow', e => { if (e.persisted) {void updateGeometry();void startGraphics();} });
+void updateGeometry();
 syncControls();
 void startGraphics();
 fetch('/api/info').then(r => { if (!r.ok) throw new Error('Build information unavailable'); return r.json(); }).then(info => { $('build-info').textContent = `Lithosky ${info.version}`; }).catch(() => { $('build-info').textContent = 'Lithosky · build information unavailable'; });

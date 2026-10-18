@@ -14,6 +14,8 @@ struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
 @group(0) @binding(4) var<storage, read_write> invalid: atomic<u32>;
 @group(0) @binding(5) var<storage, read> rays: array<vec4f>;
 @group(0) @binding(6) var<storage, read_write> probes: array<vec4f>;
+@group(0) @binding(7) var<storage, read> hierarchy: array<vec2f>;
+override useHierarchy: bool = true;
 fn miss() -> Hit { return Hit(1e6,vec3f(0,1,0),vec3f(0),vec3f(0,1,0)); }
 fn triangle(o: vec3f, d: vec3f, ia: u32, ib: u32, ic: u32, limit: f32) -> Hit {
   let a=vertices[ia]; let b=vertices[ib]; let c=vertices[ic];
@@ -25,15 +27,14 @@ fn triangle(o: vec3f, d: vec3f, ia: u32, ib: u32, ic: u32, limit: f32) -> Hit {
   return Hit(t,normalize(a.normal.xyz*(1-u-w)+b.normal.xyz*u+c.normal.xyz*w),
     clamp(a.color.xyz*(1-u-w)+b.color.xyz*u+c.color.xyz*w,vec3f(0),vec3f(1)),normalize(cross(e1,e2)));
 }
-fn terrain(o: vec3f, d: vec3f, limit: f32) -> Hit {
-  let lo=vec3f(-32,config.bounds.x-.001,-32); let hi=vec3f(32,config.bounds.y+.001,32);
+fn cells(o: vec3f, d: vec3f, limit: f32, lo: vec3f, hi: vec3f, first: vec2i, last: vec2i) -> Hit {
   var near=.001; var far=limit;
   for (var axis=0u; axis<3u; axis++) {
     if (abs(d[axis])<1e-8) { if (o[axis]<lo[axis] || o[axis]>hi[axis]) { return miss(); } }
     else { let a=(lo[axis]-o[axis])/d[axis]; let b=(hi[axis]-o[axis])/d[axis]; near=max(near,min(a,b)); far=min(far,max(a,b)); }
   }
   if (far<near) { return miss(); }
-  var cell=clamp(vec2i(floor((o.xz+d.xz*near+32)/.5)),vec2i(0),vec2i(127));
+  var cell=clamp(vec2i(floor((o.xz+d.xz*near+32)/.5)),first,last-vec2i(1));
   let step=select(vec2i(-1),vec2i(1),d.xz>=vec2f(0));
   var delta=vec2f(1e30); var next=vec2f(1e30);
   for (var axis=0u; axis<2u; axis++) {
@@ -43,8 +44,9 @@ fn terrain(o: vec3f, d: vec3f, limit: f32) -> Hit {
       next[axis]=(f32(cell[axis]+select(0,1,step[axis]>0))*.5-32-o[axis*2u])/dir;
     }
   }
-  // A ray crosses at most 128 X cells + 128 Z cells. No unbounded marching.
-  for (var iteration=0u; iteration<258u; iteration++) {
+  // At most 18 cell steps per 8² leaf, or 258 for the linear diagnostic.
+  let maxSteps=u32(last.x-first.x+last.y-first.y+2);
+  for (var iteration=0u; iteration<maxSteps; iteration++) {
     let end=min(far,min(next.x,next.y)); let a=u32(cell.y)*129u+u32(cell.x);
     var h=triangle(o,d,a,a+129u,a+1u,end+1e-4);
     let second=triangle(o,d,a+1u,a+129u,a+130u,end+1e-4);
@@ -54,7 +56,41 @@ fn terrain(o: vec3f, d: vec3f, limit: f32) -> Hit {
     let advance=next<=next.yx;
     if (advance.x) { cell.x+=step.x; next.x+=delta.x; }
     if (advance.y) { cell.y+=step.y; next.y+=delta.y; }
-    if (any(cell<vec2i(0)) || any(cell>=vec2i(128))) { return miss(); }
+    if (any(cell<first) || any(cell>=last)) { return miss(); }
+  }
+  return miss();
+}
+fn terrain(o: vec3f, d: vec3f, limit: f32) -> Hit {
+  let lo=vec3f(-32,config.bounds.x-.001,-32); let hi=vec3f(32,config.bounds.y+.001,32);
+  if (!useHierarchy) { return cells(o,d,limit,lo,hi,vec2i(0),vec2i(128)); }
+  var near=.001; var far=limit;
+  for (var axis=0u; axis<3u; axis++) {
+    if (abs(d[axis])<1e-8) { if (o[axis]<lo[axis] || o[axis]>hi[axis]) { return miss(); } }
+    else { let a=(lo[axis]-o[axis])/d[axis]; let b=(hi[axis]-o[axis])/d[axis]; near=max(near,min(a,b)); far=min(far,max(a,b)); }
+  }
+  if (far<near) { return miss(); }
+  var block=clamp(vec2i(floor((o.xz+d.xz*near+32)/4)),vec2i(0),vec2i(15));
+  let step=select(vec2i(-1),vec2i(1),d.xz>=vec2f(0));
+  var delta=vec2f(1e30); var next=vec2f(1e30);
+  for (var axis=0u; axis<2u; axis++) {
+    let dir=d[axis*2u];
+    if (abs(dir)>=1e-8) { delta[axis]=4/abs(dir);next[axis]=(f32(block[axis]+select(0,1,step[axis]>0))*4-32-o[axis*2u])/dir; }
+  }
+  // At most 16 X + 16 Z block crossings. Empty height intervals skip 8² cells.
+  for (var iteration=0u; iteration<34u; iteration++) {
+    let end=min(far,min(next.x,next.y));let heights=hierarchy[u32(block.y)*16u+u32(block.x)];
+    let y0=o.y+d.y*near;let y1=o.y+d.y*end;
+    if (max(y0,y1)>=heights.x-.001 && min(y0,y1)<=heights.y+.001) {
+      let corner=vec2f(block)*4-32;
+      let h=cells(o,d,min(limit,end+1e-4),vec3f(corner.x,heights.x-.001,corner.y),vec3f(corner.x+4,heights.y+.001,corner.y+4),block*8,(block+vec2i(1))*8);
+      if (h.t<1e6) { return h; }
+    }
+    if (end>=far) { return miss(); }
+    let advance=next<=next.yx;
+    if (advance.x) { block.x+=step.x;next.x+=delta.x; }
+    if (advance.y) { block.y+=step.y;next.y+=delta.y; }
+    if (any(block<vec2i(0)) || any(block>=vec2i(16))) { return miss(); }
+    near=end;
   }
   return miss();
 }

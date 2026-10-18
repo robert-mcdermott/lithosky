@@ -30,7 +30,7 @@ Choose a starter scene. Drag to orbit; scroll to zoom. With the view focused,
 arrow keys orbit, +/− zoom, and Home resets the camera. Adjust height, water and
 sun. Render image progressively traces a 16:9 still at 640 × 360 or 960 × 540,
 with 8–64 samples. Cancel retains the last complete sample. Export PNG saves
-that image; any scene edit clears the old render.
+that image; visual scene edits clear the old render; renaming keeps it.
 
 Save scene downloads a portable .lithosky file; Open restores it. Save creates
 a new download, not an update to an earlier file. Undo/Redo applies to scene
@@ -51,3 +51,23 @@ terms in GO-LICENSE. No third-party application libraries or remote assets are
 included. The installed browser and graphics driver are separate prerequisites.
 
 Source and documentation: https://github.com/robert-mcdermott/lithosky
+
+Build with layers creates v2 terrain from fBm, ridges, domain warp and terraces.
+Generation runs in a cancellable worker at 256²–2048² cells; preview and stills
+currently use a shared 128² mesh. Existing v1 scenes open unchanged.
+
+Layered terrain supports Raise, Lower, Smooth and Flatten. Drag and release to
+apply one undoable stroke; arrow keys position the brush and Space applies it.
+Escape discards an unfinished stroke. V3 files retain up to 32 strokes of 24
+marks each; Clear sculpting is undoable. The history snapshot budget is 4 MiB.
+
+Choose Customize surface for height/slope material rules or Rock, Snow, Sand and
+Ground presets. Color detail adds local seeded variation. Customized surfaces
+save as v4, preserving the original or layered/sculpted terrain; earlier scene
+versions remain supported. The preview and tracer share the same surface mesh.
+
+Import heightmap accepts 16-bit grayscale PNG or a heightmap bundle with scale
+metadata. Export heightmap creates a ZIP containing height.png and scale.json.
+Save scene includes imported samples in a portable v5 .lithosky container. Older
+JSON scenes remain supported. Imported data stays local; keep portable backups
+before cleaning the recovery directory and its referenced height assets.

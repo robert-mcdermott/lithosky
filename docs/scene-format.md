@@ -1,7 +1,9 @@
 # Scene files and recovery
 
-Wave 1, slice 2 introduces `.lithosky`: a UTF-8 JSON document, version 1, limited
-to 16 KiB. The authoritative [JSON Schema](../internal/scene/schema.json) is
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5 asset-backed
+files use a portable ZIP container limited to 20 MiB. This build opens v1
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials and v5 imported heightmaps. The authoritative
+[JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
 same acceptance fixtures; they never fetch schemas or execute scene content.
@@ -45,9 +47,95 @@ future generator/camera changes need an explicit format migration or identifier.
 There was no released file format before v1. Unknown versions and generator IDs
 fail without changing the open scene. No implicit downgrade strips future data.
 
+## Version 2 layered terrain
+
+V2 keeps the root, camera, water and lighting fields above, but requires version
+`2` and generator `layers-v1`. Terrain also requires `resolution` (one of
+256, 512, 1024, 2048) and `layers` (1–8 entries). Each layer requires:
+
+- `kind`: `fbm`, `ridge`, `warp` or `terrace`.
+- `enabled`: boolean; disabled entries are retained in files.
+- `strength`: 0–1; `scale`: 0.25–8; `octaves`: integer 1–8.
+
+All layer fields are required, including octaves for terraces (retained but not
+used). Scale means noise-frequency multiplier, or terrace step height. Unknown
+fields/kinds, empty stacks and unsupported budgets fail validation. The bundled
+schema uses `oneOf` for version branches and bounded arrays for layers; both
+validators implement these rules. See [terrain](terrain.md) for interpretation.
+
+Opening v1 does not migrate it. **Build with layers** explicitly replaces its
+landform and upgrades to v2 as an undoable edit. Starter selection can replace a
+v2 composition with a v1 study. There is no automatic conversion of layered
+heights to the legacy generator, and older builds reject v2 rather than lose data.
+
+## Version 3 sculpted terrain
+
+V3 requires version `3` and the v2 layered terrain fields, plus `terrain.sculpt`.
+This is an ordered array of 0–32 strokes; each stroke requires exactly:
+
+- `tool`: `raise`, `lower`, `smooth` or `flatten`.
+- `radius`: 0.5–8 scene units; `strength`: 0.05–1.
+- `height`: −64 to 64, the fixed flatten target before Mountain height scaling.
+  It is retained but unused for the other tools.
+- `points`: 1–24 pairs `[x,z]`, each coordinate within −32 to 32.
+
+The first applied stroke upgrades v2 to v3 as one undoable edit. Clearing strokes
+keeps v3 with an empty array. V1 must first be explicitly replaced with layered
+terrain through Build with layers. No automatic upgrade changes existing files.
+Older builds reject v3. The [sculpt contract](terrain.md#sculpting) fixes replay
+order and brush math; parameters are saved instead of dense height assets.
+
+The file/body cap increases from 16 to 128 KiB for these bounded stroke records.
+Serialization uses readable JSON, falling back to compact JSON if needed to stay
+within the file cap. The largest valid stroke log's compact autosave request stays
+below 60 KiB, leaving space under the browser's keepalive body budget. HTTP writes
+are bounded to the scene cap plus 1 KiB of envelope; recovery reads share the cap.
+
+## Version 4 surface materials
+
+V4 requires version `4`, a new root `surface` object and either the original
+v1 terrain fields or all v3 layered/sculpted terrain fields. The explicit
+**Customize surface** action preserves the current generator; layered terrain
+without sculpting receives an empty stroke list. Opening older files does not
+upgrade them. Building layers or sculpting a v4 scene retains its surface settings
+and version. Older builds reject v4 instead of stripping those settings.
+
+Every `surface` property is required; unknown properties are rejected:
+
+| Property | Contract |
+|---|---|
+| `preset` | `rules`, `rock`, `snow`, `sand` or `ground` |
+| `snowHeight`, `sandHeight` | −64…64 world-height units, after elevation scaling |
+| `rockSlope` | 0…90 degrees from the vertical smooth normal |
+| `blend` | 0.05…4 transition softness |
+| `detail` | 0…1 color variation strength |
+| `detailScale` | 0.25…4 world-space frequency multiplier |
+
+Single-material presets retain rule values for switching back. Detail affects
+color only. The [surface interpretation](terrain.md#surface-materials) is fixed
+by v4. No images, remote textures or executable shader content enter scene files.
+The 128 KiB file limit and bounded compact recovery payload continue to apply.
+
+## Version 5 imported terrain
+
+V5 uses generator heightmap-v1, retains seed/elevation/palette, and requires a
+resolution (128, 256, 512, 1024 or 2048 cells), a sculpt array and an asset reference.
+The reference is a 64-character lowercase SHA-256 string. Minimum and maximum
+base heights are finite within −64…64, with minimum ≤ maximum. Metres per scene
+unit is finite within 0.001…100000. The JSON properties are named asset, minimum,
+maximum and metersPerUnit. An optional root surface object uses the v4 contract.
+
+The manifest retains the 128 KiB limit. A portable scene contains exactly
+scene.json and heightmap.bin, with no external URLs or paths. Its raw unsigned
+16-bit big-endian sample count and checksum must match the manifest. Both the
+Go and JavaScript validators enforce reference syntax and range relationships in
+addition to the bundled schema. Open rejects bare v5 manifests. Recovery uses
+small JSON manifests referencing immutable local assets; the two formats have
+different portability guarantees. See [heightmap format and storage](heightmaps.md).
+
 ## Open, save and history
 
-**Open…** reads a local file with the browser picker. Byte size, UTF-8 and schema
+**Open…** reads a local file with the browser picker. Byte size, container contents, UTF-8 and schema
 are checked before applying anything. Failed imports do not mutate scene or undo
 history. A file that finishes loading after another edit is rejected for retry,
 so delayed reads cannot silently erase new work. Open and Restore are undoable.
@@ -56,13 +144,18 @@ so delayed reads cannot silently erase new work. Open and Restore are undoable.
 The browser decides the download destination and any duplicate-name suffix. It
 does not overwrite an earlier scene file in place. The UI says “Download
 requested”; it cannot confirm that a user accepted a browser download dialog.
-Open also has Ctrl/⌘ O. Files contain parameters only, with no external URLs,
-paths, scripts, textures or additional assets.
+Open also has Ctrl/⌘ O. Procedural files contain parameters only. V5 containers additionally include one
+validated height asset. External URLs, filesystem paths and scripts are forbidden.
 
 Undo/Redo use Ctrl/⌘ Z, Ctrl/⌘ Shift Z, or Ctrl Y, except within text/number fields
 where native text undo is retained. Pointer camera drags, repeated camera keys,
-wheel bursts and slider gestures become single edits. Up to 100 scene snapshots
-are retained in memory. New edits clear the redo branch; history is not saved in
+wheel bursts and slider gestures become single edits. At most 100 undo/redo
+snapshots are retained within a combined 4 MiB budget
+(including an active gesture baseline), counted as two bytes per string code unit.
+Oldest undo entries are discarded first; if necessary, farthest redo entries are
+discarded next. The current scene is separate. Snapshots contain validated scene
+JSON, never dense grids. One released sculpt stroke is one history entry. New
+edits clear the redo branch; history is not saved in
 project/recovery files. GPU backend changes are workspace preferences, not edits.
 
 ## Local autosave

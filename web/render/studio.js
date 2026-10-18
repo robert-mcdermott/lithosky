@@ -3,7 +3,7 @@ import { createTracer } from './tracer.js';
 
 // Epoch checks cover pipeline creation, GPU completion, readback and PNG encoding.
 // Only a complete sample from the current scene may be shown or exported.
-export function renderStudio(getState, getTitle) {
+export function renderStudio(getState, getTitle, getField = () => null) {
   const $=id=>document.getElementById(id), canvas=$('render-image');
   let epoch=0, controller=null, snapshot=null, available=false, busy=false;
   const options=()=>({width:Number($('render-size').value),height:Number($('render-size').value)*9/16,samples:Number($('render-samples').value)});
@@ -32,7 +32,7 @@ export function renderStudio(getState, getTitle) {
     $('render-progress').max=settings.samples;
     let renderer;
     try {
-      renderer=await createTracer(state,settings);
+      renderer=await createTracer(state,settings,getField());
       if (ticket!==epoch) return;
       if (abort.signal.aborted) { $('render-status').textContent='Canceled before the first sample.'; return; }
       $('render-status').textContent='Rendering the first sample…';
@@ -69,7 +69,7 @@ export function renderStudio(getState, getTitle) {
       if (ticket!==epoch) return;
       if (!blob) throw new Error('PNG encoding failed.');
       const url=URL.createObjectURL(blob), anchor=document.createElement('a'); anchor.href=url;
-      anchor.download=(image.title.replace(/[^a-z0-9_-]+/gi,'-').replace(/^-|-$/g,'').slice(0,60)||'landscape')+`-${image.width}x${image.height}-${image.samples}spp.png`;
+      anchor.download=(getTitle().replace(/[^a-z0-9_-]+/gi,'-').replace(/^-|-$/g,'').slice(0,60)||'landscape')+`-${image.width}x${image.height}-${image.samples}spp.png`;
       anchor.click(); setTimeout(()=>URL.revokeObjectURL(url),30000);
       $('render-status').textContent='PNG download requested · '+image.samples+' samples · sRGB';
     } catch(error) { if (ticket===epoch) $('render-status').textContent=error.message; }
@@ -78,6 +78,7 @@ export function renderStudio(getState, getTitle) {
   for (const id of ['render-size','render-samples']) $(id).addEventListener('change',()=>invalidate('Render settings changed. Start a new render.'));
   return {
     invalidate,
-    setAvailable(value) { available=value; invalidate(value?'Ready to render a 16:9 still.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.'); },
+    preview() { if (busy) invalidate('Render stopped for terrain editing.'); else showRender(false); },
+    setAvailable(value, message) { available=value; invalidate(message ?? (value?'Ready to render a 16:9 still.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.')); },
   };
 }

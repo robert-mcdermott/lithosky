@@ -1,0 +1,10 @@
+{
+  "format": "lithosky-heightmap",
+  "version": 1,
+  "resolution": 256,
+  "minimum": -3,
+  "maximum": 8,
+  "metersPerUnit": 10,
+  "elevation": 1,
+  "rowOrder": "z-increasing"
+}

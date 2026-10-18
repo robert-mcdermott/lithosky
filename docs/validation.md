@@ -233,3 +233,254 @@ remote run, and real browser/GPU checks on those platforms remain release gates.
 No signing/notarization, public hosting or release publication occurred. W1.S4
 implementation is committed independently; the open acceptance checks keep wave 1
 in progress and are not silently deferred into wave 2.
+
+## Wave 2, slice 1 — layered terrain and worker generation
+
+Completed locally on 2026-10-18, build `0.2.0-dev.1`, macOS arm64, Go 1.26.6,
+Node 22.17 and Chrome 155 with Apple Metal 3 graphics. This is slice validation;
+wave 1 native Windows/Linux release gates remain open.
+
+- `npm test`: all 66 tests pass. Shared Go/JavaScript scene fixtures cover v1/v2,
+  version/generator mismatches, missing/unknown layer fields, layer count and
+  parameter/resolution bounds. Fixed Float32 SHA-256 fixtures cover seeds 0,
+  1847 and 4294967295. Composition order, disabled layers and negative terraces
+  are checked independently.
+- Terrain tests allocate every supported scalar grid through 2048² cells,
+  verify bounded storage, cancel partial generation, reject stale worker results,
+  exercise worker errors/retry and check height/surface invalidation separately.
+  Legacy preview and traced buffers match exactly, including a water boundary
+  at a rounded vertex height. Disabled-layer settings and scene metadata retain
+  visual resources; camera/light changes submit no terrain job.
+- `go test -race ./...` and `go vet ./...` pass. The standalone binary smoke
+  runs outside the checkout, verifies every embedded asset (including workers),
+  checks authenticated persistence/restart, and tests launcher process cleanup.
+- `tests/browser-terrain.mjs` passes: layer addition/edit/toggle/reorder/undo,
+  v2 file download/reopen and autosave/recovery, selective invalidation, 2048²
+  cancellation, injected worker startup failure and successful retry, PNG export,
+  WebGL fallback and 390-pixel mobile layout. No page errors. Desktop/mobile
+  screenshots and a layered PNG were visually inspected in ignored
+  `output/playwright/`.
+- The tested four-layer 2048² generation/retry took roughly 1.3–1.6 seconds,
+  with 160–188 animation frames observed during that interval. This is a local
+  observation, not a cross-device performance guarantee. The largest scalar
+  grid is 16.02 MiB; the documented generation typed-array working allowance is
+  about 45 MiB, excluding browser/GC/GPU overhead.
+- For 100 layered vertical probe rays, CPU/GPU hit distances differed by at most
+  0.00000191 scene units. The layered 640 × 360 / eight-sample still completed in
+  about 0.4 seconds locally, with finite output.
+- `tests/browser-render.mjs` also passes: 1,024 legacy GPU intersection probes
+  (worst difference about 0.0000108 units), PNG decode/display pixel equality,
+  cancellation during initialization and accumulation, stale export rejection,
+  initialization failure/device loss/retry, extreme water/camera fixtures and
+  compatibility fallback. Eight-sample 640/960 renders took about 0.5/0.8 seconds.
+- All three original gallery images were recaptured at 960 × 540 / 64 samples;
+  their image hashes remain unchanged. The studio screenshot and capture source
+  provenance were refreshed. `npm run site` and `npm run site:check` pass for
+  four pages, 85 local links and nine image references. The guide describes
+  layered terrain and its current render limit.
+
+Generation resolution and render resolution remain separate: layered grids span
+256²–2048² cells, but both preview and final output use the same 128² mesh.
+High-resolution traversal, sculpting and heightmap files belong to later slices.
+No dependency was added, no private research was committed, and no release,
+website deployment or remote CI run was performed.
+
+## Wave 2, slice 2 — terrain sculpting and bounded history
+
+Completed locally on 2026-10-18, build `0.2.0-dev.2`, macOS arm64, Go 1.26.6,
+Node 22.17 and Chrome 155 with Apple Metal 3 graphics. Wave 1 native
+Windows/Linux release gates remain open.
+
+- `npm test`: all 90 tests pass. New coverage checks localized raise/lower,
+  flatten convergence, symmetric smoothing, edge handling, immutable source
+  grids, cancellation, spatial stroke spacing, height clamps, exact replay after
+  undo/redo/reopen, camera picking and projection, and finite material colors in
+  deep sculpted depressions. Shared scene fixtures cover the v3 contract and
+  invalid tools, coordinates, parameter ranges, stroke counts and mark counts.
+- `go test -race ./...` and `go vet ./...` pass. The standalone executable smoke
+  test includes embedded assets and authenticated recovery. A full 32-stroke,
+  24-mark-per-stroke document exceeding the former 16 KiB limit survives save,
+  store restart and exact canonical recovery. The smoke test requires loopback
+  socket access; its sandbox-denied attempt passed when rerun with that access.
+- `tests/browser-sculpt.mjs` passes: a real pointer drag creates one undoable
+  stroke without moving the camera; SHA-256 comparisons confirm exact rendered
+  heightfield restoration through Undo/Redo. Escape, pointer cancellation and
+  window blur discard staged strokes. Keyboard lower/smooth/flatten operations
+  alter the heightfield. File download/reopen, clear/undo, autosave/recovery,
+  stroke-limit enforcement, WebGL sculpting and 390-pixel mobile layout pass.
+  An eight-sample 640 × 360 sculpted still completed in about 0.5 seconds.
+  No page errors occurred. Desktop/mobile controls and rendered output were
+  visually inspected; local evidence remains in ignored `output/playwright/`.
+- Memory tests exercise 2048² sculpting and long edit/undo/redo/group/branch
+  sequences. History snapshots stay within 4 MiB and 100 entries. Scene logs
+  allow at most 32 strokes with 24 spatial marks each; full logs fit the
+  128 KiB file limit and compact recovery payloads remain below 60 KiB. The
+  largest generation typed-array working allowance is approximately 63 MiB,
+  excluding browser/GC/GPU overhead. Sculpt edits reuse the pristine noise grid.
+- `tests/browser-terrain.mjs` passes again: layer edits, worker cancellation,
+  retry, persistence, selective invalidation and compatibility checks. The
+  tested 2048² generation took about 1.4 seconds with 168 animation frames;
+  layered CPU/GPU probe distances differed by at most 0.00000191 scene units.
+- `tests/browser-render.mjs` passes again: 1,024 legacy intersection probes
+  (worst difference about 0.0000108 units), PNG decode/display pixel equality,
+  cancellation, initialization/device-loss recovery, stale export rejection,
+  water/camera extremes and WebGL/mobile fallback. No page errors occurred.
+- The three original gallery renders were recaptured at 960 × 540 / 64 samples
+  with unchanged image hashes. The studio screenshot and source provenance were
+  refreshed from the final build. `npm run site` and `npm run site:check` pass:
+  four pages, 85 local links and nine image references.
+
+Strokes apply on release; the terrain-following outline previews their footprint
+while dragging. Sculpting requires layered terrain. Generation supports
+256²–2048² cells, while preview and final tracing still share the 128² mesh.
+These are local results, not cross-platform performance guarantees. No dependency
+was added, private research committed, site published or release created.
+
+## Wave 2, slice 3 — surface materials and hierarchical traversal
+
+Completed locally on 2026-10-18, build `0.2.0-dev.3`, macOS arm64, Go 1.26.6,
+Node 22.17 and Chrome 155 with Apple Metal 3 graphics. Native Windows/Linux
+release gates remain open.
+
+Final checks passed: all 115 JavaScript tests, `go test -race ./...` and
+`go vet ./...`. The standalone smoke test verifies the final embedded assets
+and recovery lifecycle. `npm run site` and `npm run site:check` validate four
+pages, 86 local links and nine image references. All three gallery renders were
+recaptured at 960 × 540 / 64 samples with unchanged image hashes; the studio
+screenshot and final source provenance were refreshed.
+
+Material checks cover height/slope blending, all four base presets, both palettes,
+seeded detail repeatability, finite reflectance at extreme heights, and continuity
+at transitions. Worker checks confirm material edits reuse pristine/sculpted
+heights and hierarchy bounds while preview and final vertex positions, normals
+and colors agree. Shared Go/JavaScript fixtures accept v4 original and sculpted
+terrain and reject missing, unknown, out-of-range and incorrectly typed surface
+fields. Full sculpt logs with v4 materials fit the file and compact autosave
+budgets; authenticated save and recovery-store restart preserve their exact
+canonical scene data.
+
+CPU hierarchy tests compare exhaustive triangles for silhouette, grazing,
+boundary, inside and finite shadow rays, plus a deterministic 2,000-ray sweep
+against linear traversal. A single-cell peak remains visible at grazing angles.
+Every block encloses all rounded vertices including shared edges. Bounds require
+2,048 bytes; traversal visits at most 34 blocks and 18 cells per intersected
+block. The 128² render field uses 798,768 vertex bytes. Existing generation
+budgets remain unchanged; render allocations add only the 2 KiB bounds buffer.
+
+`tests/browser-materials.mjs` passed on the final build: surface enable/preset/rule
+edits, numeric validation, undo/redo, layer conversion with retained materials,
+sculpting, v4 download/reopen, autosave/recovery, stale-render invalidation and
+mobile WebGL editing. Recovery assertions wait for the asynchronous restore to
+complete. The stale legacy sculpt hint discovered after restoring layered terrain
+was fixed and checked. Desktop/mobile controls and the actual exported material
+render were visually inspected. No page errors occurred.
+
+The GPU comparison used 734 rays on each of three fields (2,202 rays per traversal
+route), including camera silhouettes, near-horizontal rays, block edges and a
+single-cell peak. Maximum CPU/GPU hit-distance difference was 0.00000946 scene
+units. Hierarchical and linear routes produced identical RGBA pixels on all
+three eight-sample 640 × 360 renders.
+
+| Fixture | Linear fine-cell tests | Hierarchical fine-cell tests | Linear render median | Hierarchical render median |
+|---|---:|---:|---:|---:|
+| Original terrain | 18,559 | 2,520 | 376.5 ms | 318.4 ms |
+| Sculpted material scene | 12,236 | 3,041 | 330.1 ms | 317.5 ms |
+| Single-cell peak | 28,505 | 1,213 | 409.9 ms | 284.5 ms |
+
+Counts cover the diagnostic rays, not all image rays. Timings are the final
+local run: both routes warmed once, then three timed pairs with alternating order.
+They include dispatch, readback and JavaScript scheduling and exclude compilation.
+Earlier runs varied, including a slower hierarchical result on ordinary terrain;
+these figures are observations, not a universal speedup or cross-device promise.
+The stable result is fewer fine-cell tests with matching geometry and output.
+
+The existing browser suites also passed with the final traversal:
+
+- Renderer: 1,024 legacy intersection probes, PNG pixel equality, cancellation,
+  initialization failure, device loss/retry, stale export rejection, water/camera
+  extremes and WebGL/mobile fallback. Worst hit-distance difference was about
+  0.0000108 units; eight-sample 640/960 renders took roughly 0.4/0.8 seconds.
+- Terrain worker: layer editing, selective invalidation, persistence,
+  cancellation/failure/retry, 2048² generation and UI responsiveness. The largest
+  grid took about 1.42 seconds with 171 animation frames observed. Layered GPU
+  parity differed by at most 0.00000191 units.
+- Sculpting: pointer and keyboard tools, Escape/pointer/focus cancellation,
+  exact heightfield undo/redo, clear/restore, file/recovery persistence, stroke
+  caps and mobile WebGL. The sculpted eight-sample still took about 0.4 seconds.
+
+Preview and final geometry remain the same 128² mesh. Procedural detail changes
+vertex reflectance, not geometry or normals; high-resolution rendered geometry,
+texture/bump mapping and physical material BRDFs are outside this slice. No
+application dependency was added, private research committed, release published
+or remote CI run performed. W2.S4 has not started.
+
+## Wave 2, slice 4 — heightmap interchange and portable assets
+
+Validated 2026-10-18 on macOS arm64, Go 1.26.6, Node 22.17.0 and Chrome
+155 with Apple Metal 3. Current source: `0.2.0-dev.4`. All four wave 2 slices
+are implemented locally. The native Windows/Linux release gates remain open;
+this is not a published v0.2.0 release.
+
+Passed `go test -race ./...`, `go vet ./...`, all 130 Node tests, and
+`git diff --check`. The generated site passes checks for four pages, 91 links
+and nine images. The three existing gallery renders and studio screenshot were
+recaptured from the final embedded build with matching source/version provenance.
+Original Terraced basin PNG, scale JSON, heightmap bundle and portable scene
+examples are generated by `go run ./tools/examples` and included in the site.
+
+Precision checks cover every supported grid from 129² through 2049² samples.
+The Go PNG codec preserves the unsigned 16-bit values exactly. JavaScript
+procedural/sculpted export stays within half a 16-bit quantization step plus
+Float32 rounding. Unsculpted imported samples remain byte-identical even when a
+narrow range collapses in Float32. Flat terrain is handled explicitly. Metadata
+rejects missing/null fields, unknown fields and invalid ranges. Shared Go/JS
+fixtures cover v5 and preserve versions 1–4. Full sculpt logs with v5 assets and
+surface settings remain below 60 KiB as compact autosave JSON; raw samples never
+enter undo snapshots or autosave bodies.
+
+Malformed-input coverage includes oversized/truncated PNGs, invalid dimensions
+and CRCs, mismatched scale dimensions, missing/duplicate archive members,
+traversal/absolute/backslash paths, symlinks, oversized decompressed manifests,
+corrupt hashes and forged directory entry counts. ZIP entry tables are bounded
+before allocation. A short `FuzzOpen` smoke run passed (three seeds, ten fuzz
+executions); this is not extensive fuzz coverage. Server checks cover session
+authentication, exact write Origin, methods and missing assets. Recovery tests
+cover store restart, exact asset bytes, corrupt-asset rejection and fallback to
+an older valid snapshot.
+
+`tests/browser-heightmaps.mjs` passed against the final build:
+
+- Export/import of the v1 starter explicitly produces v5 with unchanged camera
+  and scale; Undo/Redo restores both versions. Unsculpted re-export/re-import
+  preserves the asset SHA-256.
+- Plain PNG import uses the entered scale. A bundle uses its own metadata even
+  when plain-PNG controls are empty. Imported terrain supports sculpting and
+  material editing without dropping its asset reference.
+- Save produces a 132,969-byte portable scene; reopening preserves every scene
+  value and sample reference. A separate final-build launch with an empty asset
+  store opened that saved file and rendered it successfully.
+- Invalid heightmap/project inputs leave the current scene intact. A delayed
+  import cannot replace a newer scene edit. Autosave and recovery restore the
+  imported terrain. Canonical JSON key ordering no longer affects starter-scene
+  recognition.
+- An eight-sample 640 × 360 imported-terrain still completed in about 0.4 seconds
+  on this machine. PNG output and desktop/mobile controls were visually inspected.
+  Heightmap export also works in mobile WebGL mode; no horizontal overflow or
+  page errors occurred. These timings are observations, not performance promises.
+
+Existing browser material, terrain, sculpt and renderer suites also passed.
+The traversal comparison retained identical pixels across its linear and
+hierarchical routes and a maximum CPU/GPU hit error below 0.0000108 scene units.
+The 2048² worker test took about 1.42 seconds with 170 animation frames observed.
+Legacy JSON open, recovery, render cancellation, device loss/retry, PNG export,
+stale-result rejection and mobile fallback remain covered. The material browser
+check now waits for asynchronous file-open completion before asserting controls.
+
+Preview and final geometry still use the shared 128² render mesh. Metres per
+scene unit is descriptive metadata, not geographic placement or mesh resizing.
+Original asset storage adds up to about 8 MiB to the worker, with another 8 MiB
+copy during export, beyond the existing terrain typed-array budget. Server
+codec/archive buffers are separately bounded. Assets are retained for Undo and
+recovery; no disk garbage collector was introduced. See [heightmap contracts](heightmaps.md).
+No application dependencies were added, private research committed, release
+published or remote CI run performed. Wave 3 has not started.
