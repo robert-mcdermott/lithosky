@@ -114,4 +114,4 @@ export class TerrainCache {
   }
 }
 
-export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun]);
+export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null]);

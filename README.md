@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 2, slice 4 — heightmap interchange and portable terrain assets.** Compose
+**Status: wave 3, slice 1 — physical sun and atmosphere.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
@@ -77,13 +77,19 @@ and materials. **Export heightmap** bundles a full-depth PNG with its scale;
 **Save scene** embeds imported samples in a portable v5 container. Older JSON
 scenes remain supported. See [heightmaps and original examples](docs/heightmaps.md).
 
+**Use physical atmosphere** adds a computed Earth sky, sunlight attenuation and
+aerial perspective to rendered stills. Set sun direction manually or use latitude,
+longitude and a UTC date. Atmosphere settings save as v6 with procedural or imported
+terrain; older scenes keep their appearance. See [the atmosphere model](docs/atmosphere.md)
+for controls, reference checks and single-scattering limits.
+
 ## Render and export
 
 Choose **Render image** for a progressive 16:9 still at 640 × 360 or 960 × 540,
 with 8–64 samples per pixel. **Cancel render** keeps the last complete sample;
 **Export PNG** saves it in sRGB. Visual edits clear the old render; renaming keeps it.
 Rendering is bounded and local, with no external libraries or services. This first tracer uses
-simple sky and water approximations; physical atmosphere, waves and vegetation
+single-scattering atmosphere and simple water; waves and vegetation
 come later. See [rendering](docs/rendering.md) for controls, limits and validation.
 
 ## Scene files and recovery
@@ -106,9 +112,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.2.0-dev.4 --out dist/releases/0.2.0-dev.4`
+`go run ./tools/release --version 0.3.0-dev.1 --out dist/releases/0.3.0-dev.1`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.2.0-dev.4` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.1` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

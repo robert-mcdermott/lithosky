@@ -32,7 +32,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     $('render-progress').max=settings.samples;
     let renderer;
     try {
-      renderer=await createTracer(state,settings,getField());
+      renderer=await createTracer(state,{...settings,signal:abort.signal},getField());
       if (ticket!==epoch) return;
       if (abort.signal.aborted) { $('render-status').textContent='Canceled before the first sample.'; return; }
       $('render-status').textContent='Rendering the first sample…';
@@ -45,7 +45,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
       });
       if (ticket===epoch) $('render-status').textContent=abort.signal.aborted ? (snapshot?`Canceled at ${snapshot.samples} samples. Export PNG keeps this image.`:'Canceled before the first sample.') : 'Complete. '+$('render-status').textContent;
     } catch(error) {
-      if (ticket===epoch) invalidate('Rendering failed: '+error.message+' Retry rendering or use Retry graphics.');
+      if (ticket===epoch) { if(abort.signal.aborted) $('render-status').textContent='Canceled before the first sample.'; else invalidate('Rendering failed: '+error.message+' Retry rendering or use Retry graphics.'); }
     } finally {
       renderer?.dispose();
       if (ticket===epoch) { busy=false; controller=null; controls(); }

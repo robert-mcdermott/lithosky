@@ -32,3 +32,8 @@ this foundation is not a trademark clearance.
 References: [license text](https://www.apache.org/licenses/LICENSE-2.0),
 [application guidance](https://apache.org/legal/apply-license.html), and
 [third-party license policy](https://www.apache.org/legal/resolved.html).
+
+The atmosphere implementation is original Apache-2.0 code based on published
+mathematical equations and numerical constants, with source attribution in
+[atmosphere.md](atmosphere.md). Reference code, images, tables and third-party
+software are not bundled. The daylight scene is original procedural content.

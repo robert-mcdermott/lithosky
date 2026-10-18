@@ -3,7 +3,7 @@ import { materialDefaults } from './materials.js';
 export function materialControls(getScene,edit) {
   const $=id=>document.getElementById(id);
   $('enable-materials').addEventListener('click',()=>edit(scene=>{
-    scene.version=scene.terrain.generator==='heightmap-v1'?5:4;scene.surface=materialDefaults();
+    scene.version=scene.atmosphere?6:scene.terrain.generator==='heightmap-v1'?5:4;scene.surface=materialDefaults();
     if(scene.terrain.generator==='layers-v1')scene.terrain.sculpt??=[];
   }));
   $('material-preset').addEventListener('change',()=>{const preset=$('material-preset').value;edit(scene=>{scene.surface.preset=preset;});});

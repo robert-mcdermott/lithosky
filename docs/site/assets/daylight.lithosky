@@ -1,0 +1,38 @@
+{
+  "format": "lithosky",
+  "version": 6,
+  "title": "Daylight basin",
+  "terrain": {
+    "generator": "terrain-v1",
+    "seed": 1847,
+    "elevation": 1,
+    "palette": "natural"
+  },
+  "camera": {
+    "yaw": 0.28,
+    "pitch": 0.3,
+    "distance": 23
+  },
+  "water": {
+    "enabled": true,
+    "level": 0.25
+  },
+  "lighting": {
+    "sunElevation": 38
+  },
+  "atmosphere": {
+    "model": "earth-single-v1",
+    "mode": "manual",
+    "sunElevation": 18,
+    "sunAzimuth": 240,
+    "latitude": 47.6062,
+    "longitude": -122.3321,
+    "year": 2026,
+    "day": 172,
+    "utcMinutes": 1200,
+    "altitude": 0,
+    "metresPerUnit": 100,
+    "aerosols": 1.2,
+    "ozone": 1
+  }
+}

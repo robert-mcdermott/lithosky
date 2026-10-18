@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { atmosphereControls } from './atmosphere/controls.js';
 import { heightmapControls } from './scene/heightmap-controls.js';
 import { MAX_PROJECT_BYTES } from './scene/heightmaps.js';
 import { frameUniforms } from './scene/terrain.js';
@@ -38,6 +39,7 @@ let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
 const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const atmosphere = atmosphereControls(()=>history.value,discrete);
 const materials = materialControls(() => history.value, discrete);
 const layerControls = terrainControls(() => history.value, discrete);
 const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
@@ -126,7 +128,7 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;
@@ -298,7 +300,7 @@ async function downloadScene() {
   try {
   finishGesture();
   const scene = history.value;
-  const blob=scene.version===5?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
+  const blob=scene.terrain.generator==='heightmap-v1'?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a'); anchor.href = url;
   anchor.download = (scene.title.replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '').slice(0, 60) || 'landscape') + '.lithosky';

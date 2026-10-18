@@ -1,6 +1,6 @@
 # Lithosky implementation roadmap
 
-Status: wave 2 implementation complete locally; native release gates remain open.
+Status: wave 3, slice 1 complete locally; native release gates remain open.
 Updated 2026-10-18. Each wave produces one minor release; a completed slice is not a released version. No calendar estimates
 until the rendering spikes have measurements. The private PRD is input, not a
 contract. Research and comparisons stay in ignored `product_research/`.
@@ -79,6 +79,11 @@ the native platform release gates remain open.
 | W2.S4 | 16-bit heightmap import/export, scale metadata and hardened asset container evolution | Round-trip precision; malformed assets rejected; migration from v1; site and examples updated |
 
 ## Wave 3 → v0.3.0 — Physical light, sky and calm water
+
+W3.S1 is implemented and locally validated; see [atmosphere](docs/atmosphere.md)
+and [validation](docs/validation.md). The first physical atmosphere is explicitly
+single scattering with three spectral bands; it does not claim multiple scattering
+or calibrated spectral color. Native release gates remain open. W3.S2 has not started.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|

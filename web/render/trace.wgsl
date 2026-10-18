@@ -4,6 +4,8 @@ struct Config {
   bounds: vec4f, // minimum height, maximum height, water enabled, water level
   image: vec4u, // width, height, sample index, seed
   tile: vec4u,
+  atmosphere: vec4f, // enabled, origin altitude km, km/unit, aerosol multiplier
+  atmosphereExtra: vec4f, // ozone multiplier, observer altitude km
 }
 struct Vertex { position: vec4f, normal: vec4f, color: vec4f }
 struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
@@ -100,6 +102,7 @@ fn random(seed: ptr<function,u32>) -> f32 {
   return f32(*seed>>8u)/16777216.0;
 }
 fn sky(d: vec3f) -> vec3f {
+  if(config.atmosphere.x>.5){return physicalSky(d);}
   let upper=mix(vec3f(.22,.42,.8),vec3f(.38,.23,.6),select(0.0,1.0,config.fog.x<.5));
   let horizon=config.fog.xyz*1.3;
   return mix(horizon,upper,pow(max(d.y,0.0),.6)) + vec3f(5,4.5,3.5)*pow(max(dot(d,config.light.xyz),0.0),3000.0);
@@ -119,8 +122,9 @@ fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>) -> vec3f {
   let visibility=select(0.0,1.0,terrain(start,sun,150).t>=1e6);
   let ambient=cosineDirection(n,seed);
   let open=select(0.0,1.0,dot(ambient,geometric)>0 && terrain(start,ambient,150).t>=1e6);
+  if(config.atmosphere.x>.5){return h.color*(skyScattering(ambient)*open+pointSun(p)*max(dot(n,sun),0.0)*visibility/3.14159265);}
   let radiance=h.color*(sky(ambient)*open + vec3f(2.8,2.6,2.2)*max(dot(n,sun),0.0)*visibility);
-  // Artistic aerial haze; physical atmosphere is a later release.
+  // Preserve the legacy artistic atmosphere for pre-v6 scenes.
   return mix(radiance,sky(d)*.7,1-exp(-h.t*.009));
 }
 fn fresnel(c: f32, eta: f32) -> f32 {
@@ -129,9 +133,9 @@ fn fresnel(c: f32, eta: f32) -> f32 {
 }
 fn trace(o: vec3f, d: vec3f, seed: ptr<function,u32>) -> vec3f {
   let ground=terrain(o,d,1e6);
-  if (config.bounds.z<.5 || abs(d.y)<1e-8) { return land(o,d,ground,seed); }
+  if (config.bounds.z<.5 || abs(d.y)<1e-8) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed)); }
   let waterT=(config.bounds.w-o.y)/d.y; let p=o+d*waterT;
-  if (waterT<.001 || waterT>=ground.t || any(abs(p.xz)>vec2f(32))) { return land(o,d,ground,seed); }
+  if (waterT<.001 || waterT>=ground.t || any(abs(p.xz)>vec2f(32))) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed)); }
   let entering=d.y<0; let n=select(vec3f(0,-1,0),vec3f(0,1,0),entering);
   let eta=select(1.333,1/1.333,entering); let f=fresnel(clamp(-dot(n,d),0.0,1.0),eta);
   let reflected=reflect(d,n); let ro=p+n*.003;
@@ -143,7 +147,7 @@ fn trace(o: vec3f, d: vec3f, seed: ptr<function,u32>) -> vec3f {
     let transmittance=exp(-absorption*distance);
     color+=(1-f)*(land(to,transmitted,hit,seed)*transmittance+vec3f(.025,.11,.13)*(1-transmittance));
   }
-  return color;
+  return aerial(o,d,waterT,color);
 }
 fn display(linear: vec3f) -> vec3f {
   let mapped=linear/(vec3f(1)+linear);
@@ -158,6 +162,7 @@ fn render(@builtin(global_invocation_id) id: vec3u) {
   let uv=(vec2f(xy)+vec2f(random(&seed),random(&seed)))/vec2f(config.image.xy)*2-1;
   let d=normalize(config.forward.xyz+config.right.xyz*(uv.x*.48*config.eye.w)-config.up.xyz*(uv.y*.48));
   var radiance=trace(config.eye.xyz,d,&seed);
+  if(config.atmosphere.x>.5){radiance*=4;} // Fixed development exposure for normalized solar irradiance.
   if (!all(radiance>=vec3f(0)) || !all(radiance<vec3f(1e6))) { atomicAdd(&invalid,1u); radiance=vec3f(0); }
   let count=f32(config.image.z);
   let average=(accumulation[index].xyz*count+radiance)/(count+1);

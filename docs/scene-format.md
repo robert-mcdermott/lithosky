@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5/v6 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials and v5 imported heightmaps. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps and v6 atmosphere. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -133,6 +133,22 @@ addition to the bundled schema. Open rejects bare v5 manifests. Recovery uses
 small JSON manifests referencing immutable local assets; the two formats have
 different portability guarantees. See [heightmap format and storage](heightmaps.md).
 
+## Version 6 atmosphere
+
+V6 requires an atmosphere object with model earth-single-v1 and mode manual or
+geographic. All manual and geographic fields are retained when switching modes.
+Its terrain is original v1, sculpt-capable layered v3, or imported v5; an optional
+surface uses the v4 contract. Imported v6 scenes use the same two-entry portable
+container as v5; procedural v6 scenes remain JSON. Rendering derives the geographic
+sun direction without changing stored manual values.
+
+Bounds: sunElevation −18…90°, sunAzimuth 0…360°, latitude −90…90°, longitude
+−180…180°, year 2000…2100, day 1…366 (366 only in leap years), utcMinutes
+0…1439, altitude 0…10000 metres, metresPerUnit 1…1000, aerosols 0…5 and ozone
+0…2. Year/day/minutes are integers. Go and JS reject missing/unknown fields and
+non-leap day 366. See [atmosphere contracts](atmosphere.md). Enabling this model is
+an explicit undoable upgrade; subsequent terrain/material edits retain v6.
+
 ## Open, save and history
 
 **Open…** reads a local file with the browser picker. Byte size, container contents, UTF-8 and schema
@@ -144,7 +160,7 @@ so delayed reads cannot silently erase new work. Open and Restore are undoable.
 The browser decides the download destination and any duplicate-name suffix. It
 does not overwrite an earlier scene file in place. The UI says “Download
 requested”; it cannot confirm that a user accepted a browser download dialog.
-Open also has Ctrl/⌘ O. Procedural files contain parameters only. V5 containers additionally include one
+Open also has Ctrl/⌘ O. Procedural files contain parameters only. V5 and asset-backed v6 containers additionally include one
 validated height asset. External URLs, filesystem paths and scripts are forbidden.
 
 Undo/Redo use Ctrl/⌘ Z, Ctrl/⌘ Shift Z, or Ctrl Y, except within text/number fields

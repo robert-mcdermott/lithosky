@@ -58,7 +58,7 @@
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 6,
+      "version": 7,
       "title": "Alpine quiet",
       "terrain": {
         "generator": "terrain-v1",
@@ -4458,6 +4458,1258 @@
       },
       "lighting": {
         "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "v6 atmosphere",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid mode",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "remote",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid sunElevation",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 91,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid sunAzimuth",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 361,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid latitude",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 91,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid longitude",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": 181,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid day",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 366,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid utcMinutes",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1440,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid altitude",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": -1,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid aerosols",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 6,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "v6 invalid ozone",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": null
+      }
+    }
+  },
+  {
+    "name": "v6 invalid metresPerUnit",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 0,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere sculpted v3",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere empty sculpt list",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": []
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere material rules on original terrain v4",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "rules",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere material preset rock",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "rock",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere material preset snow",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "snow",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere material preset sand",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "sand",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere material preset ground",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "ground",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere material rules on sculpted terrain v4",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "rules",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere imported v5",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere imported v5 materials",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "rules",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
+      }
+    }
+  },
+  {
+    "name": "atmosphere heightmap flat range",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": 8,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 38,
+        "sunAzimuth": 306.869897645844,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 1,
+        "ozone": 1
       }
     }
   }

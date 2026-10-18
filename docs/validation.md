@@ -484,3 +484,83 @@ codec/archive buffers are separately bounded. Assets are retained for Undo and
 recovery; no disk garbage collector was introduced. See [heightmap contracts](heightmaps.md).
 No application dependencies were added, private research committed, release
 published or remote CI run performed. Wave 3 has not started.
+
+## Wave 3, slice 1 — physical sun and atmosphere
+
+Validated 2026-10-18 on macOS arm64, Go 1.26.6, Node 22.17.0 and Chrome
+155 / Apple Metal 3. Development build: `0.3.0-dev.1`. W3.S1 is locally
+implemented; W3.S2 has not started. Existing native Windows/Linux release gates
+remain open, and no release or publication is implied.
+
+Passed `go test -race ./...`, `go vet ./...`, all 160 Node tests and
+`git diff --check`. Site generation/checks cover four pages, 93 links and nine
+images. The final embedded build supplied refreshed, source-verified captures.
+The three original gallery scenes retain their artistic sky; the guide describes
+the opt-in physical model and provides the schema-validated Daylight basin v6
+scene. No application dependency or third-party code/asset was added.
+
+### Numerical reference checks
+
+The tests compare original numerical integration with the published analytic
+atmosphere reference cases described in [atmosphere.md](atmosphere.md). For the
+reference vertical ray, transmittance is 0.886936612 versus 0.886933231 expected;
+phase-weighted radiance is 20.75785607 versus 20.75805056 expected (under 0.001%
+relative error). The reverse vertical ray without aerosols also passes its
+closed-form comparison. Phase functions integrate to one within 0.000002.
+These are single-scattering reference cases, not measured Earth-sky accuracy.
+
+Earth transmittance LUT samples at sea level, horizon, 2 km and 10 km agree with
+4,096-segment reference integration within 0.0002 absolute transmittance. Sky
+samples at zenith, horizon and an oblique angle agree with denser 512-segment
+view / 1,024-segment sun integration within 0.0001 absolute normalized radiance.
+Additional tests cover vacuum/zero-distance identity, ozone/aerosol attenuation,
+planet shadow, night output, the azimuth seam, leap years and finite polar values.
+The NOAA solar approximation differs from the published NREL example by about
+0.2095° elevation and 0.1369° azimuth (test tolerance 0.3°); no ephemeris-level
+precision is claimed.
+
+### Actual browser/GPU checks
+
+`tests/browser-atmosphere.mjs` passes manual/geographic positioning, leap-day
+handling, v1 and unsculpted-v2 upgrades, Undo/Redo, v6 JSON download/open and
+recovery. Imported heightmap scenes retain v6 through material/sculpt edits and
+portable download/open; converting them to layers preserves atmosphere settings.
+Invalidating a finished render disables its stale export. Cancellation during
+preparation returns to an editable state; retry and a −18° night render succeed.
+Mobile WebGL allows atmosphere editing/saving, with no horizontal overflow or
+page errors. Desktop/mobile controls and exported physical-atmosphere stills
+were visually inspected.
+
+Eleven actual GPU diagnostics compare uploaded transmittance, sky radiance and
+aerial-perspective evaluation with CPU values. Maximum absolute difference is
+about 0.00000192. This caught a driver-dependent signed-zero `atan2` result at
+cardinal directions; the shader now handles that limit explicitly. Browser tests
+also caught and fixed a mode selector reading its value after control refresh.
+The final migration review added normalization of unsculpted v2 layer stacks to
+the v6 sculpt-capable terrain contract. Full v6 sculpt/material/asset manifests
+remain below the compact 60 KiB autosave allowance.
+
+An eight-sample 640 × 360 atmosphere render took about 1.0–1.1 seconds including
+lookup preparation in the isolated local run. A direct Node table build took
+about 0.6 seconds. Tables occupy exactly 393,216 bytes on CPU and GPU; row batches
+yield to the UI, cancellation is checked during preparation, and each visible air
+segment uses at most 16 GPU integration segments. These are bounded-work and
+local timing observations, not cross-device performance guarantees.
+
+All existing browser suites also passed: renderer, materials, terrain, sculpting
+and heightmaps. Legacy traversal/PNG comparisons still agree; the largest legacy
+CPU/GPU hit difference remains about 0.0000108 scene units. The material diagnostic
+retains identical pixels between linear and hierarchical traversal. Terrain
+2048² generation took about 1.38 seconds with 166 animation frames observed.
+Some runs overlapped gallery capture; their timing is not an isolated benchmark.
+
+### Limits
+
+The physical model is opt-in single scattering in three approximate spectral
+bands, with normalized solar irradiance and fixed development exposure. It omits
+multiple scattering, ground bounce into the sky, terrain shadows within air,
+stars/moon and calibrated spectral colorimetry. Secondary sky rays reuse the
+camera-altitude table. Water remains the previous simplified model; preview
+haze is approximate. The 128² geometry and existing export sizes remain unchanged.
+No native Windows/Linux execution, remote CI run, release tag or publication was
+performed. W3.S2 material/color work remains a separate slice.

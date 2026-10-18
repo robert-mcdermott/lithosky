@@ -55,16 +55,24 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) {
-		return nil, errors.New("unsupported scene version; this build opens versions 1, 2, 3, 4 and 5")
+	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) && object["version"] != float64(6) {
+		return nil, errors.New("unsupported scene version; this build opens versions 1, 2, 3, 4, 5 and 6")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err
 	}
-	if obj, ok := value.(map[string]any); ok && obj["version"] == float64(5) {
+	if obj, ok := value.(map[string]any); ok && obj["terrain"].(map[string]any)["generator"] == "heightmap-v1" {
 		t := obj["terrain"].(map[string]any)
 		if !heightmap.ValidHash(t["asset"].(string)) || t["minimum"].(float64) > t["maximum"].(float64) {
 			return nil, errors.New("invalid heightmap reference or range")
+		}
+	}
+	if obj := value.(map[string]any); obj["atmosphere"] != nil {
+		a := obj["atmosphere"].(map[string]any)
+		year := int(a["year"].(float64))
+		leap := year%4 == 0 && (year%100 != 0 || year%400 == 0)
+		if a["day"] == float64(366) && !leap {
+			return nil, errors.New("day 366 requires a leap year")
 		}
 	}
 	return json.Marshal(value)

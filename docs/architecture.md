@@ -95,3 +95,11 @@ publication and never advertise planned functionality as shipped. W1.S4 implemen
 The standard-library archive builder/verifier lives in `tools/release/`; native
 smoke CI precedes package artifacts. Site deployment and release publication remain
 separate from generation. See [release readiness](releases.md).
+
+## Physical atmosphere
+
+Wave 3 adds an opt-in v6 atmosphere with bounded CPU-generated Float32 lookup
+tables uploaded to the WebGPU tracer. Preview uses the same sun vector while
+retaining approximate haze. The tables and integration are original, dependency-free
+code. See [atmosphere model, units and validation](atmosphere.md). Atmosphere-only
+edits invalidate rendering without rebuilding terrain or traversal bounds.

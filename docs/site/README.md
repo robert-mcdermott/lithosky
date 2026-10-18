@@ -78,3 +78,7 @@ checkout, private research, recovery data or release artifacts as website files.
 The packaging workflow uploads a site artifact for review; it never deploys it.
 Before advertising a release, update the install page and changelog to the actual
 published status, refresh captures if necessary, and rerun validation.
+
+The guide also offers the original `assets/daylight.lithosky` v6 atmosphere scene.
+It is checked against the shared scene schema by the site test. The three gallery
+starters retain their artistic lighting; they do not depict the physical model.

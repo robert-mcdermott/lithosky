@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {validateScene} from '../web/scene/document.js';
 import { buildSite } from '../docs/site/build.mjs';
 import { checkSite } from '../docs/site/check.mjs';
 test('site generates all pages and portable scenes with checked capture provenance',()=>{
@@ -11,6 +12,8 @@ test('site generates all pages and portable scenes with checked capture provenan
   try{
     const out=path.join(dir,'site'),report=buildSite(out);assert.equal(report.pages,4);assert.ok(report.images>=8);
     for(const id of ['alpine','highland','distant']) assert.equal(JSON.parse(fs.readFileSync(path.join(out,'scenes',id+'.lithosky'))).format,'lithosky');
+    const daylight=JSON.parse(fs.readFileSync(path.join(out,'assets/daylight.lithosky'))),schema=JSON.parse(fs.readFileSync(new URL('../internal/scene/schema.json',import.meta.url)));
+    assert.equal(validateScene(daylight,schema).version,6);
     assert.equal(buildSite(out).links,report.links);
     fs.appendFileSync(path.join(out,'index.html'),'<a href="guide.html#nonexistent">Bad link</a>');assert.throws(()=>checkSite(out),/missing anchor/);
     buildSite(out);fs.rmSync(path.join(out,'assets','alpine.png'));assert.throws(()=>checkSite(out),/missing local target/);

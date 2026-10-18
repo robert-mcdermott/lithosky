@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.3.0 — unreleased
+
+Development build: 0.3.0-dev.1. Wave 3, slice 1:
+
+- Opt-in physical Earth sky, Rayleigh/Mie scattering, ozone absorption and aerial perspective.
+- Offline manual/geographic sun direction with latitude, longitude and UTC date controls.
+- Bounded transmittance/sky lookup tables, cancelable preparation and GPU reference checks.
+- V6 scenes preserve atmosphere across terrain edits, portable heightmaps, undo and recovery.
+- Published analytic atmosphere and solar reference comparisons; single-scattering limits documented.
+
 ## v0.2.0 — unreleased
 
 Development build: 0.2.0-dev.4. Wave 2, slice 4:

@@ -3,7 +3,7 @@ import { layeredTerrain, newLayer } from './noise.js';
 import { terrainBudget } from './generation.js';
 export function terrainControls(getScene, edit) {
   const $=id=>document.getElementById(id); let shown='';
-  $('enable-layers').addEventListener('click',()=>edit(scene=>{scene.version=scene.surface?4:2;scene.terrain=layeredTerrain(scene.terrain);if(scene.surface)scene.terrain.sculpt=[];}));
+  $('enable-layers').addEventListener('click',()=>edit(scene=>{scene.version=scene.atmosphere?6:scene.surface?4:2;scene.terrain=layeredTerrain(scene.terrain);if(scene.surface||scene.atmosphere)scene.terrain.sculpt=[];}));
   $('terrain-resolution').addEventListener('change',()=>{const value=Number($('terrain-resolution').value);edit(scene=>{scene.terrain.resolution=value;});});
   $('add-layer').addEventListener('click',()=>{const kind=$('layer-kind').value;edit(scene=>{if(scene.terrain.layers.length<8)scene.terrain.layers.push(newLayer(kind));});});
   function sync() {

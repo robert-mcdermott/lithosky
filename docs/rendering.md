@@ -48,12 +48,13 @@ Automatic → Retry graphics** if necessary.
   counter; readback rejects the image instead of exporting an invalid result.
 
 The preview's water is an opaque flattened grid, so its shoreline is approximate.
-The final plane intersects the original submerged terrain. Sky and aerial haze
-are artistic approximations, and the sun uses the existing scene-to-light mapping.
+The final plane intersects the original submerged terrain. Legacy sky and aerial haze
+are artistic approximations. Opt-in v6 atmosphere adds physical single scattering,
+sunlight attenuation and aerial perspective; see [atmosphere](atmosphere.md).
 The water model follows one interface; it does not simulate repeated internal
 bounces, full underwater transport, caustics, waves or a physical ocean boundary.
 Terrain outside the bounded patch is empty. No clouds, vegetation, denoising,
-physical atmosphere, exposure controls or photorealistic-quality guarantee are
+multiple atmospheric scattering, exposure controls or photorealistic-quality guarantee are
 included in this slice. The [roadmap](../ROADMAP.md) assigns those later work.
 
 ## Resource and lifecycle limits
@@ -66,7 +67,8 @@ ends after the selected sample count; there is no idle render loop. These are
 work bounds, not a hardware-independent latency or watchdog guarantee.
 
 At 960 × 540 the accumulation, output, readback and vertex buffers total about
-12.6 MiB plus 2 KiB of block bounds, excluding preview resources and driver
+12.6 MiB plus 2 KiB of block bounds and, with atmosphere enabled, 384 KiB of
+lookup tables. This excludes preview resources and driver
 overhead. Limits are checked before buffer creation. The final job owns a separate device so a tracing failure
 can leave the preview intact. All job buffers and its device are destroyed on
 completion, cancellation or failure. Every new job starts fresh accumulation;

@@ -31,7 +31,7 @@ export function buildSite(destination=path.join(root,'dist/site')) {
   const temp=fs.mkdtempSync(path.join(path.dirname(out),'.lithosky-site-'));
   try {
     fs.mkdirSync(path.join(temp,'assets'));fs.mkdirSync(path.join(temp,'scenes'));
-    for(const name of ['site.css','studio.png','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
+    for(const name of ['site.css','studio.png','daylight.lithosky','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
     fs.copyFileSync(path.join(root,'web/favicon.svg'),path.join(temp,'assets/icon.svg'));
     for(const s of studies) fs.copyFileSync(path.join(here,'assets',s.id+'.lithosky'),path.join(temp,'scenes',s.id+'.lithosky'));
     for(const name of ['LICENSE','NOTICE']) fs.copyFileSync(path.join(root,name),path.join(temp,name+'.txt'));

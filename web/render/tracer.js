@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import { buildAtmosphere } from '../atmosphere/model.js';
+import { sunDirection } from '../atmosphere/solar.js';
 import { buildHierarchy, createHeightfield } from './heightfield.js';
 import { frameUniforms } from '../scene/terrain.js';
 export const TILE_WIDTH = 64, TILE_HEIGHT = 32;
@@ -32,7 +34,9 @@ export async function createTracer(state, options, preparedField = null) {
   try {
     const response=await fetch(new URL('./trace.wgsl',import.meta.url));
     if (!response.ok) throw new Error('Cannot load the embedded render shader.');
-    const module=device.createShaderModule({code:await response.text()});
+    const atmosphereSource=await fetch(new URL('../atmosphere/atmosphere.wgsl',import.meta.url));
+    if(!atmosphereSource.ok)throw new Error('Cannot load atmosphere shader.');
+    const module=device.createShaderModule({code:await response.text()+'\n'+await atmosphereSource.text()});
     const compilation=await module.getCompilationInfo();
     const errors=compilation.messages.filter(m=>m.type==='error');
     if (errors.length) throw new Error(errors.map(m=>m.message).join('; '));
@@ -40,7 +44,7 @@ export async function createTracer(state, options, preparedField = null) {
     const field=preparedField ?? createHeightfield(state), imageBytes=width*height*4;
     if (width*height*16>device.limits.maxStorageBufferBindingSize) throw new Error('This GPU cannot hold the selected image. Choose a smaller size.');
     device.pushErrorScope('validation');
-    const uniform=buffer(144,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
+    const uniform=buffer(176,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
     const vertices=buffer(field.vertices.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
     const bounds=field.hierarchy??buildHierarchy(field);
     const hierarchy=buffer(bounds.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
@@ -50,12 +54,16 @@ export async function createTracer(state, options, preparedField = null) {
     const invalid=buffer(4,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC);
     const readback=buffer(imageBytes+4,GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ);
     device.queue.writeBuffer(vertices,0,field.vertices);
-    const config=new ArrayBuffer(144), floats=new Float32Array(config), uints=new Uint32Array(config);
+    const config=new ArrayBuffer(176), floats=new Float32Array(config), uints=new Uint32Array(config);
     floats.set(frameUniforms(state,width/height));
     floats.set([field.low,field.high,Number(state.waterEnabled),state.waterLevel],24);
     uints.set([width,height,0,state.seed],28);
+    const atmosphere=state.atmosphere?await buildAtmosphere(state.atmosphere,floats[1],sunDirection(state.atmosphere),{signal:options.signal}):{data:new Float32Array(4)};
+    if(state.atmosphere){const a=state.atmosphere;floats.set([1,a.altitude/1000,a.metresPerUnit/1000,a.aerosols,a.ozone,atmosphere.height,0,0],36);}
+    const skyBuffer=buffer(atmosphere.data.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
+    device.queue.writeBuffer(skyBuffer,0,atmosphere.data);
     device.queue.writeBuffer(uniform,0,config);
-    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[2,accumulation],[3,pixels],[4,invalid],[7,hierarchy]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
+    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[2,accumulation],[3,pixels],[4,invalid],[7,hierarchy],[8,skyBuffer]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
     const validation=await device.popErrorScope(); if (validation) throw new Error(validation.message);
     check();
     return {
@@ -93,16 +101,16 @@ export async function createTracer(state, options, preparedField = null) {
         } finally { running=false; }
       },
       // Used by browser diagnostics to compare the actual shader with CPU fixtures.
-      async probe(rays) {
+      async probe(rays, atmosphereTest=false) {
         if (running) throw new Error('Cannot probe during a render.');
         if (!rays.length || rays.length>4096) throw new Error('Invalid probe count.');
-        const p=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'probe',constants}});
+        const p=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:atmosphereTest?'atmosphereProbe':'probe',constants}});
         const input=buffer(rays.length*32,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
         const output=buffer(rays.length*16,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC);
         const read=buffer(rays.length*16,GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ);
         try {
-          device.queue.writeBuffer(input,0,new Float32Array(rays.flatMap(({origin,direction})=>[...origin,0,...direction,0])));
-          const group=device.createBindGroup({layout:p.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
+          device.queue.writeBuffer(input,0,new Float32Array(rays.flatMap(({origin,direction})=>[...origin.slice(0,3),origin[3]??0,...direction,0])));
+          const group=device.createBindGroup({layout:p.getBindGroupLayout(0),entries:(atmosphereTest?[[0,uniform],[5,input],[6,output],[8,skyBuffer]]:[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy]]).map(([binding,b])=>({binding,resource:{buffer:b}}))});
           const encoder=device.createCommandEncoder(), pass=encoder.beginComputePass();
           pass.setPipeline(p); pass.setBindGroup(0,group); pass.dispatchWorkgroups(Math.ceil(rays.length/64)); pass.end();
           encoder.copyBufferToBuffer(output,0,read,0,rays.length*16); device.queue.submit([encoder.finish()]);
