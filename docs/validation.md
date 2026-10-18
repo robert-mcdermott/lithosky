@@ -233,3 +233,54 @@ remote run, and real browser/GPU checks on those platforms remain release gates.
 No signing/notarization, public hosting or release publication occurred. W1.S4
 implementation is committed independently; the open acceptance checks keep wave 1
 in progress and are not silently deferred into wave 2.
+
+## Wave 2, slice 1 — layered terrain and worker generation
+
+Completed locally on 2026-10-18, build `0.2.0-dev.1`, macOS arm64, Go 1.26.6,
+Node 22.17 and Chrome 155 with Apple Metal 3 graphics. This is slice validation;
+wave 1 native Windows/Linux release gates remain open.
+
+- `npm test`: all 66 tests pass. Shared Go/JavaScript scene fixtures cover v1/v2,
+  version/generator mismatches, missing/unknown layer fields, layer count and
+  parameter/resolution bounds. Fixed Float32 SHA-256 fixtures cover seeds 0,
+  1847 and 4294967295. Composition order, disabled layers and negative terraces
+  are checked independently.
+- Terrain tests allocate every supported scalar grid through 2048² cells,
+  verify bounded storage, cancel partial generation, reject stale worker results,
+  exercise worker errors/retry and check height/surface invalidation separately.
+  Legacy preview and traced buffers match exactly, including a water boundary
+  at a rounded vertex height. Disabled-layer settings and scene metadata retain
+  visual resources; camera/light changes submit no terrain job.
+- `go test -race ./...` and `go vet ./...` pass. The standalone binary smoke
+  runs outside the checkout, verifies every embedded asset (including workers),
+  checks authenticated persistence/restart, and tests launcher process cleanup.
+- `tests/browser-terrain.mjs` passes: layer addition/edit/toggle/reorder/undo,
+  v2 file download/reopen and autosave/recovery, selective invalidation, 2048²
+  cancellation, injected worker startup failure and successful retry, PNG export,
+  WebGL fallback and 390-pixel mobile layout. No page errors. Desktop/mobile
+  screenshots and a layered PNG were visually inspected in ignored
+  `output/playwright/`.
+- The tested four-layer 2048² generation/retry took roughly 1.3–1.6 seconds,
+  with 160–188 animation frames observed during that interval. This is a local
+  observation, not a cross-device performance guarantee. The largest scalar
+  grid is 16.02 MiB; the documented generation typed-array working allowance is
+  about 45 MiB, excluding browser/GC/GPU overhead.
+- For 100 layered vertical probe rays, CPU/GPU hit distances differed by at most
+  0.00000191 scene units. The layered 640 × 360 / eight-sample still completed in
+  about 0.4 seconds locally, with finite output.
+- `tests/browser-render.mjs` also passes: 1,024 legacy GPU intersection probes
+  (worst difference about 0.0000108 units), PNG decode/display pixel equality,
+  cancellation during initialization and accumulation, stale export rejection,
+  initialization failure/device loss/retry, extreme water/camera fixtures and
+  compatibility fallback. Eight-sample 640/960 renders took about 0.5/0.8 seconds.
+- All three original gallery images were recaptured at 960 × 540 / 64 samples;
+  their image hashes remain unchanged. The studio screenshot and capture source
+  provenance were refreshed. `npm run site` and `npm run site:check` pass for
+  four pages, 85 local links and nine image references. The guide describes
+  layered terrain and its current render limit.
+
+Generation resolution and render resolution remain separate: layered grids span
+256²–2048² cells, but both preview and final output use the same 128² mesh.
+High-resolution traversal, sculpting and heightmap files belong to later slices.
+No dependency was added, no private research was committed, and no release,
+website deployment or remote CI run was performed.

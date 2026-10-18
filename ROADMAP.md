@@ -1,7 +1,7 @@
 # Lithosky implementation roadmap
 
-Status: wave 1 in progress · updated 2026-10-18. Each wave produces one minor
-release; a completed slice is not a released version. No calendar estimates
+Status: wave 2 in progress; wave 1 native release gates remain open.
+Updated 2026-10-18. Each wave produces one minor release; a completed slice is not a released version. No calendar estimates
 until the rendering spikes have measurements. The private PRD is input, not a
 contract. Research and comparisons stay in ignored `product_research/`.
 
@@ -65,7 +65,10 @@ publication belongs to the release workflow.
 
 ## Wave 2 → v0.2.0 — Terrain authoring and surface detail
 
-Depends on wave 1's scene and renderer contracts.
+Depends on wave 1's scene and renderer contracts. Wave 2 work is explicitly
+requested while the documented native Windows/Linux release checks remain open.
+W2.S1 is complete and locally validated; see [terrain authoring](docs/terrain.md)
+and [validation](docs/validation.md). W2.S2–S4 remain planned.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|

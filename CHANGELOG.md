@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0 — unreleased
+
+Development build: 0.2.0-dev.1. Wave 2, slice 1:
+
+- Original fBm, ridge, domain-warp and terrace library; up to eight ordered layers.
+- Cancellable worker generation, progress/retry and 256²–2048² cell budgets.
+- Height/surface/preview caching; camera and light edits reuse terrain geometry.
+- Strict v2 scene files and recovery for layers, with unchanged v1 scene support.
+- Shared worker-prepared 128² preview/trace mesh; higher render geometry is deferred.
+- Layer controls, history, deterministic fixtures, budget and browser validation.
+
+Native wave 1 release checks remain open. No release is tagged or published.
+
 ## v0.1.0 — unreleased
 
 The first landscape loop: launch locally, compose a scene, save it, render a

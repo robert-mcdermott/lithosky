@@ -1,7 +1,7 @@
 # Packaging and release readiness
 
-Wave 1 targets v0.1.0. The current source is `0.1.0-dev.4`; there is no release tag
-or publication implied by completing implementation. Packages are unsigned and
+Wave 1 targets v0.1.0; wave 2 targets v0.2.0. The current source is
+`0.2.0-dev.1`; there is no release tag or publication implied by completing implementation. Packages are unsigned and
 not notarized. The generated website describes development capabilities only.
 
 ## Local packages
@@ -9,8 +9,8 @@ not notarized. The generated website describes development capabilities only.
 From the repository root, with Go 1.26+ installed:
 
 ```sh
-go run ./tools/release --version 0.1.0-dev.4 --out dist/releases/0.1.0-dev.4
-go run ./tools/release --verify dist/releases/0.1.0-dev.4
+go run ./tools/release --version 0.2.0-dev.1 --out dist/releases/0.2.0-dev.1
+go run ./tools/release --verify dist/releases/0.2.0-dev.1
 ```
 
 The destination must not exist. Use a fresh directory for a second build. The
@@ -77,5 +77,6 @@ Before tagging v0.1.0, record evidence for the actual release commit:
   the reviewed site as separate authorized actions.
 
 Local macOS and cross-build evidence is in [validation](validation.md). Native
-Windows/Linux acceptance is still open; wave 2 should not silently replace that
-work. Broader hardware testing and signing remain documented distribution limits.
+Windows/Linux acceptance is still open. Wave 2 development was explicitly
+requested; it does not close those pending release checks. Broader hardware testing and
+signing remain documented distribution limits.

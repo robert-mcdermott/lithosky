@@ -10,10 +10,19 @@ export function defaultScene() {
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (value?.version !== 1) throw new Error('Unsupported scene version. This build opens version 1 only.');
+  if (![1, 2].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1 and 2.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
+    if (rule.oneOf) {
+      const matches = rule.oneOf.filter(branch => { try { check(value, branch, path); return true; } catch { return false; } });
+      if (matches.length !== 1) fail('does not match a supported scene format');
+      return;
+    }
     switch (rule.type) {
+      case 'array':
+        if (!Array.isArray(value) || value.length < rule.minItems || value.length > rule.maxItems) fail('array length is outside bounds');
+        value.forEach((item, index) => check(item, rule.items, path + '[' + index + ']'));
+        break;
       case 'object':
         if (!value || typeof value !== 'object' || Array.isArray(value)) fail('expected an object');
         for (const name of rule.required) if (!Object.hasOwn(value, name)) fail(`missing ${name}`);

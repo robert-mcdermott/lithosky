@@ -1,7 +1,7 @@
 # Scene files and recovery
 
-Wave 1, slice 2 introduces `.lithosky`: a UTF-8 JSON document, version 1, limited
-to 16 KiB. The authoritative [JSON Schema](../internal/scene/schema.json) is
+`.lithosky` is a UTF-8 JSON document limited to 16 KiB. This build opens v1
+legacy landscapes and v2 layered terrain. The authoritative [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
 same acceptance fixtures; they never fetch schemas or execute scene content.
@@ -44,6 +44,27 @@ an opaque preview surface. Those interpretation rules belong to this version;
 future generator/camera changes need an explicit format migration or identifier.
 There was no released file format before v1. Unknown versions and generator IDs
 fail without changing the open scene. No implicit downgrade strips future data.
+
+## Version 2 layered terrain
+
+V2 keeps the root, camera, water and lighting fields above, but requires version
+`2` and generator `layers-v1`. Terrain also requires `resolution` (one of
+256, 512, 1024, 2048) and `layers` (1–8 entries). Each layer requires:
+
+- `kind`: `fbm`, `ridge`, `warp` or `terrace`.
+- `enabled`: boolean; disabled entries are retained in files.
+- `strength`: 0–1; `scale`: 0.25–8; `octaves`: integer 1–8.
+
+All layer fields are required, including octaves for terraces (retained but not
+used). Scale means noise-frequency multiplier, or terrace step height. Unknown
+fields/kinds, empty stacks and unsupported budgets fail validation. The bundled
+schema uses `oneOf` for version branches and bounded arrays for layers; both
+validators implement these rules. See [terrain](terrain.md) for interpretation.
+
+Opening v1 does not migrate it. **Build with layers** explicitly replaces its
+landform and upgrades to v2 as an undoable edit. Starter selection can replace a
+v2 composition with a v1 study. There is no automatic conversion of layered
+heights to the legacy generator, and older builds reject v2 rather than lose data.
 
 ## Open, save and history
 

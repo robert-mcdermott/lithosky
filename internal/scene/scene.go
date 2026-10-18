@@ -20,6 +20,10 @@ var Schema []byte
 // Rule implements only the schema vocabulary used by our bundled scene schema.
 // It is not a general-purpose JSON Schema engine; untrusted schemas are never loaded.
 type Rule struct {
+	OneOf                []Rule          `json:"oneOf"`
+	Items                *Rule           `json:"items"`
+	MinItems             int             `json:"minItems"`
+	MaxItems             int             `json:"maxItems"`
 	Type                 string          `json:"type"`
 	Required             []string        `json:"required"`
 	Properties           map[string]Rule `json:"properties"`
@@ -50,8 +54,8 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) {
-		return nil, errors.New("unsupported scene version; this build opens version 1 only")
+	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) {
+		return nil, errors.New("unsupported scene version; this build opens versions 1 and 2")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err
@@ -61,7 +65,29 @@ func Validate(data []byte) ([]byte, error) {
 
 func validate(value any, rule Rule, path string) error {
 	invalid := func(detail string) error { return fmt.Errorf("%s: %s", path, detail) }
+	if len(rule.OneOf) > 0 {
+		matches := 0
+		for _, branch := range rule.OneOf {
+			if validate(value, branch, path) == nil {
+				matches++
+			}
+		}
+		if matches != 1 {
+			return invalid("does not match a supported scene format")
+		}
+		return nil
+	}
 	switch rule.Type {
+	case "array":
+		items, ok := value.([]any)
+		if !ok || len(items) < rule.MinItems || len(items) > rule.MaxItems {
+			return invalid("array length is outside bounds")
+		}
+		for index, item := range items {
+			if err := validate(item, *rule.Items, fmt.Sprintf("%s[%d]", path, index)); err != nil {
+				return err
+			}
+		}
 	case "object":
 		obj, ok := value.(map[string]any)
 		if !ok {

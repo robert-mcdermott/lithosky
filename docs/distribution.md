@@ -30,7 +30,7 @@ Choose a starter scene. Drag to orbit; scroll to zoom. With the view focused,
 arrow keys orbit, +/− zoom, and Home resets the camera. Adjust height, water and
 sun. Render image progressively traces a 16:9 still at 640 × 360 or 960 × 540,
 with 8–64 samples. Cancel retains the last complete sample. Export PNG saves
-that image; any scene edit clears the old render.
+that image; visual scene edits clear the old render; renaming keeps it.
 
 Save scene downloads a portable .lithosky file; Open restores it. Save creates
 a new download, not an update to an earlier file. Undo/Redo applies to scene
@@ -51,3 +51,7 @@ terms in GO-LICENSE. No third-party application libraries or remote assets are
 included. The installed browser and graphics driver are separate prerequisites.
 
 Source and documentation: https://github.com/robert-mcdermott/lithosky
+
+Build with layers creates v2 terrain from fBm, ridges, domain warp and terraces.
+Generation runs in a cancellable worker at 256²–2048² cells; preview and stills
+currently use a shared 128² mesh. Existing v1 scenes open unchanged.

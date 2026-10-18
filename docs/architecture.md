@@ -45,10 +45,19 @@ haze, drawn only when parameters, camera or viewport size change. W1.S3 adds a
 bounded WebGPU compute kernel with grid traversal, sun/sky illumination, a simple
 reflective/refractive water plane and progressive linear accumulation. It owns a
 separate device and disposes its buffers at job end. Tile completion gates further
-submission; every scene edit cancels and invalidates pending output. PNG uses the
+submission; visual scene edits cancel and invalidate pending output. PNG uses the
 same tone-mapped sRGB pixels as the displayed still. The v1 scene stays independent
 of transient render options. See [rendering](rendering.md) for the algorithm,
 resource budgets, approximations and reproducible GPU checks.
+
+## Terrain generation
+
+An embedded ES module worker owns layered noise generation and dense scalar
+height grids. The editor manages a single cancellable job and rejects stale
+results. Seed/layer/resolution edits regenerate heights; elevation and palette
+reuse heights; water reuses traced terrain surfaces; camera and light changes
+submit no terrain job. Both graphics paths consume the worker's bounded 128²
+render geometry. See [terrain authoring](terrain.md) for budgets and contracts.
 
 ## Scene and project boundaries
 

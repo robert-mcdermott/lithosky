@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 1, slice 4 — starter scenes, product site and packaging.** Compose
+**Status: wave 2, slice 1 — layered terrain and worker generation.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
@@ -50,12 +50,21 @@ orbit and scroll to zoom. With the view focused, arrow keys orbit, +/− zoom an
 Home resets. **Graphics & compatibility** can force WebGL 2, disable the GPU or
 retry after failure. GPU failure preserves the current in-memory parameters.
 
+## Terrain layers
+
+**Build with layers** creates a new landform from rolling hills (fBm), ridges,
+domain warp and terraces. Add, reorder, disable and tune up to eight layers;
+Undo restores the previous composition. Save/open and recovery preserve the stack.
+Generation runs in a cancellable worker with 256²–2048² cell budgets. Preview and
+stills currently use a shared 128² mesh. See [terrain authoring](docs/terrain.md)
+for controls, cache behavior and memory/render limits.
+
 ## Render and export
 
 Choose **Render image** for a progressive 16:9 still at 640 × 360 or 960 × 540,
 with 8–64 samples per pixel. **Cancel render** keeps the last complete sample;
-**Export PNG** saves it in sRGB. Scene edits clear the old render. Rendering is
-bounded and local, with no external libraries or services. This first tracer uses
+**Export PNG** saves it in sRGB. Visual edits clear the old render; renaming keeps it.
+Rendering is bounded and local, with no external libraries or services. This first tracer uses
 simple sky and water approximations; physical atmosphere, waves and vegetation
 come later. See [rendering](docs/rendering.md) for controls, limits and validation.
 
@@ -79,9 +88,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.1.0-dev.4 --out dist/releases/0.1.0-dev.4`
+`go run ./tools/release --version 0.2.0-dev.1 --out dist/releases/0.2.0-dev.1`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.1.0-dev.4` to check them.
+Use `go run ./tools/release --verify dist/releases/0.2.0-dev.1` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

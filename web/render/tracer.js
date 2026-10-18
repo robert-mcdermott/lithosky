@@ -13,8 +13,9 @@ export function renderTiles(width, height) {
   for (let y=0;y<height;y+=TILE_HEIGHT) for (let x=0;x<width;x+=TILE_WIDTH) tiles.push([x,y,Math.min(TILE_WIDTH,width-x),Math.min(TILE_HEIGHT,height-y)]);
   return tiles;
 }
-export async function createTracer(state, options) {
+export async function createTracer(state, options, preparedField = null) {
   const { width, height, samples } = validateRenderOptions(options);
+  if (state.generator === 'layers-v1' && !preparedField) throw new Error('Generate the layered terrain before rendering.');
   if (!navigator.gpu) throw new Error('Final rendering requires WebGPU. The scene can still be edited and saved.');
   const adapter=await navigator.gpu.requestAdapter();
   if (!adapter) throw new Error('No WebGPU adapter is available for final rendering.');
@@ -35,7 +36,7 @@ export async function createTracer(state, options) {
     const errors=compilation.messages.filter(m=>m.type==='error');
     if (errors.length) throw new Error(errors.map(m=>m.message).join('; '));
     const pipeline=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'render'}});
-    const field=createHeightfield(state), imageBytes=width*height*4;
+    const field=preparedField ?? createHeightfield(state), imageBytes=width*height*4;
     if (width*height*16>device.limits.maxStorageBufferBindingSize) throw new Error('This GPU cannot hold the selected image. Choose a smaller size.');
     device.pushErrorScope('validation');
     const uniform=buffer(144,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);

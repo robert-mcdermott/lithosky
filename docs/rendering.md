@@ -6,16 +6,16 @@ pixel. More samples reduce antialiasing and sky-occlusion noise. The image updat
 after every complete sample. **Show preview / Show render** compares the two.
 
 **Cancel render** keeps the last complete sample for **Export PNG**. Canceling
-before the first sample produces no exportable image. Editing any scene field,
-opening/restoring a scene, undo/redo, changing render settings or switching the
-preview backend clears the image and stops its job. A late GPU result or PNG
+before the first sample produces no exportable image. Visual changes, including
+those made through open/restore or undo/redo, clear the image and stop its job.
+Changing render settings or switching the preview backend also clears it. A late GPU result or PNG
 encoder callback cannot publish an image from the old scene.
 
 **Export PNG** downloads a new opaque 8-bit sRGB image at the selected dimensions.
 The filename includes dimensions and completed samples. It contains exactly the
 image pixels, without controls or viewport labels. **Save scene** remains a
 separate operation. Image settings and accumulation are transient; they do not
-change the v1 scene schema or survive app shutdown.
+change the scene document or survive app shutdown.
 
 Final rendering requires WebGPU. WebGL 2 continues to supply the interactive
 preview and scene editing. If final rendering fails, its image is discarded and
@@ -108,3 +108,11 @@ completed and canceled renders, PNG signature/dimensions and decoded pixel equal
 scene-edit invalidation including pending PNG encoding, initialization failure,
 device loss and retry, water/extreme-camera fixtures, WebGL fallback and narrow
 layout. See [validation record](validation.md) for actual machine results.
+
+## Layered terrain input
+
+W2.S1 passes a worker-prepared heightfield to the tracer. Legacy v1 buffers stay
+unchanged. Layered v2 scenes generate 256²–2048² scalar grids, then reduce them
+to the same 128² preview/trace mesh. Higher generation resolution does not yet
+increase silhouette detail. See [terrain authoring](terrain.md). Scene-title edits
+retain the current still; visual edits invalidate it.
