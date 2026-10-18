@@ -1,0 +1,33 @@
+# Licensing and provenance
+
+Original Lithosky code, documentation, shaders and procedural fixtures are
+Apache-2.0. The repository includes the complete license and attribution notice.
+No external rendering library, copied shader, font, image, model or learned
+weight is included in the application. The gallery PNGs and studio screenshot are captured from original procedural scenes;
+`docs/site/assets/captures.json` records provenance and hashes. Reference applications were inspected for
+architecture; their implementation and assets were not copied.
+
+The Go runtime/standard library is redistributed in compiled binaries under its
+own BSD-style terms; package the toolchain's LICENSE as GO-LICENSE alongside the
+application LICENSE and NOTICE when producing releases. The archive builder now bundles these notices and the
+verifier checks their presence before distribution. The browser is supplied
+by the user and is not redistributed. Development tools are not embedded in the
+application.
+
+Before accepting any dependency or asset, record its exact version/hash, source,
+SPDX license, copyright, modifications, redistribution obligations and transitive
+contents. Review code, documentation, fonts, sample data and model weights
+separately. Prefer original work and suitably reviewed Apache-2.0, MIT, BSD, ISC
+or CC0 material; a permissive label alone is not a completed audit. Preserve
+required notices. Do not include unknown, noncommercial, no-derivatives or
+incompatible copyleft material in the default distribution.
+
+Public research explains algorithms, not permission to copy implementation,
+illustrations or trade dress. Keep competitive notes under ignored
+`product_research/`. Do not add competing landscape product names to committed
+code, UI or documentation. Audit branding availability before public launch;
+this foundation is not a trademark clearance.
+
+References: [license text](https://www.apache.org/licenses/LICENSE-2.0),
+[application guidance](https://apache.org/legal/apply-license.html), and
+[third-party license policy](https://www.apache.org/legal/resolved.html).

@@ -1,1 +1,10 @@
-/product_research
+/product_research/
+/bin/
+/dist/
+/output/
+/.playwright-cli/
+.DS_Store
+
+# Default go build outputs
+/lithosky
+/lithosky.exe

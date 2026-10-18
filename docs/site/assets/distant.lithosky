@@ -1,0 +1,23 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "A distant world",
+  "terrain": {
+    "generator": "terrain-v1",
+    "seed": 42107,
+    "elevation": 1.35,
+    "palette": "otherworld"
+  },
+  "camera": {
+    "yaw": -0.35,
+    "pitch": 0.22,
+    "distance": 27
+  },
+  "water": {
+    "enabled": true,
+    "level": 2.7
+  },
+  "lighting": {
+    "sunElevation": 25
+  }
+}

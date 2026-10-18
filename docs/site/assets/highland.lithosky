@@ -1,0 +1,23 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Evening highlands",
+  "terrain": {
+    "generator": "terrain-v1",
+    "seed": 972,
+    "elevation": 0.7,
+    "palette": "natural"
+  },
+  "camera": {
+    "yaw": -0.45,
+    "pitch": 0.22,
+    "distance": 26
+  },
+  "water": {
+    "enabled": true,
+    "level": 1.1
+  },
+  "lighting": {
+    "sunElevation": 12
+  }
+}

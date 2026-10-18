@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#151c1e">
+  <title>Lithosky — Landscape studio</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#viewport">Skip to landscape</a>
+  <header>
+    <a class="brand" href="/" aria-label="Lithosky home"><img src="/favicon.svg" alt="" width="30" height="30">lithosky<span class="wordmark-dot">.</span></a>
+    <span class="header-divider"></span><span class="workspace-label">Landscape studio</span>
+    <div class="header-actions"><span class="local"><i></i> On your device</span><button id="help" class="quiet">Quick guide <span>?</span></button></div>
+  </header>
+  <main>
+    <aside class="library" aria-label="Scene studies">
+      <div class="eyebrow">YOUR STARTING POINT</div>
+      <h1>A world of<br>possibility.</h1>
+      <p class="intro">Start with a landscape.<br>Make it your own.</p>
+      <h2 class="section-label">SCENE STUDIES <span>03</span></h2>
+      <button class="study active" data-preset="alpine" aria-pressed="true"><span class="swatch alpine" aria-hidden="true"></span><strong>Alpine quiet</strong><small>Stone, water &amp; morning light</small></button>
+      <button class="study" data-preset="highland" aria-pressed="false"><span class="swatch highland" aria-hidden="true"></span><strong>Evening highlands</strong><small>A softer side of the mountains</small></button>
+      <button class="study" data-preset="distant" aria-pressed="false"><span class="swatch distant" aria-hidden="true"></span><strong>A distant world</strong><small>An imagined color story</small></button>
+      <div class="library-note"><span class="tiny-mountain">△</span><p>Built from a seed.<br>Nothing downloaded.</p></div>
+    </aside>
+    <section class="workspace" aria-label="Landscape preview">
+      <label class="study-picker" for="study-select">Start with a scene<select id="study-select"><option value="" disabled>Custom scene</option></select></label>
+      <div class="workspace-toolbar"><div><span class="eyebrow">SCENE DOCUMENT</span><h2 id="scene-name">Alpine quiet</h2></div><div class="document-actions"><button id="undo" disabled title="Undo (Ctrl/⌘ Z)">Undo</button><button id="redo" disabled title="Redo (Ctrl/⌘ Shift Z)">Redo</button><button id="open-scene">Open…</button><button id="save-scene">Save scene</button><input id="scene-file" type="file" accept=".lithosky,application/json" hidden></div></div>
+      <section id="recovery-banner" class="recovery-banner" hidden aria-label="Scene recovery"><strong>Pick up where you left off</strong><p id="recovery-note">Choose a recovery snapshot, or keep this scene to begin a new autosave.</p><label for="recovery-choice" class="sr-only">Recovery snapshot</label><select id="recovery-choice"></select><div><button id="restore-scene">Restore scene</button><button id="start-fresh">Keep this scene</button></div></section>
+      <div class="document-status"><span id="file-status" role="status">Scenes save as .lithosky files.</span><span id="autosave-status" role="status">Connecting autosave…</span><button id="retry-autosave" hidden>Retry autosave</button></div>
+      <div class="viewport-wrap">
+        <div id="viewport" tabindex="0" role="img" aria-label="Interactive terrain preview. Drag to orbit, scroll to zoom. Arrow keys orbit, plus and minus zoom."></div>
+        <canvas id="render-image" role="img" hidden aria-label="Progressive ray-traced landscape"></canvas>
+        <div id="empty-state" hidden><span class="empty-icon">△</span><h3>Let’s get your view ready.</h3><p id="empty-message">Checking available graphics…</p></div>
+        <div class="viewport-top"><span id="view-kind" class="view-tag">PERSPECTIVE</span><span id="backend" class="view-tag" aria-live="polite">Starting graphics…</span></div>
+        <div class="viewport-bottom"><div><span class="north">N ↑</span><span>Drag to orbit · Scroll to explore</span></div><button id="reset-camera" class="glass">Reset view ↗</button></div>
+      </div>
+      <div class="preview-note"><span class="preview-dot"></span><p id="view-description">Procedural preview · Render a still with traced shadows and calm-water reflections.</p></div>
+      <section class="render-panel" aria-label="Render a still">
+        <div class="render-heading"><div><span class="eyebrow">CAPTURE YOUR LANDSCAPE</span><h3>Render a still</h3></div><button id="show-preview" disabled>Show preview</button></div>
+        <div class="render-options"><label>Image size<select id="render-size"><option value="640">640 × 360</option><option value="960">960 × 540</option></select></label><label>Samples<select id="render-samples"><option value="8">8 · Quick</option><option value="16" selected>16 · Balanced</option><option value="32">32 · Refined</option><option value="64">64 · More detail</option></select></label></div>
+        <div class="render-actions"><button id="render-start" disabled>Render image</button><button id="render-cancel" disabled>Cancel render</button><button id="export-image" disabled>Export PNG</button></div>
+        <progress id="render-progress" value="0" max="16" aria-label="Completed render samples"></progress><p id="render-status" role="status">Checking render availability…</p>
+        <p class="hint">More samples reduce noise. Editing the scene clears the render. Cancel keeps the last complete sample for export.</p>
+      </section>
+      <div class="workspace-footer"><span id="geometry">Building terrain…</span><span>WAVE 01 <span class="muted">/</span> PROGRESSIVE RENDERING</span></div>
+    </section>
+    <aside class="inspector" aria-label="Landscape settings">
+      <div class="inspector-heading"><h2>Shape your scene</h2><p>Small changes. New horizons.</p><label for="scene-title">Scene name</label><input id="scene-title" type="text" maxlength="80" value="Alpine quiet"></div>
+      <section class="control-group"><h3><span>01</span> Landform</h3><label for="seed">Terrain seed</label><div class="seed-row"><input id="seed" type="number" min="0" max="4294967295" step="1" value="1847"><button id="new-seed" title="Generate a new terrain seed" aria-label="Generate a new terrain seed">↻</button></div><label for="elevation">Mountain height <output id="elevation-value">1.00×</output></label><input id="elevation" type="range" min="0.4" max="1.7" step="0.05" value="1"><div class="range-labels"><span>Gentle</span><span>Dramatic</span></div></section>
+      <section class="control-group"><h3><span>02</span> Light &amp; mood</h3><label for="sun">Sun elevation <output id="sun-value">38°</output></label><input id="sun" type="range" min="5" max="85" step="1" value="38"><div class="range-labels"><span>Low light</span><span>High noon</span></div><label for="palette">Color palette</label><select id="palette"><option value="natural">Natural earth</option><option value="otherworld">Otherworld</option></select></section>
+      <section class="control-group"><h3><span>03</span> Water &amp; workspace</h3><label class="check-label"><input id="water-enabled" type="checkbox" checked> Show water</label><label for="water-level">Water level <output id="water-value">0.25</output></label><input id="water-level" type="range" min="-3" max="5" step="0.05" value="0.25"><p class="hint">Recovery snapshots stay on this device. Save a .lithosky file to keep or share a named scene.</p><details id="graphics-details"><summary>Graphics &amp; compatibility</summary><label for="graphics-mode">Preview backend</label><select id="graphics-mode"><option value="auto">Automatic (recommended)</option><option value="webgl2">WebGL 2 compatibility</option><option value="none">Disable GPU preview</option></select><p id="graphics-info" class="hint"></p><p id="graphics-reasons" class="hint"></p><button id="retry" class="quiet full">Retry graphics</button></details></section>
+      <div class="foundation"><span class="eyebrow">A STUDIO TAKING SHAPE</span><p>The beginning of something<br>beautiful, one landscape at a time.</p><small id="build-info">Lithosky · development build</small></div>
+    </aside>
+  </main>
+  <div id="status" role="status" class="sr-only"></div>
+  <dialog id="guide"><form method="dialog"><button class="dialog-close" aria-label="Close quick guide">×</button></form><span class="eyebrow">WELCOME TO LITHOSKY</span><h2>Find your next horizon.</h2><p>Choose a study, change its seed, then shape the mountain height and light. Everything you see is generated locally.</p><ul><li>Start with a scene from the menu. Try Alpine quiet, Evening highlands, or A distant world. A scene replaces the current composition; Undo brings it back.</li><li>Drag left/right to turn around the landscape; drag up/down to raise or lower your view. Scroll to move closer or farther away.</li><li>With the view focused, use arrow keys to orbit and + / − to zoom. Home resets the camera.</li><li>For your first still: choose a scene, orbit until the mountain silhouette feels right, set the water level, then choose Render image. Save scene keeps the composition; Export PNG keeps the picture.</li><li>Open Graphics &amp; compatibility to select a preview backend or retry after a graphics failure.</li></ul><p>Open and Save scene use .lithosky JSON files. Autosave keeps local recovery snapshots between launches. Use Undo/Redo (Ctrl/⌘ Z and Ctrl/⌘ Shift Z) for scene and camera edits. Saving a scene downloads a new file; it does not update an earlier download. Use Render image for a progressive 16:9 still with traced terrain, sun/sky lighting and calm-water reflection/refraction. Cancel keeps the last complete sample. Export PNG downloads the displayed image in sRGB. Any scene edit clears the render. Final rendering requires WebGPU; WebGL 2 remains available for preview. Physical atmosphere, waves and vegetation come in later releases.</p></dialog>
+</body>
+</html>
