@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 2, slice 2 — terrain sculpting and bounded undo.** Compose
+**Status: wave 2, slice 3 — surface materials and hierarchical traversal.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
@@ -65,6 +65,12 @@ Space applies it; Escape cancels an unfinished stroke. Sculpted scenes save as
 v3 files and retain their strokes through recovery. History has a 4 MiB snapshot
 budget; scenes allow 32 strokes of up to 24 marks each.
 
+**Customize surface** blends sand, ground, rock and snow using height and slope
+rules, or applies a single material preset. Tune transition softness and seeded
+color detail; both palettes work with the rules. Surface settings save as v4
+scenes with the existing terrain and sculpting. Older scenes keep their appearance
+until customized. Material changes reuse generated heights and traversal bounds.
+
 ## Render and export
 
 Choose **Render image** for a progressive 16:9 still at 640 × 360 or 960 × 540,
@@ -94,9 +100,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.2.0-dev.2 --out dist/releases/0.2.0-dev.2`
+`go run ./tools/release --version 0.2.0-dev.3 --out dist/releases/0.2.0-dev.3`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.2.0-dev.2` to check them.
+Use `go run ./tools/release --verify dist/releases/0.2.0-dev.3` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

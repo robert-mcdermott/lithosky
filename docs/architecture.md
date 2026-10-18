@@ -55,10 +55,12 @@ resource budgets, approximations and reproducible GPU checks.
 An embedded ES module worker owns layered noise generation, bounded sculpt
 replay and dense scalar height grids. Pristine and sculpted fields are separate;
 undo stores scene parameter strings under a 4 MiB budget instead of dense grids. The editor manages a single cancellable job and rejects stale
-results. Seed/layer/resolution edits regenerate heights; elevation and palette
+results. Seed/layer/resolution edits regenerate heights; elevation, palette and material rules
 reuse heights; water reuses traced terrain surfaces; camera and light changes
 submit no terrain job. Both graphics paths consume the worker's bounded 128²
-render geometry. See [terrain authoring](terrain.md) for budgets and contracts.
+render geometry. V4 materials use original height/slope blends and seeded vertex
+color detail. A 16² block hierarchy bounds 8² cells per block for CPU/GPU traversal;
+material-only edits reuse those bounds. See [terrain authoring](terrain.md) for budgets and contracts.
 
 ## Scene and project boundaries
 

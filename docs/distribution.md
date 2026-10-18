@@ -60,3 +60,8 @@ Layered terrain supports Raise, Lower, Smooth and Flatten. Drag and release to
 apply one undoable stroke; arrow keys position the brush and Space applies it.
 Escape discards an unfinished stroke. V3 files retain up to 32 strokes of 24
 marks each; Clear sculpting is undoable. The history snapshot budget is 4 MiB.
+
+Choose Customize surface for height/slope material rules or Rock, Snow, Sand and
+Ground presets. Color detail adds local seeded variation. Customized surfaces
+save as v4, preserving the original or layered/sculpted terrain; earlier scene
+versions remain supported. The preview and tracer share the same surface mesh.

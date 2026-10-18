@@ -26,11 +26,13 @@ Automatic → Retry graphics** if necessary.
 
 - A 128 × 128 bounded heightfield, spanning −32 to 32 in X and Z, uses the same
   seeded heights, triangle diagonals, smooth normals, palette rules and camera
-  as preview. The shared palette values act as linear reflectance in the tracer.
-- Ray/box clipping followed by grid traversal tests two triangles per cell.
+  as preview. V4 height/slope rules and seeded color detail also share the exact
+  vertex reflectances. These values act as linear reflectance in the tracer.
+- Ray/box clipping followed by a two-level hierarchy skips empty 8 × 8-cell
+  blocks, then tests two triangles per remaining cell.
   Zero direction components, boundary starts, underside rays and parallel rays
-  are handled explicitly. Each traversal stops within 258 cells. Triangle
-  intersections use a minimum distance of 0.001 scene units; secondary rays are
+  are handled explicitly. Each traversal stops within 34 blocks and 18 cells per block.
+  Triangle intersections use a minimum distance of 0.001 scene units; secondary rays are
   offset 0.003 units to reduce self-intersection.
 - Terrain receives a directional sun with traced shadows, plus one cosine-weighted
   sky visibility sample. Camera jitter supplies antialiasing. There are no
@@ -64,8 +66,8 @@ ends after the selected sample count; there is no idle render loop. These are
 work bounds, not a hardware-independent latency or watchdog guarantee.
 
 At 960 × 540 the accumulation, output, readback and vertex buffers total about
-12.6 MiB, excluding preview resources and driver overhead. Limits are checked
-before buffer creation. The final job owns a separate device so a tracing failure
+12.6 MiB plus 2 KiB of block bounds, excluding preview resources and driver
+overhead. Limits are checked before buffer creation. The final job owns a separate device so a tracing failure
 can leave the preview intact. All job buffers and its device are destroyed on
 completion, cancellation or failure. Every new job starts fresh accumulation;
 scene changes also advance a generation guard covering asynchronous creation,
@@ -116,3 +118,19 @@ unchanged. Layered v2 scenes generate 256²–2048² scalar grids, then reduce t
 to the same 128² preview/trace mesh. Higher generation resolution does not yet
 increase silhouette detail. See [terrain authoring](terrain.md). Scene-title edits
 retain the current still; visual edits invalidate it.
+
+## Traversal comparisons
+
+`tests/browser-materials.mjs` compares the default hierarchy with the retained
+linear diagnostic on original terrain, a sculpted material scene and a single-cell
+peak. It checks CPU/GPU hit distances for grazing, silhouette and boundary rays,
+counts CPU fine-cell tests, and compares rendered pixels. Timings exclude shader
+compilation and take the median of three eight-sample renders after warming both
+routes once; the timed pairs alternate traversal order.
+They include dispatch/readback and JavaScript scheduling; they are end-to-end
+local timings, not isolated GPU timestamps. Test fixtures use the same seeds,
+geometry and 640 × 360 camera for both traversal routes.
+
+The diagnostic selects the route through WGSL's pipeline-overridable constant;
+it is not a scene setting. See the [WebGPU pipeline constants specification](https://www.w3.org/TR/webgpu/#dictdef-gpuprogrammablestage).
+Actual counts, timings and tested hardware are recorded in [validation](validation.md).

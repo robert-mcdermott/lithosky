@@ -100,6 +100,15 @@ func TestRecoveryAPI(t *testing.T) {
 }
 
 func TestFullSculptRecovery(t *testing.T) {
+	testFullTerrainRecovery(t, "sculpted v3")
+}
+
+func TestFullMaterialRecovery(t *testing.T) {
+	testFullTerrainRecovery(t, "material rules on sculpted terrain v4")
+}
+
+func testFullTerrainRecovery(t *testing.T, fixture string) {
+	t.Helper()
 	fixtures, err := os.ReadFile("../../tests/fixtures/scenes.json")
 	if err != nil {
 		t.Fatal(err)
@@ -113,7 +122,7 @@ func TestFullSculptRecovery(t *testing.T) {
 	}
 	var document map[string]any
 	for _, c := range cases {
-		if c.Name == "sculpted v3" {
+		if c.Name == fixture {
 			document = c.Scene
 		}
 	}

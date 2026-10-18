@@ -1,7 +1,7 @@
 # Scene files and recovery
 
 `.lithosky` is a UTF-8 JSON document limited to 128 KiB. This build opens v1
-legacy landscapes, v2 layered terrain and v3 sculpted terrain. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain and v4 surface materials. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -89,6 +89,31 @@ Serialization uses readable JSON, falling back to compact JSON if needed to stay
 within the file cap. The largest valid stroke log's compact autosave request stays
 below 60 KiB, leaving space under the browser's keepalive body budget. HTTP writes
 are bounded to the scene cap plus 1 KiB of envelope; recovery reads share the cap.
+
+## Version 4 surface materials
+
+V4 requires version `4`, a new root `surface` object and either the original
+v1 terrain fields or all v3 layered/sculpted terrain fields. The explicit
+**Customize surface** action preserves the current generator; layered terrain
+without sculpting receives an empty stroke list. Opening older files does not
+upgrade them. Building layers or sculpting a v4 scene retains its surface settings
+and version. Older builds reject v4 instead of stripping those settings.
+
+Every `surface` property is required; unknown properties are rejected:
+
+| Property | Contract |
+|---|---|
+| `preset` | `rules`, `rock`, `snow`, `sand` or `ground` |
+| `snowHeight`, `sandHeight` | −64…64 world-height units, after elevation scaling |
+| `rockSlope` | 0…90 degrees from the vertical smooth normal |
+| `blend` | 0.05…4 transition softness |
+| `detail` | 0…1 color variation strength |
+| `detailScale` | 0.25…4 world-space frequency multiplier |
+
+Single-material presets retain rule values for switching back. Detail affects
+color only. The [surface interpretation](terrain.md#surface-materials) is fixed
+by v4. No images, remote textures or executable shader content enter scene files.
+The 128 KiB file limit and bounded compact recovery payload continue to apply.
 
 ## Open, save and history
 

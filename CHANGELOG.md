@@ -2,7 +2,17 @@
 
 ## v0.2.0 — unreleased
 
-Development build: 0.2.0-dev.2. Wave 2, slice 2:
+Development build: 0.2.0-dev.3. Wave 2, slice 3:
+
+- Editable height/slope surface rules and rock, snow, sand and ground presets.
+- Original seeded color detail shared by preview and final rendering.
+- V4 scenes retain surface settings on original or layered/sculpted terrain;
+  older documents preserve their existing appearance until explicitly customized.
+- A two-level terrain hierarchy skips empty 8 × 8-cell blocks using 2 KiB of bounds.
+- CPU/exhaustive/GPU grazing-ray and silhouette checks, preview/final alignment
+  tests and comparative render/memory benchmarks.
+
+Wave 2, slice 2:
 
 - Raise/lower/smooth/flatten brushes with terrain picking, cursor outline and keyboard controls.
 - One undoable edit per released stroke; Escape/pointer cancellation discard staged work.

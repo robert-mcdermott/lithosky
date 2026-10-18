@@ -46,6 +46,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
     viewport.classList.toggle('sculpting',mode()!=='orbit');
     if(!layered)status('Build with layers to sculpt a new landform.');
     else if(count>=MAX_STROKES)status('Stroke limit reached. Undo or clear sculpting to continue.');
+    else if(['Build with layers to sculpt a new landform.','Stroke limit reached. Undo or clear sculpting to continue.'].includes($('sculpt-status').textContent))status('Choose a brush, then drag on terrain or use Apply brush.');
     draw();
   }
   function newStroke() {
@@ -57,7 +58,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
   }
   function apply(staged) {
     if(!staged?.points.length)return;
-    try {commit(scene=>{scene.version=3;scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);});status('Stroke applied. Undo restores the preceding terrain.');}
+    try {commit(scene=>{scene.version=scene.surface?4:3;scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);});status('Stroke applied. Undo restores the preceding terrain.');}
     catch(error){status('Could not apply stroke: '+error.message);}
     sync();
   }

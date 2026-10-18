@@ -2,6 +2,7 @@
 import { frameUniforms } from './scene/terrain.js';
 import { TerrainGenerator } from './scene/generator.js';
 import { geometryKey, renderKey } from './scene/generation.js';
+import { materialControls } from './scene/material-controls.js';
 import { sculptControls } from './scene/sculpt-controls.js';
 import { terrainControls } from './scene/terrain-controls.js';
 import { selectRenderer } from './render/select.js';
@@ -34,6 +35,7 @@ const terrainGenerator = new TerrainGenerator();
 let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
+const materials = materialControls(() => history.value, discrete);
 const layerControls = terrainControls(() => history.value, discrete);
 const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
 
@@ -121,7 +123,7 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();sculpt.sync();
+  layerControls.sync();sculpt.sync();materials.sync();
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;

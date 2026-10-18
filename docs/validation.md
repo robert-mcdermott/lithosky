@@ -335,3 +335,81 @@ while dragging. Sculpting requires layered terrain. Generation supports
 256²–2048² cells, while preview and final tracing still share the 128² mesh.
 These are local results, not cross-platform performance guarantees. No dependency
 was added, private research committed, site published or release created.
+
+## Wave 2, slice 3 — surface materials and hierarchical traversal
+
+Completed locally on 2026-10-18, build `0.2.0-dev.3`, macOS arm64, Go 1.26.6,
+Node 22.17 and Chrome 155 with Apple Metal 3 graphics. Native Windows/Linux
+release gates remain open.
+
+Final checks passed: all 115 JavaScript tests, `go test -race ./...` and
+`go vet ./...`. The standalone smoke test verifies the final embedded assets
+and recovery lifecycle. `npm run site` and `npm run site:check` validate four
+pages, 86 local links and nine image references. All three gallery renders were
+recaptured at 960 × 540 / 64 samples with unchanged image hashes; the studio
+screenshot and final source provenance were refreshed.
+
+Material checks cover height/slope blending, all four base presets, both palettes,
+seeded detail repeatability, finite reflectance at extreme heights, and continuity
+at transitions. Worker checks confirm material edits reuse pristine/sculpted
+heights and hierarchy bounds while preview and final vertex positions, normals
+and colors agree. Shared Go/JavaScript fixtures accept v4 original and sculpted
+terrain and reject missing, unknown, out-of-range and incorrectly typed surface
+fields. Full sculpt logs with v4 materials fit the file and compact autosave
+budgets; authenticated save and recovery-store restart preserve their exact
+canonical scene data.
+
+CPU hierarchy tests compare exhaustive triangles for silhouette, grazing,
+boundary, inside and finite shadow rays, plus a deterministic 2,000-ray sweep
+against linear traversal. A single-cell peak remains visible at grazing angles.
+Every block encloses all rounded vertices including shared edges. Bounds require
+2,048 bytes; traversal visits at most 34 blocks and 18 cells per intersected
+block. The 128² render field uses 798,768 vertex bytes. Existing generation
+budgets remain unchanged; render allocations add only the 2 KiB bounds buffer.
+
+`tests/browser-materials.mjs` passed on the final build: surface enable/preset/rule
+edits, numeric validation, undo/redo, layer conversion with retained materials,
+sculpting, v4 download/reopen, autosave/recovery, stale-render invalidation and
+mobile WebGL editing. Recovery assertions wait for the asynchronous restore to
+complete. The stale legacy sculpt hint discovered after restoring layered terrain
+was fixed and checked. Desktop/mobile controls and the actual exported material
+render were visually inspected. No page errors occurred.
+
+The GPU comparison used 734 rays on each of three fields (2,202 rays per traversal
+route), including camera silhouettes, near-horizontal rays, block edges and a
+single-cell peak. Maximum CPU/GPU hit-distance difference was 0.00000946 scene
+units. Hierarchical and linear routes produced identical RGBA pixels on all
+three eight-sample 640 × 360 renders.
+
+| Fixture | Linear fine-cell tests | Hierarchical fine-cell tests | Linear render median | Hierarchical render median |
+|---|---:|---:|---:|---:|
+| Original terrain | 18,559 | 2,520 | 376.5 ms | 318.4 ms |
+| Sculpted material scene | 12,236 | 3,041 | 330.1 ms | 317.5 ms |
+| Single-cell peak | 28,505 | 1,213 | 409.9 ms | 284.5 ms |
+
+Counts cover the diagnostic rays, not all image rays. Timings are the final
+local run: both routes warmed once, then three timed pairs with alternating order.
+They include dispatch, readback and JavaScript scheduling and exclude compilation.
+Earlier runs varied, including a slower hierarchical result on ordinary terrain;
+these figures are observations, not a universal speedup or cross-device promise.
+The stable result is fewer fine-cell tests with matching geometry and output.
+
+The existing browser suites also passed with the final traversal:
+
+- Renderer: 1,024 legacy intersection probes, PNG pixel equality, cancellation,
+  initialization failure, device loss/retry, stale export rejection, water/camera
+  extremes and WebGL/mobile fallback. Worst hit-distance difference was about
+  0.0000108 units; eight-sample 640/960 renders took roughly 0.4/0.8 seconds.
+- Terrain worker: layer editing, selective invalidation, persistence,
+  cancellation/failure/retry, 2048² generation and UI responsiveness. The largest
+  grid took about 1.42 seconds with 171 animation frames observed. Layered GPU
+  parity differed by at most 0.00000191 units.
+- Sculpting: pointer and keyboard tools, Escape/pointer/focus cancellation,
+  exact heightfield undo/redo, clear/restore, file/recovery persistence, stroke
+  caps and mobile WebGL. The sculpted eight-sample still took about 0.4 seconds.
+
+Preview and final geometry remain the same 128² mesh. Procedural detail changes
+vertex reflectance, not geometry or normals; high-resolution rendered geometry,
+texture/bump mapping and physical material BRDFs are outside this slice. No
+application dependency was added, private research committed, release published
+or remote CI run performed. W2.S4 has not started.

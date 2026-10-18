@@ -10,7 +10,7 @@ export function defaultScene() {
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2, 3].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2 and 3.');
+  if (![1, 2, 3, 4].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3 and 4.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {
@@ -60,6 +60,6 @@ export function serializeScene(scene, schema) {
   return new TextEncoder().encode(text).length <= MAX_SCENE_BYTES ? text : JSON.stringify(valid) + '\n';
 }
 export function renderState(scene) {
-  return { ...scene.terrain, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
+  return { ...scene.terrain, materials: scene.surface, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
 }
 export function wrapYaw(yaw) { return ((yaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; }

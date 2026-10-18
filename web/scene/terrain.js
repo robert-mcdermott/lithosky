@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { materialColor } from './materials.js';
 import { noise, layeredHeight } from './noise.js';
 export const defaults = Object.freeze({ seed: 1847, elevation: 1, sun: 38, palette: 'natural', yaw: 0.28, pitch: 0.3, distance: 23, waterEnabled: true, waterLevel: 0.25 });
 
@@ -30,6 +31,7 @@ export function surfacePoint(x, z, h, normal, state) {
   if (water) normal = [0, 1, 0];
   let color = water ? [0.14, 0.34, 0.36] : h > 5.4 ? [0.82, 0.85, 0.82] : normal[1] < 0.78 ? [0.39, 0.41, 0.37] : h < 0.6 ? [0.5, 0.48, 0.34] : [0.28, 0.35, 0.26];
   if (state.palette === 'otherworld') color = water ? [0.28, 0.31, 0.6] : h > 5.4 ? [0.83, 0.78, 0.93] : [0.35 + h * 0.022, 0.26 + normal[1] * 0.12, 0.4 + h * 0.017];
+  if (!water && state.materials) color = materialColor(x,z,h,normal,state);
   color = color.map(value => Math.max(0, Math.min(1, value)));
   return [x, water ? state.waterLevel : h, z, ...normal, ...color];
 }

@@ -50,7 +50,8 @@ validators, and unsupported grid sizes are rejected before allocation.
 Their positions come from the same reduced grid, and normals use bilinear samples
 of the dense field at ±0.08 units. High generation resolution can improve normals
 but does not increase rendered silhouette detail yet. Higher-resolution traced
-geometry needs the hierarchical traversal planned in W2.S3. These generation
+geometry needs additional geometry/upload budgets beyond the hierarchy introduced
+in W2.S3. These generation
 budgets do not promise 2048² rendered geometry. Version 1 uses its original analytic
 samples and normals, preserving legacy render buffers.
 
@@ -66,7 +67,8 @@ on reopen; they are not included in files or undo snapshots.
 |---|---|
 | Seed, enabled layer content/order, generation resolution | Heights, surface, preview, final accumulation |
 | Sculpt strokes | Replay from cached pristine heights; surface, preview and final accumulation |
-| Mountain height or palette | Surface, preview, final accumulation; cached heights reused |
+| Mountain height | Surface and hierarchy bounds, preview, final accumulation; cached heights reused |
+| Palette or material settings | Surface colors, preview, final accumulation; heights and hierarchy bounds reused |
 | Water enable/level | Preview and final accumulation; traced terrain surface reused |
 | Camera or sunlight | View uniforms and final accumulation; no terrain job |
 | Scene title | Metadata only; rendered image retained |
@@ -118,14 +120,62 @@ the saved stroke list; regenerate or Undo to continue. Scene v3 persists the lis
 Undo history stores bounded strings under a separate 4 MiB budget (100 entries
 maximum). These are application data budgets, not total process-memory limits.
 Preview and tracing remain at 128² cells: brush radii start at 0.5 units, but fine
-features can still be underrepresented until higher-resolution traversal lands.
+features can still be underrepresented at the current render-mesh resolution.
+
+## Surface materials
+
+Choose **Customize surface** on any terrain. This explicitly adds material rules
+and saves as v4, preserving the generator and sculpted geometry. Undo restores
+the preceding scene. Legacy v1–v3 files keep their original palette rules unless
+customized. **Surface preset** selects either height/slope rules or a uniform
+Rock, Snow, Sand or Ground base material. Both Natural earth and Otherworld
+palettes supply original linear reflectance colors.
+
+Height/slope rules blend ground into sand below Sand height, expose rock on steep
+slopes, then add snow above Snow height on gentler slopes. Heights are measured
+after Mountain height scaling. Slope is the angle of the smooth normal from
+vertical, in degrees. The smoothstep transition spans threshold ± softness for
+height and threshold ± (8 × softness) degrees for slope. Snow weight is reduced
+by the rock weight; steep rock remains exposed above the snow line. Sand and snow
+heights can overlap intentionally; snow is applied last.
+
+**Color detail** modulates reflectance using two seeded value-noise frequencies
+with weights 0.7/0.3 and at most ±45% variation at full strength. **Detail frequency**
+scales their world-space coordinates. Zero detail gives the preset colors without
+variation. Detail is evaluated at render vertices and interpolated identically
+by preview and tracing. It does not displace geometry or perturb normals; this
+slice does not provide subpixel textures, bump mapping or physical material BRDFs.
+All reflectance channels stay within [0,1]. These are artistic surface controls.
+
+## Hierarchical traversal
+
+The worker builds 16 × 16 block bounds over the shared 128² render mesh. Each
+block contains 8 × 8 cells and encloses all 9 × 9 rounded vertex heights, including
+shared edges. Two Float32 values per block require exactly 2 KiB. Surface-color
+edits reuse these bounds; height changes rebuild them. Worker-to-UI transfers copy
+the bounds with the field, and the final render uploads them to a storage buffer.
+The existing 14 MiB surface/transfer allowance includes these small buffers.
+
+A ray clips to the root terrain box and traverses blocks in X/Z order. Its height
+interval across each block is compared with the block bounds. Empty intervals
+skip all enclosed cells. Otherwise the ray clips to that block and tests its
+triangles in cell order, using the original triangle routine. Conservative 0.001
+height padding and existing intersection tolerances preserve boundary/grazing
+hits. At most 34 block steps and 18 fine-cell steps per intersected block are
+possible. Camera, shadow, sky-occlusion, water and CPU picking rays share this
+hierarchy. GPU tracing retains a linear diagnostic mode for parity/benchmarks.
+
+The hierarchy accelerates the current shared mesh; it does not increase its
+128² resolution. See [rendering](rendering.md) and [measured validation](validation.md)
+for image budgets, comparisons and limitations.
 
 ## Validation
 
 `npm test` checks fixed Float32 seed hashes, noise composition, negative-height
 terraces, legacy buffer equality, all four allocation budgets, partial-generation
 cancellation, cache invalidation, and late-result/error/retry handling. Shared
-Go/JavaScript fixtures validate all three scene versions and malformed layer payloads.
+Go/JavaScript fixtures validate all four scene versions and malformed layer, sculpt
+and material payloads.
 
 For actual browser tests, build and start with an isolated `--data-dir`, then use
 the Playwright CLI with `tests/browser-terrain.mjs` as the `run-code` callback.
@@ -133,5 +183,7 @@ It checks controls, undo/reorder, cache reuse, save/open/recovery, 2048² cancel
 and UI responsiveness, layered CPU/GPU traversal, still export, WebGL and mobile.
 `tests/browser-sculpt.mjs` checks pointer/keyboard brushes, cancellation, exact
 undo, persistence/recovery, stroke limits, rendering and mobile WebGL.
+`tests/browser-materials.mjs` checks surface editing, v4 save/recovery, WebGL/mobile,
+GPU grazing/silhouette probes and comparative traversal render times/pixels.
 `tests/browser-render.mjs` covers the existing tracer regression suite. Browser
 checks need a working WebGPU device; Node tests alone do not prove GPU support.

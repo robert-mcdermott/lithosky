@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { heightAt, normalize, surfacePoint } from './terrain.js';
+import { buildHierarchy } from '../render/heightfield.js';
 import { sculptHeights } from './sculpt.js';
 export const RENDER_GRID = 128;
 export const RESOLUTIONS = Object.freeze([256, 512, 1024, 2048]);
@@ -15,7 +16,7 @@ export function baseKey(state) {
     state.generator === 'layers-v1' ? state.layers.filter(l => l.enabled).map(l => [l.kind,l.strength,l.scale,l.kind === 'terrace' ? 1 : l.octaves]) : []]);
 }
 export const heightKey = state => JSON.stringify([baseKey(state), state.sculpt ?? []]);
-export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette]);
+export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette, state.materials ?? null]);
 export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0]);
 const yieldTask = () => new Promise(resolve => setTimeout(resolve, 0));
 function canceled(signal) { if (signal?.aborted) throw new DOMException('Terrain generation canceled.', 'AbortError'); }
@@ -96,8 +97,13 @@ export class TerrainCache {
       } else this.effective=this.base;
       this.heightsKey=heightKey(state);
     }
-    if(surfaceChanged) {this.field=buildSurface(this.effective,state);this.fieldKey=surfaceKey(state);}
-    return { mesh:buildPreview(this.field,this.effective,state), field:surfaceChanged?{...this.field,vertices:this.field.vertices.slice()}:null,
+    if(surfaceChanged) {
+      const boundsKey=JSON.stringify([heightKey(state),state.elevation]);
+      this.field=buildSurface(this.effective,state);
+      if(this.boundsKey!==boundsKey){this.hierarchy=buildHierarchy(this.field);this.boundsKey=boundsKey;}
+      this.field.hierarchy=this.hierarchy;this.fieldKey=surfaceKey(state);
+    }
+    return { mesh:buildPreview(this.field,this.effective,state), field:surfaceChanged?{...this.field,vertices:this.field.vertices.slice(),hierarchy:this.field.hierarchy.slice()}:null,
       heightsChanged,surfaceChanged,noiseChanged,resolution:this.base.resolution };
   }
 }
