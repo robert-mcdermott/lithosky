@@ -32,7 +32,7 @@ async (page) => {
   check(scene.version===4&&scene.surface.detail===.7&&scene.terrain.sculpt.length===1,'V4 sculpt/material save');
   await page.getByRole('combobox',{name:'Start with a scene',exact:true}).selectOption('alpine');await ready();
   check(await page.getByRole('button',{name:'Customize surface',exact:true}).isVisible(),'Legacy appearance did not return');
-  await page.locator('#scene-file').setInputFiles({name:'surface.lithosky',mimeType:'application/json',buffer:bytes});await ready();
+  await page.locator('#scene-file').setInputFiles({name:'surface.lithosky',mimeType:'application/json',buffer:bytes});await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened surface.lithosky'));await ready();
   check(await page.locator('#material-snowHeight').inputValue()==='3.2','Material reopen');
   await page.waitForFunction(()=>document.getElementById('autosave-status').textContent==='Recovery saved on this device');
   await page.reload();await ready();await page.getByRole('button',{name:'Restore scene',exact:true}).click();await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Recovery restored.'));await ready();

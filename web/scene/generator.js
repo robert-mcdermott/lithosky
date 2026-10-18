@@ -9,7 +9,7 @@ export class TerrainGenerator {
     this.serial++;this.worker?.terminate();this.worker=null;
     this.pending?.reject(new DOMException('Terrain generation canceled.', 'AbortError'));this.pending=null;
   }
-  generate(state, onProgress = () => {}) {
+  generate(state, onProgress = () => {}, action = 'build') {
     if(this.pending) this.cancel();
     const id=++this.serial;
     return new Promise((resolve,reject)=>{
@@ -24,7 +24,7 @@ export class TerrainGenerator {
           if(data.error) {failed(new Error(data.error));return;}
           if(data.result) {this.pending=null;resolve(data.result);} else onProgress(data.progress);
         };
-        this.worker.postMessage({id,state:structuredClone(state)});
+        this.worker.postMessage({id,state:structuredClone(state),action});
       } catch(error) { this.pending=null;this.worker?.terminate();this.worker=null;reject(error); }
     });
   }

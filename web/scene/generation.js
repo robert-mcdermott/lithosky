@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { decodeHeightSamples,loadHeightSamples } from './heightmaps.js';
 import { heightAt, normalize, surfacePoint } from './terrain.js';
 import { buildHierarchy } from '../render/heightfield.js';
 import { sculptHeights } from './sculpt.js';
@@ -11,12 +12,13 @@ export function terrainBudget(resolution) {
   return { resolution, samples: (resolution + 1) ** 2, heightBytes, peakBytes: heightBytes * 3 + 14 * 1024 * 1024 };
 }
 export function baseKey(state) {
+  if(state.generator==='heightmap-v1')return JSON.stringify([state.generator,state.asset,state.resolution,state.minimum,state.maximum]);
   return JSON.stringify([state.generator || 'terrain-v1', state.seed,
     state.generator === 'layers-v1' ? state.resolution : 128,
     state.generator === 'layers-v1' ? state.layers.filter(l => l.enabled).map(l => [l.kind,l.strength,l.scale,l.kind === 'terrace' ? 1 : l.octaves]) : []]);
 }
 export const heightKey = state => JSON.stringify([baseKey(state), state.sculpt ?? []]);
-export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette, state.materials ?? null]);
+export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette, state.seed, state.materials ?? null]);
 export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0]);
 const yieldTask = () => new Promise(resolve => setTimeout(resolve, 0));
 function canceled(signal) { if (signal?.aborted) throw new DOMException('Terrain generation canceled.', 'AbortError'); }
@@ -24,6 +26,10 @@ function canceled(signal) { if (signal?.aborted) throw new DOMException('Terrain
 // Dense scalar storage stays in the worker. Only bounded render buffers cross to UI.
 // Row chunks give progress and test cancellation; UI cancellation terminates the worker.
 export async function generateHeights(state, { signal, onProgress = () => {}, yieldControl = yieldTask } = {}) {
+  if(state.generator==='heightmap-v1') {
+    canceled(signal);const raw=await loadHeightSamples(state);canceled(signal);onProgress(1);
+    return {...sampleHeights(decodeHeightSamples(raw,state),state.resolution),raw};
+  }
   const layered = state.generator === 'layers-v1', resolution = layered ? terrainBudget(state.resolution).resolution : RENDER_GRID;
   const plain = { ...state, elevation: 1 }, size = resolution + 1;
   const heights = new Float32Array(size * size);

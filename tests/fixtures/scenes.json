@@ -58,7 +58,7 @@
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 5,
+      "version": 6,
       "title": "Alpine quiet",
       "terrain": {
         "generator": "terrain-v1",
@@ -4119,6 +4119,345 @@
         "blend": 0.6,
         "detail": "0.5",
         "detailScale": 1
+      }
+    }
+  },
+  {
+    "name": "imported v5",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "imported v5 materials",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "surface": {
+        "preset": "rules",
+        "snowHeight": 5.4,
+        "sandHeight": 0.6,
+        "rockSlope": 39,
+        "blend": 0.6,
+        "detail": 0.25,
+        "detailScale": 1
+      }
+    }
+  },
+  {
+    "name": "heightmap malformed hash",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "../aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap reversed range",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": 9,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap unsupported resolution",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 127,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap negative scale",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": -1
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap missing samples reference",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap unknown path",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10,
+        "path": "/tmp/x"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap wrong version",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 4,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": -2,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "heightmap flat range",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 5,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "heightmap-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 128,
+        "sculpt": [],
+        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "minimum": 8,
+        "maximum": 8,
+        "metersPerUnit": 10
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
       }
     }
   }

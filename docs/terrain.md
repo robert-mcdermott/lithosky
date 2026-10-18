@@ -107,7 +107,7 @@ Stroke marks are spaced at 0.35 × radius and stored to four decimal places;
 extra pointer events do not add strength. Each stroke has at most 24 marks and
 a scene holds at most 32 strokes. Limits stop new marks/strokes visibly; no old
 sculpted work is silently discarded. Clear sculpting removes the stroke list and
-is undoable. There is no baking/exporting a dense sculpted asset in this slice.
+is undoable. Export heightmap can bake the current sculpted base to a 16-bit interchange bundle.
 Changing layers, seed or resolution replays the retained strokes on the new base.
 
 The worker keeps pristine heights separate from sculpted heights. Each edit or
@@ -169,12 +169,20 @@ The hierarchy accelerates the current shared mesh; it does not increase its
 128² resolution. See [rendering](rendering.md) and [measured validation](validation.md)
 for image budgets, comparisons and limitations.
 
+## Imported heightmaps
+
+W2.S4 adds 16-bit PNG interchange and portable asset-backed scenes. Imported
+sample grids support the same sculpt tools and surface rules; they have a fixed
+resolution from the PNG. Build with layers replaces the imported landform as an
+undoable edit. Worker decoding and caching keep sample buffers out of history.
+See [heightmaps](heightmaps.md) for scale, precision, budgets and original examples.
+
 ## Validation
 
 `npm test` checks fixed Float32 seed hashes, noise composition, negative-height
 terraces, legacy buffer equality, all four allocation budgets, partial-generation
 cancellation, cache invalidation, and late-result/error/retry handling. Shared
-Go/JavaScript fixtures validate all four scene versions and malformed layer, sculpt
+Go/JavaScript fixtures validate all five scene versions and malformed layer, sculpt
 and material payloads.
 
 For actual browser tests, build and start with an isolated `--data-dir`, then use
@@ -185,5 +193,7 @@ and UI responsiveness, layered CPU/GPU traversal, still export, WebGL and mobile
 undo, persistence/recovery, stroke limits, rendering and mobile WebGL.
 `tests/browser-materials.mjs` checks surface editing, v4 save/recovery, WebGL/mobile,
 GPU grazing/silhouette probes and comparative traversal render times/pixels.
+`tests/browser-heightmaps.mjs` checks full-depth interchange, portable files,
+recovery, malformed inputs and mobile export.
 `tests/browser-render.mjs` covers the existing tracer regression suite. Browser
 checks need a working WebGPU device; Node tests alone do not prove GPU support.

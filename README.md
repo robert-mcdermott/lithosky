@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 2, slice 3 — surface materials and hierarchical traversal.** Compose
+**Status: wave 2, slice 4 — heightmap interchange and portable terrain assets.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
@@ -61,15 +61,21 @@ for controls, cache behavior and memory/render limits.
 
 On layered terrain, choose **Raise**, **Lower**, **Smooth** or **Flatten**. Drag
 on land and release to apply one undoable stroke. Arrow keys move the brush;
-Space applies it; Escape cancels an unfinished stroke. Sculpted scenes save as
-v3 files and retain their strokes through recovery. History has a 4 MiB snapshot
+Space applies it; Escape cancels an unfinished stroke. Layered scenes with sculpting save as
+v3 files (v4 with customized surfaces) and retain their strokes through recovery. History has a 4 MiB snapshot
 budget; scenes allow 32 strokes of up to 24 marks each.
 
 **Customize surface** blends sand, ground, rock and snow using height and slope
 rules, or applies a single material preset. Tune transition softness and seeded
-color detail; both palettes work with the rules. Surface settings save as v4
-scenes with the existing terrain and sculpting. Older scenes keep their appearance
+color detail; both palettes work with the rules. Procedural surface settings save as v4
+scenes with the existing terrain and sculpting; imported terrain stays v5. Older scenes keep their appearance
 until customized. Material changes reuse generated heights and traversal bounds.
+
+**Import heightmap…** accepts 16-bit grayscale PNG or a heightmap bundle, with
+explicit height and physical-scale metadata. Imported terrain supports sculpting
+and materials. **Export heightmap** bundles a full-depth PNG with its scale;
+**Save scene** embeds imported samples in a portable v5 container. Older JSON
+scenes remain supported. See [heightmaps and original examples](docs/heightmaps.md).
 
 ## Render and export
 
@@ -100,9 +106,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.2.0-dev.3 --out dist/releases/0.2.0-dev.3`
+`go run ./tools/release --version 0.2.0-dev.4 --out dist/releases/0.2.0-dev.4`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.2.0-dev.3` to check them.
+Use `go run ./tools/release --verify dist/releases/0.2.0-dev.4` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

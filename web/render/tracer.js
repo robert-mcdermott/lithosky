@@ -16,7 +16,7 @@ export function renderTiles(width, height) {
 export async function createTracer(state, options, preparedField = null) {
   const { width, height, samples } = validateRenderOptions(options);
   const constants={useHierarchy:options.traversal==='linear'?0:1};
-  if (state.generator === 'layers-v1' && !preparedField) throw new Error('Generate the layered terrain before rendering.');
+  if (['layers-v1','heightmap-v1'].includes(state.generator) && !preparedField) throw new Error('Generate the terrain before rendering.');
   if (!navigator.gpu) throw new Error('Final rendering requires WebGPU. The scene can still be edited and saved.');
   const adapter=await navigator.gpu.requestAdapter();
   if (!adapter) throw new Error('No WebGPU adapter is available for final rendering.');

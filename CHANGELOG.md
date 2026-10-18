@@ -2,7 +2,16 @@
 
 ## v0.2.0 — unreleased
 
-Development build: 0.2.0-dev.3. Wave 2, slice 3:
+Development build: 0.2.0-dev.4. Wave 2, slice 4:
+
+- 16-bit grayscale PNG import/export with height, orientation and physical-scale metadata.
+- Portable v5 scene containers include checksummed height samples; v1–v4 remain supported.
+- Imported terrain works with sculpting, materials, undo and local recovery.
+- Immutable asset storage, bounded codecs/archive parsing and referential recovery validation.
+- Original Terraced basin heightmap/scene examples, guide and site updates.
+- Starter recognition compares scene content independently of JSON property order.
+
+Wave 2, slice 3:
 
 - Editable height/slope surface rules and rock, snow, sand and ground presets.
 - Original seeded color detail shared by preview and final rendering.

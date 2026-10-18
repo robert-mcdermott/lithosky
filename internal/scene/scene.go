@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/robert-mcdermott/lithosky/internal/heightmap"
 	"math"
 	"reflect"
 	"unicode/utf8"
@@ -54,11 +55,17 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) {
-		return nil, errors.New("unsupported scene version; this build opens versions 1, 2, 3 and 4")
+	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) {
+		return nil, errors.New("unsupported scene version; this build opens versions 1, 2, 3, 4 and 5")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err
+	}
+	if obj, ok := value.(map[string]any); ok && obj["version"] == float64(5) {
+		t := obj["terrain"].(map[string]any)
+		if !heightmap.ValidHash(t["asset"].(string)) || t["minimum"].(float64) > t["maximum"].(float64) {
+			return nil, errors.New("invalid heightmap reference or range")
+		}
 	}
 	return json.Marshal(value)
 }
@@ -146,3 +153,15 @@ func validate(value any, rule Rule, path string) error {
 }
 
 func Equal(a, b []byte) bool { return bytes.Equal(a, b) }
+
+func AssetInfo(data []byte) (string, int) {
+	var doc struct {
+		Terrain struct {
+			Asset      string
+			Resolution int
+		}
+	}
+	_ = json.Unmarshal(data, &doc)
+	return doc.Terrain.Asset, doc.Terrain.Resolution
+}
+func Asset(data []byte) string { id, _ := AssetInfo(data); return id }

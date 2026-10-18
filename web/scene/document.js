@@ -10,7 +10,7 @@ export function defaultScene() {
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2, 3, 4].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3 and 4.');
+  if (![1, 2, 3, 4, 5].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3, 4 and 5.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {
@@ -46,6 +46,7 @@ export function validateScene(value, schema) {
     if (rule.enum && !rule.enum.includes(value)) fail('unsupported value');
   }
   check(value, schema, 'scene');
+  if(value.version===5 && (!/^[a-f0-9]{64}$/.test(value.terrain.asset)||value.terrain.minimum>value.terrain.maximum))throw new Error('Invalid heightmap reference or range.');
   if (new TextEncoder().encode(JSON.stringify(value)).length > MAX_SCENE_BYTES) throw new Error('Scene exceeds 128 KiB.');
   return structuredClone(value);
 }
@@ -63,3 +64,8 @@ export function renderState(scene) {
   return { ...scene.terrain, materials: scene.surface, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
 }
 export function wrapYaw(yaw) { return ((yaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; }
+
+// JSON property order is not scene content (Go recovery canonicalizes keys).
+export function sceneKey(scene) {
+  return JSON.stringify(scene,(key,value)=>value && typeof value==='object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))) : value);
+}

@@ -5,7 +5,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
   const $=id=>document.getElementById(id),overlay=$('sculpt-overlay');
   let cursor=[0,0],stroke=null,pointer=null,request=0;
   const mode=()=>$('sculpt-tool').value;
-  const available=()=>getState().generator==='layers-v1'&&isReady();
+  const available=()=>['layers-v1','heightmap-v1'].includes(getState().generator)&&isReady();
   const status=text=>{$('sculpt-status').textContent=text;};
   function cancel(message) {
     stroke=null;const id=pointer;pointer=null;
@@ -31,7 +31,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
     });
   }
   function sync() {
-    const state=getState(),layered=state.generator==='layers-v1',count=state.sculpt?.length??0;
+    const state=getState(),layered=['layers-v1','heightmap-v1'].includes(state.generator),count=state.sculpt?.length??0;
     if(!layered)$('sculpt-tool').value='orbit';
     $('sculpt-editor').hidden=!layered;
     $('sculpt-tool').disabled=!layered;
@@ -58,7 +58,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
   }
   function apply(staged) {
     if(!staged?.points.length)return;
-    try {commit(scene=>{scene.version=scene.surface?4:3;scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);});status('Stroke applied. Undo restores the preceding terrain.');}
+    try {commit(scene=>{scene.version=scene.terrain.generator==='heightmap-v1'?5:scene.surface?4:3;scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);});status('Stroke applied. Undo restores the preceding terrain.');}
     catch(error){status('Could not apply stroke: '+error.message);}
     sync();
   }

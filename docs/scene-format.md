@@ -1,7 +1,8 @@
 # Scene files and recovery
 
-`.lithosky` is a UTF-8 JSON document limited to 128 KiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain and v4 surface materials. The authoritative
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5 asset-backed
+files use a portable ZIP container limited to 20 MiB. This build opens v1
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials and v5 imported heightmaps. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -115,9 +116,26 @@ color only. The [surface interpretation](terrain.md#surface-materials) is fixed
 by v4. No images, remote textures or executable shader content enter scene files.
 The 128 KiB file limit and bounded compact recovery payload continue to apply.
 
+## Version 5 imported terrain
+
+V5 uses generator heightmap-v1, retains seed/elevation/palette, and requires a
+resolution (128, 256, 512, 1024 or 2048 cells), a sculpt array and an asset reference.
+The reference is a 64-character lowercase SHA-256 string. Minimum and maximum
+base heights are finite within −64…64, with minimum ≤ maximum. Metres per scene
+unit is finite within 0.001…100000. The JSON properties are named asset, minimum,
+maximum and metersPerUnit. An optional root surface object uses the v4 contract.
+
+The manifest retains the 128 KiB limit. A portable scene contains exactly
+scene.json and heightmap.bin, with no external URLs or paths. Its raw unsigned
+16-bit big-endian sample count and checksum must match the manifest. Both the
+Go and JavaScript validators enforce reference syntax and range relationships in
+addition to the bundled schema. Open rejects bare v5 manifests. Recovery uses
+small JSON manifests referencing immutable local assets; the two formats have
+different portability guarantees. See [heightmap format and storage](heightmaps.md).
+
 ## Open, save and history
 
-**Open…** reads a local file with the browser picker. Byte size, UTF-8 and schema
+**Open…** reads a local file with the browser picker. Byte size, container contents, UTF-8 and schema
 are checked before applying anything. Failed imports do not mutate scene or undo
 history. A file that finishes loading after another edit is rejected for retry,
 so delayed reads cannot silently erase new work. Open and Restore are undoable.
@@ -126,8 +144,8 @@ so delayed reads cannot silently erase new work. Open and Restore are undoable.
 The browser decides the download destination and any duplicate-name suffix. It
 does not overwrite an earlier scene file in place. The UI says “Download
 requested”; it cannot confirm that a user accepted a browser download dialog.
-Open also has Ctrl/⌘ O. Files contain parameters only, with no external URLs,
-paths, scripts, textures or additional assets.
+Open also has Ctrl/⌘ O. Procedural files contain parameters only. V5 containers additionally include one
+validated height asset. External URLs, filesystem paths and scripts are forbidden.
 
 Undo/Redo use Ctrl/⌘ Z, Ctrl/⌘ Shift Z, or Ctrl Y, except within text/number fields
 where native text undo is retained. Pointer camera drags, repeated camera keys,

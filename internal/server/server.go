@@ -28,7 +28,7 @@ func New(assets fs.FS, authority, version string, persistence ...*Persistence) h
 			http.Error(w, "cross-site request refused", http.StatusForbidden)
 			return
 		}
-		if r.URL.Path == "/api/session" || r.URL.Path == "/api/autosave" || r.URL.Path == "/api/recovery" || strings.HasPrefix(r.URL.Path, "/api/recovery/") {
+		if strings.HasPrefix(r.URL.Path, "/api/heightmap") || strings.HasPrefix(r.URL.Path, "/api/project/") || r.URL.Path == "/api/session" || r.URL.Path == "/api/autosave" || r.URL.Path == "/api/recovery" || strings.HasPrefix(r.URL.Path, "/api/recovery/") {
 			var p *Persistence
 			if len(persistence) > 0 {
 				p = persistence[0]
@@ -51,7 +51,7 @@ func New(assets fs.FS, authority, version string, persistence ...*Persistence) h
 		if r.URL.Path == "/api/info" {
 			w.Header().Set("Content-Type", "application/json")
 			if r.Method == http.MethodGet {
-				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 2 · Slice 3", "network": "local only"})
+				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 2 · Slice 4", "network": "local only"})
 			}
 			return
 		}

@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import { heightmapControls } from './scene/heightmap-controls.js';
+import { MAX_PROJECT_BYTES } from './scene/heightmaps.js';
 import { frameUniforms } from './scene/terrain.js';
 import { TerrainGenerator } from './scene/generator.js';
 import { geometryKey, renderKey } from './scene/generation.js';
@@ -10,7 +12,7 @@ import { createWebGPU } from './render/webgpu.js';
 import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
-import { defaultScene, validateScene, parseScene, serializeScene, renderState, wrapYaw, MAX_SCENE_BYTES } from './scene/document.js';
+import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey } from './scene/document.js';
 import { validateStudies } from './scene/studies.js';
 import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
@@ -35,6 +37,7 @@ const terrainGenerator = new TerrainGenerator();
 let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
+const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
 const materials = materialControls(() => history.value, discrete);
 const layerControls = terrainControls(() => history.value, discrete);
 const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
@@ -98,14 +101,14 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
 
 async function updateGeometry() {
   const ticket=++terrainEpoch;
-  terrainReady=false;sculpt.cancel();sculpt.sync();finalRender.setAvailable(false, 'Generating terrain before rendering…');
+  terrainReady=false;heightmaps.sync();sculpt.cancel();sculpt.sync();finalRender.setAvailable(false, 'Generating terrain before rendering…');
   $('cancel-terrain').disabled=false;$('retry-terrain').hidden=true;
   $('terrain-progress').value=0;
   $('terrain-status').textContent='Generating terrain… The previous preview stays visible.';
   try {
     const result=await terrainGenerator.generate(state, progress=>{if(ticket===terrainEpoch)$('terrain-progress').value=progress;});
     if(ticket!==terrainEpoch)return;
-    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;sculpt.sync();
+    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;heightmaps.sync();sculpt.sync();
     $('terrain-progress').value=1;
     $('terrain-status').textContent=result.heightsChanged?'Terrain ready.':result.surfaceChanged?'Surface updated · heights reused.':'Water updated · terrain surface reused.';
     $('geometry').textContent=`${result.resolution}² terrain cells · 128² render mesh · 32,768 triangles`;
@@ -123,7 +126,7 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();sculpt.sync();materials.sync();
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;
@@ -133,10 +136,10 @@ function syncControls() {
   $('water-value').textContent = scene.water.level.toFixed(2);
   $('elevation-value').textContent = state.elevation.toFixed(2) + '×';
   $('sun-value').textContent = state.sun + '°';
-  $('study-select').value = studies.find(study => JSON.stringify(scene) === JSON.stringify(study.scene))?.id || '';
+  $('study-select').value = studies.find(study => sceneKey(scene) === sceneKey(study.scene))?.id || '';
   $('undo').disabled = !history.canUndo; $('redo').disabled = !history.canRedo;
   document.querySelectorAll('.study').forEach(b => {
-    const selected = JSON.stringify(history.value) === JSON.stringify(presetScene(b.dataset.preset));
+    const selected = sceneKey(history.value) === sceneKey(presetScene(b.dataset.preset));
     b.classList.toggle('active', selected); b.setAttribute('aria-pressed', String(selected));
   });
 }
@@ -213,6 +216,11 @@ viewport.addEventListener('keydown', e => {
 viewport.addEventListener('keyup', finishGesture);
 viewport.addEventListener('blur', finishGesture);
 
+async function assetRequest(path,options={}) {
+  const token=session?.token??(await (await fetch('/api/session')).json()).token;
+  const response=await fetch(path,{method:'POST',...options,headers:{'Content-Type':'application/octet-stream','X-Lithosky-Session':token,...options.headers},signal:AbortSignal.timeout(60000)});
+  if(!response.ok)throw new Error((await response.text()).trim());return response;
+}
 async function api(path, options = {}) {
   const response = await fetch(path, { ...options, headers: { 'X-Lithosky-Session': session.token, ...options.headers }, signal: AbortSignal.timeout(10000) });
   if (!response.ok) throw new Error((await response.text()).trim());
@@ -275,24 +283,29 @@ $('scene-file').addEventListener('change', async () => {
   $('scene-file').value = ''; if (!file) return;
   $('open-scene').disabled = true;
   try {
-    if (file.size > MAX_SCENE_BYTES) throw new Error('Scene exceeds 128 KiB.');
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
-    const imported = parseScene(text, schema);
+    if (file.size > MAX_PROJECT_BYTES) throw new Error('Scene container exceeds 20 MiB.');
+    const bytes=await file.arrayBuffer();
+    const imported=validateScene(await (await assetRequest('/api/project/open',{body:bytes})).json(),schema);
     if (before !== editVersion) throw new Error('The scene changed while opening. Please open the file again.');
     finishGesture(); if (history.replace(imported)) refresh();
     $('file-status').textContent = 'Opened ' + file.name + '. Undo restores the previous scene.';
   } catch (error) { $('file-status').textContent = 'Could not open scene: ' + error.message; }
   finally { $('open-scene').disabled = false; }
 });
-function downloadScene() {
+async function downloadScene() {
+  if($('save-scene').disabled)return;
+  $('save-scene').disabled=true;
+  try {
   finishGesture();
   const scene = history.value;
-  const url = URL.createObjectURL(new Blob([serializeScene(scene, schema)], { type: 'application/json' }));
+  const blob=scene.version===5?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a'); anchor.href = url;
   anchor.download = (scene.title.replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '').slice(0, 60) || 'landscape') + '.lithosky';
   anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 30000);
   downloaded = JSON.stringify(scene);
   $('file-status').textContent = 'Download requested: ' + anchor.download;
+  }catch(error){$('file-status').textContent='Could not save scene: '+error.message;}finally{$('save-scene').disabled=false;}
 }
 $('save-scene').addEventListener('click', downloadScene);
 window.addEventListener('keydown', e => {

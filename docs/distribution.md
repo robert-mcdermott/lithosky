@@ -65,3 +65,9 @@ Choose Customize surface for height/slope material rules or Rock, Snow, Sand and
 Ground presets. Color detail adds local seeded variation. Customized surfaces
 save as v4, preserving the original or layered/sculpted terrain; earlier scene
 versions remain supported. The preview and tracer share the same surface mesh.
+
+Import heightmap accepts 16-bit grayscale PNG or a heightmap bundle with scale
+metadata. Export heightmap creates a ZIP containing height.png and scale.json.
+Save scene includes imported samples in a portable v5 .lithosky container. Older
+JSON scenes remain supported. Imported data stays local; keep portable backups
+before cleaning the recovery directory and its referenced height assets.

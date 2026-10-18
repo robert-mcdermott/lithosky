@@ -7,6 +7,7 @@ import {TerrainCache,terrainBudget} from '../web/scene/generation.js';
 import {materialDefaults} from '../web/scene/materials.js';
 import {History,HISTORY_BYTES} from '../web/scene/history.js';
 import {defaultScene,renderState,validateScene,parseScene,serializeScene,MAX_SCENE_BYTES} from '../web/scene/document.js';
+import {importedTerrain} from '../web/scene/heightmaps.js';
 import {layeredTerrain} from '../web/scene/noise.js';
 import {cameraRay,pickTerrain,projectPoint,fieldHeight} from '../web/scene/sculpt-view.js';
 const fast={yieldControl:async()=>{}},schema=JSON.parse(readFileSync(new URL('../internal/scene/schema.json',import.meta.url)));
@@ -73,6 +74,9 @@ test('largest sculpt document fits file and keepalive budgets and empty v3 strok
   const v4={...s,version:4,surface:materialDefaults()};
   assert.deepEqual(parseScene(serializeScene(v4,schema),schema),v4);
   assert.ok(new TextEncoder().encode(JSON.stringify({expectedRevision:999999,scene:v4})).length<60*1024);
+  const v5={...v4,version:5,terrain:{...importedTerrain(s.terrain,'a'.repeat(64),{resolution:2048,minimum:-64,maximum:64,metersPerUnit:100000,elevation:1}),sculpt:s.terrain.sculpt}};
+  assert.deepEqual(parseScene(serializeScene(v5,schema),schema),v5);
+  assert.ok(new TextEncoder().encode(JSON.stringify({expectedRevision:999999,scene:v5})).length<60*1024);
   const original=scene(),cache=new TerrainCache();const v3=await cache.build(renderState(original),fast);delete original.terrain.sculpt;original.version=2;
   assert.deepEqual(v3.field,(await new TerrainCache().build(renderState(original),fast)).field);
 });

@@ -32,7 +32,7 @@ export function applyDab(heights,resolution,stroke,point) {
   }
 }
 export async function sculptHeights(source,resolution,strokes,{signal,onProgress=()=>{},yieldControl=()=>new Promise(r=>setTimeout(r,0))}={}) {
-  if(![256,512,1024,2048].includes(resolution)||source.length!==(resolution+1)**2||!Array.isArray(strokes)||strokes.length>MAX_STROKES)throw new Error('Invalid sculpt budget.');
+  if(![128,256,512,1024,2048].includes(resolution)||source.length!==(resolution+1)**2||!Array.isArray(strokes)||strokes.length>MAX_STROKES)throw new Error('Invalid sculpt budget.');
   strokes.forEach(validateStroke);
   const canceled=()=>{if(signal?.aborted)throw new DOMException('Terrain generation canceled.','AbortError');};canceled();
   const heights=source.slice(),total=strokes.reduce((n,s)=>n+s.points.length,0);let done=0;

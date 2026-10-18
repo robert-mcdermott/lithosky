@@ -67,8 +67,10 @@ material-only edits reuse those bounds. See [terrain authoring](terrain.md) for 
 Scene state is independent of the renderer. W1.S2 provides a validated versioned
 `.lithosky` JSON schema, grouped undo/redo, browser open/download and persistent
 recovery generations. Both validators consume the same embedded schema. See
-[scene format and recovery](scene-format.md) for storage and failure semantics. Later asset containers must
-bound expanded size, reject traversal/symlinks and migrate explicitly. Seeds
+[scene format and recovery](scene-format.md) for storage and failure semantics. W2.S4 implements fixed-entry portable containers with bounded expansion, exact
+entry names, CRC/SHA-256 checks and explicit v1-to-v5 heightmap migration. Imported
+samples live in immutable content-addressed files, outside undo/recovery JSON.
+The standard-library PNG codec preserves 16-bit grayscale samples. See [heightmaps](heightmaps.md). Seeds
 stabilize procedural generation; GPU images use numerical tolerances and record
 renderer/browser/device/build, not a promise of universal bitwise equivalence.
 

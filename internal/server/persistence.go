@@ -9,14 +9,16 @@ import (
 	"mime"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/robert-mcdermott/lithosky/internal/recovery"
 	"github.com/robert-mcdermott/lithosky/internal/scene"
 )
 
 type Persistence struct {
-	Store *recovery.Store
-	Token string
+	Store   *recovery.Store
+	Token   string
+	assetMu sync.Mutex
 }
 
 func (p *Persistence) serve(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +36,10 @@ func (p *Persistence) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	if p.Token == "" || subtle.ConstantTimeCompare([]byte(r.Header.Get("X-Lithosky-Session")), []byte(p.Token)) != 1 {
 		http.Error(w, "session authentication required", http.StatusUnauthorized)
+		return
+	}
+	if strings.HasPrefix(r.URL.Path, "/api/heightmap") || strings.HasPrefix(r.URL.Path, "/api/project/") {
+		p.assets(w, r)
 		return
 	}
 	switch {
