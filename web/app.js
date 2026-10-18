@@ -6,14 +6,20 @@ import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
 import { defaultScene, validateScene, parseScene, serializeScene, renderState, wrapYaw, MAX_SCENE_BYTES } from './scene/document.js';
+import { validateStudies } from './scene/studies.js';
 import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
 
 const $ = id => document.getElementById(id);
 async function main() {
-const schemaResponse = await fetch('/api/scene-schema');
+const [schemaResponse, studiesResponse] = await Promise.all([fetch('/api/scene-schema'), fetch('/scenes/studies.json')]);
 if (!schemaResponse.ok) throw new Error('Cannot load the scene schema. Restart Lithosky.');
 const schema = await schemaResponse.json();
+if (!studiesResponse.ok) throw new Error('Cannot load starter scenes. Restart Lithosky.');
+const studies = validateStudies(await studiesResponse.json(), schema);
+for (const study of studies) {
+  const option = document.createElement('option'); option.value = study.id; option.textContent = study.scene.title; $('study-select').append(option);
+}
 const history = new History(defaultScene(), scene => validateScene(scene, schema));
 let state = renderState(history.value);
 let autosave = null, session = null, autosaveEnabled = false, changed = false, editVersion = 0;
@@ -101,6 +107,7 @@ function syncControls() {
   $('water-value').textContent = scene.water.level.toFixed(2);
   $('elevation-value').textContent = state.elevation.toFixed(2) + '×';
   $('sun-value').textContent = state.sun + '°';
+  $('study-select').value = studies.find(study => JSON.stringify(scene) === JSON.stringify(study.scene))?.id || '';
   $('undo').disabled = !history.canUndo; $('redo').disabled = !history.canRedo;
   document.querySelectorAll('.study').forEach(b => {
     const selected = JSON.stringify(history.value) === JSON.stringify(presetScene(b.dataset.preset));
@@ -119,16 +126,11 @@ function refresh() {
 function edit(change) { if (history.edit(change)) refresh(); }
 function finishGesture() { clearTimeout(gestureTimer); history.end(); syncControls(); }
 function discrete(change) { finishGesture(); edit(change); }
-const presets = {
-  alpine: { seed: 1847, elevation: 1, sun: 38, palette: 'natural', title: 'Alpine quiet' },
-  highland: { seed: 972, elevation: 0.7, sun: 12, palette: 'natural', title: 'Evening highlands' },
-  distant: { seed: 42107, elevation: 1.35, sun: 25, palette: 'otherworld', title: 'A distant world' },
-};
-function presetScene(key) {
-  const p = presets[key], scene = defaultScene();
-  Object.assign(scene.terrain, { seed: p.seed, elevation: p.elevation, palette: p.palette });
-  scene.lighting.sunElevation = p.sun; scene.title = p.title; return scene;
-}
+function presetScene(key) { return structuredClone(studies.find(study => study.id === key).scene); }
+$('study-select').addEventListener('change', () => {
+  const key = $('study-select').value; if (!key) return;
+  finishGesture(); if (history.replace(presetScene(key))) refresh();
+});
 document.querySelectorAll('.study').forEach(button => button.addEventListener('click', () => {
   finishGesture(); if (history.replace(presetScene(button.dataset.preset))) refresh();
 }));

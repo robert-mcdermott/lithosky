@@ -658,3 +658,6 @@ input[type=checkbox] { accent-color: var(--accent); }
 .render-panel .hint { margin-bottom: 0; }
 .workspace-footer { margin-top: auto; }
 @media(max-width:600px) { .viewport-top { top: 8px; left: 8px; right: 8px; } .viewport-bottom { bottom: 8px; left: 8px; right: 8px; } }
+
+.study-picker { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; font-size: 11px; color: var(--muted); }
+.study-picker select { width: auto; flex: 1; max-width: 280px; }

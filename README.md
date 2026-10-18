@@ -4,13 +4,14 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 1, slice 3 — progressive rendering and PNG export.** Compose
+**Status: wave 1, slice 4 — starter scenes, product site and packaging.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
 export PNG. WebGPU powers final rendering; WebGL 2 supplies a fallback preview.
-Wave 1 remains in development; the product site and release packaging are the
-next slice in the [roadmap](ROADMAP.md).
+The generated site and six-platform packaging are implemented. Native Windows/Linux
+release checks remain pending, so v0.1.0 is not yet tagged or published. See the
+[roadmap](ROADMAP.md) and [release gates](docs/releases.md).
 
 ## Build and run
 
@@ -68,6 +69,21 @@ errors and conflicting tabs pause autosave visibly. Named downloads are your
 portable backups. See [scene format and recovery](docs/scene-format.md) for the
 schema, storage locations, keyboard shortcuts and failure behavior.
 
+## Website and distribution
+
+Three original starter scenes are shared by the app and downloadable gallery.
+Choose **Start with a scene** on any screen size; the Quick guide explains camera
+controls and the path from a scene to a still.
+
+`npm run site` generates the four-page product site into `dist/site/`, validates
+its links and capture provenance, and copies only public assets. `npm run site:serve`
+previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
+
+`go run ./tools/release --version 0.1.0-dev.4 --out dist/releases/0.1.0-dev.4`
+builds six archives with notices, starters, build metadata and checksums.
+Use `go run ./tools/release --verify dist/releases/0.1.0-dev.4` to check them.
+See [packaging and release readiness](docs/releases.md); these commands do not publish.
+
 ## Development
 
 Go and Node 22+ suffice; no npm installation is needed.
@@ -92,6 +108,8 @@ app-window behavior need real-platform checks beyond compilation.
 | `web/scene/` | Scene model, history, autosave queue, terrain and camera |
 | `web/render/` | Selection, WebGPU and WebGL 2 backends |
 | `web/app.js` | Interaction and GPU recovery |
-| `docs/` | Architecture, licensing, validation; product site in W1.S4 |
+| `docs/site/`, `docs/capture/` | Generated product site and real app capture workflow |
+| `tools/release/` | Standard-library archive builder and verifier |
+| `docs/` | Architecture, licensing, validation and release readiness |
 
 [Architecture](docs/architecture.md) · [Licensing](docs/licensing.md) · [Apache-2.0](LICENSE)

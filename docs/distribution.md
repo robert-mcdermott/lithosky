@@ -1,0 +1,53 @@
+# Lithosky — landscape studio
+
+This archive contains the standalone executable, license notices, and three
+original .lithosky starter scene files. The executable embeds its frontend,
+shaders and starter catalog; it runs without the source checkout. BUILD.json
+records the version, platform, build toolchain, source commit, dirty-worktree
+status and executable SHA-256. A dirty build is a development artifact.
+
+## Launch
+
+Extract the archive first. On macOS/Linux, run `./lithosky` from its folder.
+On Windows, run `lithosky.exe` (or `.\lithosky.exe` in PowerShell).
+An installed compatible Chromium-family browser supplies the desktop-style
+window with no tabs or address bar. The browser is not bundled. These initial
+packages are unsigned and not notarized; OS approval may be required for a
+trusted download. Do not disable system-wide security protections.
+
+Use `--browser /path/to/browser/executable` to select a browser, `--no-open` to
+print the local address, or `--window=browser` to explicitly use a regular tab.
+The default port is chosen automatically. Close the app window to stop its
+server; use Ctrl+C when running with `--no-open` or `--window=browser`.
+
+Final rendering requires WebGPU and enabled graphics acceleration. WebGL 2 is a
+fallback for preview only. If graphics fail, select Automatic and Retry graphics
+under Graphics & compatibility. The scene remains editable and saveable.
+
+## First image
+
+Choose a starter scene. Drag to orbit; scroll to zoom. With the view focused,
+arrow keys orbit, +/− zoom, and Home resets the camera. Adjust height, water and
+sun. Render image progressively traces a 16:9 still at 640 × 360 or 960 × 540,
+with 8–64 samples. Cancel retains the last complete sample. Export PNG saves
+that image; any scene edit clears the old render.
+
+Save scene downloads a portable .lithosky file; Open restores it. Save creates
+a new download, not an update to an earlier file. Undo/Redo applies to scene
+and camera edits. Autosave keeps local recovery snapshots in the OS user
+configuration directory under Lithosky (override with `--data-dir`). Wait for
+“Recovery saved on this device” before closing. Use named downloads as backups.
+
+## Scope and licensing
+
+This first renderer provides bounded terrain, simple sun/sky lighting, and calm
+water reflection/refraction. Physical atmosphere, weather, vegetation, waves,
+sculpting, animation and production image sizes are future work. GPU results and
+speed vary; no photorealistic-quality or universal graphics support claim is made.
+
+Original code, shaders, documentation and starter content are Apache-2.0:
+see LICENSE and NOTICE. The Go runtime/standard library is included under the
+terms in GO-LICENSE. No third-party application libraries or remote assets are
+included. The installed browser and graphics driver are separate prerequisites.
+
+Source and documentation: https://github.com/robert-mcdermott/lithosky

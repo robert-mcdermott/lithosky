@@ -77,6 +77,7 @@ Loopback HTTP is eligible as a trustworthy local context for WebGPU.
 Generate static HTML from repository-owned content and layouts, with locally
 stored assets and screenshots captured from the real app. Keep output outside
 source; validate links, anchors, images and release references. Build before
-publication and never advertise planned functionality as shipped. W1.S4 owns
-initial implementation and release distribution. No unrelated hosting service is
-needed for this repository-based workflow.
+publication and never advertise planned functionality as shipped. W1.S4 implements this in `docs/site/` with capture provenance in `docs/capture/`.
+The standard-library archive builder/verifier lives in `tools/release/`; native
+smoke CI precedes package artifacts. Site deployment and release publication remain
+separate from generation. See [release readiness](releases.md).

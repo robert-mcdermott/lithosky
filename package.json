@@ -3,5 +3,10 @@
   "private": true,
   "type": "module",
   "license": "Apache-2.0",
-  "scripts": { "test": "node --test tests/*.test.mjs" }
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "site": "node docs/site/build.mjs",
+    "site:check": "node docs/site/check.mjs dist/site",
+    "site:serve": "node docs/site/serve.mjs"
+  }
 }

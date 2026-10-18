@@ -176,3 +176,60 @@ water reflections and the narrow UI; local evidence is in ignored
 `output/playwright/`. [Rendering](rendering.md) documents the simple lighting/water
 model and color pipeline. Physical atmosphere, advanced materials and production
 image sizes remain future work. Remote CI has not been run in this session.
+
+## Wave 1, slice 4 — starter scenes, generated site and distribution
+
+Implemented and locally validated 2026-10-18, build `0.1.0-dev.4`, on macOS arm64
+with Go 1.26.6, Node 22.17.0 and Chrome 155.0.0.0 (WebGPU: Apple / metal-3).
+Native Windows/Linux acceptance is pending; no release tag, remote workflow run
+or site publication has been performed. See [release gates](releases.md).
+
+Local automated checks passed:
+
+- All Go tests with race detection and `go vet ./...`. The new native smoke test
+  builds and starts the executable outside the checkout, compares every served
+  embedded asset, saves and recovers a scene across process termination, and
+  verifies app-window arguments, profile cleanup and server exit with a helper
+  browser process. This test is included in the three-OS CI matrix.
+- 43 JavaScript tests, including schema-valid portable starters, preservation of
+  the default scene, invalid/duplicate catalog rejection, site generation,
+  output-directory protection, and broken local image/anchor detection.
+- Four generated pages with 84 checked links and nine image references. Gallery
+  scene settings, 960 × 540 PNG dimensions, 64 samples, image SHA-256s, capture
+  version and source hashes all matched the committed capture manifest.
+- Six cgo-free archives built for macOS/Linux/Windows, amd64/arm64. Verification
+  checked outer checksums, executable hashes/modes, exact archive members, license
+  notices and all three portable scenes. Unit checks reject tampered executable
+  bytes and missing notices and confirm deterministic archive ordering/timestamps.
+- `go list -m all` reported only Lithosky; no application libraries were added.
+  Private research, binaries, generated site and local QA evidence remain ignored.
+
+Browser checks passed using Playwright CLI:
+
+- All three scenes selected through the actual app controls, rendered and exported
+  at 960 × 540 / 64 samples. Their downloaded scene files matched the canonical
+  catalog. Original PNGs, the studio screenshot and capture provenance are tracked
+  in `docs/site/assets/`; no promotional imagery was substituted for app output.
+- The slice 3 GPU regression suite passed again: 1,024 CPU/GPU intersection probes,
+  PNG pixel equality, cancellation, scene-edit/encoding races, device loss and
+  retry, finite water/camera extremes and WebGL fallback. Zero browser errors.
+- Mobile starter selection applied the correct seed/water settings; Undo restored
+  the preceding scene. A .lithosky file downloaded from the product gallery opened
+  in the app and selected the matching study. The camera tutorial opened correctly.
+- Site home/install/guide/gallery checked at 1440 and 390 px: all images decoded,
+  no document overflow, working camera-section anchor and keyboard focus, working
+  scene download, zero browser errors/warnings, and no off-origin asset requests.
+  Visual inspection covered desktop/mobile landing pages and actual gallery PNGs.
+
+The extracted macOS arm64 archive was also launched from `/tmp` with isolated
+recovery storage and a real installed Chromium app window. Its API reported the
+correct version; the spawned command used the app URL and a temporary profile.
+Closing that browser process stopped the server and removed its profile.
+
+Limits: this is a local macOS distribution smoke test, not a clean-machine test
+on all platforms. Windows/Linux binaries were cross-built and archives inspected;
+they were not executed here. The authored native CI jobs still need a recorded
+remote run, and real browser/GPU checks on those platforms remain release gates.
+No signing/notarization, public hosting or release publication occurred. W1.S4
+implementation is committed independently; the open acceptance checks keep wave 1
+in progress and are not silently deferred into wave 2.

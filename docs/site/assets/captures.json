@@ -1,0 +1,99 @@
+{
+  "version": "0.1.0-dev.4",
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "capturedAt": "2026-10-18T20:57:58.627Z",
+  "sourceHash": "495e0fc985aaff4ea26d5f42056f3f551caab54952045586f4c46e998b135372",
+  "records": [
+    {
+      "id": "alpine",
+      "scene": {
+        "format": "lithosky",
+        "version": 1,
+        "title": "Alpine quiet",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "samples": 64,
+      "sha256": "0bd8e747dd577ee45dba31979b0202c589dfb9e3a056e63b160827add347e683"
+    },
+    {
+      "id": "highland",
+      "scene": {
+        "format": "lithosky",
+        "version": 1,
+        "title": "Evening highlands",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 972,
+          "elevation": 0.7,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": -0.45,
+          "pitch": 0.22,
+          "distance": 26
+        },
+        "water": {
+          "enabled": true,
+          "level": 1.1
+        },
+        "lighting": {
+          "sunElevation": 12
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "samples": 64,
+      "sha256": "5f268eec794b89ad95cc757b4a08f14c321691c5aab9fcf7f964af74ce2de733"
+    },
+    {
+      "id": "distant",
+      "scene": {
+        "format": "lithosky",
+        "version": 1,
+        "title": "A distant world",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 42107,
+          "elevation": 1.35,
+          "palette": "otherworld"
+        },
+        "camera": {
+          "yaw": -0.35,
+          "pitch": 0.22,
+          "distance": 27
+        },
+        "water": {
+          "enabled": true,
+          "level": 2.7
+        },
+        "lighting": {
+          "sunElevation": 25
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "samples": 64,
+      "sha256": "f912b1e252e0f70b8bcbac71b7ff078606f9300f4cb9a836e59f737f38bbb5eb"
+    }
+  ],
+  "studioSHA256": "1c68155412e55821383ff758cb4f63aa64ea85f14c5884b7c5041545d331d3af"
+}
