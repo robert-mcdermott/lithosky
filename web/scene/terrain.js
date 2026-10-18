@@ -30,6 +30,7 @@ export function surfacePoint(x, z, h, normal, state) {
   if (water) normal = [0, 1, 0];
   let color = water ? [0.14, 0.34, 0.36] : h > 5.4 ? [0.82, 0.85, 0.82] : normal[1] < 0.78 ? [0.39, 0.41, 0.37] : h < 0.6 ? [0.5, 0.48, 0.34] : [0.28, 0.35, 0.26];
   if (state.palette === 'otherworld') color = water ? [0.28, 0.31, 0.6] : h > 5.4 ? [0.83, 0.78, 0.93] : [0.35 + h * 0.022, 0.26 + normal[1] * 0.12, 0.4 + h * 0.017];
+  color = color.map(value => Math.max(0, Math.min(1, value)));
   return [x, water ? state.waterLevel : h, z, ...normal, ...color];
 }
 

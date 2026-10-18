@@ -2,7 +2,17 @@
 
 ## v0.2.0 — unreleased
 
-Development build: 0.2.0-dev.1. Wave 2, slice 1:
+Development build: 0.2.0-dev.2. Wave 2, slice 2:
+
+- Raise/lower/smooth/flatten brushes with terrain picking, cursor outline and keyboard controls.
+- One undoable edit per released stroke; Escape/pointer cancellation discard staged work.
+- V3 scene files persist bounded sculpt strokes; v1/v2 documents remain supported.
+- Worker replay reuses procedural noise; smoothing reads immutable local patches.
+- Undo/redo snapshots are capped at 4 MiB and 100 entries; grids stay out of history.
+- Scalar scene files capped at 128 KiB; up to 32 strokes with 24 marks per stroke.
+- Artistic reflectance is clamped for deep sculpted depressions.
+
+Wave 2, slice 1:
 
 - Original fBm, ridge, domain-warp and terrace library; up to eight ordered layers.
 - Cancellable worker generation, progress/retry and 256²–2048² cell budgets.

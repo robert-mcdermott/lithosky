@@ -52,8 +52,9 @@ resource budgets, approximations and reproducible GPU checks.
 
 ## Terrain generation
 
-An embedded ES module worker owns layered noise generation and dense scalar
-height grids. The editor manages a single cancellable job and rejects stale
+An embedded ES module worker owns layered noise generation, bounded sculpt
+replay and dense scalar height grids. Pristine and sculpted fields are separate;
+undo stores scene parameter strings under a 4 MiB budget instead of dense grids. The editor manages a single cancellable job and rejects stale
 results. Seed/layer/resolution edits regenerate heights; elevation and palette
 reuse heights; water reuses traced terrain surfaces; camera and light changes
 submit no terrain job. Both graphics paths consume the worker's bounded 128²

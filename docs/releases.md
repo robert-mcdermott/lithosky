@@ -1,7 +1,7 @@
 # Packaging and release readiness
 
 Wave 1 targets v0.1.0; wave 2 targets v0.2.0. The current source is
-`0.2.0-dev.1`; there is no release tag or publication implied by completing implementation. Packages are unsigned and
+`0.2.0-dev.2`; there is no release tag or publication implied by completing implementation. Packages are unsigned and
 not notarized. The generated website describes development capabilities only.
 
 ## Local packages
@@ -9,8 +9,8 @@ not notarized. The generated website describes development capabilities only.
 From the repository root, with Go 1.26+ installed:
 
 ```sh
-go run ./tools/release --version 0.2.0-dev.1 --out dist/releases/0.2.0-dev.1
-go run ./tools/release --verify dist/releases/0.2.0-dev.1
+go run ./tools/release --version 0.2.0-dev.2 --out dist/releases/0.2.0-dev.2
+go run ./tools/release --verify dist/releases/0.2.0-dev.2
 ```
 
 The destination must not exist. Use a fresh directory for a second build. The

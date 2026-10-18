@@ -284,3 +284,54 @@ Generation resolution and render resolution remain separate: layered grids span
 High-resolution traversal, sculpting and heightmap files belong to later slices.
 No dependency was added, no private research was committed, and no release,
 website deployment or remote CI run was performed.
+
+## Wave 2, slice 2 — terrain sculpting and bounded history
+
+Completed locally on 2026-10-18, build `0.2.0-dev.2`, macOS arm64, Go 1.26.6,
+Node 22.17 and Chrome 155 with Apple Metal 3 graphics. Wave 1 native
+Windows/Linux release gates remain open.
+
+- `npm test`: all 90 tests pass. New coverage checks localized raise/lower,
+  flatten convergence, symmetric smoothing, edge handling, immutable source
+  grids, cancellation, spatial stroke spacing, height clamps, exact replay after
+  undo/redo/reopen, camera picking and projection, and finite material colors in
+  deep sculpted depressions. Shared scene fixtures cover the v3 contract and
+  invalid tools, coordinates, parameter ranges, stroke counts and mark counts.
+- `go test -race ./...` and `go vet ./...` pass. The standalone executable smoke
+  test includes embedded assets and authenticated recovery. A full 32-stroke,
+  24-mark-per-stroke document exceeding the former 16 KiB limit survives save,
+  store restart and exact canonical recovery. The smoke test requires loopback
+  socket access; its sandbox-denied attempt passed when rerun with that access.
+- `tests/browser-sculpt.mjs` passes: a real pointer drag creates one undoable
+  stroke without moving the camera; SHA-256 comparisons confirm exact rendered
+  heightfield restoration through Undo/Redo. Escape, pointer cancellation and
+  window blur discard staged strokes. Keyboard lower/smooth/flatten operations
+  alter the heightfield. File download/reopen, clear/undo, autosave/recovery,
+  stroke-limit enforcement, WebGL sculpting and 390-pixel mobile layout pass.
+  An eight-sample 640 × 360 sculpted still completed in about 0.5 seconds.
+  No page errors occurred. Desktop/mobile controls and rendered output were
+  visually inspected; local evidence remains in ignored `output/playwright/`.
+- Memory tests exercise 2048² sculpting and long edit/undo/redo/group/branch
+  sequences. History snapshots stay within 4 MiB and 100 entries. Scene logs
+  allow at most 32 strokes with 24 spatial marks each; full logs fit the
+  128 KiB file limit and compact recovery payloads remain below 60 KiB. The
+  largest generation typed-array working allowance is approximately 63 MiB,
+  excluding browser/GC/GPU overhead. Sculpt edits reuse the pristine noise grid.
+- `tests/browser-terrain.mjs` passes again: layer edits, worker cancellation,
+  retry, persistence, selective invalidation and compatibility checks. The
+  tested 2048² generation took about 1.4 seconds with 168 animation frames;
+  layered CPU/GPU probe distances differed by at most 0.00000191 scene units.
+- `tests/browser-render.mjs` passes again: 1,024 legacy intersection probes
+  (worst difference about 0.0000108 units), PNG decode/display pixel equality,
+  cancellation, initialization/device-loss recovery, stale export rejection,
+  water/camera extremes and WebGL/mobile fallback. No page errors occurred.
+- The three original gallery renders were recaptured at 960 × 540 / 64 samples
+  with unchanged image hashes. The studio screenshot and source provenance were
+  refreshed from the final build. `npm run site` and `npm run site:check` pass:
+  four pages, 85 local links and nine image references.
+
+Strokes apply on release; the terrain-following outline previews their footprint
+while dragging. Sculpting requires layered terrain. Generation supports
+256²–2048² cells, while preview and final tracing still share the 128² mesh.
+These are local results, not cross-platform performance guarantees. No dependency
+was added, private research committed, site published or release created.

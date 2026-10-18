@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export const MAX_SCENE_BYTES = 16 * 1024;
+export const MAX_SCENE_BYTES = 128 * 1024;
 export function defaultScene() {
   return { format: 'lithosky', version: 1, title: 'Alpine quiet',
     terrain: { generator: 'terrain-v1', seed: 1847, elevation: 1, palette: 'natural' },
@@ -10,7 +10,7 @@ export function defaultScene() {
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1 and 2.');
+  if (![1, 2, 3].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2 and 3.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {
@@ -46,15 +46,19 @@ export function validateScene(value, schema) {
     if (rule.enum && !rule.enum.includes(value)) fail('unsupported value');
   }
   check(value, schema, 'scene');
+  if (new TextEncoder().encode(JSON.stringify(value)).length > MAX_SCENE_BYTES) throw new Error('Scene exceeds 128 KiB.');
   return structuredClone(value);
 }
 export function parseScene(text, schema) {
-  if (new TextEncoder().encode(text).length > MAX_SCENE_BYTES) throw new Error('Scene exceeds 16 KiB.');
+  if (new TextEncoder().encode(text).length > MAX_SCENE_BYTES) throw new Error('Scene exceeds 128 KiB.');
   let value;
   try { value = JSON.parse(text); } catch { throw new Error('Invalid scene JSON.'); }
   return validateScene(value, schema);
 }
-export function serializeScene(scene, schema) { return JSON.stringify(validateScene(scene, schema), null, 2) + '\n'; }
+export function serializeScene(scene, schema) {
+  const valid = validateScene(scene, schema), text = JSON.stringify(valid, null, 2) + '\n';
+  return new TextEncoder().encode(text).length <= MAX_SCENE_BYTES ? text : JSON.stringify(valid) + '\n';
+}
 export function renderState(scene) {
   return { ...scene.terrain, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
 }

@@ -78,6 +78,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
   for (const id of ['render-size','render-samples']) $(id).addEventListener('change',()=>invalidate('Render settings changed. Start a new render.'));
   return {
     invalidate,
+    preview() { if (busy) invalidate('Render stopped for terrain editing.'); else showRender(false); },
     setAvailable(value, message) { available=value; invalidate(message ?? (value?'Ready to render a 16:9 still.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.')); },
   };
 }

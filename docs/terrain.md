@@ -35,13 +35,13 @@ triangle soup or per-sample color/normal arrays are allocated at this resolution
 
 | Cells per axis | Scalar samples | Height storage | Estimated generation working budget |
 |---|---:|---:|---:|
-| 256 | 66,049 | 0.25 MiB | 13 MiB |
-| 512 | 263,169 | 1.00 MiB | 15 MiB |
-| 1024 | 1,050,625 | 4.01 MiB | 21 MiB |
-| 2048 | 4,198,401 | 16.02 MiB | 45 MiB |
+| 256 | 66,049 | 0.25 MiB | 15 MiB |
+| 512 | 263,169 | 1.00 MiB | 18 MiB |
+| 1024 | 1,050,625 | 4.01 MiB | 27 MiB |
+| 2048 | 4,198,401 | 16.02 MiB | 63 MiB |
 
-The budget allows two grids during replacement and 12 MiB for reduced samples,
-surface/preview buffers and transfer copies. It is an application typed-array
+The budget allows three grids (pristine, sculpted and replacement) and 14 MiB
+for reduced samples, smoothing scratch, surface/preview buffers and transfer copies. It is an application typed-array
 budget, not a bound on browser process memory, garbage collection or GPU memory.
 Only one generation job runs at a time. Inputs are bounded by both scene
 validators, and unsupported grid sizes are rejected before allocation.
@@ -65,6 +65,7 @@ on reopen; they are not included in files or undo snapshots.
 | Edit | Work invalidated |
 |---|---|
 | Seed, enabled layer content/order, generation resolution | Heights, surface, preview, final accumulation |
+| Sculpt strokes | Replay from cached pristine heights; surface, preview and final accumulation |
 | Mountain height or palette | Surface, preview, final accumulation; cached heights reused |
 | Water enable/level | Preview and final accumulation; traced terrain surface reused |
 | Camera or sunlight | View uniforms and final accumulation; no terrain job |
@@ -78,16 +79,59 @@ blocks final rendering until **Regenerate terrain** succeeds. Scene settings,
 Undo, Save and recovery remain usable. Completed idle workers retain their cache
 for later surface/water edits. Page exit terminates the worker.
 
+## Sculpting
+
+Choose Build with layers first, then select Raise, Lower, Smooth or Flatten.
+A brush outline follows the visible terrain surface. Drag to stage a stroke;
+release applies it as one edit. Escape, pointer cancellation, lost capture or
+window focus loss discards an unfinished stroke. The terrain updates after
+release, so large grids do not require a worker job for every pointer event.
+
+With the landscape focused, arrow keys move the brush by 0.5 scene units
+(Shift: 2 units), Home returns it to X/Z zero, and Space or Enter applies one
+mark. Brush X/Z fields and Apply brush provide another keyboard/touch route.
+Switch to Orbit camera to restore drag/arrow camera controls; the wheel still
+zooms. Picking uses the rendered terrain triangles, including terrain below
+water; hide water to see submerged edits.
+
+Raise/lower add/subtract strength in base-height units at the brush center.
+Flatten blends toward the terrain height at the beginning of the stroke. Smooth
+blends toward a nine-tap average at 0.5-unit spacing, reading each mark's immutable
+local patch before writing. All tools use radial weight `(1 - distance²/radius²)²`
+inside the brush. Outputs clamp to −64…64 base-height units. Mountain height
+scales the result, so later elevation edits also scale sculpting.
+
+Stroke marks are spaced at 0.35 × radius and stored to four decimal places;
+extra pointer events do not add strength. Each stroke has at most 24 marks and
+a scene holds at most 32 strokes. Limits stop new marks/strokes visibly; no old
+sculpted work is silently discarded. Clear sculpting removes the stroke list and
+is undoable. There is no baking/exporting a dense sculpted asset in this slice.
+Changing layers, seed or resolution replays the retained strokes on the new base.
+
+The worker keeps pristine heights separate from sculpted heights. Each edit or
+undo deterministically replays the bounded list, yielding between marks. No dense
+per-stroke snapshots are retained; undo therefore restores the same Float32 values
+without multiplying heightfield memory by the history length. Smooth scratch is
+at most about 1.2 MiB at 2048². Cancel terrain stops generation/replay while keeping
+the saved stroke list; regenerate or Undo to continue. Scene v3 persists the list.
+
+Undo history stores bounded strings under a separate 4 MiB budget (100 entries
+maximum). These are application data budgets, not total process-memory limits.
+Preview and tracing remain at 128² cells: brush radii start at 0.5 units, but fine
+features can still be underrepresented until higher-resolution traversal lands.
+
 ## Validation
 
 `npm test` checks fixed Float32 seed hashes, noise composition, negative-height
 terraces, legacy buffer equality, all four allocation budgets, partial-generation
 cancellation, cache invalidation, and late-result/error/retry handling. Shared
-Go/JavaScript fixtures validate both scene versions and malformed layer payloads.
+Go/JavaScript fixtures validate all three scene versions and malformed layer payloads.
 
 For actual browser tests, build and start with an isolated `--data-dir`, then use
 the Playwright CLI with `tests/browser-terrain.mjs` as the `run-code` callback.
 It checks controls, undo/reorder, cache reuse, save/open/recovery, 2048² cancel/retry
 and UI responsiveness, layered CPU/GPU traversal, still export, WebGL and mobile.
+`tests/browser-sculpt.mjs` checks pointer/keyboard brushes, cancellation, exact
+undo, persistence/recovery, stroke limits, rendering and mobile WebGL.
 `tests/browser-render.mjs` covers the existing tracer regression suite. Browser
 checks need a working WebGPU device; Node tests alone do not prove GPU support.

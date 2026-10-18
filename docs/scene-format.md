@@ -1,7 +1,8 @@
 # Scene files and recovery
 
-`.lithosky` is a UTF-8 JSON document limited to 16 KiB. This build opens v1
-legacy landscapes and v2 layered terrain. The authoritative [JSON Schema](../internal/scene/schema.json) is
+`.lithosky` is a UTF-8 JSON document limited to 128 KiB. This build opens v1
+legacy landscapes, v2 layered terrain and v3 sculpted terrain. The authoritative
+[JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
 same acceptance fixtures; they never fetch schemas or execute scene content.
@@ -66,6 +67,29 @@ landform and upgrades to v2 as an undoable edit. Starter selection can replace a
 v2 composition with a v1 study. There is no automatic conversion of layered
 heights to the legacy generator, and older builds reject v2 rather than lose data.
 
+## Version 3 sculpted terrain
+
+V3 requires version `3` and the v2 layered terrain fields, plus `terrain.sculpt`.
+This is an ordered array of 0–32 strokes; each stroke requires exactly:
+
+- `tool`: `raise`, `lower`, `smooth` or `flatten`.
+- `radius`: 0.5–8 scene units; `strength`: 0.05–1.
+- `height`: −64 to 64, the fixed flatten target before Mountain height scaling.
+  It is retained but unused for the other tools.
+- `points`: 1–24 pairs `[x,z]`, each coordinate within −32 to 32.
+
+The first applied stroke upgrades v2 to v3 as one undoable edit. Clearing strokes
+keeps v3 with an empty array. V1 must first be explicitly replaced with layered
+terrain through Build with layers. No automatic upgrade changes existing files.
+Older builds reject v3. The [sculpt contract](terrain.md#sculpting) fixes replay
+order and brush math; parameters are saved instead of dense height assets.
+
+The file/body cap increases from 16 to 128 KiB for these bounded stroke records.
+Serialization uses readable JSON, falling back to compact JSON if needed to stay
+within the file cap. The largest valid stroke log's compact autosave request stays
+below 60 KiB, leaving space under the browser's keepalive body budget. HTTP writes
+are bounded to the scene cap plus 1 KiB of envelope; recovery reads share the cap.
+
 ## Open, save and history
 
 **Open…** reads a local file with the browser picker. Byte size, UTF-8 and schema
@@ -82,8 +106,13 @@ paths, scripts, textures or additional assets.
 
 Undo/Redo use Ctrl/⌘ Z, Ctrl/⌘ Shift Z, or Ctrl Y, except within text/number fields
 where native text undo is retained. Pointer camera drags, repeated camera keys,
-wheel bursts and slider gestures become single edits. Up to 100 scene snapshots
-are retained in memory. New edits clear the redo branch; history is not saved in
+wheel bursts and slider gestures become single edits. At most 100 undo/redo
+snapshots are retained within a combined 4 MiB budget
+(including an active gesture baseline), counted as two bytes per string code unit.
+Oldest undo entries are discarded first; if necessary, farthest redo entries are
+discarded next. The current scene is separate. Snapshots contain validated scene
+JSON, never dense grids. One released sculpt stroke is one history entry. New
+edits clear the redo branch; history is not saved in
 project/recovery files. GPU backend changes are workspace preferences, not edits.
 
 ## Local autosave

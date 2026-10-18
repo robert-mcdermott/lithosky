@@ -40,7 +40,7 @@ test('all resolution budgets allocate bounded scalar grids; invalid budgets fail
     const state={...layered(),resolution,layers:[{...newLayer(),octaves:1}]};
     const field=await generateHeights(state,fast),budget=terrainBudget(resolution);
     assert.equal(field.heights.byteLength,budget.heightBytes);assert.equal(field.samples.length,129**2*5);
-    assert.ok(budget.peakBytes<45*1024*1024);
+    assert.ok(budget.peakBytes<63*1024*1024);
   }
   for(const resolution of [0,128,300,2048.5,4096,Infinity]) {
     assert.throws(()=>terrainBudget(resolution));await assert.rejects(()=>generateHeights({...layered(),resolution},fast));

@@ -55,3 +55,8 @@ Source and documentation: https://github.com/robert-mcdermott/lithosky
 Build with layers creates v2 terrain from fBm, ridges, domain warp and terraces.
 Generation runs in a cancellable worker at 256²–2048² cells; preview and stills
 currently use a shared 128² mesh. Existing v1 scenes open unchanged.
+
+Layered terrain supports Raise, Lower, Smooth and Flatten. Drag and release to
+apply one undoable stroke; arrow keys position the brush and Space applies it.
+Escape discards an unfinished stroke. V3 files retain up to 32 strokes of 24
+marks each; Clear sculpting is undoable. The history snapshot budget is 4 MiB.

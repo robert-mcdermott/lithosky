@@ -2,6 +2,7 @@
 import { frameUniforms } from './scene/terrain.js';
 import { TerrainGenerator } from './scene/generator.js';
 import { geometryKey, renderKey } from './scene/generation.js';
+import { sculptControls } from './scene/sculpt-controls.js';
 import { terrainControls } from './scene/terrain-controls.js';
 import { selectRenderer } from './render/select.js';
 import { createWebGPU } from './render/webgpu.js';
@@ -34,6 +35,7 @@ let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
 const layerControls = terrainControls(() => history.value, discrete);
+const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
 
 function draw() {
   if (redraw) return;
@@ -47,7 +49,7 @@ function draw() {
     const width = Math.max(1, Math.floor(bounds.width * scale)), height = Math.max(1, Math.floor(bounds.height * scale));
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
-    try { active.draw(frameUniforms(state, width / height)); }
+    try { active.draw(frameUniforms(state, width / height)); sculpt.draw(); }
     catch (error) { void startGraphics(activeKind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   });
 }
@@ -55,7 +57,7 @@ function draw() {
 async function startGraphics(preference = $('graphics-mode').value, reasons = []) {
   const request = ++generation;
   finalRender.setAvailable(false);
-  active?.dispose(); active = null; activeKind = 'none';
+  sculpt.cancel();active?.dispose(); active = null; activeKind = 'none';sculpt.sync();
   viewport.replaceChildren();
   $('backend').textContent = 'Starting graphics…';
   $('empty-message').textContent = 'Checking available graphics…';
@@ -77,7 +79,7 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
     result.renderer?.dispose();
     return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [...result.reasons, losses.get(result.kind)]);
   }
-  active = result.renderer; activeKind = result.kind;
+  active = result.renderer; activeKind = result.kind;sculpt.sync();
   finalRender.setAvailable(activeKind === 'webgpu' && terrainReady, activeKind === 'webgpu' && !terrainReady ? 'Generate terrain before rendering this scene.' : undefined);
   $('backend').textContent = result.kind === 'none' ? 'Preview unavailable' : result.kind === 'webgpu' ? 'WebGPU' : 'WebGL 2';
   $('graphics-info').textContent = active?.details || 'No active graphics backend. Your scene settings are still available.';
@@ -94,14 +96,14 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
 
 async function updateGeometry() {
   const ticket=++terrainEpoch;
-  terrainReady=false;finalRender.setAvailable(false, 'Generating terrain before rendering…');
+  terrainReady=false;sculpt.cancel();sculpt.sync();finalRender.setAvailable(false, 'Generating terrain before rendering…');
   $('cancel-terrain').disabled=false;$('retry-terrain').hidden=true;
   $('terrain-progress').value=0;
   $('terrain-status').textContent='Generating terrain… The previous preview stays visible.';
   try {
     const result=await terrainGenerator.generate(state, progress=>{if(ticket===terrainEpoch)$('terrain-progress').value=progress;});
     if(ticket!==terrainEpoch)return;
-    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;
+    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;sculpt.sync();
     $('terrain-progress').value=1;
     $('terrain-status').textContent=result.heightsChanged?'Terrain ready.':result.surfaceChanged?'Surface updated · heights reused.':'Water updated · terrain surface reused.';
     $('geometry').textContent=`${result.resolution}² terrain cells · 128² render mesh · 32,768 triangles`;
@@ -119,7 +121,7 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();
+  layerControls.sync();sculpt.sync();
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;
@@ -140,7 +142,7 @@ function refresh() {
   const next = renderState(history.value);
   const geometryChanged = geometryKey(state) !== geometryKey(next);
   if (renderKey(state) !== renderKey(next)) finalRender.invalidate();
-  state = next; syncControls();
+  sculpt.cancel();state = next; syncControls();
   if (geometryChanged) updateGeometry(); else draw();
   changed = true; editVersion++;
   if (autosaveEnabled) autosave.enqueue(history.value);
@@ -271,7 +273,7 @@ $('scene-file').addEventListener('change', async () => {
   $('scene-file').value = ''; if (!file) return;
   $('open-scene').disabled = true;
   try {
-    if (file.size > MAX_SCENE_BYTES) throw new Error('Scene exceeds 16 KiB.');
+    if (file.size > MAX_SCENE_BYTES) throw new Error('Scene exceeds 128 KiB.');
     const text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
     const imported = parseScene(text, schema);
     if (before !== editVersion) throw new Error('The scene changed while opening. Please open the file again.');
@@ -306,7 +308,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && aut
 void connectRecovery();
 $('help').addEventListener('click', () => $('guide').showModal());
 new ResizeObserver(draw).observe(viewport);
-window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
+window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; sculpt.cancel(); terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
 window.addEventListener('pageshow', e => { if (e.persisted) {void updateGeometry();void startGraphics();} });
 void updateGeometry();
 syncControls();

@@ -67,8 +67,8 @@ publication belongs to the release workflow.
 
 Depends on wave 1's scene and renderer contracts. Wave 2 work is explicitly
 requested while the documented native Windows/Linux release checks remain open.
-W2.S1 is complete and locally validated; see [terrain authoring](docs/terrain.md)
-and [validation](docs/validation.md). W2.S2–S4 remain planned.
+W2.S1 and W2.S2 are complete and locally validated; see [terrain authoring](docs/terrain.md)
+and [validation](docs/validation.md). W2.S3–S4 remain planned.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|

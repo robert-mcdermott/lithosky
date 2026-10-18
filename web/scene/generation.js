@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 import { heightAt, normalize, surfacePoint } from './terrain.js';
+import { sculptHeights } from './sculpt.js';
 export const RENDER_GRID = 128;
 export const RESOLUTIONS = Object.freeze([256, 512, 1024, 2048]);
 export function terrainBudget(resolution) {
   if (!RESOLUTIONS.includes(resolution)) throw new Error('Unsupported terrain resolution.');
   const heightBytes = (resolution + 1) ** 2 * 4;
-  // Two grids during replacement plus samples, surfaces, transfer copies and mesh.
-  return { resolution, samples: (resolution + 1) ** 2, heightBytes, peakBytes: heightBytes * 2 + 12 * 1024 * 1024 };
+  // Pristine/sculpted/replacement grids plus bounded smoothing scratch and surfaces.
+  return { resolution, samples: (resolution + 1) ** 2, heightBytes, peakBytes: heightBytes * 3 + 14 * 1024 * 1024 };
 }
-export function heightKey(state) {
+export function baseKey(state) {
   return JSON.stringify([state.generator || 'terrain-v1', state.seed,
     state.generator === 'layers-v1' ? state.resolution : 128,
     state.generator === 'layers-v1' ? state.layers.filter(l => l.enabled).map(l => [l.kind,l.strength,l.scale,l.kind === 'terrace' ? 1 : l.octaves]) : []]);
 }
+export const heightKey = state => JSON.stringify([baseKey(state), state.sculpt ?? []]);
 export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette]);
 export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0]);
 const yieldTask = () => new Promise(resolve => setTimeout(resolve, 0));
@@ -30,6 +32,10 @@ export async function generateHeights(state, { signal, onProgress = () => {}, yi
     if (z % 16 === 0 || z === resolution) { onProgress((z + 1) / size); await yieldControl(); }
   }
   canceled(signal);
+  return sampleHeights(heights, resolution, layered ? null : plain);
+}
+export function sampleHeights(heights, resolution, legacy = null) {
+  const size = resolution + 1;
   const sample = (x, z) => {
     const gx = Math.max(0, Math.min(resolution, (x + 32) / 64 * resolution));
     const gz = Math.max(0, Math.min(resolution, (z + 32) / 64 * resolution));
@@ -38,7 +44,7 @@ export async function generateHeights(state, { signal, onProgress = () => {}, yi
     return (heights[i] * (1-u) + heights[i+1] * u) * (1-v) + (heights[i+size] * (1-u) + heights[i+size+1] * u) * v;
   };
   // Preserve the original generator's double-precision samples and 0.08 normals.
-  const at = layered ? sample : (x, z) => heightAt(x, z, plain);
+  const at = legacy ? (x, z) => heightAt(x, z, legacy) : sample;
   const samples = new Float64Array((RENDER_GRID + 1) ** 2 * 5);
   for (let z = 0; z <= RENDER_GRID; z++) for (let x = 0; x <= RENDER_GRID; x++) {
     const px = x * .5 - 32, pz = z * .5 - 32, i = (z * (RENDER_GRID+1) + x) * 5;
@@ -79,13 +85,20 @@ export class TerrainCache {
   async build(state, options) {
     const heightsChanged=this.heightsKey!==heightKey(state);
     const surfaceChanged=this.fieldKey!==surfaceKey(state);
-    if(heightsChanged) {
-      const base=await generateHeights(state,options);
-      this.base=base;this.heightsKey=heightKey(state);
+    const noiseChanged=this.noiseKey!==baseKey(state);
+    if(noiseChanged) {
+      this.base=await generateHeights(state, state.sculpt?.length ? {...options,onProgress:p=>options?.onProgress?.(p*.5)} : options);this.noiseKey=baseKey(state);
     }
-    if(surfaceChanged) {this.field=buildSurface(this.base,state);this.fieldKey=surfaceKey(state);}
-    return { mesh:buildPreview(this.field,this.base,state), field:surfaceChanged?{...this.field,vertices:this.field.vertices.slice()}:null,
-      heightsChanged,surfaceChanged,resolution:this.base.resolution };
+    if(heightsChanged) {
+      if(state.sculpt?.length) {
+        const heights=await sculptHeights(this.base.heights,this.base.resolution,state.sculpt,noiseChanged ? {...options,onProgress:p=>options?.onProgress?.(.5+p*.5)} : options);
+        this.effective=sampleHeights(heights,this.base.resolution);
+      } else this.effective=this.base;
+      this.heightsKey=heightKey(state);
+    }
+    if(surfaceChanged) {this.field=buildSurface(this.effective,state);this.fieldKey=surfaceKey(state);}
+    return { mesh:buildPreview(this.field,this.effective,state), field:surfaceChanged?{...this.field,vertices:this.field.vertices.slice()}:null,
+      heightsChanged,surfaceChanged,noiseChanged,resolution:this.base.resolution };
   }
 }
 

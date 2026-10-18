@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 )
 
-const MaxBytes = 16 * 1024
+const MaxBytes = 128 * 1024
 
 //go:embed schema.json
 var Schema []byte
@@ -45,7 +45,7 @@ var schema = func() Rule {
 
 func Validate(data []byte) ([]byte, error) {
 	if len(data) > MaxBytes {
-		return nil, errors.New("scene exceeds 16 KiB")
+		return nil, errors.New("scene exceeds 128 KiB")
 	}
 	if !utf8.Valid(data) {
 		return nil, errors.New("scene must be valid UTF-8")
@@ -54,8 +54,8 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) {
-		return nil, errors.New("unsupported scene version; this build opens versions 1 and 2")
+	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) {
+		return nil, errors.New("unsupported scene version; this build opens versions 1, 2 and 3")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err

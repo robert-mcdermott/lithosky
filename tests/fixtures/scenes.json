@@ -58,7 +58,7 @@
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 3,
+      "version": 4,
       "title": "Alpine quiet",
       "terrain": {
         "generator": "terrain-v1",
@@ -1328,6 +1328,2054 @@
             "strength": 0.8,
             "scale": 1,
             "octaves": 5
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "sculpted v3",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "empty sculpt list",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": []
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "v3 missing sculpt",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "v2 with sculpt",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 2,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "unknown sculpt tool",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "script",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "oversized brush",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 8.01,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "zero strength",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "flatten height outside bounds",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 65,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "brush coordinate outside bounds",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                32.01,
+                0
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "brush malformed coordinate",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "empty stroke",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": []
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "too many dabs",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "too many strokes",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "unknown sculpt field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 3,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural",
+        "resolution": 256,
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.5,
+            "scale": 1,
+            "octaves": 5
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.7,
+            "scale": 1,
+            "octaves": 5
+          }
+        ],
+        "sculpt": [
+          {
+            "tool": "raise",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ],
+            "url": "external"
+          },
+          {
+            "tool": "lower",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "smooth",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
+          },
+          {
+            "tool": "flatten",
+            "radius": 3,
+            "strength": 0.25,
+            "height": 2,
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                1
+              ]
+            ]
           }
         ]
       },
