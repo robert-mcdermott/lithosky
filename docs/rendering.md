@@ -22,12 +22,29 @@ preview and scene editing. If final rendering fails, its image is discarded and
 the scene stays editable. Retry rendering, or use **Graphics & compatibility →
 Automatic → Retry graphics** if necessary.
 
-## What the first tracer does
+## Terrain detail
 
-- A 128 × 128 bounded heightfield, spanning −32 to 32 in X and Z, uses the same
-  seeded heights, triangle diagonals, smooth normals, palette rules and camera
-  as preview. V4 height/slope rules and seeded color detail also share the exact
-  vertex reflectances. These values act as linear reflectance in the tracer.
+**Terrain detail** selects Draft (128²), Detailed (512², the default), or Fine
+(1024²). The preview stays at 128². Final geometry is prepared in a separate
+cancelable worker, including the saved sculpt strokes and surface rules. Layered
+and imported terrain are capped at their source resolution: a 256² source stays
+256² even when Fine is selected. The original analytic generator is evaluated at
+the requested resolution. The actual final cell/triangle count is shown after
+preparation. Generation resolution, final geometry detail, image dimensions and
+sample count are different controls. More samples do not create missing geometry.
+
+These choices are transient render settings; scene files remain v1–v6. Draft
+retains the previous mesh and shading. The new default can change the appearance
+of existing scenes without changing their saved parameters. A failed detailed job
+reports an error and allows retry at a lower tier; it never silently downgrades.
+
+## What the tracer does
+
+- A bounded heightfield spans −32 to 32 in X and Z. Preview and final geometry
+  sample the same landform, triangle convention, camera and surface rules at
+  different resolutions. V4 color detail is still evaluated per vertex, not per
+  ray hit. Fine geometry improves silhouettes and resolves smaller surface
+  variations, but does not yet supply bump mapping or geological materials.
 - Ray/box clipping followed by a two-level hierarchy skips empty 8 × 8-cell
   blocks, then tests two triangles per remaining cell.
   Zero direction components, boundary starts, underside rays and parallel rays
@@ -66,10 +83,22 @@ and checks cancellation. Completed image readback occurs once per sample. Work
 ends after the selected sample count; there is no idle render loop. These are
 work bounds, not a hardware-independent latency or watchdog guarantee.
 
-At 960 × 540 the accumulation, output, readback and vertex buffers total about
-12.6 MiB plus 2 KiB of block bounds and, with atmosphere enabled, 384 KiB of
-lookup tables. This excludes preview resources and driver
-overhead. Limits are checked before buffer creation. The final job owns a separate device so a tracing failure
+At 960 × 540 the three image buffers total about 11.87 MiB. Geometry adds:
+
+| Final cells | Triangles | Vertex buffer | Hierarchy |
+|---|---:|---:|---:|
+| 128² | 32,768 | 0.762 MiB | 2 KiB |
+| 256² (source cap) | 131,072 | 3.023 MiB | 8 KiB |
+| 512² | 524,288 | 12.047 MiB | 32 KiB |
+| 1024² | 2,097,152 | 48.094 MiB | 128 KiB |
+
+Atmosphere adds 384 KiB. These figures exclude preview resources and driver
+overhead. Preparation also owns a separate worker's generation/sculpt cache
+(up to the documented 63 MiB authoring budget) plus the final vertex/hierarchy
+arrays. Transfer moves those arrays to the main thread; the worker is terminated
+after preparation or cancellation, and final GPU buffers are destroyed after the
+job. CPU upload arrays and image snapshots add to process memory; this is not a
+browser-RSS limit. Fine is not intended as a small-memory-device default. Limits are checked before buffer creation. The final job owns a separate device so a tracing failure
 can leave the preview intact. All job buffers and its device are destroyed on
 completion, cancellation or failure. Every new job starts fresh accumulation;
 scene changes also advance a generation guard covering asynchronous creation,
@@ -115,10 +144,10 @@ layout. See [validation record](validation.md) for actual machine results.
 
 ## Layered terrain input
 
-W2.S1 passes a worker-prepared heightfield to the tracer. Legacy v1 buffers stay
-unchanged. Layered v2 scenes generate 256²–2048² scalar grids, then reduce them
-to the same 128² preview/trace mesh. Higher generation resolution does not yet
-increase silhouette detail. See [terrain authoring](terrain.md). Scene-title edits
+The preview worker retains its 128² mesh. A final-render worker independently
+rebuilds the saved landform and prepares the requested trace tier from the dense
+source, including sculpting and imported samples. Draft buffers remain unchanged.
+See [terrain authoring](terrain.md). Scene-title edits
 retain the current still; visual edits invalidate it.
 
 ## Traversal comparisons
@@ -136,3 +165,10 @@ geometry and 640 × 360 camera for both traversal routes.
 The diagnostic selects the route through WGSL's pipeline-overridable constant;
 it is not a scene setting. See the [WebGPU pipeline constants specification](https://www.w3.org/TR/webgpu/#dictdef-gpuprogrammablestage).
 Actual counts, timings and tested hardware are recorded in [validation](validation.md).
+
+## Detailed terrain benchmark
+
+See [visual-quality comparisons](visual-quality.md) for the original Sunlit ridges
+scene, unretouched Draft/Detailed/Fine renders, GPU intersection checks and recorded
+preparation/render costs. Run `docs/capture/detail-run.mjs` against an isolated
+rebuilt app to reproduce the captures and manifest.

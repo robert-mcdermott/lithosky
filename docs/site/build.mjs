@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { digest, sourceHash } from '../capture/source.mjs';
+import { validateScene } from '../../web/scene/document.js';
 import { validateStudies } from '../../web/scene/studies.js';
 import { checkSite } from './check.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url)), root=path.resolve(here,'../..');
@@ -23,15 +24,23 @@ export function buildSite(destination=path.join(root,'dist/site')) {
   for(const study of studies) {
     const capture=captures.records.find(c=>c.id===study.id), bytes=fs.readFileSync(path.join(here,'assets',study.id+'.png'));
     const scene=JSON.parse(fs.readFileSync(path.join(here,'assets',study.id+'.lithosky')));
-    if(!capture || JSON.stringify(capture.scene)!==JSON.stringify(study.scene) || JSON.stringify(scene)!==JSON.stringify(study.scene) || capture.sha256!==digest(bytes) || capture.width!==960 || capture.height!==540 || capture.samples!==64) throw new Error('Capture provenance mismatch: '+study.id);
+    if(!capture || JSON.stringify(capture.scene)!==JSON.stringify(study.scene) || JSON.stringify(scene)!==JSON.stringify(study.scene) || capture.sha256!==digest(bytes) || capture.width!==960 || capture.height!==540 || capture.samples!==64 || capture.detail!==512) throw new Error('Capture provenance mismatch: '+study.id);
     if(!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) || bytes.readUInt32BE(16)!==960 || bytes.readUInt32BE(20)!==540) throw new Error('Invalid gallery PNG: '+study.id);
   }
   if(captures.studioSHA256!==digest(fs.readFileSync(path.join(here,'assets/studio.png')))) throw new Error('Studio screenshot provenance mismatch.');
-  const gallery=studies.map((s,i)=>`<article class="study" id="${s.id}"><a href="assets/${s.id}.png" aria-label="View ${escapeHTML(s.scene.title)} at full size"><img src="assets/${s.id}.png" alt="${escapeHTML(s.description)} rendered in Lithosky" width="960" height="540" loading="lazy"></a><div class="study-caption"><span class="number">0${i+1}</span><div><h2>${escapeHTML(s.scene.title)}</h2><p>${escapeHTML(s.description)}.</p><p class="small">Seed ${s.scene.terrain.seed} · 960 × 540 · 64 samples</p><a href="scenes/${s.id}.lithosky" download>Open this starting point ↗</a></div></div></article>`).join('\n');
+  const terrain=JSON.parse(fs.readFileSync(path.join(here,'assets/terrain-captures.json')));
+  const terrainScene=fs.readFileSync(path.join(here,'assets/sunlit-ridges.lithosky'));
+  validateScene(JSON.parse(terrainScene),schema);
+  if(terrain.sourceHash!==sourceHash(root)||terrain.sceneSHA256!==digest(terrainScene)||terrain.records.length!==3)throw new Error('Terrain comparisons are stale. Run docs/capture/detail-run.mjs.');
+  for(const detail of [128,512,1024]) {
+    const record=terrain.records.find(r=>r.detail===detail),bytes=fs.readFileSync(path.join(here,'assets','terrain-'+detail+'.png'));
+    if(!record||record.sha256!==digest(bytes)||record.width!==960||record.height!==540||record.samples!==32||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==960||bytes.readUInt32BE(20)!==540)throw new Error('Terrain comparison provenance mismatch: '+detail);
+  }
+  const gallery=studies.map((s,i)=>`<article class="study" id="${s.id}"><a href="assets/${s.id}.png" aria-label="View ${escapeHTML(s.scene.title)} at full size"><img src="assets/${s.id}.png" alt="${escapeHTML(s.description)} rendered in Lithosky" width="960" height="540" loading="lazy"></a><div class="study-caption"><span class="number">0${i+1}</span><div><h2>${escapeHTML(s.scene.title)}</h2><p>${escapeHTML(s.description)}.</p><p class="small">Seed ${s.scene.terrain.seed} · 960 × 540 · 64 samples · 512² terrain</p><a href="scenes/${s.id}.lithosky" download>Open this starting point ↗</a></div></div></article>`).join('\n');
   const temp=fs.mkdtempSync(path.join(path.dirname(out),'.lithosky-site-'));
   try {
     fs.mkdirSync(path.join(temp,'assets'));fs.mkdirSync(path.join(temp,'scenes'));
-    for(const name of ['site.css','studio.png','daylight.lithosky','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
+    for(const name of ['sunlit-ridges.lithosky','terrain-128.png','terrain-512.png','terrain-1024.png','terrain-captures.json','site.css','studio.png','daylight.lithosky','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
     fs.copyFileSync(path.join(root,'web/favicon.svg'),path.join(temp,'assets/icon.svg'));
     for(const s of studies) fs.copyFileSync(path.join(here,'assets',s.id+'.lithosky'),path.join(temp,'scenes',s.id+'.lithosky'));
     for(const name of ['LICENSE','NOTICE']) fs.copyFileSync(path.join(root,name),path.join(temp,name+'.txt'));

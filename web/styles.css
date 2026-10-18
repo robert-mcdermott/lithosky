@@ -754,3 +754,7 @@ main:has(.inspector[hidden]) { --controls-width:0px; }
 }
 
 @media(max-width:380px) { .brand { font-size:22px; } }
+
+.render-detail-label { display:block; font-size:11px; color:#c4cfc5; }
+.render-detail-label select { margin-top:8px; }
+#render-detail-status { margin:10px 0 16px; }

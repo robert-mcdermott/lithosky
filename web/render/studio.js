@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { TerrainGenerator } from '../scene/generator.js';
 import { createTracer } from './tracer.js';
 
 // Epoch checks cover pipeline creation, GPU completion, readback and PNG encoding.
@@ -6,7 +7,7 @@ import { createTracer } from './tracer.js';
 export function renderStudio(getState, getTitle, getField = () => null) {
   const $=id=>document.getElementById(id), canvas=$('render-image');
   let epoch=0, controller=null, snapshot=null, available=false, busy=false;
-  const options=()=>({width:Number($('render-size').value),height:Number($('render-size').value)*9/16,samples:Number($('render-samples').value)});
+  const options=()=>({width:Number($('render-size').value),height:Number($('render-size').value)*9/16,samples:Number($('render-samples').value),detail:Number($('render-detail').value)});
   function showRender(show) {
     canvas.hidden=!show;
     $('show-preview').textContent=show?'Show preview':'Show render';
@@ -17,11 +18,12 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     $('render-start').disabled=!available||busy;
     $('render-cancel').disabled=!busy;
     $('export-image').disabled=!snapshot||busy;
-    $('render-size').disabled=busy; $('render-samples').disabled=busy;
+    $('render-size').disabled=busy; $('render-samples').disabled=busy; $('render-detail').disabled=busy;
     $('show-preview').disabled=!snapshot||busy;
   }
   function invalidate(message) {
     epoch++; controller?.abort(); controller=null; busy=false; snapshot=null;
+    $('render-detail-status').textContent='Final terrain: up to '+$('render-detail').value+'² cells, limited by source resolution. Preview remains 128².';
     showRender(false); $('render-progress').value=0;
     $('render-status').textContent=message ?? (available?'Scene changed. Render again to update the image.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.'); controls();
   }
@@ -30,9 +32,19 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     const ticket=epoch, abort=new AbortController(); controller=abort; busy=true; controls();
     const state=structuredClone(getState()), title=getTitle(), settings=options(), start=performance.now();
     $('render-progress').max=settings.samples;
-    let renderer;
+    let renderer,worker;
     try {
-      renderer=await createTracer(state,{...settings,signal:abort.signal},getField());
+      let field=getField();
+      if(settings.detail!==128) {
+        worker=new TerrainGenerator();
+        abort.signal.addEventListener('abort',()=>worker.cancel(),{once:true});
+        field=await worker.generate(state,p=>{if(ticket===epoch)$('render-status').textContent='Preparing detailed terrain · '+Math.round(p*100)+'%';},'final',settings.detail);
+        worker.cancel();
+      }
+      if(ticket!==epoch||abort.signal.aborted)return;
+      const grid=field?.resolution??128;
+      $('render-detail-status').textContent=grid+' × '+grid+' final cells · '+(grid*grid*2).toLocaleString()+' triangles. Preview remains 128 × 128.';
+      renderer=await createTracer(state,{...settings,signal:abort.signal},field);
       if (ticket!==epoch) return;
       if (abort.signal.aborted) { $('render-status').textContent='Canceled before the first sample.'; return; }
       $('render-status').textContent='Rendering the first sample…';
@@ -47,7 +59,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     } catch(error) {
       if (ticket===epoch) { if(abort.signal.aborted) $('render-status').textContent='Canceled before the first sample.'; else invalidate('Rendering failed: '+error.message+' Retry rendering or use Retry graphics.'); }
     } finally {
-      renderer?.dispose();
+      worker?.cancel();renderer?.dispose();
       if (ticket===epoch) { busy=false; controller=null; controls(); }
     }
   });
@@ -75,7 +87,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     } catch(error) { if (ticket===epoch) $('render-status').textContent=error.message; }
     finally { if (ticket===epoch) controls(); }
   });
-  for (const id of ['render-size','render-samples']) $(id).addEventListener('change',()=>invalidate('Render settings changed. Start a new render.'));
+  for (const id of ['render-size','render-samples','render-detail']) $(id).addEventListener('change',()=>invalidate('Render settings changed. Start a new render.'));
   return {
     invalidate,
     preview() { if (busy) invalidate('Render stopped for terrain editing.'); else showRender(false); },

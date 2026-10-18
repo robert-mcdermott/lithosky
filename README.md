@@ -55,8 +55,8 @@ retry after failure. GPU failure preserves the current in-memory parameters.
 **Build with layers** creates a new landform from rolling hills (fBm), ridges,
 domain warp and terraces. Add, reorder, disable and tune up to eight layers;
 Undo restores the previous composition. Save/open and recovery preserve the stack.
-Generation runs in a cancellable worker with 256²–2048² cell budgets. Preview and
-stills currently use a shared 128² mesh. See [terrain authoring](docs/terrain.md)
+Generation runs in a cancellable worker with 256²–2048² cell budgets. Preview remains 128². Final stills offer Draft (128²), Detailed (512², default),
+and Fine (1024²), capped by source resolution for layered/imported terrain. See [terrain authoring](docs/terrain.md)
 for controls, cache behavior and memory/render limits.
 
 On layered terrain, choose **Raise**, **Lower**, **Smooth** or **Flatten**. Drag
@@ -112,9 +112,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.3.0-dev.1 --out dist/releases/0.3.0-dev.1`
+`go run ./tools/release --version 0.3.0-dev.2 --out dist/releases/0.3.0-dev.2`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.3.0-dev.1` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.2` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

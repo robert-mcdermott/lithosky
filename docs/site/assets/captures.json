@@ -1,8 +1,8 @@
 {
-  "version": "0.3.0-dev.1",
+  "version": "0.3.0-dev.2",
   "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
-  "capturedAt": "2026-10-18T23:08:00.193Z",
-  "sourceHash": "277546651f408b43b355c3595a3561195626709d7a35a23f07fdb97c290824a0",
+  "capturedAt": "2026-10-18T23:30:56.986Z",
+  "sourceHash": "58ade403aba3b831710eac4c543eec60af84771e2a2d8b3cc2e06367236dd512",
   "records": [
     {
       "id": "alpine",
@@ -32,7 +32,8 @@
       "width": 960,
       "height": 540,
       "samples": 64,
-      "sha256": "0bd8e747dd577ee45dba31979b0202c589dfb9e3a056e63b160827add347e683"
+      "detail": 512,
+      "sha256": "93970b7c3da9a31fb267b163956caad4bd234988084f181e4cd076cfdca94701"
     },
     {
       "id": "highland",
@@ -62,7 +63,8 @@
       "width": 960,
       "height": 540,
       "samples": 64,
-      "sha256": "5f268eec794b89ad95cc757b4a08f14c321691c5aab9fcf7f964af74ce2de733"
+      "detail": 512,
+      "sha256": "f70a0120a883f156f67688d0ca3e65a0308542c64b173b11a6ee10d49a91840e"
     },
     {
       "id": "distant",
@@ -92,8 +94,9 @@
       "width": 960,
       "height": 540,
       "samples": 64,
-      "sha256": "f912b1e252e0f70b8bcbac71b7ff078606f9300f4cb9a836e59f737f38bbb5eb"
+      "detail": 512,
+      "sha256": "570bd038cbb725c5d5ac68ddbc6c98a8bf97439a33eeef8899c59092d180b378"
     }
   ],
-  "studioSHA256": "7b1eebc09f8da65950de6131636030a8100bee87642d912ec99b3423764d82b2"
+  "studioSHA256": "ce4ed91bf1de0149b1912125fb9db14962453ebf83cf99aada75ad66971147df"
 }

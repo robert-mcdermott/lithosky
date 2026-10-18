@@ -82,3 +82,11 @@ published status, refresh captures if necessary, and rerun validation.
 The guide also offers the original `assets/daylight.lithosky` v6 atmosphere scene.
 It is checked against the shared scene schema by the site test. The three gallery
 starters retain their artistic lighting; they do not depict the physical model.
+
+The gallery also includes an original final-terrain detail comparison. After
+rebuilding the app, run `node docs/capture/detail-run.mjs http://127.0.0.1:PORT`
+(with `PLAYWRIGHT_CLI` pointing to an installed CLI). It checks CPU/GPU intersections
+at four tiers, preparation cancellation and scene-edit invalidation, then exports
+identical-camera 128²/512²/1024² images and `terrain-captures.json`. Site builds
+verify source/scene/image hashes and image dimensions; rerun this capture after
+render-affecting sources change. Scene files do not store transient render tiers.

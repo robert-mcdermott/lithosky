@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { buildAtmosphere } from '../atmosphere/model.js';
 import { sunDirection } from '../atmosphere/solar.js';
-import { buildHierarchy, createHeightfield } from './heightfield.js';
+import { buildHierarchy, createHeightfield, fieldGrid, finalBudget } from './heightfield.js';
 import { frameUniforms } from '../scene/terrain.js';
 export const TILE_WIDTH = 64, TILE_HEIGHT = 32;
 export function validateRenderOptions({ width, height, samples }) {
@@ -17,8 +17,10 @@ export function renderTiles(width, height) {
 }
 export async function createTracer(state, options, preparedField = null) {
   const { width, height, samples } = validateRenderOptions(options);
-  const constants={useHierarchy:options.traversal==='linear'?0:1};
   if (['layers-v1','heightmap-v1'].includes(state.generator) && !preparedField) throw new Error('Generate the terrain before rendering.');
+  const field=preparedField ?? createHeightfield(state),grid=fieldGrid(field),budget=finalBudget(grid);
+  if(field.vertices.byteLength!==budget.verticesBytes||!Number.isFinite(field.low)||!Number.isFinite(field.high)||field.low>field.high)throw new Error('Invalid final terrain field.');
+  const constants={useHierarchy:options.traversal==='linear'?0:1,grid};
   if (!navigator.gpu) throw new Error('Final rendering requires WebGPU. The scene can still be edited and saved.');
   const adapter=await navigator.gpu.requestAdapter();
   if (!adapter) throw new Error('No WebGPU adapter is available for final rendering.');
@@ -41,12 +43,14 @@ export async function createTracer(state, options, preparedField = null) {
     const errors=compilation.messages.filter(m=>m.type==='error');
     if (errors.length) throw new Error(errors.map(m=>m.message).join('; '));
     const pipeline=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:'render',constants}});
-    const field=preparedField ?? createHeightfield(state), imageBytes=width*height*4;
+    const imageBytes=width*height*4;
     if (width*height*16>device.limits.maxStorageBufferBindingSize) throw new Error('This GPU cannot hold the selected image. Choose a smaller size.');
+    if (budget.verticesBytes>Math.min(device.limits.maxStorageBufferBindingSize,device.limits.maxBufferSize)) throw new Error('This GPU cannot hold the selected terrain detail. Choose a lower detail tier.');
     device.pushErrorScope('validation');
     const uniform=buffer(176,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);
     const vertices=buffer(field.vertices.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
     const bounds=field.hierarchy??buildHierarchy(field);
+    if(bounds.byteLength!==budget.hierarchyBytes)throw new Error('Invalid final terrain hierarchy.');
     const hierarchy=buffer(bounds.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
     device.queue.writeBuffer(hierarchy,0,bounds);
     const accumulation=buffer(width*height*16,GPUBufferUsage.STORAGE);

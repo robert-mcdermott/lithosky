@@ -1,6 +1,6 @@
 # Lithosky implementation roadmap
 
-Status: wave 3, slice 1 complete locally; native release gates remain open.
+Status: wave 3, slices 1–2 complete locally; native release gates remain open.
 Updated 2026-10-18. Each wave produces one minor release; a completed slice is not a released version. No calendar estimates
 until the rendering spikes have measurements. The private PRD is input, not a
 contract. Research and comparisons stay in ignored `product_research/`.
@@ -78,44 +78,56 @@ the native platform release gates remain open.
 | W2.S3 | Slope/height material rules, rock/snow/sand/ground presets, procedural detail, hierarchical terrain traversal | Grazing-ray and silhouette tests; preview/final alignment; memory and render benchmarks |
 | W2.S4 | 16-bit heightmap import/export, scale metadata and hardened asset container evolution | Round-trip precision; malformed assets rejected; migration from v1; site and examples updated |
 
-## Wave 3 → v0.3.0 — Physical light, sky and calm water
+## Wave 3 → v0.3.0 — Detailed terrain, believable surfaces and light
 
 W3.S1 is implemented and locally validated; see [atmosphere](docs/atmosphere.md)
 and [validation](docs/validation.md). The first physical atmosphere is explicitly
 single scattering with three spectral bands; it does not claim multiple scattering
-or calibrated spectral color. Native release gates remain open. W3.S2 has not started.
+or calibrated spectral color. Native release gates remain open. W3.S2 is complete locally; see
+[visual-quality comparisons](docs/visual-quality.md) and [validation](docs/validation.md).
+W3.S3 geological surfaces is next and has not started.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|
 | W3.S1 | Physical sun/atmosphere LUTs, Rayleigh/Mie/ozone and aerial perspective; manual sun plus geographic positioning | Compare representative radiance/transmittance against published reference data |
-| W3.S2 | Energy-conserving diffuse/GGX/dielectric materials, MIS, area lights, exposure and color pipeline | White-furnace and sampling tests; documented linear working space and display conversion |
-| W3.S3 | Water absorption/refraction, depth color, surface ripples and shoreline transitions | Fresnel and attenuation tests; grazing views and underwater edge cases documented |
-| W3.S4 | Physical camera, depth of field, render region and curated lighting presets | Reproducible same-build tests with tolerances; quality reviews and updated website |
+| W3.S2 | Detailed final terrain: independent 128²/512²/1024² tracing tiers, worker preparation, scalable traversal, source-resolution limits and an original ridge benchmark | Thin ridges survive final geometry; CPU/GPU intersection agreement at all tiers; cancel/retry and device budgets; identical-camera before/after renders with recorded cost |
+| W3.S3 | Materials evaluated at ray hits: multiscale rock strata/fractures, soil/snow variation, filtered bump normals and roughness, coherent world-space mapping | Close-up rock reads as rock rather than smooth colored plastic; aliasing/normal-energy checks; near/middle/far crops and material reference scenes |
+| W3.S4 | Energy-conserving diffuse/GGX/dielectric transport, indirect terrain light, MIS, area lights, exposure and filmic color controls | White-furnace and sampling tests; no clipped/chalky highlights or crushed shadows in benchmark scenes; documented linear working space and export transform |
+| W3.S5 | Water absorption/refraction, depth color, ripples and shoreline transitions | Fresnel/attenuation tests plus convincing shallow/deep water and grazing shoreline examples |
+| W3.S6 | Physical camera, depth of field, render region, bounded 2K export with landscape/portrait framing, curated daylight/golden-hour compositions and integrated quality review | Original mountain/coast/snow gallery passes the visual rubric below; reproducible scenes and measured budgets; no claim of photorealism from numerical tests alone |
 
-## Wave 4 → v0.4.0 — Clouds, fog and weather
+Final geometry must no longer inherit the interactive preview's resolution cap.
+W3.S2 establishes this foundation; W3.S3–S4 must deliver the surface and lighting
+quality that geometry alone cannot supply. Attractive bare landscapes are a Wave 3
+release gate, before vegetation or clouds can hide weaknesses.
+
+## Wave 4 → v0.4.0 — Dramatic skies, stars and weather
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|
 | W4.S1 | Own bounded volume/noise library, layered cloud coverage and density presets | Density/majorant bounds tested; no GPU watchdog resets on reference fixtures |
 | W4.S2 | Cloud lighting, fog banks, shafts and preview temporal reprojection | Volume transmittance fixtures; camera-motion ghosting and convergence measured |
-| W4.S3 | Art-directed weather states: clear, overcast, storm, mist; rain/snow visual effects | Effects compose coherently with sky/water/terrain; preview approximations labeled |
-| W4.S4 | Memory tiers, volume sampling improvements and weather gallery | Integrated and discrete GPU timings; graceful quality reduction; release/site refresh |
+| W4.S3 | Night sky: seeded stellar field with stable angular sizes/brightness, Milky Way structure, moon phases/light and twilight transitions; photographic and artistic intensity controls | Stars remain stable across resolution/camera changes; no temporal sparkle; believable moonlit terrain and night exposure; original assets and documented celestial approximations |
+| W4.S4 | Art-directed weather states: clear, overcast, storm, mist; rain/snow visual effects | Effects compose coherently with sky/water/terrain; preview approximations labeled |
+| W4.S5 | Memory tiers, volume sampling improvements and weather gallery | Integrated and discrete GPU timings; graceful quality reduction; release/site refresh |
 
-## Wave 5 → v0.5.0 — Vegetation and populated worlds
-
-| Slice | Focus | Acceptance gate |
-|---|---|---|
-| W5.S1 | Primitives, procedural rocks and bounded mesh import; worker BLAS/TLAS | Intersection tests and import fuzz fixtures; stable transforms and instance bounds |
-| W5.S2 | Procedural trees and grass, seeds, LOD and foliage materials | All bundled geometry original; silhouettes and memory measured at distance |
-| W5.S3 | Rule/paint scattering, altitude/slope masks, spacing and density budgets | Deterministic scatter and undo; instance caps based on measured device budgets |
-| W5.S4 | Forest/meadow/coast examples, picking, object editing and performance work | Large-scene benchmark and recovery; gallery from actual rendered scenes |
-
-## Wave 6 → v0.6.0 — Erosion and oceans
+## Wave 5 → v0.5.0 — Geological detail and living landscapes
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|
-| W6.S1 | Hydraulic/thermal erosion in bounded compute steps, sediment and flow masks | Conservation/stability fixtures; cancellation; undo snapshots within memory budget |
-| W6.S2 | Erosion-informed materials and scattering; tiled terrain experiments | Seam tests; clear resolution/time budgets; no silent precision loss |
+| W5.S1 | Hydraulic/thermal erosion, sediment/flow masks and physically scaled terrain controls | Conservation/stability fixtures; visible drainage and talus structure in original mountain benchmarks; cancellation and memory limits |
+| W5.S2 | Erosion-informed surfaces/scattering and tiled-terrain experiments | Seam tests; coherent rock/soil placement; consistent scale from foreground to horizon |
+| W5.S3 | Primitives, procedural rocks and bounded mesh import; worker BLAS/TLAS | Intersection tests and import fuzz fixtures; stable transforms and instance bounds |
+| W5.S4 | Procedural trees and grass, seeds, LOD and foliage materials | All bundled geometry original; silhouettes and memory measured at distance |
+| W5.S5 | Rule/paint scattering, altitude/slope masks, spacing and density budgets | Deterministic scatter and undo; instance caps based on measured device budgets |
+| W5.S6 | Forest/meadow/coast examples, picking, object editing and performance work | Large-scene benchmark and recovery; gallery from actual rendered scenes |
+
+## Wave 6 → v0.6.0 — Oceans and expansive coastlines
+
+| Slice | Focus | Acceptance gate |
+|---|---|---|
+| W6.S1 | Large coastal terrain, distant landforms and bounded streaming/LOD | Stable silhouettes and shadows across detail transitions; measured memory and traversal budgets |
+| W6.S2 | Coastal geology, beaches, wet sand and coherent shoreline masks | Natural transitions across tide/water levels; close-up and distant coast reference scenes |
 | W6.S3 | Spectral ocean with wind/fetch controls, foam and shoreline detail | Spectrum tests; bounded displacement/traversal; optical behavior checks |
 | W6.S4 | Quality/performance presets and examples | Measured cost for combined ocean/cloud/vegetation scene; release/site refresh |
 
@@ -162,6 +174,35 @@ not another wave with a conflicting numbering rule. Later research: native
 headless rendering, spectral transport, path guiding, geospatial sources, rivers,
 advanced caustics and interchange formats. Native GPU libraries are optional and
 must not silently turn the standard distribution into a multi-file runtime.
+
+## Visual-quality policy
+
+The ambition is photographic credibility for natural scenes and exceptional,
+art-directed beauty for imagined worlds. Neither is claimed solely because a
+renderer uses ray tracing, passes unit tests, or runs on modern hardware.
+
+- Prioritize resolved landform detail, believable surfaces, light/exposure and
+  composition before expanding the feature list. Each rendering slice ships an
+  original reproducible example that demonstrates its visible improvement.
+- Maintain fixed-camera/seed comparisons, full images and 1:1 foreground,
+  middle-distance and horizon crops. Record build, geometry tier, image size,
+  samples, device, preparation/render times and memory. Do not hide regressions
+  with changed exposure, camera, postprocessing or generated marketing imagery.
+- Review geology/silhouette, material scale/variation, lighting/highlight retention,
+  atmospheric depth, water/shorelines, aliasing/noise and composition separately.
+  Tests establish correctness; rendered-image review establishes visual progress.
+- Wave 3 must show convincing unpopulated daylight landscapes; Wave 4 adds
+  dramatic but coherent cloudscapes, twilight and moonlit/starry scenes. Later
+  waves must preserve those standards as vegetation, erosion and oceans arrive.
+- Preserve a natural photographic mode. Dramatic sky colors, exaggerated celestial
+  effects and other artistic choices are explicit options, not unexplained physical
+  claims. Original presets should be beautiful without expert parameter tuning.
+- Keep third-party reference images and competitive notes in ignored
+  `product_research/`; commit only original/licensed assets and generic quality
+  criteria. Do not ship the supplied reference image or product comparisons.
+- A wave's visual gate stays open when outputs are technically valid but visibly
+  unconvincing. Publish limitations candidly and use user review to calibrate
+  artistic quality; do not label unfinished output indistinguishable from photography.
 
 ## Definition of done for every wave
 

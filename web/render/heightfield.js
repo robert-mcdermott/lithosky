@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 import { terrainPoint, cross, normalize } from '../scene/terrain.js';
 export const GRID = 128, EXTENT = 32, CELL = 64 / GRID, MAX_STEPS = GRID * 2 + 2;
+export const FINAL_GRIDS = Object.freeze([128,256,512,1024]);
+export function fieldGrid(field) {
+  const grid=field.resolution ?? GRID;
+  if (!FINAL_GRIDS.includes(grid)) throw new Error('Unsupported final terrain resolution.');
+  return grid;
+}
+export function finalBudget(grid) {
+  fieldGrid({resolution:grid});
+  return {grid,triangles:2*grid*grid,verticesBytes:(grid+1)**2*48,hierarchyBytes:(grid/8)**2*8};
+}
 const dot = (a, b) => a.reduce((s, v, i) => s + v * b[i], 0);
 const sub = (a, b) => a.map((v, i) => v - b[i]);
 
@@ -18,6 +28,7 @@ export function createHeightfield(state) {
   const field={ vertices, low, high };field.hierarchy=buildHierarchy(field);return field;
 }
 export function cellTriangles(field, x, z) {
+  const GRID=fieldGrid(field);
   const vertex = (x, z) => Array.from(field.vertices.slice((z * (GRID + 1) + x) * 12, (z * (GRID + 1) + x) * 12 + 3));
   const a = vertex(x,z), b = vertex(x,z+1), c = vertex(x+1,z), d = vertex(x+1,z+1);
   return [[a,b,c],[c,b,d]];
@@ -32,6 +43,7 @@ export function intersectTriangle(origin, direction, a, b, c, limit = 1e6) {
   return { t, normal: normalize(cross(e1,e2)) };
 }
 export function intersectLinear(field, origin, direction, limit = 1e6, region = null, stats = null) {
+  const GRID=fieldGrid(field),CELL=64/GRID;
   let near = .001, far = limit;
   const lo = region?.lo ?? [-EXTENT,field.low-.001,-EXTENT], hi = region?.hi ?? [EXTENT,field.high+.001,EXTENT];
   const minX=region?.x ?? 0,minZ=region?.z ?? 0,maxX=minX+(region?BLOCK:GRID),maxZ=minZ+(region?BLOCK:GRID);
@@ -80,6 +92,7 @@ export function displayChannel(linear) {
 // 8² cells, including shared edges. Bounds use the actual rounded render mesh.
 export const BLOCK=8, BLOCK_GRID=GRID/BLOCK, BLOCK_CELL=CELL*BLOCK;
 export function buildHierarchy(field) {
+  const GRID=fieldGrid(field),BLOCK_GRID=GRID/BLOCK;
   const bounds=new Float32Array(BLOCK_GRID**2*2);
   for(let bz=0;bz<BLOCK_GRID;bz++)for(let bx=0;bx<BLOCK_GRID;bx++) {
     let low=Infinity,high=-Infinity;
@@ -91,6 +104,7 @@ export function buildHierarchy(field) {
   return bounds;
 }
 export function intersectHeightfield(field,origin,direction,limit=1e6,stats=null) {
+  const GRID=fieldGrid(field),BLOCK_GRID=GRID/BLOCK,BLOCK_CELL=64/BLOCK_GRID;
   const bounds=field.hierarchy??buildHierarchy(field);
   let near=.001,far=limit;
   const lo=[-EXTENT,field.low-.001,-EXTENT],hi=[EXTENT,field.high+.001,EXTENT];

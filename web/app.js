@@ -131,7 +131,7 @@ async function updateGeometry() {
     mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;heightmaps.sync();sculpt.sync();
     $('terrain-progress').value=1;
     $('terrain-status').textContent=result.heightsChanged?'Terrain ready.':result.surfaceChanged?'Surface updated · heights reused.':'Water updated · terrain surface reused.';
-    $('geometry').textContent=`${result.resolution}² terrain cells · 128² render mesh · 32,768 triangles`;
+    $('geometry').textContent=`${result.resolution}² terrain cells · 128² preview mesh · 32,768 triangles`;
     finalRender.setAvailable(activeKind==='webgpu');
     if(active) {try {active.setMesh(mesh);} catch(error) {void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}
     draw();

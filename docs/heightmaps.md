@@ -46,7 +46,8 @@ Go's standard [PNG codec](https://pkg.go.dev/image/png) handles compression and 
 The v1 generator exports 129² samples. Its analytic normals become sampled normals
 when imported; this is an explicit terrain conversion, not a bitwise render-image
 promise. Layered and imported grids export their current authoring resolution.
-Preview and final tracing continue to use the shared 128² render mesh.
+Preview remains 128². Final geometry supports up to 1024² cells, capped by the
+imported source resolution; choosing a larger tier does not invent source detail.
 
 ## Portable scene files
 

@@ -2,7 +2,16 @@
 
 ## v0.3.0 — unreleased
 
-Development build: 0.3.0-dev.1. Wave 3, slice 1:
+Development build: 0.3.0-dev.2. Wave 3, slice 2:
+
+- Visual-quality roadmap: detailed terrain, per-hit surfaces, lighting/exposure and measured image reviews take priority; night skies gain a dedicated slice.
+- Independent Draft (128²), Detailed (512², default) and Fine (1024²) final terrain; lightweight preview retained.
+- Cancellable final preparation replays sculpting and respects imported/layered source resolution.
+- CPU/GPU traversal scales to over two million terrain triangles with explicit memory checks.
+- Original same-camera terrain comparisons, reproducible capture records and regression tests.
+- Existing files remain compatible; Draft retains the previous mesh. No photorealistic-quality claim yet.
+
+Wave 3, slice 1:
 
 - Opt-in physical Earth sky, Rayleigh/Mie scattering, ozone absorption and aerial perspective.
 - Offline manual/geographic sun direction with latitude, longitude and UTC date controls.

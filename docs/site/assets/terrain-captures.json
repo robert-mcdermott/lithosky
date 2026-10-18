@@ -1,0 +1,166 @@
+{
+  "sourceHash": "58ade403aba3b831710eac4c543eec60af84771e2a2d8b3cc2e06367236dd512",
+  "sceneSHA256": "382757613c1f242185de035a911f7d52b8f436f4be911475de80c0c6a9096ec3",
+  "capturedAt": "2026-10-18T23:30:23.549Z",
+  "diagnostics": {
+    "reports": [
+      {
+        "grid": 128,
+        "triangles": 32768,
+        "verticesBytes": 798768,
+        "hierarchyBytes": 2048,
+        "preparationMS": 888.3000001907349,
+        "rays": 204,
+        "hits": 79,
+        "worst": 0.0000052072807363856555
+      },
+      {
+        "grid": 256,
+        "triangles": 131072,
+        "verticesBytes": 3170352,
+        "hierarchyBytes": 8192,
+        "preparationMS": 233.29999995231628,
+        "rays": 204,
+        "hits": 79,
+        "worst": 0.000009488549409297775
+      },
+      {
+        "grid": 512,
+        "triangles": 524288,
+        "verticesBytes": 12632112,
+        "hierarchyBytes": 32768,
+        "preparationMS": 536.7999999523163,
+        "rays": 204,
+        "hits": 80,
+        "worst": 0.000007913720509122868
+      },
+      {
+        "grid": 1024,
+        "triangles": 2097152,
+        "verticesBytes": 50430000,
+        "hierarchyBytes": 131072,
+        "preparationMS": 1660.5,
+        "rays": 204,
+        "hits": 80,
+        "worst": 0.000005797105792737511
+      }
+    ],
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3"
+    },
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "scene": {
+      "format": "lithosky",
+      "version": 6,
+      "title": "Sunlit ridges",
+      "terrain": {
+        "generator": "layers-v1",
+        "seed": 9837,
+        "elevation": 1.3,
+        "palette": "natural",
+        "resolution": 1024,
+        "sculpt": [],
+        "layers": [
+          {
+            "kind": "warp",
+            "enabled": true,
+            "strength": 0.14,
+            "scale": 0.65,
+            "octaves": 5
+          },
+          {
+            "kind": "fbm",
+            "enabled": true,
+            "strength": 0.65,
+            "scale": 0.55,
+            "octaves": 6
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.85,
+            "scale": 1.3,
+            "octaves": 8
+          },
+          {
+            "kind": "ridge",
+            "enabled": true,
+            "strength": 0.1,
+            "scale": 6,
+            "octaves": 6
+          }
+        ]
+      },
+      "camera": {
+        "yaw": -0.7,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      },
+      "atmosphere": {
+        "model": "earth-single-v1",
+        "mode": "manual",
+        "sunElevation": 18,
+        "sunAzimuth": 240,
+        "latitude": 47.6062,
+        "longitude": -122.3321,
+        "year": 2026,
+        "day": 172,
+        "utcMinutes": 1200,
+        "altitude": 0,
+        "metresPerUnit": 100,
+        "aerosols": 0.7,
+        "ozone": 1
+      },
+      "surface": {
+        "preset": "rules",
+        "snowHeight": 14,
+        "sandHeight": -3,
+        "rockSlope": 36,
+        "blend": 0.45,
+        "detail": 0.7,
+        "detailScale": 4
+      }
+    }
+  },
+  "records": [
+    {
+      "detail": 128,
+      "width": 960,
+      "height": 540,
+      "samples": 32,
+      "milliseconds": 4795,
+      "status": "128 × 128 final cells · 32,768 triangles. Preview remains 128 × 128.",
+      "sha256": "b95e7baafe5604775490e12222fcaeb650389e1c5f618e2563ee42669aa2c742"
+    },
+    {
+      "detail": 512,
+      "width": 960,
+      "height": 540,
+      "samples": 32,
+      "milliseconds": 7255,
+      "status": "512 × 512 final cells · 524,288 triangles. Preview remains 128 × 128.",
+      "sha256": "4aad43f4085084a8ed03ae36cf0e9e38ff5e66b50ac0e127500f41e81c9f92dc"
+    },
+    {
+      "detail": 1024,
+      "width": 960,
+      "height": 540,
+      "samples": 32,
+      "milliseconds": 9006,
+      "status": "1024 × 1024 final cells · 2,097,152 triangles. Preview remains 128 × 128.",
+      "sha256": "3989186ebcf2f7430732a257e29dc189baec92aff2079f8b630a4dbd7a377c7e"
+    }
+  ],
+  "cancellation": true,
+  "editInvalidation": true,
+  "allocationFailureRetry": true,
+  "errors": []
+}

@@ -613,3 +613,58 @@ compact-header screenshots were visually inspected; no page errors occurred.
 All 160 JavaScript tests and Go tests pass. The binary was rebuilt, gallery
 capture verified scene/source hashes, and site build/check passes with four
 pages, 93 links and nine images. `git diff --check` passes.
+
+## Wave 3, slice 2 — detailed final terrain
+
+Development build `0.3.0-dev.2`, validated on macOS arm64/Chrome 155/Apple Metal 3.
+The revised roadmap puts explicit image-quality gates around geometry, surfaces,
+transport/color and composition, with night skies and earlier erosion milestones.
+W3.S2 implements independent final geometry; W3.S3 per-hit geological surfaces has
+not started. Wave 3's photographic-quality gate remains open.
+
+### Geometry, lifecycle and resource checks
+
+Six new tests cover a narrow eight-unit ridge that falls between Draft vertices,
+its grazing silhouette, analytic sloped planes, edge/parallel/miss rays, source
+resolution caps, rejected allocation tiers, cooperative preparation cancellation,
+legacy Draft parity and sculpt replay/undo without changing the preview cache.
+Final CPU and WGSL traversal derive stride, cell size, hierarchy shape and loop
+bounds from the validated 128/256/512/1024 grid. Fine has 2,097,152 triangles,
+50,430,000 vertex bytes and 131,072 hierarchy bytes. GPU storage/buffer limits
+are checked before the terrain buffer is allocated. Final work uses its own
+worker and device; termination/disposal releases their owned resources.
+
+The reproducible `docs/capture/detail-run.mjs` check passes 816 CPU/GPU rays at
+all four tiers. Worst observed hit-distance error is about 0.00000949 scene
+units against a 0.002 tolerance. It passes immediate preparation cancellation,
+scene-edit invalidation, injected large-buffer allocation failure, retry and
+three complete exports. At 960×540/32 samples, observed end-to-end times were
+4.80 s Draft, 7.26 s Detailed and 9.01 s Fine. Timings include fresh worker
+preparation and readback; these are local observations, not general guarantees.
+The isolated per-tier preparation measurements reuse the source cache after
+the first tier and must not be compared as cold-start timings.
+
+### Integrated validation and visual review
+
+All 166 JavaScript tests pass. `go test -race ./...`, `go vet ./...`, binary
+rebuild and `git diff --check` pass. Actual browser suites pass for the renderer,
+terrain, sculpting, materials, heightmaps, atmosphere, responsive layout and
+collapsible panels. Legacy CPU/GPU traversal error remains below 0.000011 units;
+linear/hierarchical diagnostic images retain identical pixels. Imported portable
+scenes, sculpted/material scenes, recovery, GPU loss/fallback and cancellation
+remain functional with the new Detailed default.
+
+Original unretouched Sunlit ridges exports compare the same seed, camera, surface,
+physical sunlight, resolution and samples at Draft/Detailed/Fine. Fine visibly
+resolves smaller ridge crests, gullies and their shadows. The surface remains
+visibly too uniform and smooth for the photographic target; finer geological
+shading and improved transport/exposure remain subsequent slices. See
+[visual-quality record](visual-quality.md) for images and measured costs.
+
+Both capture manifests pass source/scene/image provenance checks. The rebuilt
+site passes four pages, 100 links and 11 image references. Desktop/mobile site
+browser checks pass navigation, image decoding, scene downloads, keyboard access,
+no horizontal overflow and no external asset requests. The comparison uses equal
+image widths on desktop and stacks on phones. Original scene/captures and the
+studio were visually inspected. No new dependencies or third-party assets were
+added. Native Windows/Linux execution, release tags and publication remain pending.
