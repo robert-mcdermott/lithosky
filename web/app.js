@@ -2,6 +2,7 @@
 import { createTerrain, frameUniforms } from './scene/terrain.js';
 import { selectRenderer } from './render/select.js';
 import { createWebGPU } from './render/webgpu.js';
+import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
 import { defaultScene, validateScene, parseScene, serializeScene, renderState, wrapYaw, MAX_SCENE_BYTES } from './scene/document.js';
@@ -20,6 +21,7 @@ let downloaded = '', gestureTimer = null, connectingRecovery = false;
 const viewport = $('viewport');
 let mesh = createTerrain(state), active = null, activeKind = 'none';
 let generation = 0, redraw = 0, rebuild = 0;
+const finalRender = renderStudio(() => state, () => history.value.title);
 
 function draw() {
   if (redraw) return;
@@ -40,6 +42,7 @@ function draw() {
 
 async function startGraphics(preference = $('graphics-mode').value, reasons = []) {
   const request = ++generation;
+  finalRender.setAvailable(false);
   active?.dispose(); active = null; activeKind = 'none';
   viewport.replaceChildren();
   $('backend').textContent = 'Starting graphics…';
@@ -63,6 +66,7 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
     return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [...result.reasons, losses.get(result.kind)]);
   }
   active = result.renderer; activeKind = result.kind;
+  finalRender.setAvailable(activeKind === 'webgpu');
   $('backend').textContent = result.kind === 'none' ? 'Preview unavailable' : result.kind === 'webgpu' ? 'WebGPU' : 'WebGL 2';
   $('graphics-info').textContent = active?.details || 'No active graphics backend. Your scene settings are still available.';
   $('graphics-reasons').textContent = result.reasons.join(' · ');
@@ -104,6 +108,7 @@ function syncControls() {
   });
 }
 function refresh() {
+  finalRender.invalidate();
   const next = renderState(history.value);
   const geometryChanged = ['seed', 'elevation', 'palette', 'waterEnabled', 'waterLevel'].some(key => state[key] !== next[key]);
   state = next; syncControls();
@@ -277,7 +282,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && aut
 void connectRecovery();
 $('help').addEventListener('click', () => $('guide').showModal());
 new ResizeObserver(draw).observe(viewport);
-window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; active?.dispose(); active = null; });
+window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
 window.addEventListener('pageshow', e => { if (e.persisted) void startGraphics(); });
 $('geometry').textContent = `${(mesh.length / 27).toLocaleString()} triangles · Seeded terrain`;
 syncControls();

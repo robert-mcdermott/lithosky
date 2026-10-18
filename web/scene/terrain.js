@@ -31,6 +31,14 @@ export function normalize(v) {
 }
 export function cross(a, b) { return [a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0]]; }
 
+export function terrainPoint(x, z, state) {
+  const h = heightAt(x, z, state), water = state.waterEnabled && h < state.waterLevel;
+  const normal = water ? [0, 1, 0] : normalize([heightAt(x - 0.08, z, state) - heightAt(x + 0.08, z, state), 0.16, heightAt(x, z - 0.08, state) - heightAt(x, z + 0.08, state)]);
+  let color = water ? [0.14, 0.34, 0.36] : h > 5.4 ? [0.82, 0.85, 0.82] : normal[1] < 0.78 ? [0.39, 0.41, 0.37] : h < 0.6 ? [0.5, 0.48, 0.34] : [0.28, 0.35, 0.26];
+  if (state.palette === 'otherworld') color = water ? [0.28, 0.31, 0.6] : h > 5.4 ? [0.83, 0.78, 0.93] : [0.35 + h * 0.022, 0.26 + normal[1] * 0.12, 0.4 + h * 0.017];
+  return [x, water ? state.waterLevel : h, z, ...normal, ...color];
+}
+
 // A bounded fixture for exercising both renderers. The authoring library follows
 // in wave 2. Water is an opaque preview surface, with no optical simulation.
 export function createTerrain(state, resolution = 128) {
@@ -40,11 +48,7 @@ export function createTerrain(state, resolution = 128) {
   const point = (ix, iz) => {
     const x = (ix / resolution - 0.5) * 64;
     const z = (iz / resolution - 0.5) * 64;
-    const h = heightAt(x, z, state), water = state.waterEnabled && h < state.waterLevel;
-    const normal = water ? [0, 1, 0] : normalize([heightAt(x - 0.08, z, state) - heightAt(x + 0.08, z, state), 0.16, heightAt(x, z - 0.08, state) - heightAt(x, z + 0.08, state)]);
-    let color = water ? [0.14, 0.34, 0.36] : h > 5.4 ? [0.82, 0.85, 0.82] : normal[1] < 0.78 ? [0.39, 0.41, 0.37] : h < 0.6 ? [0.5, 0.48, 0.34] : [0.28, 0.35, 0.26];
-    if (state.palette === 'otherworld') color = water ? [0.28, 0.31, 0.6] : h > 5.4 ? [0.83, 0.78, 0.93] : [0.35 + h * 0.022, 0.26 + normal[1] * 0.12, 0.4 + h * 0.017];
-    return [x, water ? state.waterLevel : h, z, ...normal, ...color];
+    return terrainPoint(x, z, state);
   };
   const grid = Array.from({ length: resolution + 1 }, (_, z) => Array.from({ length: resolution + 1 }, (_, x) => point(x, z)));
   for (let z = 0; z < resolution; z++) for (let x = 0; x < resolution; x++) {

@@ -33,12 +33,20 @@
       <div class="document-status"><span id="file-status" role="status">Scenes save as .lithosky files.</span><span id="autosave-status" role="status">Connecting autosave…</span><button id="retry-autosave" hidden>Retry autosave</button></div>
       <div class="viewport-wrap">
         <div id="viewport" tabindex="0" role="img" aria-label="Interactive terrain preview. Drag to orbit, scroll to zoom. Arrow keys orbit, plus and minus zoom."></div>
+        <canvas id="render-image" role="img" hidden aria-label="Progressive ray-traced landscape"></canvas>
         <div id="empty-state" hidden><span class="empty-icon">△</span><h3>Let’s get your view ready.</h3><p id="empty-message">Checking available graphics…</p></div>
-        <div class="viewport-top"><span class="view-tag">PERSPECTIVE</span><span id="backend" class="view-tag" aria-live="polite">Starting graphics…</span></div>
+        <div class="viewport-top"><span id="view-kind" class="view-tag">PERSPECTIVE</span><span id="backend" class="view-tag" aria-live="polite">Starting graphics…</span></div>
         <div class="viewport-bottom"><div><span class="north">N ↑</span><span>Drag to orbit · Scroll to explore</span></div><button id="reset-camera" class="glass">Reset view ↗</button></div>
       </div>
-      <div class="preview-note"><span class="preview-dot"></span><p>Procedural preview <span>·</span> Ray-traced rendering arrives in a later slice.</p></div>
-      <div class="workspace-footer"><span id="geometry">Building terrain…</span><span>WAVE 01 <span class="muted">/</span> SCENE DOCUMENTS</span></div>
+      <div class="preview-note"><span class="preview-dot"></span><p id="view-description">Procedural preview · Render a still with traced shadows and calm-water reflections.</p></div>
+      <section class="render-panel" aria-label="Render a still">
+        <div class="render-heading"><div><span class="eyebrow">CAPTURE YOUR LANDSCAPE</span><h3>Render a still</h3></div><button id="show-preview" disabled>Show preview</button></div>
+        <div class="render-options"><label>Image size<select id="render-size"><option value="640">640 × 360</option><option value="960">960 × 540</option></select></label><label>Samples<select id="render-samples"><option value="8">8 · Quick</option><option value="16" selected>16 · Balanced</option><option value="32">32 · Refined</option><option value="64">64 · More detail</option></select></label></div>
+        <div class="render-actions"><button id="render-start" disabled>Render image</button><button id="render-cancel" disabled>Cancel render</button><button id="export-image" disabled>Export PNG</button></div>
+        <progress id="render-progress" value="0" max="16" aria-label="Completed render samples"></progress><p id="render-status" role="status">Checking render availability…</p>
+        <p class="hint">More samples reduce noise. Editing the scene clears the render. Cancel keeps the last complete sample for export.</p>
+      </section>
+      <div class="workspace-footer"><span id="geometry">Building terrain…</span><span>WAVE 01 <span class="muted">/</span> PROGRESSIVE RENDERING</span></div>
     </section>
     <aside class="inspector" aria-label="Landscape settings">
       <div class="inspector-heading"><h2>Shape your scene</h2><p>Small changes. New horizons.</p><label for="scene-title">Scene name</label><input id="scene-title" type="text" maxlength="80" value="Alpine quiet"></div>
@@ -49,6 +57,6 @@
     </aside>
   </main>
   <div id="status" role="status" class="sr-only"></div>
-  <dialog id="guide"><form method="dialog"><button class="dialog-close" aria-label="Close quick guide">×</button></form><span class="eyebrow">WELCOME TO LITHOSKY</span><h2>Find your next horizon.</h2><p>Choose a study, change its seed, then shape the mountain height and light. Everything you see is generated locally.</p><ul><li>Drag the landscape to orbit. Scroll to zoom.</li><li>With the view focused, use arrow keys to orbit and + / − to zoom. Home resets the camera.</li><li>Open Graphics &amp; compatibility to select a preview backend or retry after a graphics failure.</li></ul><p>Open and Save scene use .lithosky JSON files. Autosave keeps local recovery snapshots between launches. Use Undo/Redo (Ctrl/⌘ Z and Ctrl/⌘ Shift Z) for scene and camera edits. Saving a scene downloads a new file; it does not update an earlier download. Ray tracing, physical water and image export come later.</p></dialog>
+  <dialog id="guide"><form method="dialog"><button class="dialog-close" aria-label="Close quick guide">×</button></form><span class="eyebrow">WELCOME TO LITHOSKY</span><h2>Find your next horizon.</h2><p>Choose a study, change its seed, then shape the mountain height and light. Everything you see is generated locally.</p><ul><li>Drag the landscape to orbit. Scroll to zoom.</li><li>With the view focused, use arrow keys to orbit and + / − to zoom. Home resets the camera.</li><li>Open Graphics &amp; compatibility to select a preview backend or retry after a graphics failure.</li></ul><p>Open and Save scene use .lithosky JSON files. Autosave keeps local recovery snapshots between launches. Use Undo/Redo (Ctrl/⌘ Z and Ctrl/⌘ Shift Z) for scene and camera edits. Saving a scene downloads a new file; it does not update an earlier download. Use Render image for a progressive 16:9 still with traced terrain, sun/sky lighting and calm-water reflection/refraction. Cancel keeps the last complete sample. Export PNG downloads the displayed image in sRGB. Any scene edit clears the render. Final rendering requires WebGPU; WebGL 2 remains available for preview. Physical atmosphere, waves and vegetation come in later releases.</p></dialog>
 </body>
 </html>

@@ -639,3 +639,22 @@ button:disabled { cursor: default; opacity: .45; }
 input[type=checkbox] { accent-color: var(--accent); }
 @media(max-width:1100px) { .workspace-toolbar { align-items: flex-start; gap: 15px; } .document-actions { max-width: 180px; } }
 @media(max-width:600px) { .workspace-toolbar { flex-wrap: wrap; } .document-actions { max-width: none; } }
+
+/* Progressive still rendering uses the same camera framing as preview. */
+.viewport-wrap { aspect-ratio: 16 / 9; min-height: 0; max-height: none; height: auto; flex: none; }
+#render-image { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#render-image[hidden] { display: none; }
+.render-panel { border: 1px solid var(--line); background: #1b2527; border-radius: 7px; padding: 18px; margin-bottom: 22px; }
+.render-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.render-heading h3 { margin: 8px 0 18px; font-size: 17px; font-weight: 500; }
+.render-panel button { font-size: 11px; }
+.render-options { display: flex; gap: 12px; margin: 4px 0 16px; }
+.render-options label { flex: 1; min-width: 0; font-size: 11px; color: #c4cfc5; }
+.render-options select { margin-top: 8px; }
+.render-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+#render-start { background: #d3e6bb; color: #203026; }
+#render-progress { width: 100%; height: 5px; accent-color: var(--accent); margin-top: 20px; }
+#render-status { font-size: 12px; color: #d3e6bb; line-height: 1.6; overflow-wrap: anywhere; }
+.render-panel .hint { margin-bottom: 0; }
+.workspace-footer { margin-top: auto; }
+@media(max-width:600px) { .viewport-top { top: 8px; left: 8px; right: 8px; } .viewport-bottom { bottom: 8px; left: 8px; right: 8px; } }

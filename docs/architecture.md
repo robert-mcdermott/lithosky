@@ -4,8 +4,8 @@
 
 One Go executable embeds the web frontend with `embed.FS`. Go's standard library
 owns CLI parsing, a loopback HTTP listener and desktop launch. Native ES modules
-own UI and scene state. Two small renderer backends consume the same generated
-geometry. There is no package install, CDN, font download, remote asset or network
+own UI and scene state. WebGPU and WebGL preview backends plus a WebGPU compute tracer consume
+the shared generated terrain. There is no package install, CDN, font download, remote asset or network
 service at runtime. The installed browser and OS graphics driver remain runtime
 prerequisites; a single binary does not bundle a browser.
 
@@ -40,12 +40,15 @@ loss. Keep editable state on the CPU. Bound recovery; offer explicit retry after
 falling back. [Adapter requests](https://developer.mozilla.org/en-US/docs/Web/API/GPU/requestAdapter)
 and [device loss](https://developer.mozilla.org/en-US/docs/Web/API/GPUDevice/lost).
 
-W1.S1 is a seeded raster fixture with altitude colors, direct lighting and haze.
-It is intentionally not a physical atmosphere or a ray tracer. Rendering occurs
-only when parameters, camera or viewport size change. There is no idle render
-loop. Future tracer resources belong to the backend, with explicit disposal and
-accumulation invalidation on scene changes. Start with a bounded simple kernel;
-measure before splitting work into wavefront queues.
+Preview remains a seeded raster fixture with altitude colors, direct lighting and
+haze, drawn only when parameters, camera or viewport size change. W1.S3 adds a
+bounded WebGPU compute kernel with grid traversal, sun/sky illumination, a simple
+reflective/refractive water plane and progressive linear accumulation. It owns a
+separate device and disposes its buffers at job end. Tile completion gates further
+submission; every scene edit cancels and invalidates pending output. PNG uses the
+same tone-mapped sRGB pixels as the displayed still. The v1 scene stays independent
+of transient render options. See [rendering](rendering.md) for the algorithm,
+resource budgets, approximations and reproducible GPU checks.
 
 ## Scene and project boundaries
 

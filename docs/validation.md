@@ -114,3 +114,65 @@ limited to 100 in-memory edits. See [scene format](scene-format.md) for recovery
 retention, data locations and conflict handling. The remote CI matrix has not
 been executed here. Ray tracing, image export and the product site remain W1.S3
 and W1.S4 work.
+
+## Wave 1, slice 3 — progressive rendering and PNG export
+
+Validated 2026-10-18 on macOS arm64, Go 1.26.6, Node 22.17.0 and Chrome
+155.0.0.0. Build: `0.1.0-dev.3`. WebGPU reported vendor `apple`, architecture
+`metal-3`; device/model description was not exposed. Slice 3 is complete; the
+v0.1.0 release still requires slice 4.
+
+Automated checks passed:
+
+- All Go tests with race detection, `go vet ./...`, and 40 JavaScript tests.
+- CPU heightfield traversal versus exhaustive triangle intersection for vertical,
+  grazing, parallel, boundary, inside and underside rays; bounded shadow distance.
+- Exact shared dry-preview/final positions, normals, colors and triangle diagonals.
+- Fresnel reflection/transmission weights, total internal reflection, finite
+  display conversion and complete, nonoverlapping bounded dispatch coverage.
+- Six cgo-free cross-builds: macOS/Linux/Windows, amd64 and arm64. This validates
+  compilation and asset embedding, not native execution on Windows/Linux.
+- `git diff --check`; no application dependencies or external assets added.
+
+The repeatable Playwright CLI callback in `tests/browser-render.mjs` passed
+against the compiled executable running outside the repository, using isolated
+`/tmp` recovery data and embedded assets with no test route interception:
+
+- 1,024 GPU/CPU intersection comparisons across seeds 1847, 972, 42107 and
+  4294967295. Largest absolute hit-distance difference: 0.0000108 scene units
+  (gate: 0.002); hit/miss classifications agreed.
+- GPU sRGB/Reinhard conversion and Fresnel diagnostics matched CPU values within
+  1e-6, including total internal reflection.
+- Complete progressive renders at both supported image sizes. PNG signature and
+  dimensions checked independently; every decoded RGBA byte equaled the displayed
+  canvas. Preview/render toggle worked.
+- Cancellation after a complete sample preserved an exportable result and stopped
+  further accumulation. Cancellation during adapter initialization yielded no
+  image. Scene edits cleared in-flight accumulation; undo restored the scene.
+- An edit during delayed PNG encoding prevented a stale download.
+- Injected device-request failure and destruction of an active render device
+  produced actionable status, preserved scene state and allowed a successful retry.
+- Water disabled/enabled changed image pixels; high/low terrain, water and sun
+  settings plus close/low and distant/high cameras produced finite nonempty images.
+  The low-camera fixture includes a camera below the water plane.
+- WebGL 2 fallback disabled final rendering with an explanation; Automatic restored
+  availability. Narrow 390 px layout had no horizontal document overflow.
+- Zero browser errors or warnings during the final regression run.
+
+Observed end-to-end times (including setup and progressive readback, not isolated
+GPU timings) in the final local regression run:
+
+| Scene | Image | Samples | Time |
+|---|---|---|---|
+| Default Alpine quiet, seed 1847, natural palette, water enabled | 640 × 360 | 8 | 0.5 s |
+| Same seed/camera, otherworld palette, water disabled | 960 × 540 | 8 | 0.8 s |
+
+These are single-machine smoke measurements, not a benchmark suite or performance
+promise. No discrete GPU, non-Apple integrated GPU, other browser engine or native
+Windows/Linux rendering has been validated here. Dispatch sizes are bounded, but
+latency and watchdog behavior remain device dependent. Images are not promised to
+be bitwise identical across GPUs. Visual inspection covered the natural render,
+water reflections and the narrow UI; local evidence is in ignored
+`output/playwright/`. [Rendering](rendering.md) documents the simple lighting/water
+model and color pipeline. Physical atmosphere, advanced materials and production
+image sizes remain future work. Remote CI has not been run in this session.

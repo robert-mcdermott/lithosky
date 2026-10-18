@@ -4,11 +4,13 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 1, slice 2 — scene documents and recovery.** Interactive seeded
-terrain, camera orbit/zoom, water level, sunlight and natural/otherworld palettes
-run in WebGPU or WebGL 2. Open/save versioned `.lithosky` scenes, undo/redo edits,
-and restore local autosaves across launches. This is a raster preview; ray
-tracing and image export are the next slice in the [roadmap](ROADMAP.md).
+**Status: wave 1, slice 3 — progressive rendering and PNG export.** Compose
+seeded terrain with camera, water, light and palette controls; open/save versioned
+`.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
+with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
+export PNG. WebGPU powers final rendering; WebGL 2 supplies a fallback preview.
+Wave 1 remains in development; the product site and release packaging are the
+next slice in the [roadmap](ROADMAP.md).
 
 ## Build and run
 
@@ -46,6 +48,15 @@ Choose a study, edit its seed, adjust height/light and select a palette. Drag to
 orbit and scroll to zoom. With the view focused, arrow keys orbit, +/− zoom and
 Home resets. **Graphics & compatibility** can force WebGL 2, disable the GPU or
 retry after failure. GPU failure preserves the current in-memory parameters.
+
+## Render and export
+
+Choose **Render image** for a progressive 16:9 still at 640 × 360 or 960 × 540,
+with 8–64 samples per pixel. **Cancel render** keeps the last complete sample;
+**Export PNG** saves it in sRGB. Scene edits clear the old render. Rendering is
+bounded and local, with no external libraries or services. This first tracer uses
+simple sky and water approximations; physical atmosphere, waves and vegetation
+come later. See [rendering](docs/rendering.md) for controls, limits and validation.
 
 ## Scene files and recovery
 
