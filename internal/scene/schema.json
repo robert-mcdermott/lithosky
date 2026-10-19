@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Lithosky scenes v1–v11",
+  "title": "Lithosky scenes v1–v12",
   "oneOf": [
     {
       "type": "object",
@@ -5701,6 +5701,1134 @@
                         "properties": {}
                       }
                     }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "version",
+        "title",
+        "entities"
+      ],
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": [
+            "lithosky"
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "enum": [
+            12
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "entities": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "parent",
+              "visible",
+              "locked",
+              "components"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 48
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "parent": {
+                "type": "string",
+                "minLength": 0,
+                "maxLength": 48
+              },
+              "visible": {
+                "type": "boolean"
+              },
+              "locked": {
+                "type": "boolean"
+              },
+              "components": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "terrain"
+                    ],
+                    "properties": {
+                      "terrain": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "generator",
+                              "seed",
+                              "elevation",
+                              "palette"
+                            ],
+                            "properties": {
+                              "generator": {
+                                "type": "string",
+                                "enum": [
+                                  "terrain-v1"
+                                ]
+                              },
+                              "seed": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 4294967295
+                              },
+                              "elevation": {
+                                "type": "number",
+                                "minimum": 0.4,
+                                "maximum": 1.7
+                              },
+                              "palette": {
+                                "type": "string",
+                                "enum": [
+                                  "natural",
+                                  "otherworld"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "generator",
+                              "seed",
+                              "elevation",
+                              "palette",
+                              "resolution",
+                              "layers",
+                              "sculpt"
+                            ],
+                            "properties": {
+                              "generator": {
+                                "type": "string",
+                                "enum": [
+                                  "layers-v1"
+                                ]
+                              },
+                              "seed": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 4294967295
+                              },
+                              "elevation": {
+                                "type": "number",
+                                "minimum": 0.4,
+                                "maximum": 1.7
+                              },
+                              "palette": {
+                                "type": "string",
+                                "enum": [
+                                  "natural",
+                                  "otherworld"
+                                ]
+                              },
+                              "resolution": {
+                                "type": "integer",
+                                "enum": [
+                                  256,
+                                  512,
+                                  1024,
+                                  2048
+                                ]
+                              },
+                              "layers": {
+                                "type": "array",
+                                "minItems": 1,
+                                "maxItems": 8,
+                                "items": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "kind",
+                                    "enabled",
+                                    "strength",
+                                    "scale",
+                                    "octaves"
+                                  ],
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fbm",
+                                        "ridge",
+                                        "warp",
+                                        "terrace"
+                                      ]
+                                    },
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "strength": {
+                                      "type": "number",
+                                      "minimum": 0,
+                                      "maximum": 1
+                                    },
+                                    "scale": {
+                                      "type": "number",
+                                      "minimum": 0.25,
+                                      "maximum": 8
+                                    },
+                                    "octaves": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 8
+                                    }
+                                  }
+                                }
+                              },
+                              "sculpt": {
+                                "type": "array",
+                                "minItems": 0,
+                                "maxItems": 32,
+                                "items": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "tool",
+                                    "radius",
+                                    "strength",
+                                    "height",
+                                    "points"
+                                  ],
+                                  "properties": {
+                                    "tool": {
+                                      "type": "string",
+                                      "enum": [
+                                        "raise",
+                                        "lower",
+                                        "smooth",
+                                        "flatten"
+                                      ]
+                                    },
+                                    "radius": {
+                                      "type": "number",
+                                      "minimum": 0.5,
+                                      "maximum": 8
+                                    },
+                                    "strength": {
+                                      "type": "number",
+                                      "minimum": 0.05,
+                                      "maximum": 1
+                                    },
+                                    "height": {
+                                      "type": "number",
+                                      "minimum": -64,
+                                      "maximum": 64
+                                    },
+                                    "points": {
+                                      "type": "array",
+                                      "minItems": 1,
+                                      "maxItems": 24,
+                                      "items": {
+                                        "type": "array",
+                                        "minItems": 2,
+                                        "maxItems": 2,
+                                        "items": {
+                                          "type": "number",
+                                          "minimum": -32,
+                                          "maximum": 32
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "generator",
+                              "seed",
+                              "elevation",
+                              "palette",
+                              "resolution",
+                              "sculpt",
+                              "asset",
+                              "minimum",
+                              "maximum",
+                              "metersPerUnit"
+                            ],
+                            "properties": {
+                              "generator": {
+                                "type": "string",
+                                "enum": [
+                                  "heightmap-v1"
+                                ]
+                              },
+                              "seed": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 4294967295
+                              },
+                              "elevation": {
+                                "type": "number",
+                                "minimum": 0.4,
+                                "maximum": 1.7
+                              },
+                              "palette": {
+                                "type": "string",
+                                "enum": [
+                                  "natural",
+                                  "otherworld"
+                                ]
+                              },
+                              "resolution": {
+                                "type": "integer",
+                                "enum": [
+                                  128,
+                                  256,
+                                  512,
+                                  1024,
+                                  2048
+                                ]
+                              },
+                              "sculpt": {
+                                "type": "array",
+                                "minItems": 0,
+                                "maxItems": 32,
+                                "items": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "tool",
+                                    "radius",
+                                    "strength",
+                                    "height",
+                                    "points"
+                                  ],
+                                  "properties": {
+                                    "tool": {
+                                      "type": "string",
+                                      "enum": [
+                                        "raise",
+                                        "lower",
+                                        "smooth",
+                                        "flatten"
+                                      ]
+                                    },
+                                    "radius": {
+                                      "type": "number",
+                                      "minimum": 0.5,
+                                      "maximum": 8
+                                    },
+                                    "strength": {
+                                      "type": "number",
+                                      "minimum": 0.05,
+                                      "maximum": 1
+                                    },
+                                    "height": {
+                                      "type": "number",
+                                      "minimum": -64,
+                                      "maximum": 64
+                                    },
+                                    "points": {
+                                      "type": "array",
+                                      "minItems": 1,
+                                      "maxItems": 24,
+                                      "items": {
+                                        "type": "array",
+                                        "minItems": 2,
+                                        "maxItems": 2,
+                                        "items": {
+                                          "type": "number",
+                                          "minimum": -32,
+                                          "maximum": 32
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              },
+                              "asset": {
+                                "type": "string",
+                                "minLength": 64,
+                                "maxLength": 64
+                              },
+                              "minimum": {
+                                "type": "number",
+                                "minimum": -64,
+                                "maximum": 64
+                              },
+                              "maximum": {
+                                "type": "number",
+                                "minimum": -64,
+                                "maximum": 64
+                              },
+                              "metersPerUnit": {
+                                "type": "number",
+                                "minimum": 0.001,
+                                "maximum": 100000
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      "surface": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "preset",
+                          "snowHeight",
+                          "sandHeight",
+                          "rockSlope",
+                          "blend",
+                          "detail",
+                          "detailScale"
+                        ],
+                        "properties": {
+                          "preset": {
+                            "type": "string",
+                            "enum": [
+                              "rules",
+                              "rock",
+                              "snow",
+                              "sand",
+                              "ground"
+                            ]
+                          },
+                          "snowHeight": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 64
+                          },
+                          "sandHeight": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 64
+                          },
+                          "rockSlope": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 90
+                          },
+                          "blend": {
+                            "type": "number",
+                            "minimum": 0.05,
+                            "maximum": 4
+                          },
+                          "detail": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "detailScale": {
+                            "type": "number",
+                            "minimum": 0.25,
+                            "maximum": 4
+                          },
+                          "geology": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "model",
+                              "scale",
+                              "strata",
+                              "fractures",
+                              "bump",
+                              "roughness"
+                            ],
+                            "properties": {
+                              "model": {
+                                "type": "string",
+                                "enum": [
+                                  "geology-v1"
+                                ]
+                              },
+                              "scale": {
+                                "type": "number",
+                                "minimum": 0.25,
+                                "maximum": 8
+                              },
+                              "strata": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "fractures": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "bump": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "roughness": {
+                                "type": "number",
+                                "minimum": 0.05,
+                                "maximum": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "water"
+                    ],
+                    "properties": {
+                      "water": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "enabled",
+                          "level"
+                        ],
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "level": {
+                            "type": "number",
+                            "minimum": -3,
+                            "maximum": 5
+                          },
+                          "optics": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "model",
+                              "metresPerUnit",
+                              "density",
+                              "ripples",
+                              "wavelength",
+                              "shore"
+                            ],
+                            "properties": {
+                              "model": {
+                                "type": "string",
+                                "enum": [
+                                  "lake-v1"
+                                ]
+                              },
+                              "metresPerUnit": {
+                                "type": "number",
+                                "minimum": 1,
+                                "maximum": 10000
+                              },
+                              "density": {
+                                "type": "number",
+                                "minimum": 0.1,
+                                "maximum": 8
+                              },
+                              "ripples": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              },
+                              "wavelength": {
+                                "type": "number",
+                                "minimum": 0.1,
+                                "maximum": 8
+                              },
+                              "shore": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 0.5
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "camera"
+                    ],
+                    "properties": {
+                      "camera": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "yaw",
+                              "pitch",
+                              "distance",
+                              "lens"
+                            ],
+                            "properties": {
+                              "yaw": {
+                                "type": "number",
+                                "minimum": -3.141592653589793,
+                                "maximum": 3.141592653589793
+                              },
+                              "pitch": {
+                                "type": "number",
+                                "minimum": -1.4,
+                                "maximum": 1.4
+                              },
+                              "distance": {
+                                "type": "number",
+                                "minimum": 0.5,
+                                "maximum": 128
+                              },
+                              "lens": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "model",
+                                  "frame",
+                                  "focalLength",
+                                  "fNumber",
+                                  "dof",
+                                  "focusDistance",
+                                  "metresPerUnit",
+                                  "targetX",
+                                  "targetY",
+                                  "targetZ",
+                                  "roll"
+                                ],
+                                "properties": {
+                                  "model": {
+                                    "type": "string",
+                                    "enum": [
+                                      "thin-lens-v1"
+                                    ]
+                                  },
+                                  "frame": {
+                                    "type": "string",
+                                    "enum": [
+                                      "16:9",
+                                      "3:2",
+                                      "2:3",
+                                      "1:1"
+                                    ]
+                                  },
+                                  "focalLength": {
+                                    "type": "number",
+                                    "minimum": 10,
+                                    "maximum": 300
+                                  },
+                                  "fNumber": {
+                                    "type": "number",
+                                    "minimum": 0.7,
+                                    "maximum": 64
+                                  },
+                                  "dof": {
+                                    "type": "boolean"
+                                  },
+                                  "focusDistance": {
+                                    "type": "number",
+                                    "minimum": 0.01,
+                                    "maximum": 10000000
+                                  },
+                                  "metresPerUnit": {
+                                    "type": "number",
+                                    "minimum": 0.1,
+                                    "maximum": 10000
+                                  },
+                                  "targetX": {
+                                    "type": "number",
+                                    "minimum": -64,
+                                    "maximum": 64
+                                  },
+                                  "targetY": {
+                                    "type": "number",
+                                    "minimum": -32,
+                                    "maximum": 96
+                                  },
+                                  "targetZ": {
+                                    "type": "number",
+                                    "minimum": -64,
+                                    "maximum": 64
+                                  },
+                                  "roll": {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "yaw",
+                              "pitch",
+                              "distance"
+                            ],
+                            "properties": {
+                              "yaw": {
+                                "type": "number",
+                                "minimum": -3.141592653589793,
+                                "maximum": 3.141592653589793
+                              },
+                              "pitch": {
+                                "type": "number",
+                                "minimum": 0.08,
+                                "maximum": 1.2
+                              },
+                              "distance": {
+                                "type": "number",
+                                "minimum": 10,
+                                "maximum": 48
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "environment"
+                    ],
+                    "properties": {
+                      "environment": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "lighting"
+                        ],
+                        "properties": {
+                          "lighting": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "sunElevation"
+                            ],
+                            "properties": {
+                              "sunElevation": {
+                                "type": "number",
+                                "minimum": 5,
+                                "maximum": 85
+                              },
+                              "transport": {
+                                "type": "object",
+                                "required": [
+                                  "model",
+                                  "bounces",
+                                  "exposure",
+                                  "toneMap",
+                                  "sun",
+                                  "sky",
+                                  "roughness",
+                                  "ior"
+                                ],
+                                "additionalProperties": false,
+                                "properties": {
+                                  "model": {
+                                    "type": "string",
+                                    "enum": [
+                                      "path-v1"
+                                    ]
+                                  },
+                                  "bounces": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 4
+                                  },
+                                  "exposure": {
+                                    "type": "number",
+                                    "minimum": -8,
+                                    "maximum": 8
+                                  },
+                                  "toneMap": {
+                                    "type": "string",
+                                    "enum": [
+                                      "filmic",
+                                      "reinhard"
+                                    ]
+                                  },
+                                  "sun": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 8
+                                  },
+                                  "sky": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 4
+                                  },
+                                  "roughness": {
+                                    "type": "number",
+                                    "minimum": 0.1,
+                                    "maximum": 1
+                                  },
+                                  "ior": {
+                                    "type": "number",
+                                    "minimum": 1.1,
+                                    "maximum": 2.5
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "atmosphere": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "model",
+                              "mode",
+                              "sunElevation",
+                              "sunAzimuth",
+                              "latitude",
+                              "longitude",
+                              "year",
+                              "day",
+                              "utcMinutes",
+                              "altitude",
+                              "metresPerUnit",
+                              "aerosols",
+                              "ozone"
+                            ],
+                            "properties": {
+                              "model": {
+                                "type": "string",
+                                "enum": [
+                                  "earth-single-v1"
+                                ]
+                              },
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "manual",
+                                  "geographic"
+                                ]
+                              },
+                              "sunElevation": {
+                                "type": "number",
+                                "minimum": -18,
+                                "maximum": 90
+                              },
+                              "sunAzimuth": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 360
+                              },
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              },
+                              "year": {
+                                "type": "integer",
+                                "minimum": 2000,
+                                "maximum": 2100
+                              },
+                              "day": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 366
+                              },
+                              "utcMinutes": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1439
+                              },
+                              "altitude": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 10000
+                              },
+                              "metresPerUnit": {
+                                "type": "number",
+                                "minimum": 1,
+                                "maximum": 1000
+                              },
+                              "aerosols": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 5
+                              },
+                              "ozone": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 2
+                              },
+                              "groundAlbedo": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "areaLight"
+                    ],
+                    "properties": {
+                      "areaLight": {
+                        "type": "object",
+                        "required": [
+                          "enabled",
+                          "x",
+                          "y",
+                          "z",
+                          "yaw",
+                          "pitch",
+                          "width",
+                          "height",
+                          "intensity",
+                          "red",
+                          "green",
+                          "blue"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "x": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 64
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": -32,
+                            "maximum": 96
+                          },
+                          "z": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 64
+                          },
+                          "yaw": {
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                          },
+                          "pitch": {
+                            "type": "number",
+                            "minimum": -90,
+                            "maximum": 90
+                          },
+                          "width": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 64
+                          },
+                          "height": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 64
+                          },
+                          "intensity": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "red": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "green": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          "blue": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "group",
+                      "transform"
+                    ],
+                    "properties": {
+                      "group": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [],
+                        "properties": {}
+                      },
+                      "transform": {
+                        "type": "object",
+                        "required": [
+                          "position",
+                          "rotation",
+                          "scale"
+                        ],
+                        "properties": {
+                          "position": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": -128,
+                              "maximum": 128
+                            }
+                          },
+                          "rotation": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": -180,
+                              "maximum": 180
+                            }
+                          },
+                          "scale": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": 0.05,
+                              "maximum": 16
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "required": [
+                      "primitive",
+                      "transform"
+                    ],
+                    "properties": {
+                      "primitive": {
+                        "type": "object",
+                        "required": [
+                          "shape",
+                          "color",
+                          "roughness"
+                        ],
+                        "properties": {
+                          "shape": {
+                            "type": "string",
+                            "enum": [
+                              "box",
+                              "sphere",
+                              "cylinder",
+                              "cone"
+                            ]
+                          },
+                          "color": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 1
+                            }
+                          },
+                          "roughness": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "transform": {
+                        "type": "object",
+                        "required": [
+                          "position",
+                          "rotation",
+                          "scale"
+                        ],
+                        "properties": {
+                          "position": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": -128,
+                              "maximum": 128
+                            }
+                          },
+                          "rotation": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": -180,
+                              "maximum": 180
+                            }
+                          },
+                          "scale": {
+                            "type": "array",
+                            "minItems": 3,
+                            "maxItems": 3,
+                            "items": {
+                              "type": "number",
+                              "minimum": 0.05,
+                              "maximum": 16
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "additionalProperties": false
                   }
                 ]
               }

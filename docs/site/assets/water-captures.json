@@ -1,7 +1,7 @@
 {
-  "sourceHash": "10691b037b79508616f1898ab27f4304c3694823f9add9d05984ac0fb2399df1",
+  "sourceHash": "cbc6346d144dfa0542843c2b93d3d7efba4f99f295965714df7890d48c2210d9",
   "sceneSHA256": "756238aec48673e5b139a62c587a98879994c0a76fbf455950ccaad9c230e2d6",
-  "capturedAt": "2026-10-19T04:23:34.294Z",
+  "capturedAt": "2026-10-19T05:43:45.824Z",
   "records": [
     {
       "name": "water-classic",
@@ -75,7 +75,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 30724,
+      "milliseconds": 23734,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
@@ -162,7 +162,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 24755,
+      "milliseconds": 20961,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
@@ -249,7 +249,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 24567,
+      "milliseconds": 21532,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
@@ -336,7 +336,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 27886,
+      "milliseconds": 19134,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
@@ -423,7 +423,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 28053,
+      "milliseconds": 20189,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
@@ -510,7 +510,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 256,
-      "milliseconds": 92483,
+      "milliseconds": 71184,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0

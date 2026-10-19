@@ -118,3 +118,10 @@ screenshot are checked against editing/recovery/WebGL and actual GPU results.
 `entity-captures.json` records current source/scene/image hashes and measured
 settings. The site validates and copies these public assets explicitly. This
 example demonstrates editing behavior; photographic acceptance remains open.
+
+Primitive/transform captures use `node docs/capture/spatial-run.mjs http://127.0.0.1:PORT`.
+The original v12 Shore observatory scene has all four shapes and an authored light.
+The runner checks GPU hit/normal/shadow/material agreement, editor gestures and
+persistence/fallbacks, then exports an original still, live preview, rotated-group
+still and workspace screenshot. `spatial-captures.json` records checked provenance
+and budgets; run serially with the seven existing capture families.

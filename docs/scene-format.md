@@ -1,6 +1,6 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v11 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v12 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
 legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere, v7 geological surfaces, v8 studio light transport/color, v9 lake optics and v10 camera/framing and v11 entities/components. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
@@ -321,3 +321,24 @@ existing portable ZIP container, with the same checksum, dimensions, recovery
 references and 20 MiB budget. Scalar scenes keep the 128 KiB budget.
 Go and JS share structural schema and semantic graph fixtures. See
 [authoring behavior and validation](scene-authoring.md).
+
+## Version 12 — primitives and transforms
+
+V12 retains the v11 root and core components. Primitive components contain `shape`
+(`box`, `sphere`, `cylinder`, `cone`), three linear `color` channels (0–1) and
+`roughness` (0.1–1). A primitive requires a `transform`; every v12 group also has
+one. Core terrain/water/camera/environment and area-light components cannot own
+a transform. V11 metadata edits retain v11; the first primitive/transform command
+upgrades atomically and adds identity group transforms without changing pixels.
+
+A transform has exactly three-number `position`, `rotation` and `scale` arrays.
+Local bounds are ±128 units, ±180 degrees and positive 0.05–16 scales. Composition
+is `T × Rz × Ry × Rx × S` on column vectors. Parent matrices precede children.
+Groups must scale uniformly; core roles and lights cannot inherit a nonidentity
+group transform. Compounded scales are 0.01–64; conservative transformed unit
+bounds stay within ±256 world units. There are at most 32 primitives within the
+existing 64-entity, eight-ancestor, 128 KiB document budget. Unknown components,
+mirroring, singular/oversized transforms and excessive geometry are rejected by
+both validators. Selection, handles, snapping, tool mode, clipboard and render
+regions remain workspace state. See [object tools](object-tools.md) for editing,
+rendering approximations, buffer budgets and supported/unsupported operations.

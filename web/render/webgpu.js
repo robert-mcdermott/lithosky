@@ -7,8 +7,8 @@ struct Vertex { @builtin(position) position: vec4f, @location(0) normal: vec3f, 
   let delta = position - camera.eye.xyz;
   let depth = dot(delta, camera.forward.xyz);
   var result: Vertex;
-  // Near .05, far 512 covers the extended camera range and bounded terrain.
-  result.position = vec4f(dot(delta, camera.right.xyz) / (camera.right.w * camera.eye.w), dot(delta, camera.up.xyz) / camera.right.w, 512.0 / 511.95 * depth - 25.6 / 511.95, depth);
+  // Near .05, far 1024 covers the extended camera range and bounded terrain.
+  result.position = vec4f(dot(delta, camera.right.xyz) / (camera.right.w * camera.eye.w), dot(delta, camera.up.xyz) / camera.right.w, 1024.0 / 1023.95 * depth - 51.2 / 1023.95, depth);
   result.normal = normal; result.color = color; result.distance = length(delta);
   return result;
 }
@@ -25,7 +25,7 @@ export async function createWebGPU(canvas, onLost) {
   const adapter = await navigator.gpu.requestAdapter();
   if (!adapter) throw new Error('No GPU adapter was granted');
   const device = await adapter.requestDevice();
-  let disposed = false, vertexBuffer, depth, context;
+  let disposed = false, vertexBuffer, objectBuffer, depth, context;
   // Register before pipeline compilation: even a newly requested device can be lost.
   device.lost.then(info => { if (!disposed) onLost(`Graphics device lost: ${info.message || info.reason}`); });
   const onError = event => { if (!disposed) onLost(`Graphics error: ${event.error.message}`); };
@@ -52,7 +52,7 @@ export async function createWebGPU(canvas, onLost) {
     });
     const uniform = device.createBuffer({ size: 96, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
     const group = device.createBindGroup({ layout: pipeline.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: uniform } }] });
-    let count = 0, width = 0, height = 0;
+    let count = 0, objectCount=0, width = 0, height = 0;
     return {
       canvas,
       details: `WebGPU · max texture ${device.limits.maxTextureDimension2D} px · ${Math.round(device.limits.maxStorageBufferBindingSize / 1048576)} MiB storage binding`,
@@ -61,6 +61,7 @@ export async function createWebGPU(canvas, onLost) {
         vertexBuffer = device.createBuffer({ size: Math.max(4,mesh.byteLength), usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
         device.queue.writeBuffer(vertexBuffer, 0, mesh); count = mesh.length / 9;
       },
+      setObjects(mesh){if(!objectBuffer||objectBuffer.size<mesh.byteLength){objectBuffer?.destroy();objectBuffer=device.createBuffer({size:Math.max(4,mesh.byteLength),usage:GPUBufferUsage.VERTEX|GPUBufferUsage.COPY_DST});}if(mesh.byteLength)device.queue.writeBuffer(objectBuffer,0,mesh);objectCount=mesh.length/9;},
       draw(values) {
         if (disposed || !vertexBuffer) return;
         if (width !== canvas.width || height !== canvas.height) {
@@ -70,10 +71,10 @@ export async function createWebGPU(canvas, onLost) {
         device.queue.writeBuffer(uniform, 0, values);
         const encoder = device.createCommandEncoder();
         const pass = encoder.beginRenderPass({ colorAttachments: [{ view: context.getCurrentTexture().createView(), clearValue: { r: values[20], g: values[21], b: values[22], a: 1 }, loadOp: 'clear', storeOp: 'store' }], depthStencilAttachment: { view: depth.createView(), depthClearValue: 1, depthLoadOp: 'clear', depthStoreOp: 'discard' } });
-        pass.setPipeline(pipeline); pass.setBindGroup(0, group); pass.setVertexBuffer(0, vertexBuffer); pass.draw(count); pass.end();
+        pass.setPipeline(pipeline); pass.setBindGroup(0, group); pass.setVertexBuffer(0, vertexBuffer); pass.draw(count);if(objectCount){pass.setVertexBuffer(0,objectBuffer);pass.draw(objectCount);} pass.end();
         device.queue.submit([encoder.finish()]);
       },
-      dispose() { disposed = true; device.removeEventListener('uncapturederror', onError); vertexBuffer?.destroy(); uniform.destroy(); depth?.destroy(); context.unconfigure(); device.destroy(); },
+      dispose() { disposed = true; device.removeEventListener('uncapturederror', onError); vertexBuffer?.destroy();objectBuffer?.destroy(); uniform.destroy(); depth?.destroy(); context.unconfigure(); device.destroy(); },
     };
   } catch (error) { disposed = true; context?.unconfigure(); device.destroy(); throw error; }
 }

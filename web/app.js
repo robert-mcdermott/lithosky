@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
+import {transformControls} from './scene/transform-controls.js';
+import {spatialCommand} from './scene/spatial-editor.js';
+import {primitiveMesh} from './scene/primitives.js';
 import {cameraControls} from './camera/controls.js';
 import {entityControls} from './scene/entity-controls.js';
-import {sceneView,editScene,entityCommand,entityScene,kindOf,entityState} from './scene/entities.js';
+import {sceneView,editScene,entityCommand,entityScene,kindOf} from './scene/entities.js';
 import {enableCamera} from './camera/model.js';
 import {waterControls} from './water/controls.js';
 import {lightingControls} from './lighting/controls.js';
@@ -64,7 +67,8 @@ let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
 const controlScene=()=>sceneView(history.value);
-const objects=entityControls({getScene:()=>history.value,getState:()=>state,getField:()=>field,command:objectCommand,viewport,finishGesture,onSelect:id=>{const g=entityScene(history.value),n=g.entities.find(n=>n.id===id);if(n&&kindOf(n)==='light'){objects.releaseLocks();lighting.select(g.entities.filter(n=>kindOf(n)==='light').findIndex(n=>n.id===id));objects.sync();}}});
+const objects=entityControls({getScene:()=>history.value,getState:()=>state,getField:()=>field,command:objectCommand,viewport,finishGesture,onSelect:id=>{const g=entityScene(history.value),n=g.entities.find(n=>n.id===id);if(n&&kindOf(n)==='light'){objects.releaseLocks();lighting.select(g.entities.filter(n=>kindOf(n)==='light').findIndex(n=>n.id===id));objects.sync();}transforms.sync();}});
+const transforms=transformControls({getScene:()=>history.value,getState:()=>state,getField:()=>terrainReady?field:null,objects,viewport,command:spatialEdit,begin:()=>{finishGesture();history.begin();},end:finishGesture,cancel:()=>{if(history.cancel())refresh();},prepareView:(keepRender=false)=>{camera.cancel();finalRender.cancelPicking();sculpt.cancel();if(!keepRender)finalRender.preview();}});
 const heightmaps = heightmapControls({getScene:controlScene,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
 const camera = cameraControls({getScene:controlScene,getState:()=>state,getField:()=>field,edit:discrete,viewport});
 const water = waterControls(controlScene,discrete);
@@ -86,7 +90,7 @@ function draw() {
     const width = Math.max(1, Math.floor(bounds.width * scale)), height = Math.max(1, Math.floor(bounds.height * scale));
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
-    try { active.draw(frameUniforms(state, width / height)); sculpt.draw();objects.draw(); }
+    try { active.draw(frameUniforms(state, width / height)); sculpt.draw();objects.draw();transforms.draw(); }
     catch (error) { void startGraphics(activeKind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   });
 }
@@ -125,7 +129,7 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
   $('empty-message').textContent = preference === 'none' && !reasons.length ? 'GPU preview is disabled. Select Automatic under Graphics & compatibility to return to your landscape.' : 'No working GPU preview is available. Enable graphics acceleration in your browser, then use Retry graphics. Your scene settings are preserved.';
   if (active) {
     viewport.append(active.canvas);
-    try { if (mesh) active.setMesh(mesh); draw(); }
+    try { if (mesh) active.setMesh(mesh);active.setObjects(primitiveMesh(state.primitives)); draw(); }
     catch (error) { return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   }
   $('status').textContent = active ? `${$('backend').textContent} preview ready` : $('empty-message').textContent;
@@ -145,7 +149,7 @@ async function updateGeometry() {
     $('terrain-status').textContent=result.heightsChanged?'Terrain ready.':result.surfaceChanged?'Surface updated · heights reused.':'Water updated · terrain surface reused.';
     $('geometry').textContent=`${result.resolution}² terrain cells · 128² preview mesh · 32,768 triangles`;
     finalRender.setAvailable(activeKind==='webgpu');
-    if(active) {try {active.setMesh(mesh);} catch(error) {void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}
+    if(active) {try {active.setMesh(mesh);active.setObjects(primitiveMesh(state.primitives));} catch(error) {void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}
     draw();
   } catch(error) {
     if(ticket!==terrainEpoch)return;
@@ -176,19 +180,21 @@ function syncControls() {
     const selected = sceneKey(history.value) === sceneKey(presetScene(b.dataset.preset));
     b.classList.toggle('active', selected); b.setAttribute('aria-pressed', String(selected));
   });
-  objects.sync();
+  objects.sync();transforms.sync();
 }
 function refresh() {
   const next = renderState(history.value);
+  const objectsChanged=JSON.stringify(state.primitives??[])!==JSON.stringify(next.primitives??[]);
   const geometryChanged = geometryKey(state) !== geometryKey(next);
   const renderChanged=renderKey(state)!==renderKey(next);
   sculpt.cancel();state = next; syncControls();if(renderChanged)finalRender.invalidate();
-  if (geometryChanged) updateGeometry(); else draw();
+  if (geometryChanged) updateGeometry(); else {if(objectsChanged&&active&&mesh){try{active.setObjects(primitiveMesh(state.primitives));}catch(error){void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}draw();}
   changed = true; editVersion++;
   if (autosaveEnabled) autosave.enqueue(history.value);
 }
 function edit(change) { try {if(history.edit(scene=>editScene(scene,change))){refresh();return true;}return false;}catch(error){$('entity-status').textContent=error.message;syncControls();return false;} }
-function objectCommand(command,id,value){finishGesture();try{let result;const changed=history.edit(scene=>{result=entityCommand(scene,command,id,value);});if(changed){refresh();$('entity-status').textContent='Object '+({rename:'renamed',visible:'visibility changed',locked:'lock changed',parent:'regrouped',delete:'deleted',duplicate:'duplicated','add-group':'group added'}[command]??'changed')+'. Undo restores the previous scene.';}return changed?result:false;}catch(error){$('entity-status').textContent=error.message;return false;}}
+function objectCommand(command,id,value){if(Array.isArray(id))return spatialEdit(command==='delete'?'delete-selection':'batch',id,{command,value});finishGesture();try{let result;const changed=history.edit(scene=>{result=entityCommand(scene,command,id,value);});if(changed){refresh();$('entity-status').textContent='Object '+({rename:'renamed',visible:'visibility changed',locked:'lock changed',parent:'regrouped',delete:'deleted',duplicate:'duplicated','add-group':'group added'}[command]??'changed')+'. Undo restores the previous scene.';}return changed?result:false;}catch(error){$('entity-status').textContent=error.message;return false;}}
+function spatialEdit(command,ids,value,base){if(!base)finishGesture();try{let result;const changed=history.edit(scene=>{if(base){for(const key of Object.keys(scene))delete scene[key];Object.assign(scene,structuredClone(base));}result=spatialCommand(scene,command,ids,value);});if(changed){refresh();$('entity-status').textContent='Objects updated. Undo restores the previous scene.';}return changed?result:false;}catch(error){$('entity-status').textContent=error.message;return false;}}
 function finishGesture() { clearTimeout(gestureTimer); history.end(); syncControls(); }
 function discrete(change) { finishGesture();return edit(change); }
 function presetScene(key) { return structuredClone(studies.find(study => study.id === key).scene); }
@@ -365,7 +371,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && aut
 void connectRecovery();
 $('help').addEventListener('click', () => $('guide').showModal());
 new ResizeObserver(draw).observe(viewport);
-window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; sculpt.cancel(); terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
+window.addEventListener('pagehide', () => { transforms.cancel();if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; sculpt.cancel(); terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
 window.addEventListener('pageshow', e => { if (e.persisted) {void updateGeometry();void startGraphics();} });
 void updateGeometry();
 syncControls();

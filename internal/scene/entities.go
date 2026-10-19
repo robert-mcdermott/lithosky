@@ -15,6 +15,12 @@ func entityKind(n map[string]any) string {
 	if c["terrain"] != nil {
 		return "terrain"
 	}
+	if c["primitive"] != nil {
+		return "primitive"
+	}
+	if c["group"] != nil {
+		return "group"
+	}
 	if c["areaLight"] != nil {
 		return "light"
 	}
@@ -76,12 +82,15 @@ func validateEntities(doc map[string]any) error {
 			}
 		}
 	}
+	if doc["version"] == float64(12) {
+		return validateSpatial(doc)
+	}
 	return nil
 }
 
 // Legacy-shaped data is a read-only view, never a second persisted copy.
 func componentView(doc map[string]any) map[string]any {
-	if doc["version"] != float64(11) {
+	if doc["version"].(float64) < 11 {
 		return doc
 	}
 	view := map[string]any{}

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0-dev.8 — wave 3 slice 8 (local development)
+
+- Add original closed box/sphere/cylinder/cone primitives in raster, live and final
+  rendering, with analytic intersections, shared transforms, occlusion, traced
+  shadows, water reflections/refraction and independent starter finishes.
+- Add v12 transforms, Add/place, move/rotate/scale handles, world/local axes,
+  snapping, exact numeric and keyboard edits, multi-selection and uniform groups.
+- Add atomic duplicate/copy/paste/delete, grouping, alignment and terrain placement;
+  preserve world pose during parenting and enforce locks through parent transforms.
+- Keep each gesture in one Undo step; cancel restores the scene and redo branch.
+  Preserve scene/asset recovery and WebGL editing within measured object budgets.
+- Add an original observatory study, reproducible GPU/editor evidence and guides.
+  Composition views/material assignment remain slice 9. Photographic acceptance
+  and native-platform release checks remain open.
+
 ## 0.3.0-dev.7 — wave 3 slice 7 (local development)
 
 - Add a versioned entity/component scene model with stable IDs, strict graph

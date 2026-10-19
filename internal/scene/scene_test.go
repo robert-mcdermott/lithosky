@@ -112,3 +112,32 @@ func TestEntityFixtures(t *testing.T) {
 		})
 	}
 }
+
+func TestSpatialFixtures(t *testing.T) {
+	data, err := os.ReadFile("../../tests/fixtures/spatial.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixtures []struct {
+		Name  string
+		Valid bool
+		Scene json.RawMessage
+	}
+	if err := json.Unmarshal(data, &fixtures); err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range fixtures {
+		t.Run(f.Name, func(t *testing.T) {
+			valid, err := Validate(f.Scene)
+			if (err == nil) != f.Valid {
+				t.Fatalf("valid=%v: %v", f.Valid, err)
+			}
+			if f.Valid {
+				again, err := Validate(valid)
+				if err != nil || !Equal(valid, again) {
+					t.Fatal("entity round trip changed scene", err)
+				}
+			}
+		})
+	}
+}

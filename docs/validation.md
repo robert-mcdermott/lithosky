@@ -1011,3 +1011,65 @@ pixel equality, cancellation, stale-output rejection, device loss/retry and WebG
 fallback with no unexpected browser errors. All four generated pages pass at
 1440px and 390px, including image decodes, local-resource policy, navigation,
 keyboard focus and scene download, with no browser errors or overflow.
+
+## Wave 3 slice 8 — add, place and transform
+
+Build `0.3.0-dev.8` adds the v12 primitive/transform model and direct editing
+tools. The four original closed solids render in both raster backends and the
+shared live/final ray kernels, including primary occlusion, bounced light,
+shadows and water reflection/refraction. Numeric local poses, world/local move
+and rotation, local primitive scaling and uniform group/selection scaling share
+the same matrices. Shear, mirroring, unsupported core/light transforms and
+compounded size/extent budgets are rejected explicitly.
+
+The actual GPU agrees with CPU references on **1,024 rays** across 32 transformed
+solids: 484 hits, maximum distance error **0.00001274** scene units and maximum
+normal-component error **0.00000848**. The test includes inside/outside rays, caps,
+tips and exact box corners. Shifted quadratic origins avoid cancellation on
+distant rays; singular tips/corners use consistent normal conventions. Object
+shadow probes distinguish blocked/open rays. Primitive-only images match with
+terrain geology enabled/disabled, confirming independent starter finishes.
+
+Real browser checks cover all four shapes, Add/placement, numeric poses, snapped
+move/rotate/scale handles, one-gesture Undo, Escape preserving redo, keyboard
+adjustments, multi-selection/groups, descendant locks, remapped clipboard IDs,
+delete/Undo, alignment and conservative terrain placement. Named save/reopen,
+recovery and displayed/exported PNG pixel equality pass. WebGL editing and touch
+multi-selection pass at 768/390/320 pixels with no document overflow. Switching
+from region picking to handles cancels the region picker.
+
+Raster objects use a separate reusable buffer. The WebGL check observes only a
+195,696-byte object upload during an edit and confirms object drawing survives
+terrain regeneration. Pose changes reuse the Objects tree DOM. A maximum preview
+of 32 spheres is **1,824,768 bytes / 16,896 triangles**; analytic records require
+**3,072 bytes**. The browser's six CPU mesh-build observations range from about
+2.4 to 10.5 ms, excluding whole-frame work and GPU uploads. These are local Apple
+Metal 3 / Chrome 155 observations, not cross-device performance guarantees.
+Optimized sphere/mixed preview buffers were byte-compared against the original
+scalar builder before replacement; independent unit tests check transformed
+preview vertices against analytic surfaces and unit-length normals.
+
+Go/JS share malformed and valid v12 fixtures, including group uniformity around
+the numeric tolerance, world-scale/extent limits, unknown transforms and object
+count. V12 portable imported-heightmap and restart-recovery tests preserve full
+samples and graph data. Existing heightfield/cache/history budgets remain intact.
+
+The original Shore observatory study captures an authored light, all four shapes,
+a parent group, a 16-sample live preview and before/after group rotation. The
+rotation changes 92,367 image pixels; Undo restores the original document exactly.
+`spatial-captures.json` records scene/source/image hashes, actual GPU/editor checks,
+budgets, timings and device information. Raster shading remains approximate;
+traced live/final shadows share the exact solid kernels. The example demonstrates
+editing, not photographic landscape credibility. The photographic quality gate,
+native Windows/Linux release checks and slice 9 composition/material work remain
+open.
+
+Final slice checks pass: all 234 JavaScript tests, `go test -race ./...`,
+`go vet ./...`, and all eight serial capture families. The renderer regression
+also passes 1,024 legacy heightfield rays, displayed/exported PNG equality,
+cancellation, stale-export suppression, device-loss recovery and WebGL fallback
+with zero unexpected browser errors. The generated site validates four pages,
+180 links and 32 images; real desktop/mobile browser checks load every image,
+download a scene and follow guide anchors with no overflow or browser errors.
+These checks validate the implemented tools and compatibility, not the open
+photographic-quality gate.

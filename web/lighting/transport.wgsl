@@ -68,8 +68,8 @@ fn transportLand(origin:vec3f,direction:vec3f,initial:Hit,seed:ptr<function,u32>
   }
   let p=o+d*hit.t;distance+=hit.t;
   let g=select(-hit.geometric,hit.geometric,dot(d,hit.geometric)<0);var n=select(-hit.normal,hit.normal,dot(d,hit.normal)<0);
-  var color=hit.color;var roughness=config.transportExtra.z;
-  if(config.material.x>.5) {
+  var color=hit.color;var roughness=select(config.transportExtra.z,hit.material.y,hit.material.x>.5);
+  if(config.material.x>.5&&hit.material.x<.5) {
    let footprint=clamp(distance*(2*config.right.w)/f32(config.region.w)/sqrt(max(abs(dot(d,g)),.12)),.00025,4.0);
    let surface=geologicalSurface(p,n,footprint);n=surface.normal;color=surface.color;roughness=surface.roughness;
   }

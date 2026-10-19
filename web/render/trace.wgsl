@@ -11,7 +11,7 @@ struct Config {
   water:vec4f, waterExtra:vec4f, lens:vec4f, region:vec4u,
 }
 struct Vertex { position: vec4f, normal: vec4f, color: vec4f }
-struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
+struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f, material:vec2f }
 @group(0) @binding(0) var<uniform> config: Config;
 @group(0) @binding(1) var<storage, read> vertices: array<Vertex>;
 @group(0) @binding(2) var<storage, read_write> accumulation: array<vec4f>;
@@ -23,7 +23,7 @@ struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
 override grid: u32 = 128u;
 const blockSize=8u;
 override useHierarchy: bool = true;
-fn miss() -> Hit { return Hit(1e6,vec3f(0,1,0),vec3f(0),vec3f(0,1,0)); }
+fn miss() -> Hit { return Hit(1e6,vec3f(0,1,0),vec3f(0),vec3f(0,1,0),vec2f(0)); }
 fn triangle(o: vec3f, d: vec3f, ia: u32, ib: u32, ic: u32, limit: f32) -> Hit {
   let a=vertices[ia]; let b=vertices[ib]; let c=vertices[ic];
   let e1=b.position.xyz-a.position.xyz; let e2=c.position.xyz-a.position.xyz;
@@ -32,7 +32,7 @@ fn triangle(o: vec3f, d: vec3f, ia: u32, ib: u32, ic: u32, limit: f32) -> Hit {
   let v=o-a.position.xyz; let u=dot(v,p)/det; let q=cross(v,e1); let w=dot(d,q)/det; let t=dot(e2,q)/det;
   if (u < -1e-5 || w < -1e-5 || u+w > 1.00001 || t < .001 || t > limit) { return miss(); }
   return Hit(t,normalize(a.normal.xyz*(1-u-w)+b.normal.xyz*u+c.normal.xyz*w),
-    clamp(a.color.xyz*(1-u-w)+b.color.xyz*u+c.color.xyz*w,vec3f(0),vec3f(1)),normalize(cross(e1,e2)));
+    clamp(a.color.xyz*(1-u-w)+b.color.xyz*u+c.color.xyz*w,vec3f(0),vec3f(1)),normalize(cross(e1,e2)),vec2f(0));
 }
 fn cells(o: vec3f, d: vec3f, limit: f32, lo: vec3f, hi: vec3f, first: vec2i, last: vec2i) -> Hit {
   var near=.001; var far=limit;
@@ -68,7 +68,7 @@ fn cells(o: vec3f, d: vec3f, limit: f32, lo: vec3f, hi: vec3f, first: vec2i, las
   }
   return miss();
 }
-fn terrain(o: vec3f, d: vec3f, limit: f32) -> Hit {
+fn terrainField(o: vec3f, d: vec3f, limit: f32) -> Hit {
   if(config.atmosphereExtra.w>.5){return miss();}
   let lo=vec3f(-32,config.bounds.x-.001,-32); let hi=vec3f(32,config.bounds.y+.001,32);
   if (!useHierarchy) { return cells(o,d,limit,lo,hi,vec2i(0),vec2i(i32(grid))); }
@@ -127,7 +127,7 @@ fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>, prior:f32) -> vec3f
   let p=o+d*h.t; var n=select(-h.normal,h.normal,dot(d,h.geometric)<0);
   let geometric=select(-h.geometric,h.geometric,dot(d,h.geometric)<0);
   var color=h.color;var roughness=0.0;
-  let geological=config.material.x>.5;
+  let geological=config.material.x>.5&&h.material.x<.5;
   if(geological) {
     // Isotropic surface-area ray-cone estimate, widened at grazing angles. Water
     // rays include their preceding path; no screen-space UVs or texture seams.

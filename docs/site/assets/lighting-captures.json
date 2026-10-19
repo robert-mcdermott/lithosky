@@ -1,7 +1,7 @@
 {
-  "sourceHash": "10691b037b79508616f1898ab27f4304c3694823f9add9d05984ac0fb2399df1",
+  "sourceHash": "cbc6346d144dfa0542843c2b93d3d7efba4f99f295965714df7890d48c2210d9",
   "sceneSHA256": "3283b3590fb320b4576d5c28b7c2c35453704cfbbe42b1e456a83b8944aa7228",
-  "capturedAt": "2026-10-19T04:26:41.959Z",
+  "capturedAt": "2026-10-19T05:46:08.546Z",
   "records": [
     {
       "name": "lighting-classic",
@@ -96,7 +96,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 23071,
+      "milliseconds": 20601,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0,
@@ -210,7 +210,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 26518,
+      "milliseconds": 20859,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0,
@@ -324,7 +324,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 37645,
+      "milliseconds": 27898,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0,
@@ -438,7 +438,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 33636,
+      "milliseconds": 25273,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0,
@@ -568,7 +568,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 40145,
+      "milliseconds": 27136,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0,

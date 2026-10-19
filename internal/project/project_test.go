@@ -245,3 +245,40 @@ func FuzzOpen(f *testing.F) {
 		}
 	})
 }
+
+func TestSpatialPortableRoundTrip(t *testing.T) {
+	old, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(old, &imported); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile("../../tests/fixtures/spatial.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixtures []struct{ Scene map[string]any }
+	if err := json.Unmarshal(data, &fixtures); err != nil {
+		t.Fatal(err)
+	}
+	doc := fixtures[0].Scene
+	nodes := doc["entities"].([]any)
+	for _, v := range nodes {
+		c := v.(map[string]any)["components"].(map[string]any)
+		if c["terrain"] != nil {
+			c["terrain"] = imported["terrain"]
+		}
+	}
+	manifest, _ := json.Marshal(doc)
+	file, err := Save(manifest, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, samples, err := Open(file)
+	if err != nil || !bytes.Equal(got, manifest) || !bytes.Equal(samples, raw) {
+		t.Fatal("entity components or asset changed", err)
+	}
+	again, err := Save(got, samples)
+	if err != nil || !bytes.Equal(again, file) {
+		t.Fatal("nondeterministic entity container", err)
+	}
+}

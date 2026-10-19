@@ -34,7 +34,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files support v1–v11. Draft
+These choices are transient render settings; scene files support v1–v12. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.
@@ -202,3 +202,9 @@ Browser callbacks `tests/browser-water.mjs`, `tests/browser-water-ui.mjs` and
 `tests/browser-noise.mjs` verify GPU parity, dark/extreme/submerged rays, scene
 upgrade/save/Undo/preview/cancel/WebGL workflows and progressive noise convergence.
 Run through the Playwright CLI against a disposable local app.
+
+V12 [object tools](object-tools.md) add up to 32 opaque analytic primitives. The
+same solid traversal participates in primary, shadow, bounce and water rays.
+Raster previews use bounded tessellations and approximate lighting; live lighting
+uses the final solid/shadow kernels. Primitive records occupy at most 3 KiB and
+one extra storage binding, bringing the main renderer to eight storage bindings.

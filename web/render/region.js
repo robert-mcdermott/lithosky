@@ -16,5 +16,5 @@ export function regionControls(invalidate) {
  const cancel=()=>{if(drag)region=drag.before;finish();};
  for(const e of ['pointercancel','lostpointercapture'])overlay.addEventListener(e,cancel);
  overlay.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();cancel();$('region-pick').focus();}});
- sync();return {get(width,height){return $('region-enabled').checked?percentRegion(width,height,region):undefined;},busy(value){if(value)finish();for(const id of ['region-enabled','region-pick',...keys.map(k=>'region-'+k)])$(id).disabled=value;}};
+ sync();return {cancel,get(width,height){return $('region-enabled').checked?percentRegion(width,height,region):undefined;},busy(value){if(value)finish();for(const id of ['region-enabled','region-pick',...keys.map(k=>'region-'+k)])$(id).disabled=value;}};
 }

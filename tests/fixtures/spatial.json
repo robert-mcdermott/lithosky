@@ -1,0 +1,3792 @@
+[
+  {
+    "name": "primitive scene",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "unknown primitive",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "mesh",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "mirrored scale",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                -1,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "zero scale",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                0,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "huge local coordinate",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                1000,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "unknown transform property",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ],
+              "matrix": []
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "invalid color",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                1.1,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "core transform",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "transformed group",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "name": "Object group",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "group": {},
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "nonuniform group",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "name": "Object group",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "group": {},
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                2,
+                1
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "unsupported inherited water",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "name": "Object group",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "group": {},
+            "transform": {
+              "position": [
+                2,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "world scale too large",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                16,
+                16,
+                16
+              ]
+            }
+          }
+        },
+        {
+          "id": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "name": "Object group",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "group": {},
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                16,
+                16,
+                16
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "world scale too small",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                0.05,
+                0.05,
+                0.05
+              ]
+            }
+          }
+        },
+        {
+          "id": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "name": "Object group",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "group": {},
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                0.05,
+                0.05,
+                0.05
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "too many primitives",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-0",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-1",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-2",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-3",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-4",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-5",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-6",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-7",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-8",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-9",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-10",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-11",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-12",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-13",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-14",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-15",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-16",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-17",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-18",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-19",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-20",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-21",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-22",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-23",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-24",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-25",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-26",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-27",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-28",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-29",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-30",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "extra-31",
+          "name": "Sphere",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "nonuniform group straddles tolerance",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 12,
+      "title": "Alpine quiet",
+      "entities": [
+        {
+          "id": "terrain-main",
+          "name": "Terrain",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "terrain": {
+              "generator": "terrain-v1",
+              "seed": 1847,
+              "elevation": 1,
+              "palette": "natural"
+            },
+            "surface": {
+              "preset": "rules",
+              "snowHeight": 5.4,
+              "sandHeight": 0.6,
+              "rockSlope": 39,
+              "blend": 0.6,
+              "detail": 0.25,
+              "detailScale": 1,
+              "geology": {
+                "model": "geology-v1",
+                "scale": 1,
+                "strata": 0.65,
+                "fractures": 0.55,
+                "bump": 0.6,
+                "roughness": 0.7
+              }
+            }
+          }
+        },
+        {
+          "id": "water-main",
+          "name": "Water",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "water": {
+              "enabled": true,
+              "level": 0.25,
+              "optics": {
+                "model": "lake-v1",
+                "metresPerUnit": 100,
+                "density": 1,
+                "ripples": 0.35,
+                "wavelength": 1,
+                "shore": 0.06
+              }
+            }
+          }
+        },
+        {
+          "id": "environment-main",
+          "name": "Sun & sky",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "environment": {
+              "lighting": {
+                "sunElevation": 38,
+                "transport": {
+                  "model": "path-v1",
+                  "bounces": 3,
+                  "exposure": 2.75,
+                  "toneMap": "filmic",
+                  "sun": 1,
+                  "sky": 1,
+                  "roughness": 0.65,
+                  "ior": 1.5
+                }
+              },
+              "atmosphere": {
+                "model": "earth-single-v1",
+                "mode": "manual",
+                "sunElevation": 39.381955415560675,
+                "sunAzimuth": 233.130102354156,
+                "latitude": 47.6062,
+                "longitude": -122.3321,
+                "year": 2026,
+                "day": 172,
+                "utcMinutes": 1200,
+                "altitude": 0,
+                "metresPerUnit": 100,
+                "aerosols": 1,
+                "ozone": 1,
+                "groundAlbedo": 0.12
+              }
+            }
+          }
+        },
+        {
+          "id": "camera-main",
+          "name": "Camera",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "camera": {
+              "yaw": 0.28,
+              "pitch": 0.3,
+              "distance": 23,
+              "lens": {
+                "model": "thin-lens-v1",
+                "frame": "16:9",
+                "focalLength": 21.09375,
+                "fNumber": 8,
+                "dof": false,
+                "focusDistance": 2300,
+                "metresPerUnit": 100,
+                "targetX": 0,
+                "targetY": 1.8,
+                "targetZ": -4,
+                "roll": 0
+              }
+            }
+          }
+        },
+        {
+          "id": "entity-11a78e1372414e3bbe681dd35726c075",
+          "name": "Sphere",
+          "parent": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "primitive": {
+              "shape": "sphere",
+              "color": [
+                0.16,
+                0.32,
+                0.35
+              ],
+              "roughness": 0.65
+            },
+            "transform": {
+              "position": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                2,
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "id": "entity-ac5cb9b882ac4d21ba47580a96b5de75",
+          "name": "Object group",
+          "parent": "",
+          "visible": true,
+          "locked": false,
+          "components": {
+            "group": {},
+            "transform": {
+              "position": [
+                0,
+                1,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0
+              ],
+              "scale": [
+                1,
+                1.000000006,
+                0.999999994
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+]

@@ -31,7 +31,7 @@ the Objects list to select occluded lights. Guides never enter PNG export.
   Locked parents protect descendants. Select the parent to unlock it; a child
   cannot override an ancestor lock. Read-only export and rendering remain available.
 - **New group** creates an empty organizational group. Choose **Parent group**
-  on another object to place it there. Groups have no transforms in this slice.
+  on another object to place it there. Primitive-only groups now support uniform transforms; see [object tools](object-tools.md).
 - **Delete** removes an area light or dissolves a group, promoting its children
   to that group's parent. Locked descendants prevent regrouping/deletion. Core
   terrain, water, environment and active camera are retained; hide supported
@@ -41,9 +41,9 @@ the Objects list to select occluded lights. Guides never enter PNG export.
   the existing light controls; their identities survive other scene edits.
 
 The active camera always remains visible and outside groups. Its lock protects
-saved camera navigation and lens edits. Move/rotate/scale handles, primitives,
-multi-selection, clipboard operations and additional cameras belong to following
-slices. This foundation does not present proxy geometry as a rendered object.
+saved camera navigation and lens edits. Move/rotate/scale handles, primitives, multi-selection and clipboard operations
+are available in [slice 8 object tools](object-tools.md). Additional editor cameras
+remain slice 9 work. This foundation does not present proxy geometry as a rendered object.
 
 Every authored command uses validation and the shared Undo history. A lock is
 enforced at the command boundary, including keyboard navigation, sculpt commits,
@@ -56,7 +56,7 @@ operation; it is not a targeted edit of a locked component.
 
 Opening v1–v10 keeps that format and its rendering interpretation. Selection,
 search, tree expansion, panel layout and tool mode are workspace state. They do
-not migrate, dirty or autosave a document. The first authored object command
+not migrate, dirty or autosave a document. The first authored metadata command
 creates a v11 entity document in the same Undo transaction as the edit.
 
 V11 stores component data once, inside entities. The existing controls use a

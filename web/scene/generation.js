@@ -146,4 +146,4 @@ export class TerrainCache {
   }
 }
 
-export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null, state.waterOptics ?? null,state.lens??null,state.environmentVisible!==false]);
+export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null, state.waterOptics ?? null,state.lens??null,state.environmentVisible!==false,state.primitives?.length?state.primitives.map(({id,...object})=>object):[]]);
