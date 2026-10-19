@@ -19,7 +19,7 @@ export function baseKey(state) {
 }
 export const heightKey = state => JSON.stringify([baseKey(state), state.sculpt ?? []]);
 export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette, state.seed, state.materials ?? null]);
-export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0]);
+export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0, state.waterOptics ?? null]);
 const yieldTask = () => new Promise(resolve => setTimeout(resolve, 0));
 function canceled(signal) { if (signal?.aborted) throw new DOMException('Terrain generation canceled.', 'AbortError'); }
 
@@ -145,4 +145,4 @@ export class TerrainCache {
   }
 }
 
-export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null]);
+export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null, state.waterOptics ?? null]);

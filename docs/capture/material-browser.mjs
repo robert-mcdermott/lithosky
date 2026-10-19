@@ -2,7 +2,7 @@
 async page=>{
  const output=__OUTPUT__,scene=__SCENE__,check=(v,m)=>{if(!v)throw Error(m);},errors=[];
  page.on('pageerror',e=>errors.push(e.message));await page.setViewportSize({width:1440,height:1080});await page.reload();
- const ready=()=>page.waitForFunction(()=>!document.querySelector('#render-start').disabled,{},{timeout:60000});await ready();
+ const ready=()=>page.waitForFunction(()=>!document.querySelector('#render-start').disabled,{},{timeout:60000});await ready();await page.locator('#live-preview').uncheck();
  if(await page.getByRole('button',{name:'Keep this scene',exact:true}).isVisible())await page.getByRole('button',{name:'Keep this scene',exact:true}).click();
  const open=async s=>{await page.locator('#scene-file').setInputFiles({name:'material-study.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(s))});await page.waitForFunction(()=>document.querySelector('#file-status').textContent.startsWith('Opened material-study.lithosky'));await ready();};
  const exportImage=async name=>{const pending=page.waitForEvent('download');await page.locator('#export-image').click();await(await pending).saveAs(output+'/'+name+'.png');};

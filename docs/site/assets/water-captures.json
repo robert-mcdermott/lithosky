@@ -1,0 +1,678 @@
+{
+  "sourceHash": "07209d5c479a14229e5639be38d2573a688e493da322e64ac41c07640c72cc26",
+  "sceneSHA256": "756238aec48673e5b139a62c587a98879994c0a76fbf455950ccaad9c230e2d6",
+  "capturedAt": "2026-10-19T02:23:39.900Z",
+  "records": [
+    {
+      "name": "water-classic",
+      "scene": {
+        "format": "lithosky",
+        "version": 8,
+        "title": "Silver basin",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 64,
+      "milliseconds": 14085,
+      "statistics": {
+        "blackPixels": 0,
+        "whitePixels": 0
+      },
+      "sha256": "118a131be777d1a2234a6dc7d480111fa991225c5e00a9793805c4053c8f1f4f"
+    },
+    {
+      "name": "water-calm",
+      "scene": {
+        "format": "lithosky",
+        "version": 9,
+        "title": "Silver basin",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 64,
+      "milliseconds": 13566,
+      "statistics": {
+        "blackPixels": 0,
+        "whitePixels": 0
+      },
+      "sha256": "7cfaa744089d4d754b26530207ffb46eb478d24a490d744341b46da04325afa8"
+    },
+    {
+      "name": "water-ripples",
+      "scene": {
+        "format": "lithosky",
+        "version": 9,
+        "title": "Silver basin",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 64,
+      "milliseconds": 13701,
+      "statistics": {
+        "blackPixels": 0,
+        "whitePixels": 0
+      },
+      "sha256": "996e060ece64fb68af9ffc130768c25ef75b12b6c28cc444b292d5072f65e087"
+    },
+    {
+      "name": "water-clear",
+      "scene": {
+        "format": "lithosky",
+        "version": 9,
+        "title": "Silver basin",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 0.1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 64,
+      "milliseconds": 13562,
+      "statistics": {
+        "blackPixels": 0,
+        "whitePixels": 0
+      },
+      "sha256": "2a9c35c4414806c8b051084598e893c7b437b8879c54cabd1cfa176d6fd6f61b"
+    },
+    {
+      "name": "water-grazing",
+      "scene": {
+        "format": "lithosky",
+        "version": 9,
+        "title": "Silver basin",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.12,
+          "distance": 19
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 64,
+      "milliseconds": 13983,
+      "statistics": {
+        "blackPixels": 0,
+        "whitePixels": 0
+      },
+      "sha256": "dcf617f4a3e2bdfcfbd94b4cc764a4927c1b3d2803879d23f4cbeb94b4a5060c"
+    },
+    {
+      "name": "water-clean",
+      "scene": {
+        "format": "lithosky",
+        "version": 9,
+        "title": "Silver basin",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 1847,
+          "elevation": 1,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": 0.28,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 256,
+      "milliseconds": 47584,
+      "statistics": {
+        "blackPixels": 0,
+        "whitePixels": 0
+      },
+      "sha256": "1be1a5a63a044b75c9801b75c061e2cdd2a8148d375558bfa0187bd56eb3bee6"
+    }
+  ],
+  "errors": [],
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "hardware": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "description": ""
+  },
+  "probes": {
+    "rays": 256,
+    "scalars": 2048,
+    "worst": 0.0000045614967058016376,
+    "cases": [
+      {
+        "level": -3,
+        "dark": false,
+        "radiance": [
+          0.04569621384143829,
+          0.03239964321255684,
+          0.0172713752835989,
+          0.045467864722013474,
+          0.03315122425556183,
+          0.020445171743631363,
+          0.0033461402636021376,
+          0.006954830139875412,
+          0.014668353833258152,
+          0.022911665961146355,
+          0.03897717222571373,
+          0.052309807389974594,
+          0.044376861304044724,
+          0.030488956719636917,
+          0.014596794731914997
+        ]
+      },
+      {
+        "level": -3,
+        "dark": true,
+        "radiance": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "level": 0.25,
+        "dark": false,
+        "radiance": [
+          0.00022214409545995295,
+          0.0021867207251489162,
+          0.0047345771454274654,
+          0.007194215431809425,
+          0.014323581010103226,
+          0.022810600697994232,
+          0.000008926795089791995,
+          0.0032662644516676664,
+          0.012869775295257568,
+          5.392787443270208e-7,
+          0.000909975846298039,
+          0.00472661666572094,
+          6.653846185145085e-8,
+          0.0003432507219258696,
+          0.0019276280654594302
+        ]
+      },
+      {
+        "level": 0.25,
+        "dark": true,
+        "radiance": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "level": 5,
+        "dark": false,
+        "radiance": [
+          8.850969816006499e-14,
+          0.000005574053830059711,
+          0.0001902106450870633,
+          4.831718792425166e-13,
+          0.00001161652835435234,
+          0.00036240697954781353,
+          1.0198998648180412e-16,
+          0.000002229832716693636,
+          0.00023218325804919004,
+          1.0723420827121133e-19,
+          5.977678085855587e-8,
+          0.000017233665857929736,
+          1.8344350517258683e-20,
+          2.262892273563466e-8,
+          0.0000069390275712066796
+        ]
+      },
+      {
+        "level": 5,
+        "dark": true,
+        "radiance": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "noise": {
+    "width": 640,
+    "height": 360,
+    "detail": 512,
+    "referenceSamples": 256,
+    "errors": [
+      {
+        "samples": 8,
+        "rmse": 2.4517102873980305
+      },
+      {
+        "samples": 64,
+        "rmse": 0.822962129545866
+      }
+    ],
+    "method": "Unfiltered progressive prefixes compared with their 256-sample result; display-code RMSE over x80–559/y80–329."
+  }
+}

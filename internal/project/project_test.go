@@ -47,7 +47,7 @@ func TestPortableRoundTrip(t *testing.T) {
 		t.Fatal("metadata-only v5 opened")
 	}
 	// Opening and saving a v1 starter preserves its version and parameters.
-	legacy, err := os.ReadFile("../../docs/site/assets/alpine.lithosky")
+	legacy, err := os.ReadFile("../../tests/fixtures/legacy.lithosky")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,6 +58,38 @@ func TestPortableRoundTrip(t *testing.T) {
 	saved, err := Save(v1, nil)
 	if err != nil || !bytes.Equal(v1, saved) {
 		t.Fatal("v1 migration", err)
+	}
+}
+func TestLakePortableRoundTrip(t *testing.T) {
+	doc, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(doc, &imported); err != nil {
+		t.Fatal(err)
+	}
+	current, err := os.ReadFile("../../docs/site/assets/silver-basin.lithosky")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var lake map[string]any
+	if err := json.Unmarshal(current, &lake); err != nil {
+		t.Fatal(err)
+	}
+	lake["terrain"] = imported["terrain"]
+	doc, err = json.Marshal(lake)
+	if err != nil {
+		t.Fatal(err)
+	}
+	file, err := Save(doc, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, asset, err := Open(file)
+	if err != nil || !bytes.Equal(asset, raw) || !bytes.Equal(got, doc) {
+		t.Fatal("v9 optics or samples changed in portable scene", err)
+	}
+	again, err := Save(got, asset)
+	if err != nil || !bytes.Equal(file, again) {
+		t.Fatal("nondeterministic v9 container", err)
 	}
 }
 func TestUnsafeContainers(t *testing.T) {

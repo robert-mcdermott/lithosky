@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { updateSceneVersion } from '../scene/document.js';
-import {atmosphereDefaults,sunAngles,leapYear} from './solar.js';
+import {atmosphereFromLegacy,sunAngles,leapYear} from './solar.js';
 export function atmosphereControls(getScene,edit) {
   const $=id=>document.getElementById(id),keys=['sunElevation','sunAzimuth','latitude','longitude','year','day','utcMinutes','altitude','metresPerUnit','aerosols','ozone'];
-  $('enable-atmosphere').addEventListener('click',()=>edit(s=>{s.atmosphere=atmosphereDefaults(s.lighting.sunElevation);if(s.terrain.generator==='layers-v1')s.terrain.sculpt??=[];updateSceneVersion(s);}));
+  $('enable-atmosphere').addEventListener('click',()=>edit(s=>{s.atmosphere=atmosphereFromLegacy(s.lighting.sunElevation);if(s.terrain.generator==='layers-v1')s.terrain.sculpt??=[];updateSceneVersion(s);}));
   $('disable-atmosphere').addEventListener('click',()=>edit(s=>{delete s.atmosphere;updateSceneVersion(s);}));
   $('atmosphere-mode').addEventListener('change',()=>{const mode=$('atmosphere-mode').value;edit(s=>{s.atmosphere.mode=mode;});});
   for(const key of keys)$('atmosphere-'+key).addEventListener('change',()=>{

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {waterControls} from './water/controls.js';
 import {lightingControls} from './lighting/controls.js';
 import { atmosphereControls } from './atmosphere/controls.js';
 import { heightmapControls } from './scene/heightmap-controls.js';
@@ -14,7 +15,7 @@ import { createWebGPU } from './render/webgpu.js';
 import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
-import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey } from './scene/document.js';
+import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey, upgradeScene, currentRendering } from './scene/document.js';
 import { validateStudies } from './scene/studies.js';
 import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
@@ -58,6 +59,7 @@ let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
 const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const water = waterControls(()=>history.value,discrete);
 const lighting = lightingControls(()=>history.value,discrete);
 const atmosphere = atmosphereControls(()=>history.value,discrete);
 const materials = materialControls(() => history.value, discrete);
@@ -148,7 +150,9 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();water.sync();
+  $('upgrade-rendering').hidden=currentRendering(scene);
+  $('rendering-model').textContent=currentRendering(scene)?'Current rendering · geology, atmosphere, studio light and lake optics':'Custom / legacy rendering · upgrade to enable all current models';
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;
@@ -178,6 +182,7 @@ function edit(change) { if (history.edit(change)) refresh(); }
 function finishGesture() { clearTimeout(gestureTimer); history.end(); syncControls(); }
 function discrete(change) { finishGesture(); edit(change); }
 function presetScene(key) { return structuredClone(studies.find(study => study.id === key).scene); }
+$('upgrade-rendering').addEventListener('click',()=>discrete(upgradeScene));
 $('study-select').addEventListener('change', () => {
   const key = $('study-select').value; if (!key) return;
   finishGesture(); if (history.replace(presetScene(key))) refresh();

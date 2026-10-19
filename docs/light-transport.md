@@ -21,8 +21,9 @@ east +X and up +Y; negative elevation points the emitter downward. These are
 one-sided emitters with opaque backs. Disabling or zeroing a light removes its
 emission and rectangle. Lights can illuminate and occlude terrain, reflect in
 water and appear in the camera. They are authored numerically for now; picking
-and transform handles belong to W3.S7–S8. Preview remains approximate and does
-not show these rectangles or their illumination; render a still to inspect them.
+and transform handles belong to W3.S7–S8. The immediate raster preview remains approximate. WebGPU live lighting uses the
+final kernels at coarse resolution and includes these lights; render a still for
+final detail and export.
 
 ## Surface transport
 

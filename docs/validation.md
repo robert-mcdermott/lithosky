@@ -839,3 +839,77 @@ it does not step through empty unbounded space.
 An independent decoded-PNG check against the previous committed 1024² terrain
 benchmark finds exactly one changed color channel, by one 8-bit code. This is
 consistent with floating-point shader rounding; the composition is unchanged.
+
+## Wave 3, slice 5 — lake optics and rendering workflow (2026-10-18)
+
+Local development build 0.3.0-dev.5, macOS arm64, Apple Metal 3 / Chrome 155,
+Go 1.26.6 and Node 22.17. The records in prior slice sections are historical;
+refreshed capture manifests record the current source and timings. Native
+Windows/Linux release execution and the integrated W3.S6 visual gate remain open.
+
+- Shared Go/JavaScript fixtures accept current v9 scenes and reject malformed
+  optical parameters. Unit checks cover Beer–Lambert identity/multiplicativity,
+  depth/scale/density, exact Fresnel/TIR, bounded filtered normals, preservation
+  of the actual sun vector, one-step upgrade/Undo/Redo, all terrain families,
+  serialization and terrain cache reuse.
+- Actual GPU water probes compare 256 rays / 2,048 scalar values against CPU
+  transmission, Fresnel and filtered-normal references; worst absolute error is
+  0.00000457 (tolerance 0.0001). Six illumination/extreme-water cases include
+  above-water, submerged, grazing and TIR rays. Every tested dark-scene channel
+  is exactly zero. No additive water glow remains in the v9 path.
+- Browser workflows pass old-scene upgrade, Undo/Redo, numerical water edits,
+  JSON save/reopen and local recovery, idle lighting preview, cancellation with
+  retained complete samples, water-edit stale-export invalidation and WebGL
+  fallback. Four layouts from 320px to 1440px keep file actions accessible with
+  no horizontal overflow. Existing eight-size dropdown and collapsible-panel
+  checks also pass, retaining scene and finished-render state.
+- The renderer regression passes 1,024 legacy terrain intersections (worst
+  distance error below 0.000011), PNG/canvas byte equality, pending-PNG edit
+  invalidation, initialization failure, cancellation, injected device loss/retry,
+  larger image dimensions, extreme legacy water/camera fixtures and WebGL fallback.
+- Unfiltered progressive noise comparison at 640 × 360 / 512² terrain uses the
+  same scene, camera, material and exposure, comparing 8- and 64-sample prefixes
+  against the 256-sample result over x80–559/y80–329. Display-code RMSE falls
+  from 2.452 to 0.823. This is a convergence check, not an independent-reference
+  variance estimate or a perceptual-quality score. No denoiser smooths the output.
+
+The original Silver basin scene and six unretouched 960 × 540 / 1024² exports
+compare classic/calm/ripple/clear/grazing water and 64 versus 256 samples.
+`water-captures.json` records every scene, source/image hashes, GPU probes,
+noise check, device and timings. Public prior lighting/material/terrain/starter
+captures are refreshed as part of the slice. Site generation checks their
+provenance; the water gallery describes model limits explicitly.
+
+The supplied Alpine scene was reproduced privately without modifying the original
+or committing user data. The upgraded output preserves terrain, camera, water
+level and actual sunlight. Water remains visible as water in the displayed and
+exported still. The comparison confirms the specific repair, not photographic
+quality. Remaining limits include procedural material repetition, finite-patch
+horizon artifacts, single-scattering sky/water approximations, no refracted
+area-light bed illumination, and absent clouds/vegetation/denoising.
+
+Final local checks: **211 JavaScript tests pass**, `go test -race ./...` and
+`go vet ./...` pass. The generated site builds/checks four pages, 139 links and
+22 image references with current provenance. Portable v9 imported-terrain files
+round-trip their full samples and scene metadata deterministically; legacy asset
+recovery tests use an explicit stable v1 fixture rather than the evolving gallery.
+
+The adapted older-format browser workflows also pass atmosphere, geology,
+studio/area lighting, heightmap import/export, sculpting, terrain layers and
+material editing/recovery. These now open an explicit v1 fixture where they test
+legacy migrations; the actual starter catalog remains v9. Three legacy material
+fixtures compare 2,202 actual GPU rays and hierarchical versus linear traversal:
+worst hit error is below 0.000010 and rendered pixels match exactly. Fine-cell
+CPU tests fall from 18,559/12,236/28,505 to 2,520/3,041/1,213 respectively.
+
+Current original water capture observations, including preparation/shader/readback:
+classic 14.09 s, calm 13.57 s, ripples 13.70 s, clear 13.56 s, grazing 13.98 s
+(all 64 samples), and 47.58 s for the identical ripple scene at 256 samples.
+These local observations are not cross-device performance guarantees.
+
+The generated site passes browser checks at 1440px and 390px on all four pages,
+including every image decode, local-resource policy, navigation, keyboard focus
+and scene download. The refreshed lighting PNG comparison still passes positive
+bounce/exposure contributions with no exposure-induced luminance drop beyond the
+rounding tolerance. The final private Alpine still completes at 960 × 540 /
+1024² in 12.3 s at 64 samples and 44.2 s at 256 samples on this machine.

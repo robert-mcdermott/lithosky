@@ -8,7 +8,11 @@ async (page) => {
   await ready();
   if(await page.getByRole('button',{name:'Keep this scene',exact:true}).isVisible())await page.getByRole('button',{name:'Keep this scene',exact:true}).click();
   await page.getByRole('combobox',{name:'Start with a scene',exact:true}).selectOption('alpine');await ready();
-  await page.evaluate(async()=>{
+  // Explicit old-format fixture: new starter studies use v9.
+ const legacyFixture=await page.evaluate(async()=>(await import('/scene/document.js')).legacyScene());
+ await page.locator('#scene-file').setInputFiles({name:'legacy-fixture.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacyFixture))});
+ await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened legacy-fixture.lithosky'));await ready();await page.locator('#live-preview').uncheck();
+ await page.evaluate(async()=>{
     const {TerrainGenerator}=await import('/scene/generator.js'),generate=TerrainGenerator.prototype.generate;
     window.materialJobs=[];
     TerrainGenerator.prototype.generate=async function(...args){const r=await generate.apply(this,args);window.materialJobs.push({heights:r.heightsChanged,surface:r.surfaceChanged,noise:r.noiseChanged});return r;};
@@ -31,11 +35,12 @@ async (page) => {
   const stream=await file.createReadStream(),chunks=[];for await(const chunk of stream)chunks.push(chunk);const bytes=Buffer.concat(chunks),scene=JSON.parse(bytes);
   check(scene.version===4&&scene.surface.detail===.7&&scene.terrain.sculpt.length===1,'V4 sculpt/material save');
   await page.getByRole('combobox',{name:'Start with a scene',exact:true}).selectOption('alpine');await ready();
+  await page.locator('#scene-file').setInputFiles({name:'legacy-return.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacyFixture))});await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened legacy-return.lithosky'));await ready();
   check(await page.getByRole('button',{name:'Customize surface',exact:true}).isVisible(),'Legacy appearance did not return');
   await page.locator('#scene-file').setInputFiles({name:'surface.lithosky',mimeType:'application/json',buffer:bytes});await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened surface.lithosky'));await ready();
   check(await page.locator('#material-snowHeight').inputValue()==='3.2','Material reopen');
   await page.waitForFunction(()=>document.getElementById('autosave-status').textContent==='Recovery saved on this device');
-  await page.reload();await ready();await page.getByRole('button',{name:'Restore scene',exact:true}).click();await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Recovery restored.'));await ready();
+  await page.reload();await ready();await page.locator('#live-preview').uncheck();await page.getByRole('button',{name:'Restore scene',exact:true}).click();await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Recovery restored.'));await ready();
   check(await page.locator('#material-detail').inputValue()==='0.7','Material recovery');
   check(!(await page.locator('#sculpt-status').textContent()).includes('Build with layers'),'Restored layered terrain shows legacy sculpt hint');
   await page.getByRole('combobox',{name:'Samples',exact:true}).selectOption('8');await page.getByRole('button',{name:'Render image',exact:true}).click();

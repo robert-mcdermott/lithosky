@@ -9,6 +9,10 @@ async page=>{
  const number=async(id,value)=>{await page.locator(id).fill(String(value));await page.locator(id).press('Tab');await ready();};
  const download=async()=>{const pending=page.waitForEvent('download');await page.locator('#save-scene').click();const file=await pending,chunks=[];for await(const chunk of await file.createReadStream())chunks.push(chunk);return Buffer.concat(chunks);};
  await page.locator('#study-select').selectOption('alpine');await ready();
+ // Explicit old-format fixture: new starter studies use v9.
+ const legacyFixture=await page.evaluate(async()=>(await import('/scene/document.js')).legacyScene());
+ await page.locator('#scene-file').setInputFiles({name:'legacy-fixture.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacyFixture))});
+ await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened legacy-fixture.lithosky'));await ready();await page.locator('#live-preview').uncheck();
  await page.locator('#enable-geology').click();await ready();check(await page.evaluate(()=>window.geologyScene.version===7&&!window.geologyScene.atmosphere),'v1 geology upgrade');
  await page.locator('#undo').click();await ready();check(await page.evaluate(()=>window.geologyScene.version)===1,'Undo geology');await page.locator('#redo').click();await ready();
  await number('#geology-bump',.8);await number('#geology-strata',.55);await number('#geology-scale',.75);
@@ -29,7 +33,7 @@ async page=>{
  await page.locator('#disable-atmosphere').click();await ready();check(await page.evaluate(()=>window.geologyScene.version===7&&!window.geologyScene.atmosphere),'Sky removal lost geology');
  await page.locator('#enable-atmosphere').click();await ready();await page.locator('#enable-layers').click();await ready();
  check(await page.evaluate(()=>window.geologyScene.version===7&&window.geologyScene.terrain.generator==='layers-v1'),'Layer conversion lost geology');
- await page.waitForFunction(()=>document.querySelector('#autosave-status').textContent==='Recovery saved on this device');await page.reload();await ready();await observe();await page.locator('#restore-scene').click();await page.waitForFunction(()=>document.querySelector('#file-status').textContent.startsWith('Recovery restored.'));await ready();
+ await page.waitForFunction(()=>document.querySelector('#autosave-status').textContent==='Recovery saved on this device');await page.reload();await ready();await page.locator('#live-preview').uncheck();await observe();await page.locator('#restore-scene').click();await page.waitForFunction(()=>document.querySelector('#file-status').textContent.startsWith('Recovery restored.'));await ready();
  check(await page.locator('#geology-bump').inputValue()==='.8'||await page.locator('#geology-bump').inputValue()==='0.8','Recovery lost geology');
  await page.locator('#render-detail').selectOption('512');await page.locator('#render-samples').selectOption('8');await page.locator('#render-start').click();
  await page.waitForFunction(()=>document.querySelector('#render-status').textContent.startsWith('Complete.'),{},{timeout:60000});

@@ -1,6 +1,6 @@
 {
   "format": "lithosky",
-  "version": 1,
+  "version": 9,
   "title": "Alpine quiet",
   "terrain": {
     "generator": "terrain-v1",
@@ -15,9 +15,60 @@
   },
   "water": {
     "enabled": true,
-    "level": 0.25
+    "level": 0.25,
+    "optics": {
+      "model": "lake-v1",
+      "metresPerUnit": 100,
+      "density": 1,
+      "ripples": 0.35,
+      "wavelength": 1,
+      "shore": 0.06
+    }
   },
   "lighting": {
-    "sunElevation": 38
+    "sunElevation": 38,
+    "transport": {
+      "model": "path-v1",
+      "bounces": 3,
+      "exposure": 2.75,
+      "toneMap": "filmic",
+      "sun": 1,
+      "sky": 1,
+      "roughness": 0.65,
+      "ior": 1.5,
+      "lights": []
+    }
+  },
+  "surface": {
+    "preset": "rules",
+    "snowHeight": 5.4,
+    "sandHeight": 0.6,
+    "rockSlope": 39,
+    "blend": 0.6,
+    "detail": 0.25,
+    "detailScale": 1,
+    "geology": {
+      "model": "geology-v1",
+      "scale": 1,
+      "strata": 0.65,
+      "fractures": 0.55,
+      "bump": 0.6,
+      "roughness": 0.7
+    }
+  },
+  "atmosphere": {
+    "model": "earth-single-v1",
+    "mode": "manual",
+    "sunElevation": 39.381955415560675,
+    "sunAzimuth": 233.130102354156,
+    "latitude": 47.6062,
+    "longitude": -122.3321,
+    "year": 2026,
+    "day": 172,
+    "utcMinutes": 1200,
+    "altitude": 0,
+    "metresPerUnit": 100,
+    "aerosols": 1,
+    "ozone": 1
   }
 }

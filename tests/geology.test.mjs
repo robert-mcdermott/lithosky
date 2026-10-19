@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {geologyDefaults,noiseGradient,evaluateGeology,roughDiffuse,materialUniforms} from '../web/material/geology.js';
 import {materialDefaults} from '../web/scene/materials.js';
-import {defaultScene,updateSceneVersion,validateScene,renderState,serializeScene,parseScene} from '../web/scene/document.js';
+import {legacyScene as defaultScene,updateSceneVersion,validateScene,renderState,serializeScene,parseScene} from '../web/scene/document.js';
 import {layeredTerrain} from '../web/scene/noise.js';
 import {atmosphereDefaults} from '../web/atmosphere/solar.js';
 import {TerrainCache} from '../web/scene/generation.js';

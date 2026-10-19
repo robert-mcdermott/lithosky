@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {earthModel,transmittance,integrate,rayleighPhase,miePhase,buildAtmosphere,lookupTrans,sample2D,directionUV,SKY_OFFSET,SW,SH,LUT_BYTES} from '../web/atmosphere/model.js';
 import {atmosphereDefaults,solarPosition,sunDirection,leapYear} from '../web/atmosphere/solar.js';
-import {defaultScene,renderState,parseScene,serializeScene} from '../web/scene/document.js';
+import {legacyScene as defaultScene,renderState,parseScene,serializeScene} from '../web/scene/document.js';
 import {geometryKey,renderKey} from '../web/scene/generation.js';
 import {frameUniforms} from '../web/scene/terrain.js';
 const near=(a,b,e)=>assert.ok(Math.abs(a-b)<=e,`${a} vs ${b} (tolerance ${e})`),fast={yieldControl:async()=>{}};

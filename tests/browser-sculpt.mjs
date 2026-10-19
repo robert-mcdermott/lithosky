@@ -10,7 +10,11 @@ async (page) => {
     for(const name of ['edit','undo','redo']){const original=History.prototype[name];History.prototype[name]=function(...args){const result=original.apply(this,args);window.sculptScene=this.value;window.historyBytes=this.snapshotBytes;return result;};}
     const original=TerrainGenerator.prototype.generate;TerrainGenerator.prototype.generate=async function(...args){const r=await original.apply(this,args);if(r.field)window.sculptField=r.field;window.reusedNoise=!r.noiseChanged;return r;};
   });
-  await page.getByRole('button',{name:'Build with layers',exact:true}).click();await ready();
+  // Explicit old-format fixture: new starter studies use v9.
+ const legacyFixture=await page.evaluate(async()=>(await import('/scene/document.js')).legacyScene());
+ await page.locator('#scene-file').setInputFiles({name:'legacy-fixture.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacyFixture))});
+ await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened legacy-fixture.lithosky'));await ready();await page.locator('#live-preview').uncheck();
+ await page.getByRole('button',{name:'Build with layers',exact:true}).click();await ready();
   await page.getByRole('checkbox',{name:'Show water',exact:true}).uncheck();await ready();
   const hash=()=>page.evaluate(async()=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',window.sculptField.vertices))).map(v=>v.toString(16).padStart(2,'0')).join(''));
   const baseline=await hash();
@@ -48,7 +52,7 @@ async (page) => {
   await page.locator('#scene-file').setInputFiles({name:'sculpted.lithosky',mimeType:'application/json',buffer:bytes});
   await page.waitForFunction(()=>document.getElementById('sculpt-count').textContent==='4 / 32 strokes');await ready();check(await hash()===savedHash,'Open changed sculpted geometry');
   await page.waitForFunction(()=>document.getElementById('autosave-status').textContent==='Recovery saved on this device');
-  await page.reload();await ready();await page.getByRole('button',{name:'Restore scene',exact:true}).click();
+  await page.reload();await ready();await page.locator('#live-preview').uncheck();await page.getByRole('button',{name:'Restore scene',exact:true}).click();
   await page.waitForFunction(()=>document.getElementById('sculpt-count').textContent==='4 / 32 strokes');await ready();
   await page.getByRole('combobox',{name:'Samples',exact:true}).selectOption('8');await page.getByRole('button',{name:'Render image',exact:true}).click();
   await page.waitForFunction(()=>document.getElementById('render-status').textContent.startsWith('Complete.'),{},{timeout:60000});

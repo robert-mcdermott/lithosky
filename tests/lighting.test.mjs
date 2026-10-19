@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {bsdf,bsdfPDF,sampleBSDF,dielectric,interfaceF,displayColor,filmic,powerHeuristic,lightFrame,lightUniforms,transportDefaults,areaLightDefaults,normalize,dot} from '../web/lighting/model.js';
-import {defaultScene,renderState,updateSceneVersion,validateScene,serializeScene,parseScene} from '../web/scene/document.js';
+import {legacyScene as defaultScene,renderState,updateSceneVersion,validateScene,serializeScene,parseScene} from '../web/scene/document.js';
 import {geometryKey,renderKey} from '../web/scene/generation.js';
 import {layeredTerrain} from '../web/scene/noise.js';
 const schema=JSON.parse(fs.readFileSync(new URL('../internal/scene/schema.json',import.meta.url)));

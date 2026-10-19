@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v8 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v9 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere and v7 geological surfaces and v8 studio light transport/color. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere and v7 geological surfaces v8 studio light transport/color, and v9 lake optics. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -254,3 +254,14 @@ and JavaScript. Lighting survives terrain conversion/import, sculpt, atmosphere
 and surface changes. Save/recovery, history budgets and portable assets retain
 their existing limits. Removing studio lighting chooses the minimum format for
 the remaining capabilities. See [light transport](light-transport.md).
+
+## V9 lake optics
+
+V9 requires `water.optics` with model `lake-v1`, metresPerUnit [1, 10000],
+density [0.1, 8], ripples [0, 1], wavelength [0.1, 8] and shore [0, 0.5]. All
+are required finite numbers. Studio lighting, atmosphere and geological surfaces
+remain independently optional. All three terrain families, portable assets,
+history and recovery retain their existing bounds. Disabling lake optics chooses
+the minimum format preserving the remaining capabilities. Opening v1–v8 is
+unchanged; an explicit undoable upgrade adds missing current models. New/default
+scenes and starter studies use v9. See [lake optics](water.md).

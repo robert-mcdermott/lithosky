@@ -1,7 +1,7 @@
 # Rendering stills
 
 Choose **Render image** to trace the current scene. Preview and output use a
-16:9 camera frame. Choose 640 × 360 or 960 × 540, with 8, 16, 32 or 64 samples per
+16:9 camera frame. Choose 640 × 360 or 960 × 540, with 8, 16, 32, 64, 128 or 256 samples per
 pixel. More samples reduce antialiasing and sky-occlusion noise. The image updates
 after every complete sample. **Show preview / Show render** compares the two.
 
@@ -34,7 +34,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files remain v1–v8. Draft
+These choices are transient render settings; scene files remain v1–v9. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.
@@ -60,9 +60,10 @@ reports an error and allows retry at a lower tier; it never silently downgrades.
   **Use studio lighting** enables one to four terrain vertices, GGX dielectric
   reflection, MIS, rectangular emitters and exposure/filmic controls; see
   [light transport and color](light-transport.md).
-- Calm water is a finite plane over the same X/Z extent, with index of refraction
+- Classic water is a finite plane over the same X/Z extent, with index of refraction
   1.333. Reflection and refraction share Fresnel weights; total internal reflection
-  uses weight one. A simple exponential tint attenuates the transmitted branch.
+  uses weight one. A simple exponential tint attenuates the transmitted branch
+  in v1–v8; v9 replaces it with [lake optics](water.md).
   Rays first test submerged terrain, so terrain in front of water occludes it.
 - Radiance accumulates in linear floating point. Classic scenes use a fixed Reinhard mapping
   `L / (1 + L)` followed by the piecewise sRGB transfer creates display/export
@@ -70,23 +71,25 @@ reports an error and allows retry at a lower tier; it never silently downgrades.
   Negative, nonfinite or extreme (≥ 1e6) sample radiance increments an error
   counter; readback rejects the image instead of exporting an invalid result.
 
-The preview's water is an opaque flattened grid, so its shoreline is approximate.
+The immediate raster preview uses an opaque flattened grid. The idle WebGPU
+lighting preview uses the final water and lighting kernels at coarse resolution.
 The final plane intersects the original submerged terrain. Legacy sky and aerial haze
 are artistic approximations. Opt-in v6 atmosphere adds physical single scattering,
 sunlight attenuation and aerial perspective; see [atmosphere](atmosphere.md).
 The water model follows one interface; it does not simulate repeated internal
 bounces, full underwater transport, caustics, waves or a physical ocean boundary.
 Terrain outside the bounded patch is empty. No clouds, vegetation, denoising,
-multiple atmospheric scattering, exposure controls or photorealistic-quality guarantee are
-included in this slice. The [roadmap](../ROADMAP.md) assigns those later work.
+multiple atmospheric scattering or photorealistic-quality guarantee are
+included. Exposure controls are available with studio lighting. The [roadmap](../ROADMAP.md) assigns those later work.
 
 ## Resource and lifecycle limits
 
-The first renderer is one original compute kernel, with at most seven terrain
-traversals per pixel sample. A dispatch covers at most 64 × 32 pixels in 8 × 8
+The classic path uses at most seven terrain traversals per pixel sample. Studio
+lighting has up to four terrain vertices per branch. Lake optics adds fixed six-
+direction bed and four-cell medium quadrature, with bounded incoming-light shadows. A dispatch covers at most 64 × 32 pixels in 8 × 8
 workgroups. Only one dispatch is in flight; the next tile waits for GPU completion
 and checks cancellation. Completed image readback occurs once per sample. Work
-ends after the selected sample count; there is no idle render loop. These are
+ends after the selected sample count; live lighting runs a finite 16-sample job after idle and stops. These are
 work bounds, not a hardware-independent latency or watchdog guarantee.
 
 At 960 × 540 the three image buffers total about 11.87 MiB. Geometry adds:
@@ -183,3 +186,17 @@ Opt-in geology adds 64 uniform bytes and fixed bounded procedural work per land
 hit, without texture buffers or geometry displacement. Surface-area ray-cone
 filtering is approximate; normal/transport limitations are documented in the
 [geological surface notes](geological-surfaces.md). Old v1–v6 surfaces remain unchanged.
+
+## Lake optics and live lighting
+
+See [lake optics](water.md) for the v9 equations, limits, image comparisons and
+controls. The trace uniform block is now 320 bytes (two additional vec4 values);
+existing offsets and storage-buffer counts are unchanged. Live lighting uses the
+same kernels at 320 × 180 / 16 samples / 128² terrain after 450 ms idle, with
+per-job disposal and stale-result checks. It never feeds PNG export. Final image
+sizes remain 640 × 360 and 960 × 540; sample choices now extend to 128 and 256.
+
+Browser callbacks `tests/browser-water.mjs`, `tests/browser-water-ui.mjs` and
+`tests/browser-noise.mjs` verify GPU parity, dark/extreme/submerged rays, scene
+upgrade/save/Undo/preview/cancel/WebGL workflows and progressive noise convergence.
+Run through the Playwright CLI against a disposable local app.

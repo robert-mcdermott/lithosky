@@ -5,6 +5,7 @@ async page=>{
   page.on('pageerror',e=>errors.push(e.message));
   await page.setViewportSize({width:1440,height:1080});await page.reload();
   const ready=()=>page.waitForFunction(()=>!document.querySelector('#render-start').disabled,{},{timeout:60000});await ready();
+  await page.locator('#live-preview').uncheck();
   if(await page.getByRole('button',{name:'Keep this scene',exact:true}).isVisible())await page.getByRole('button',{name:'Keep this scene',exact:true}).click();
   await page.locator('#scene-file').setInputFiles(output+'/sunlit-ridges.lithosky');
   await page.waitForFunction(()=>document.querySelector('#file-status').textContent.startsWith('Opened sunlit-ridges.lithosky'));await ready();

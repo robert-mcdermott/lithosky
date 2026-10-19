@@ -74,6 +74,7 @@ fn transportLand(origin:vec3f,direction:vec3f,initial:Hit,seed:ptr<function,u32>
    let surface=geologicalSurface(p,n,footprint);n=surface.normal;color=surface.color;roughness=surface.roughness;
   }
   // Limit shading-normal excursions and reject transport below the actual surface.
+  color=dampShore(color,p);
   if(dot(n,g)<.2){n=normalize(n+g*(.2-dot(n,g)));}
   if(dot(n,-d)<=.001){n=g;}
   let start=p+g*.003;let view=-d;let sun=config.light.xyz;

@@ -6,7 +6,7 @@ import {sculptHeights,extendStroke,MAX_DABS,MAX_STROKES} from '../web/scene/scul
 import {TerrainCache,terrainBudget} from '../web/scene/generation.js';
 import {materialDefaults} from '../web/scene/materials.js';
 import {History,HISTORY_BYTES} from '../web/scene/history.js';
-import {defaultScene,renderState,validateScene,parseScene,serializeScene,MAX_SCENE_BYTES} from '../web/scene/document.js';
+import {legacyScene as defaultScene,renderState,validateScene,parseScene,serializeScene,MAX_SCENE_BYTES} from '../web/scene/document.js';
 import {atmosphereDefaults} from '../web/atmosphere/solar.js';
 import {importedTerrain} from '../web/scene/heightmaps.js';
 import {layeredTerrain} from '../web/scene/noise.js';

@@ -1,7 +1,7 @@
 {
-  "sourceHash": "12ed7651d4e361d96b56d80f420970dce13e50319f070c579842329b786229cf",
+  "sourceHash": "07209d5c479a14229e5639be38d2573a688e493da322e64ac41c07640c72cc26",
   "sceneSHA256": "abc0082679a0ee53f73963cc604b472deb338ff1da987315eee69388c8c40e02",
-  "capturedAt": "2026-10-19T01:05:07.113Z",
+  "capturedAt": "2026-10-19T02:27:02.983Z",
   "records": [
     {
       "name": "material-simple",
@@ -88,7 +88,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 32,
-      "milliseconds": 7533,
+      "milliseconds": 6524,
       "sha256": "f076dd1bc1dcd6ed801965767dce5fe63498ef5b9615273f2d4ba6ac7e010957"
     },
     {
@@ -226,7 +226,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 32,
-      "milliseconds": 6896,
+      "milliseconds": 6681,
       "sha256": "98321ad9cd1d2eff157f50cde4173e37e99091fd652ca0b2b93c0b9ac0491277"
     },
     {
@@ -364,7 +364,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 32,
-      "milliseconds": 6592,
+      "milliseconds": 7194,
       "sha256": "aa45ebe3c9c6bf4c545a2faed76016e1c48c7465ac335b38ee28a041686008ce"
     },
     {
@@ -460,7 +460,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 32,
-      "milliseconds": 6932,
+      "milliseconds": 6531,
       "sha256": "17dc4eba871b107282e8e6395a782e479decc076cfe3734a112da22d4e884068"
     },
     {
@@ -556,7 +556,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 32,
-      "milliseconds": 7902,
+      "milliseconds": 6375,
       "sha256": "ab964f93119588a239bf65282223c56b211bbd121f3c9278aaa69e1b29462bf3"
     }
   ],

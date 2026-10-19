@@ -25,7 +25,7 @@ func TestAssetRecoveryAndDamage(t *testing.T) {
 	if err != nil || id != again {
 		t.Fatal(err)
 	}
-	legacy, err := os.ReadFile("../../docs/site/assets/alpine.lithosky")
+	legacy, err := os.ReadFile("../../tests/fixtures/legacy.lithosky")
 	if err != nil {
 		t.Fatal(err)
 	}

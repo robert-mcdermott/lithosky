@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import { TerrainGenerator } from '../scene/generator.js';
 import { createTracer } from './tracer.js';
+import {lightingPreview} from './preview.js';
 
 // Epoch checks cover pipeline creation, GPU completion, readback and PNG encoding.
 // Only a complete sample from the current scene may be shown or exported.
 export function renderStudio(getState, getTitle, getField = () => null) {
   const $=id=>document.getElementById(id), canvas=$('render-image');
   let epoch=0, controller=null, snapshot=null, available=false, busy=false;
+  const live=lightingPreview(getState,getField,()=>{if(!busy&&canvas.hidden){$('view-kind').textContent='LIGHTING PREVIEW';$('view-description').textContent='Lighting preview · Same water and lighting models, 320 × 180 · 128² terrain. Render a still for final detail and export.';}});
   const options=()=>({width:Number($('render-size').value),height:Number($('render-size').value)*9/16,samples:Number($('render-samples').value),detail:Number($('render-detail').value)});
   function showRender(show) {
     canvas.hidden=!show;
@@ -20,8 +22,10 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     $('export-image').disabled=!snapshot||busy;
     $('render-size').disabled=busy; $('render-samples').disabled=busy; $('render-detail').disabled=busy;
     $('show-preview').disabled=!snapshot||busy;
+    $('live-preview').disabled=busy;
   }
   function invalidate(message) {
+    live.block(false);
     epoch++; controller?.abort(); controller=null; busy=false; snapshot=null;
     $('render-detail-status').textContent='Final terrain: up to '+$('render-detail').value+'² cells, limited by source resolution. Preview remains 128².';
     showRender(false); $('render-progress').value=0;
@@ -29,6 +33,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
   }
   $('render-start').addEventListener('click',async()=>{
     invalidate('Preparing the ray tracer…');
+    live.block(true);
     const ticket=epoch, abort=new AbortController(); controller=abort; busy=true; controls();
     const state=structuredClone(getState()), title=getTitle(), settings=options(), start=performance.now();
     $('render-progress').max=settings.samples;
@@ -69,6 +74,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
   });
   $('show-preview').addEventListener('click',()=>{
     showRender(canvas.hidden);
+    if(canvas.hidden)live.block(false);else live.block(true);
   });
   $('export-image').addEventListener('click',async()=>{
     if (!snapshot || busy) return;
@@ -91,6 +97,6 @@ export function renderStudio(getState, getTitle, getField = () => null) {
   return {
     invalidate,
     preview() { if (busy) invalidate('Render stopped for terrain editing.'); else showRender(false); },
-    setAvailable(value, message) { available=value; invalidate(message ?? (value?'Ready to render a 16:9 still.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.')); },
+    setAvailable(value, message) { available=value;live.setAvailable(value); invalidate(message ?? (value?'Ready to render a 16:9 still.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.')); },
   };
 }

@@ -6,7 +6,7 @@ import { validateStudies } from '../web/scene/studies.js';
 import { defaultScene, parseScene, serializeScene } from '../web/scene/document.js';
 const schema=JSON.parse(fs.readFileSync(new URL('../internal/scene/schema.json',import.meta.url)));
 const source=JSON.parse(fs.readFileSync(new URL('../web/scenes/studies.json',import.meta.url)));
-test('starter scenes validate and round-trip as portable v1 files; default stays stable',()=>{
+test('starter scenes validate and round-trip as current files; defaults use the current renderer',()=>{
   const studies=validateStudies(source,schema);
   assert.deepEqual(studies[0].scene,defaultScene());
   assert.equal(new Set(studies.map(s=>s.scene.terrain.seed)).size,3);

@@ -4,6 +4,12 @@ export const leapYear=year=>year%4===0&&(year%100!==0||year%400===0);
 export function atmosphereDefaults(sunElevation=38) {
   return {model:'earth-single-v1',mode:'manual',sunElevation,sunAzimuth:306.869897645844,latitude:47.6062,longitude:-122.3321,year:2026,day:172,utcMinutes:1200,altitude:0,metresPerUnit:100,aerosols:1,ozone:1};
 }
+// The legacy slider did not describe the normalized vector's true elevation.
+// Convert its actual direction, rather than moving an existing scene's sunlight.
+export function atmosphereFromLegacy(sunElevation=38) {
+  const y=Math.sin(sunElevation*rad),length=Math.hypot(.6,y,.45);
+  return {...atmosphereDefaults(),sunElevation:Math.asin(y/length)/rad,sunAzimuth:(Math.atan2(-.6,-.45)/rad+360)%360};
+}
 // NOAA fractional-year approximation, UTC throughout; no refraction correction.
 export function solarPosition({latitude,longitude,year,day,utcMinutes}) {
   const g=2*Math.PI/(leapYear(year)?366:365)*(day-1+(utcMinutes/60-12)/24);

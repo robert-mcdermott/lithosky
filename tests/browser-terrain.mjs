@@ -12,7 +12,11 @@ async (page) => {
     window.terrainJobs=[];
     TerrainGenerator.prototype.generate=async function(...args){const job={seed:args[0].seed};window.terrainJobs.push(job);try{const result=await original.apply(this,args);job.heights=result.heightsChanged;job.surface=result.surfaceChanged;return result;}catch(error){job.error=error.name;throw error;}};
   });
-  await page.getByRole('button',{name:'Build with layers',exact:true}).click();await ready();
+  // Explicit old-format fixture: new starter studies use v9.
+ const legacyFixture=await page.evaluate(async()=>(await import('/scene/document.js')).legacyScene());
+ await page.locator('#scene-file').setInputFiles({name:'legacy-fixture.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacyFixture))});
+ await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened legacy-fixture.lithosky'));await ready();await page.locator('#live-preview').uncheck();
+ await page.getByRole('button',{name:'Build with layers',exact:true}).click();await ready();
   check(await page.locator('#terrain-layers fieldset').count()===3,'Three initial layers');
   await page.getByRole('combobox',{name:'New layer',exact:true}).selectOption('terrace');
   await page.getByRole('button',{name:'Add layer',exact:true}).click();await ready();
@@ -42,7 +46,7 @@ async (page) => {
   await page.waitForFunction(()=>document.getElementById('scene-name').textContent==='Layered test');
   check(await page.getByRole('spinbutton',{name:'Step height, layer 4',exact:true}).inputValue()==='1.5','Reopened layer settings');
   await page.waitForFunction(()=>document.getElementById('autosave-status').textContent==='Recovery saved on this device');
-  await page.reload();await ready();await page.getByRole('button',{name:'Restore scene',exact:true}).click();
+  await page.reload();await ready();await page.locator('#live-preview').uncheck();await page.getByRole('button',{name:'Restore scene',exact:true}).click();
   await page.waitForFunction(()=>document.getElementById('scene-name').textContent==='Layered test');await ready();
   check(await page.locator('#terrain-layers fieldset').count()===4,'Layered recovery');
   // Cancellation is immediate even for the largest grid; render remains disabled.

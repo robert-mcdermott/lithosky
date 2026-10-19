@@ -1,0 +1,23 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Alpine quiet",
+  "terrain": {
+    "generator": "terrain-v1",
+    "seed": 1847,
+    "elevation": 1,
+    "palette": "natural"
+  },
+  "camera": {
+    "yaw": 0.28,
+    "pitch": 0.3,
+    "distance": 23
+  },
+  "water": {
+    "enabled": true,
+    "level": 0.25
+  },
+  "lighting": {
+    "sunElevation": 38
+  }
+}

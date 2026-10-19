@@ -3,6 +3,7 @@ async (page) => {
   const output=__OUTPUT__;
   await page.setViewportSize({width:1440,height:1080});
   await page.waitForFunction(()=>!document.getElementById('render-start').disabled);
+  await page.locator('#live-preview').uncheck();
   if(await page.getByRole('button',{name:'Keep this scene',exact:true}).isVisible()) await page.getByRole('button',{name:'Keep this scene',exact:true}).click();
   const studies=await page.evaluate(()=>fetch('/scenes/studies.json').then(r=>r.json()));
   const records=[];

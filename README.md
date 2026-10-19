@@ -4,11 +4,11 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 3, slice 4 — light transport and color.** Compose
+**Status: wave 3, slice 5 — lake optics and rendering workflow.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
-with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
-export PNG. WebGPU powers final rendering; WebGL 2 supplies a fallback preview.
+with traced terrain, sun/sky lighting and lake absorption/reflection/refraction, then
+export PNG. WebGPU powers final rendering; WebGL 2 supplies a fallback raster preview.
 The generated site and six-platform packaging are implemented. Native Windows/Linux
 release checks remain pending, so v0.1.0 is not yet tagged or published. See the
 [roadmap](ROADMAP.md) and [release gates](docs/releases.md).
@@ -43,6 +43,10 @@ silently opens an address bar. Browser mode and `--no-open` run until Ctrl+C.
 The server accepts only its exact `127.0.0.1` origin and port. There are no
 outgoing application requests, accounts, telemetry or remote assets.
 
+New scenes use the current geology, atmosphere, studio lighting and lake models.
+Older files open unchanged; **Upgrade rendering** enables missing models together
+in one undo step, preserving the actual sun direction. See [lake optics](docs/water.md).
+
 ## Preview controls
 
 Choose a study, edit its seed, adjust height/light and select a palette. Drag to
@@ -51,6 +55,9 @@ Home resets. **Graphics & compatibility** can force WebGL 2, disable the GPU or
 retry after failure. GPU failure preserves the current in-memory parameters.
 
 ## Terrain layers
+
+Format numbers below are minimum versions for individual capabilities. Scenes
+that retain lake optics save as v9, including layered and imported terrain.
 
 **Build with layers** creates a new landform from rolling hills (fBm), ridges,
 domain warp and terraces. Add, reorder, disable and tune up to eight layers;
@@ -74,9 +81,9 @@ until customized. Material changes reuse generated heights and traversal bounds.
 
 **Use geological surface** adds original solid rock strata/joints, soil/snow
 variation, filtered bump detail and roughness in final renders. Feature scale,
-strata, fractures, bump and roughness are editable. These opt-in surfaces save as
-v7 scenes; old scenes keep their simple materials. Preview colors remain
-approximate. See [geological surfaces](docs/geological-surfaces.md).
+strata, fractures, bump and roughness are editable. These definitions save as
+v7 or later; old scenes keep their simple materials. Raster preview colors remain
+approximate; live lighting uses the final shading kernels. See [geological surfaces](docs/geological-surfaces.md).
 
 **Import heightmap…** accepts 16-bit grayscale PNG or a heightmap bundle, with
 explicit height and physical-scale metadata. Imported terrain supports sculpting
@@ -99,10 +106,10 @@ authoring controls, numerical checks and current limits.
 ## Render and export
 
 Choose **Render image** for a progressive 16:9 still at 640 × 360 or 960 × 540,
-with 8–64 samples per pixel. **Cancel render** keeps the last complete sample;
+with 8–256 samples per pixel. **Cancel render** keeps the last complete sample;
 **Export PNG** saves it in sRGB. Visual edits clear the old render; renaming keeps it.
 Rendering is bounded and local, with no external libraries or services. This first tracer uses
-single-scattering atmosphere and simple water; waves and vegetation
+single-scattering atmosphere and lake optics; large waves and vegetation
 come later. See [rendering](docs/rendering.md) for controls, limits and validation.
 
 ## Scene files and recovery

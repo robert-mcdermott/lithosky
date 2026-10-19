@@ -197,3 +197,41 @@ isolated GPU timing. The dark-tail (1st percentile) display luminance rises from
 21 to 24 when enabling terrain interreflection at identical exposure. The
 additional exposure stop raises it to 37 while the 99th percentile rises from
 175 to 206, leaving highlight headroom in this scene.
+
+## Lake optics and rendering workflow (W3.S5)
+
+The original [Silver basin](site/assets/silver-basin.lithosky) scene uses the
+current v9 rendering models. The [classic-water export](site/assets/water-classic.png)
+and [lake-optics export](site/assets/water-ripples.png) share terrain, camera,
+lighting, exposure, 960 × 540 output, 64 samples and 1024² geometry. Only the
+water model changes. The new model separates blue deep water, visible shallow
+bed, terrain reflections, filtered normal ripples and a damp land-side shoreline.
+It does not displace the mean water surface or add foam/caustics.
+
+Additional controls are demonstrated by [calm water](site/assets/water-calm.png),
+[lower optical density](site/assets/water-clear.png), and a deliberately changed
+camera for the [grazing shoreline](site/assets/water-grazing.png). The latter is
+an additional composition, not a same-camera quality comparison. Exact scenes
+and settings are included per image in the [capture record](site/assets/water-captures.json).
+The [256-sample export](site/assets/water-clean.png) shares the ripple scene's
+camera, geometry and display settings; additional samples reduce stochastic
+noise without denoising or smoothing the terrain.
+
+New starter scenes use the current models. An older file's resolution/sample
+settings do not upgrade its materials or lighting; **Upgrade rendering** is the
+explicit undoable route. The upgrade now converts the actual legacy light vector
+rather than moving the sun to an unrelated azimuth. Idle WebGPU lighting preview
+uses the exact final kernels at 320 × 180 / 16 samples / 128² terrain. It reduces
+surprises in water color and illumination while remaining a coarse view.
+
+The user's supplied scene was reproduced privately with the same camera, terrain,
+water level and sunlight direction. It is not part of the public gallery or
+repository. The lake remains visibly water in the upgraded still and exported
+PNG. Original files are retained. These results improve the specific failure;
+they are not a claim that the overall renderer has reached photographic quality.
+Finite-patch horizon artifacts, procedural surface repetition, clear single-
+scattering skies and missing vegetation/clouds remain visible. W3.S6 owns the
+larger camera/composition review; later waves add the sky and ecological systems.
+
+Measurements in the S1–S4 sections above describe those slices' original runs.
+Refreshed capture manifests contain the current build's hashes and local timings.

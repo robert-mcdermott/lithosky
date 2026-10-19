@@ -1,14 +1,14 @@
 {
-  "version": "0.3.0-dev.4",
+  "version": "0.3.0-dev.5",
   "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
-  "capturedAt": "2026-10-19T01:06:17.664Z",
-  "sourceHash": "12ed7651d4e361d96b56d80f420970dce13e50319f070c579842329b786229cf",
+  "capturedAt": "2026-10-19T02:28:05.950Z",
+  "sourceHash": "07209d5c479a14229e5639be38d2573a688e493da322e64ac41c07640c72cc26",
   "records": [
     {
       "id": "alpine",
       "scene": {
         "format": "lithosky",
-        "version": 1,
+        "version": 9,
         "title": "Alpine quiet",
         "terrain": {
           "generator": "terrain-v1",
@@ -23,23 +23,74 @@
         },
         "water": {
           "enabled": true,
-          "level": 0.25
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
         },
         "lighting": {
-          "sunElevation": 38
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
       "detail": 512,
-      "sha256": "93970b7c3da9a31fb267b163956caad4bd234988084f181e4cd076cfdca94701"
+      "sha256": "178eefaa7a1ace9efca4241cfcba97ecb7c1d83a150f1f91e4891e7fb536c772"
     },
     {
       "id": "highland",
       "scene": {
         "format": "lithosky",
-        "version": 1,
+        "version": 9,
         "title": "Evening highlands",
         "terrain": {
           "generator": "terrain-v1",
@@ -54,23 +105,74 @@
         },
         "water": {
           "enabled": true,
-          "level": 1.1
+          "level": 1.1,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
         },
         "lighting": {
-          "sunElevation": 12
+          "sunElevation": 12,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 15.494202934499175,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
       "detail": 512,
-      "sha256": "f70a0120a883f156f67688d0ca3e65a0308542c64b173b11a6ee10d49a91840e"
+      "sha256": "bd39e4266b7b4948b3082b7b1f3a2704ed0cae5edb147450109af58bd76aa1d3"
     },
     {
       "id": "distant",
       "scene": {
         "format": "lithosky",
-        "version": 1,
+        "version": 9,
         "title": "A distant world",
         "terrain": {
           "generator": "terrain-v1",
@@ -85,18 +187,69 @@
         },
         "water": {
           "enabled": true,
-          "level": 2.7
+          "level": 2.7,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
         },
         "lighting": {
-          "sunElevation": 25
+          "sunElevation": 25,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 29.40086862930625,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
       "detail": 512,
-      "sha256": "570bd038cbb725c5d5ac68ddbc6c98a8bf97439a33eeef8899c59092d180b378"
+      "sha256": "dd586111bfc085514a408e3f7b991ec4a87572ae635d388406e1aa6caa5f8289"
     }
   ],
-  "studioSHA256": "57408699d608685aff52d12bd21f07320bb00378d73fd8558096fb9d4891c50e"
+  "studioSHA256": "4cc74f28a11bcf26b14b3f6fc5f17537017501c4479b2e9d005254a1dc839174"
 }

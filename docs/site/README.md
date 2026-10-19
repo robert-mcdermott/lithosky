@@ -80,8 +80,9 @@ Before advertising a release, update the install page and changelog to the actua
 published status, refresh captures if necessary, and rerun validation.
 
 The guide also offers the original `assets/daylight.lithosky` v6 atmosphere scene.
-It is checked against the shared scene schema by the site test. The three gallery
-starters retain their artistic lighting; they do not depict the physical model.
+It is checked against the shared scene schema by the site test. The three gallery starters now use the current v9 models, including physical
+atmosphere and lake optics. Older downloadable comparison scenes retain their
+explicit models.
 
 The gallery also includes an original final-terrain detail comparison. After
 rebuilding the app, run `node docs/capture/detail-run.mjs http://127.0.0.1:PORT`
@@ -95,5 +96,10 @@ Geological material comparisons use `docs/capture/material-run.mjs` with the sam
 isolated app/CLI workflow. It captures matching landscape views, rock/ground/snow
 reference views and unscaled 256×128 crops, verifies saved scene content, and runs
 actual CPU/GPU material probes. Builds validate source/scene/image provenance in
-`material-captures.json`; rerun all three capture commands after render sources
+`material-captures.json`; rerun all capture commands after render sources
 change. The original Weathered highlands scene uses opt-in v7 surfaces.
+
+Lake comparisons use `node docs/capture/water-run.mjs http://127.0.0.1:PORT`.
+The Silver basin v9 scene provides classic/calm/ripple/clear/grazing exports and
+a 256-sample comparison. The source/scene/image hashes, settings, device/timings
+and real GPU water probes are verified by the site builder.

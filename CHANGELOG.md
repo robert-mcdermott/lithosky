@@ -1,8 +1,20 @@
 # Changelog
 
+## 0.3.0-dev.5 — wave 3 slice 5 (local development)
+
+- Add saved v9 lake optics: incoming/view attenuation, refracted bed illumination,
+  light-dependent single scattering, filtered normal ripples and damp shores.
+- Enable current models in new/default starter scenes; retain old files unchanged
+  and offer one undoable rendering upgrade preserving actual sunlight direction.
+- Add a cancellable shared-kernel WebGPU lighting preview; retain immediate raster
+  feedback and WebGL fallback. Keep desktop scene file actions visible.
+- Extend sampling to 256, label samples separately from geometry detail, and add
+  original water/noise comparisons with strict capture provenance.
+- Native release gates and integrated photographic-quality review remain open.
+
 ## v0.3.0 — unreleased
 
-Development build: 0.3.0-dev.3. Wave 3, slice 3:
+Earlier development build: 0.3.0-dev.3. Wave 3, slice 3:
 
 - Opt-in per-hit geological surfaces with original solid rock strata, angular joints, soil/snow variation and bump detail.
 - Filtered multiscale detail, world-space mapping and bounded normal perturbations; rough diffuse response uses spatially varying roughness.

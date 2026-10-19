@@ -8,6 +8,7 @@ struct Config {
   atmosphereExtra: vec4f, // ozone multiplier, observer altitude km
   material:vec4f, rules:vec4f, geology:vec4f, finish:vec4f,
   transport:vec4f, transportExtra:vec4f, transportLights:vec4f,
+  water:vec4f, waterExtra:vec4f,
 }
 struct Vertex { position: vec4f, normal: vec4f, color: vec4f }
 struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
@@ -135,6 +136,7 @@ fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>, prior:f32) -> vec3f
     if(dot(n,geometric)<.1){n=normalize(n+geometric*(.1-dot(n,geometric)));}
   }
   let start=p+geometric*.003;
+  color=dampShore(color,p);
   let sun=config.light.xyz;
   var visibility=select(0.0,1.0,terrain(start,sun,150).t>=1e6);
   if(geological && dot(sun,geometric)<=0){visibility=0;}
@@ -158,6 +160,7 @@ fn trace(o: vec3f, d: vec3f, seed: ptr<function,u32>) -> vec3f {
     if(config.bounds.z>.5&&abs(d.y)>1e-8){let t=(config.bounds.w-o.y)/d.y;if(t>.001&&all(abs((o+d*t).xz)<=vec2f(32))){limit=min(limit,t);}}
     let e=emitter(o,d,limit);if(e.index<4u){let light=areaLights[e.index];return aerial(o,d,e.t,light.color.xyz*light.position.w*select(0.0,1.0,dot(d,light.normal.xyz)<0));}
   }
+  if(config.water.x>.5&&config.bounds.z>.5){return lakeTrace(o,d,ground,seed);}
   if (config.bounds.z<.5 || abs(d.y)<1e-8) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed,0)); }
   let waterT=(config.bounds.w-o.y)/d.y; let p=o+d*waterT;
   if (waterT<.001 || waterT>=ground.t || any(abs(p.xz)>vec2f(32))) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed,0)); }

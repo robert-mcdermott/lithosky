@@ -31,7 +31,7 @@ async page => {
   await page.locator('.workspace').evaluate(el=>{el.scrollTop=0;});
   await page.locator('.inspector').evaluate(el=>{el.scrollTop=0;});
   check(await page.evaluate(()=>scrollY===0),'Resize retained document scroll');
-  await page.getByRole('button',{name:'Use physical atmosphere',exact:true}).click();
+  if(await page.locator('#enable-atmosphere').isVisible())await page.locator('#enable-atmosphere').click();
   const anchored=await page.evaluate(()=>CSS.supports('appearance','base-select'));
   check(anchored,'Run anchored-menu regression in a browser supporting base-select');
   // Visible option rectangles must stay adjacent to their trigger and on screen,
