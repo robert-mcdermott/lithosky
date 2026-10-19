@@ -1,0 +1,22 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lithosky · rendering spike</title>
+  <link rel="icon" href="../favicon.svg">
+  <link rel="stylesheet" href="spike.css">
+  <script type="module" src="main.js"></script>
+</head>
+<body>
+  <main class="stage">
+    <canvas id="view" aria-label="Path-traced alpine landscape"></canvas>
+    <p id="message" class="message" role="alert" hidden></p>
+  </main>
+  <footer class="strip">
+    <div id="controls" class="controls"></div>
+    <output id="stats" class="stats" aria-live="polite">Starting WebGPU…</output>
+  </footer>
+</body>
+</html>
