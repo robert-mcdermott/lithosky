@@ -39,4 +39,4 @@ Notes:
 Average: 2.2. Lowest criteria: sky, landform, materials. That ordering matches
 the Wave 4 slice sequence.
 
-Status: draft, awaiting owner review.
+Status: baseline recorded. Each later slice is reviewed against it with a side-by-side.

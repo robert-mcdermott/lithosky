@@ -150,7 +150,6 @@ Measured on an Apple M4 at 1080p:
 
 Also done:
 
-- Tagged Wave 3's merge commit (51e7e30) as `legacy-renderer-w3`.
 - Added hero scenes H1–H6 to `bench/hero/`, with a rubric guide and a
   scores sheet.
 - Added `bench/hero.mjs`, which renders the shots and composes a contact
@@ -421,9 +420,6 @@ These are re-sequenced by visual impact and become Waves 6 and later:
 - Docs are updated only where behavior changed.
 
 ## Foundation delivered in Waves 1–3
-
-The tag `legacy-renderer-w3` (added in W4.S1) preserves the previous detailed
-slice plans and validation docs.
 
 - **W1:**
   - embedded Go server and app-window launcher
