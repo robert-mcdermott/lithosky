@@ -22,7 +22,7 @@ export function heightmapControls({getScene,getVersion,commit,request,generate,i
       const scale={format:'lithosky-heightmap',version:1,resolution,minimum:Number($('heightmap-minimum').value),maximum:Number($('heightmap-maximum').value),metersPerUnit:Number($('heightmap-metres').value),elevation:1,rowOrder:'z-increasing'};
       const response=await request('/api/heightmap/import',{body:data,headers:{'X-Lithosky-Scale':JSON.stringify(scale)}}),imported=await response.json();
       if(before!==getVersion())throw new Error('The scene changed while importing. Try Import again.');
-      commit(scene=>{scene.terrain=importedTerrain(scene.terrain,imported.asset,imported.scale);updateSceneVersion(scene);});
+      if(commit(scene=>{scene.terrain=importedTerrain(scene.terrain,imported.asset,imported.scale);updateSceneVersion(scene);})===false)throw Error('Terrain edit was not applied. Check object locks.');
       status('Heightmap imported. Undo restores the previous landform. Save scene includes the height samples.');
     } catch(error){status('Could not import: '+error.message);}finally{busy=false;sync();}
   });

@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v10 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v11 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere, v7 geological surfaces, v8 studio light transport/color, v9 lake optics and v10 camera/framing. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere, v7 geological surfaces, v8 studio light transport/color, v9 lake optics and v10 camera/framing and v11 entities/components. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -285,3 +285,39 @@ Render region and output dimensions remain temporary UI settings. Opening
 v1–v9 preserves the old pinhole exactly. Use photographic camera, or an explicit
 pan gesture, enables the new camera as one undoable edit. Model interpretation,
 physical units and migration tests are documented in [camera](camera.md).
+
+## Version 11 entities and components
+
+V11 contains exactly `format`, `version`, `title` and `entities`. The 4–64 entities
+have exactly `id`, `name`, `parent`, `visible`, `locked` and `components`. IDs
+match `[a-z][a-z0-9-]{0,47}` and are unique; names are 1–40 Unicode code points
+and cannot be all whitespace. Parent is the empty string for the scene root, or
+a group ID. Missing, non-group, self/cyclic and more-than-eight-ancestor parents
+are rejected. Visibility and locks inherit through groups without rewriting
+child flags. Selection/search/expansion/tool state is not saved.
+
+Each component set has one role: `terrain` (plus optional `surface`), `water`,
+`camera`, `environment`, `areaLight` or `group`. Exactly one terrain, water, camera
+and environment is required. Their parameter/model definitions retain the earlier
+versions’ bounds. The camera accepts legacy pinhole or thin-lens data; it must
+remain visible and unparented. Environment contains `lighting` and optional
+`atmosphere`; its transport omits the old inline `lights` array. Up to four
+area-light entities carry the old numeric/enabled fields, with their name in
+entity metadata. Lights require studio transport. A group component is `{}`.
+Unknown component sets and fields fail validation. The root has no duplicate
+terrain, camera, lighting, water or surface data.
+
+The editor creates an ephemeral legacy control view, maps edits back to the owning
+entities and validates one history transaction. Opening old files leaves them
+unchanged; a first authored object command migrates their original values and
+model IDs. Existing emitters get stable migration IDs; newly authored entities
+get fresh IDs. Subsequent component edits do not regenerate identities.
+Deleting a group promotes its children; deleting core singleton components is
+unsupported. Locks are editor command policy, not a restriction on explicitly
+opening/replacing a whole document.
+
+Asset lookup follows the terrain component. Imported samples remain in the
+existing portable ZIP container, with the same checksum, dimensions, recovery
+references and 20 MiB budget. Scalar scenes keep the 128 KiB budget.
+Go and JS share structural schema and semantic graph fixtures. See
+[authoring behavior and validation](scene-authoring.md).

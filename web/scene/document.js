@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import {enableCamera} from '../camera/model.js';
+import {sceneView,validateEntities,kindOf,entityState,editScene} from './entities.js';
 import {leapYear} from '../atmosphere/solar.js';
 import {atmosphereFromLegacy} from '../atmosphere/solar.js';
 import {materialDefaults} from './materials.js';
@@ -14,6 +15,7 @@ export function legacyScene() {
     water: { enabled: true, level: 0.25 }, lighting: { sunElevation: 38 } };
 }
 export function upgradeScene(scene) {
+  if(scene.version===11){editScene(scene,upgradeScene);return scene;}
   scene.surface??=materialDefaults();scene.surface.geology??=geologyDefaults();
   scene.atmosphere??=atmosphereFromLegacy(scene.lighting.sunElevation);
   scene.lighting.transport??={...transportDefaults(),exposure:2.75};
@@ -21,12 +23,12 @@ export function upgradeScene(scene) {
   return updateSceneVersion(scene);
 }
 export function defaultScene() {const scene=enableCamera(upgradeScene(legacyScene()));scene.atmosphere.groundAlbedo=.12;return scene;}
-export function currentRendering(scene) {return !!(scene.surface?.geology&&scene.atmosphere&&scene.lighting.transport&&scene.water.optics);}
+export function currentRendering(scene) {scene=sceneView(scene);return !!(scene.surface?.geology&&scene.atmosphere&&scene.lighting.transport&&scene.water.optics);}
 
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1–10.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1–11.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {
@@ -62,8 +64,10 @@ export function validateScene(value, schema) {
     if (rule.enum && !rule.enum.includes(value)) fail('unsupported value');
   }
   check(value, schema, 'scene');
-  if(value.terrain.generator==='heightmap-v1' && (!/^[a-f0-9]{64}$/.test(value.terrain.asset)||value.terrain.minimum>value.terrain.maximum))throw new Error('Invalid heightmap reference or range.');
-  if(value.atmosphere && value.atmosphere.day===366 && !leapYear(value.atmosphere.year))throw new Error('Day 366 requires a leap year.');
+  if(value.version===11)validateEntities(value);
+  const view=sceneView(value);
+  if(view.terrain.generator==='heightmap-v1' && (!/^[a-f0-9]{64}$/.test(view.terrain.asset)||view.terrain.minimum>view.terrain.maximum))throw new Error('Invalid heightmap reference or range.');
+  if(view.atmosphere && view.atmosphere.day===366 && !leapYear(view.atmosphere.year))throw new Error('Day 366 requires a leap year.');
   if (new TextEncoder().encode(JSON.stringify(value)).length > MAX_SCENE_BYTES) throw new Error('Scene exceeds 128 KiB.');
   return structuredClone(value);
 }
@@ -78,7 +82,15 @@ export function serializeScene(scene, schema) {
   return new TextEncoder().encode(text).length <= MAX_SCENE_BYTES ? text : JSON.stringify(valid) + '\n';
 }
 export function renderState(scene) {
-  return { ...scene.terrain, materials: scene.surface, atmosphere: scene.atmosphere, transport: scene.lighting.transport, waterOptics:scene.water.optics, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
+  const graph=scene.version===11?scene:null;scene=sceneView(scene);
+  const state={ ...scene.terrain, materials: scene.surface, atmosphere: scene.atmosphere, transport: scene.lighting.transport, waterOptics:scene.water.optics, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
+  if(graph){const visible=kind=>entityState(graph,graph.entities.find(n=>kindOf(n)===kind).id).visible;
+    state.terrainVisible=visible('terrain');state.waterEnabled&&=visible('water');state.environmentVisible=visible('environment');
+    if(state.transport)state.transport={...state.transport,lights:graph.entities.filter(n=>kindOf(n)==='light').map(n=>({...n.components.areaLight,enabled:n.components.areaLight.enabled&&entityState(graph,n.id).visible}))};
+    if(!state.environmentVisible)state.transport={...(state.transport??transportDefaults()),sun:0,sky:0};
+  }
+  if(state.transport)state.transport={...state.transport,lights:state.transport.lights.map(({name,...light})=>light)};
+  return state;
 }
 export function wrapYaw(yaw) { return ((yaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; }
 
@@ -89,6 +101,7 @@ export function sceneKey(scene) {
 
 // Choose the minimum format that preserves every enabled scene capability.
 export function updateSceneVersion(scene) {
+  if(scene.entities){scene.version=11;return scene;}
   scene.version=scene.camera.lens?10:scene.water.optics?9:scene.lighting.transport?8:scene.surface?.geology?7:scene.atmosphere?6:scene.terrain.generator==='heightmap-v1'?5:scene.surface?4:scene.terrain.generator==='layers-v1'?(scene.terrain.sculpt?3:2):1;
   if(scene.version>=3&&scene.terrain.generator==='layers-v1')scene.terrain.sculpt??=[];
   return scene;

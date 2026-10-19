@@ -21,9 +21,9 @@ uniform vec4 light, fog;
 out vec4 outputColor;
 void main() {
   float diffuse = max(0.0, dot(normalize(vNormal), light.xyz));
-  vec3 lit = vColor * (0.32 + diffuse * 0.85);
+  vec3 lit = vColor * (0.32 + diffuse * 0.85) * (1.0-light.w);
   float haze = 1.0 - exp(-vDistance*vDistance*0.00042);
-  outputColor = vec4(mix(lit, fog.xyz, haze), 1.0);
+  outputColor = vec4(mix(lit, fog.xyz*(1.0-light.w), haze), 1.0);
 }`;
 
 export function createWebGL(canvas, onLost) {

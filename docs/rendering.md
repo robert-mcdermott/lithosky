@@ -34,7 +34,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files support v1–v10. Draft
+These choices are transient render settings; scene files support v1–v11. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.

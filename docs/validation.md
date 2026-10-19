@@ -957,3 +957,57 @@ and scene download. The refreshed lighting PNG comparison still passes positive
 bounce/exposure contributions with no exposure-induced luminance drop beyond the
 rounding tolerance. The final private Alpine still completes at 960 × 540 /
 1024² in 12.3 s at 64 samples and 44.2 s at 256 samples on this machine.
+
+## Wave 3 slice 7 — editable scene foundation
+
+Build `0.3.0-dev.7` adds v11 entity documents and the Objects workspace. Original
+v1–v10 scenes retain their format until an authored object command migrates them
+in one Undo transaction. Selection, search, tool mode and tree expansion leave
+the document and finished render untouched. Component values are stored once;
+temporary adapters keep the existing terrain, water, camera and lighting tools
+working against stable entity identities.
+
+Shared Go/JavaScript fixtures reject malformed components, duplicate IDs, missing
+core roles, cyclic/dangling/non-group parents, excessive size/depth, blank names,
+and hidden/grouped active cameras. Command tests cover inherited locks, direct
+control bypass attempts, locked descendants during group deletion/regrouping,
+light identity through edits/reordering, Undo/Redo and visibility/cache behavior.
+Portable v11 imported-heightmap containers preserve exact samples and graph
+metadata; a restart recovery test independently checks the component asset path.
+`go test -race ./...` and `go vet ./...` pass, including the standalone binary
+smoke test outside the checkout.
+
+The browser workflow checks list/viewport selection, migration/Undo, metadata
+render preservation, inherited locks, camera keyboard protection, group hiding,
+real area-light duplication/deletion, independent light editing beside locked
+environment/light entities, named save/reopen and recovery. Object
+editing works with WebGL preview. The compact Objects dialog passes at 768, 390
+and 320 pixels without document overflow; tree keyboard navigation retains a tab
+stop when the selected child is collapsed out of view.
+
+Actual WebGPU output before/after all-visible migration matches over 57,600
+pixels with **zero differing bytes**. Hidden terrain misses intersection probes;
+removing terrain/water leaves the sky, hiding the environment produces zero lit
+pixels, and an independent area light remains renderable. Original visible and
+hidden-group basin captures demonstrate component visibility without baking it
+into saved settings. Selection guides never enter PNG export. Capture provenance
+is recorded in `entity-captures.json` alongside the original example document.
+
+This slice establishes editing correctness, not photographic credibility. Picking
+uses the central camera ray and preview field; fine geometry and depth of field
+can differ. There is one terrain, water, environment and active camera, at most
+four area lights, 64 entities and eight group ancestors. Groups organize objects
+without transforms. Primitives, transform handles and multi-selection remain
+the next slice. The [photographic visual gate](visual-quality.md) and native
+Windows/Linux release checks remain open.
+
+Final checks: **227 JavaScript tests pass**. All seven capture families have
+current source/scene/image provenance. The generated site builds and checks four
+pages, 170 links and 29 image references. All **43 pre-existing landscape PNGs**
+are byte-identical to `7eec883`; the studio screenshot is refreshed for the new
+workspace. This is a compatibility result, not a photographic-quality score.
+The final renderer smoke passes 1,024 intersection rays, displayed/exported PNG
+pixel equality, cancellation, stale-output rejection, device loss/retry and WebGL
+fallback with no unexpected browser errors. All four generated pages pass at
+1440px and 390px, including image decodes, local-resource policy, navigation,
+keyboard focus and scene download, with no browser errors or overflow.

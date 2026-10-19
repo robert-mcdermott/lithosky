@@ -1,6 +1,6 @@
 {
-  "sourceHash": "0646871e06fc005ec111d013199c0063733e91b22b346dd13aa33488323b57a6",
-  "capturedAt": "2026-10-19T03:11:15.148Z",
+  "sourceHash": "10691b037b79508616f1898ab27f4304c3694823f9add9d05984ac0fb2399df1",
+  "capturedAt": "2026-10-19T04:18:43.070Z",
   "diagnostics": {
     "reports": [
       {
@@ -43,21 +43,21 @@
         "width": 2048,
         "height": 1152,
         "samples": 1,
-        "milliseconds": 450.89999985694885,
+        "milliseconds": 864,
         "imageBuffersBytes": 56623104
       },
       {
         "width": 1365,
         "height": 2048,
         "samples": 1,
-        "milliseconds": 564.2000000476837,
+        "milliseconds": 1283.1999998092651,
         "imageBuffersBytes": 67092480
       },
       {
         "width": 2048,
         "height": 2048,
         "samples": 1,
-        "milliseconds": 789.2000000476837,
+        "milliseconds": 1561.6000001430511,
         "imageBuffersBytes": 100663296
       }
     ],
@@ -227,7 +227,7 @@
       "height": 1365,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 91293,
+      "milliseconds": 141213,
       "imageBuffersBytes": 67092480,
       "sha256": "4bb117d6f192d47952f17c2e458b40da7b2ea9abfd463971339684fdc5465cac"
     },
@@ -365,7 +365,7 @@
       "height": 1365,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 56262,
+      "milliseconds": 86525,
       "imageBuffersBytes": 67092480,
       "sha256": "b341688daafc79979beed5a51c8ebf52dff43129cb58e2b140ebee50d6d89397"
     },
@@ -535,7 +535,7 @@
       "height": 2048,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 77105,
+      "milliseconds": 124141,
       "imageBuffersBytes": 67092480,
       "sha256": "8b1355d203253de973b68f1b2ff2e42f7b0015eabded7cfdfa271ea15d41f970"
     },

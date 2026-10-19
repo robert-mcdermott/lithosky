@@ -19,7 +19,7 @@ export function baseKey(state) {
 }
 export const heightKey = state => JSON.stringify([baseKey(state), state.sculpt ?? []]);
 export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette, state.seed, state.materials ?? null]);
-export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0, state.waterOptics ?? null]);
+export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0, state.waterOptics ?? null,state.terrainVisible!==false]);
 const yieldTask = () => new Promise(resolve => setTimeout(resolve, 0));
 function canceled(signal) { if (signal?.aborted) throw new DOMException('Terrain generation canceled.', 'AbortError'); }
 
@@ -72,11 +72,12 @@ function buildSurface(base, state) {
   return { vertices, low, high };
 }
 function buildPreview(field, base, state) {
+  if(state.terrainVisible===false&&!state.waterEnabled)return new Float32Array(0);
   const points = new Float32Array((RENDER_GRID+1) ** 2 * 9);
   for (let i=0;i<points.length/9;i++) {
     const v=field.vertices, j=i*12;
     // Retain traced terrain reflectance unless a preview water surface covers it.
-    const rawHeight=base.samples[i*5]*state.elevation;
+    const rawHeight=state.terrainVisible===false?state.waterLevel-1:base.samples[i*5]*state.elevation;
     const water=state.waterEnabled && rawHeight<state.waterLevel;
     const p=water ? surfacePoint(v[j],v[j+2],rawHeight,[0,1,0],state) : [...v.slice(j,j+3),...v.slice(j+4,j+7),...v.slice(j+8,j+11)];
     points.set(p,i*9);
@@ -145,4 +146,4 @@ export class TerrainCache {
   }
 }
 
-export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null, state.waterOptics ?? null,state.lens??null]);
+export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null, state.waterOptics ?? null,state.lens??null,state.environmentVisible!==false]);

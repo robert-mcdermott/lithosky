@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0-dev.7 — wave 3 slice 7 (local development)
+
+- Add a versioned entity/component scene model with stable IDs, strict graph
+  validation and portable asset/recovery support; old scenes retain their models.
+- Add searchable Objects, viewport picking, selection-driven inspection,
+  names, visibility, locks, groups, reparenting and light duplication/deletion.
+- Enforce inherited locks through the common editing command path. Apply
+  inherited visibility to raster, live lighting, final rays and picking.
+- Keep selection/guides outside saved scene data and exported images. Add
+  original editing examples, GPU/workflow evidence and product-site guidance.
+- Transform handles/primitives remain in the next slice. Photographic visual
+  acceptance and native-platform release gates remain open.
+
 ## 0.3.0-dev.6 — wave 3 slice 6 (local development)
 
 - Add a saved v10 thin-lens camera, focal length, aperture/focus, roll, pan target

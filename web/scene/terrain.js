@@ -62,5 +62,5 @@ export function frameUniforms(state, aspect) {
   const camera=cameraFrame(state,aspect);
   const light = state.atmosphere ? sunDirection(state.atmosphere) : normalize([-0.6, Math.sin(state.sun * Math.PI / 180), 0.45]);
   const fog = state.palette === 'otherworld' ? [0.39, 0.37, 0.53] : [0.57, 0.66, 0.67];
-  return new Float32Array([...camera, ...light, 0, ...fog, 0]);
+  return new Float32Array([...camera, ...light, state.environmentVisible===false?1:0, ...fog, 0]);
 }

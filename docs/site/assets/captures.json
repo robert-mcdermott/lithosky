@@ -1,8 +1,8 @@
 {
-  "version": "0.3.0-dev.6",
+  "version": "0.3.0-dev.7",
   "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
-  "capturedAt": "2026-10-19T03:26:29.658Z",
-  "sourceHash": "0646871e06fc005ec111d013199c0063733e91b22b346dd13aa33488323b57a6",
+  "capturedAt": "2026-10-19T04:29:53.691Z",
+  "sourceHash": "10691b037b79508616f1898ab27f4304c3694823f9add9d05984ac0fb2399df1",
   "records": [
     {
       "id": "alpine",
@@ -293,5 +293,5 @@
       "sha256": "45ab9f74d92ca75cb0a47d03cdbf92cdb95d4e5911773eaef7292dc7da712ad5"
     }
   ],
-  "studioSHA256": "a8a58305e0207f3bd4288cbe024127a1db8bf61a9d5e6353b86878880a1dd0f9"
+  "studioSHA256": "cbb8a3f101c994af2da7469d57873b395bf0d0463b2bf506c98dcd4321a45bff"
 }

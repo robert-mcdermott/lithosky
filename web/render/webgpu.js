@@ -14,9 +14,9 @@ struct Vertex { @builtin(position) position: vec4f, @location(0) normal: vec3f, 
 }
 @fragment fn fragmentMain(v: Vertex) -> @location(0) vec4f {
   let diffuse = max(0.0, dot(normalize(v.normal), camera.light.xyz));
-  let lit = v.color * (0.32 + diffuse * 0.85);
+  let lit = v.color * (0.32 + diffuse * 0.85) * (1-camera.light.w);
   let haze = 1.0 - exp(-v.distance * v.distance * 0.00042);
-  return vec4f(mix(lit, camera.fog.xyz, haze), 1.0);
+  return vec4f(mix(lit, camera.fog.xyz*(1-camera.light.w), haze), 1.0);
 }`;
 
 export async function createWebGPU(canvas, onLost) {
@@ -58,7 +58,7 @@ export async function createWebGPU(canvas, onLost) {
       details: `WebGPU · max texture ${device.limits.maxTextureDimension2D} px · ${Math.round(device.limits.maxStorageBufferBindingSize / 1048576)} MiB storage binding`,
       setMesh(mesh) {
         vertexBuffer?.destroy();
-        vertexBuffer = device.createBuffer({ size: mesh.byteLength, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
+        vertexBuffer = device.createBuffer({ size: Math.max(4,mesh.byteLength), usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST });
         device.queue.writeBuffer(vertexBuffer, 0, mesh); count = mesh.length / 9;
       },
       draw(values) {

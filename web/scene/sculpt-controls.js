@@ -59,7 +59,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
   }
   function apply(staged) {
     if(!staged?.points.length)return;
-    try {commit(scene=>{scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);updateSceneVersion(scene);});status('Stroke applied. Undo restores the preceding terrain.');}
+    try {if(commit(scene=>{scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);updateSceneVersion(scene);})===false)status('Stroke was not applied. Check object locks.');else status('Stroke applied. Undo restores the preceding terrain.');}
     catch(error){status('Could not apply stroke: '+error.message);}
     sync();
   }

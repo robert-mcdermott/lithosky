@@ -69,6 +69,7 @@ fn cells(o: vec3f, d: vec3f, limit: f32, lo: vec3f, hi: vec3f, first: vec2i, las
   return miss();
 }
 fn terrain(o: vec3f, d: vec3f, limit: f32) -> Hit {
+  if(config.atmosphereExtra.w>.5){return miss();}
   let lo=vec3f(-32,config.bounds.x-.001,-32); let hi=vec3f(32,config.bounds.y+.001,32);
   if (!useHierarchy) { return cells(o,d,limit,lo,hi,vec2i(0),vec2i(i32(grid))); }
   var near=.001; var far=limit;

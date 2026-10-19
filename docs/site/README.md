@@ -111,3 +111,10 @@ exports three original 2K/64-sample/Fine compositions, nine unscaled 256×128 cr
 and an explicit pinhole/thin-lens study. `camera-captures.json` records the scenes,
 source/image hashes, settings, budgets, device and timings. Site generation
 validates provenance; these are rendering studies, not a photographic-quality claim.
+
+Entity/authoring captures use `node docs/capture/entity-run.mjs http://127.0.0.1:PORT`.
+The original v11 Editable basin file, visible/hidden-group renders and workspace
+screenshot are checked against editing/recovery/WebGL and actual GPU results.
+`entity-captures.json` records current source/scene/image hashes and measured
+settings. The site validates and copies these public assets explicitly. This
+example demonstrates editing behavior; photographic acceptance remains open.

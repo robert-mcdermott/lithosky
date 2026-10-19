@@ -18,6 +18,7 @@ test('site generates all pages and portable scenes with checked capture provenan
     const lake=JSON.parse(fs.readFileSync(path.join(out,'assets/silver-basin.lithosky')));assert.equal(validateScene(lake,schema).version,9);assert.equal(lake.water.optics.model,'lake-v1');
     for(const id of ['mountain','coast','snow']){const composition=JSON.parse(fs.readFileSync(path.join(out,'assets',id+'-composition.lithosky')));assert.equal(validateScene(composition,schema).version,10);assert.equal(composition.camera.lens.model,'thin-lens-v1');}
     const camera=JSON.parse(fs.readFileSync(path.join(out,'assets/camera-captures.json')));assert.equal(camera.records.length,14);assert.ok(camera.diagnostics.regions.every(r=>r.different===0));
+    const editable=JSON.parse(fs.readFileSync(path.join(out,'assets/editable-basin.lithosky')));assert.equal(validateScene(editable,schema).version,11);assert.ok(editable.entities.some(n=>n.components.group));const entities=JSON.parse(fs.readFileSync(path.join(out,'assets/entity-captures.json')));assert.equal(entities.gpu.migrationDifferences,0);assert.ok(entities.workflow.groupLocks);
     assert.equal(buildSite(out).links,report.links);
     fs.appendFileSync(path.join(out,'index.html'),'<a href="guide.html#nonexistent">Bad link</a>');assert.throws(()=>checkSite(out),/missing anchor/);
     buildSite(out);fs.rmSync(path.join(out,'assets','alpine.png'));assert.throws(()=>checkSite(out),/missing local target/);

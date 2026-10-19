@@ -80,6 +80,7 @@ export async function createTracer(state, options, preparedField = null) {
     uints.set([width,height,0,state.seed],28);
     const atmosphere=state.atmosphere?await buildAtmosphere(state.atmosphere,floats[1],sunDirection(state.atmosphere),{signal:options.signal}):{data:new Float32Array(4)};
     if(state.atmosphere){const a=state.atmosphere;floats.set([1,a.altitude/1000,a.metresPerUnit/1000,a.aerosols,a.ozone,atmosphere.height,0,0],36);}
+    floats[43]=state.terrainVisible===false?1:0;
     const skyBuffer=buffer(atmosphere.data.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
     device.queue.writeBuffer(skyBuffer,0,atmosphere.data);
     device.queue.writeBuffer(uniform,0,config);

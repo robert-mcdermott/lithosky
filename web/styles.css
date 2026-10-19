@@ -776,3 +776,34 @@ main:has(.inspector[hidden]) { --controls-width:0px; }
 .region-inputs input {width:100%;min-width:0;}
 #region-fields {margin-block:12px;}
 #render-image {inset:auto;}
+
+/* Object selection is workspace state; guides never enter the exported canvas. */
+.library-tabs {display:flex;gap:6px;margin-bottom:22px;}
+.library-tabs button {flex:1;font-size:12px;}
+.library-tabs [aria-selected=true],#select-object[aria-pressed=true] {border-color:var(--accent);color:var(--accent);}
+#scene-studies[hidden],#objects-panel[hidden],[data-entity-editor][hidden],#entity-inspector[hidden] {display:none;}
+#objects-panel h2 {font-size:18px;font-weight:500;margin:0 0 14px;}
+#object-search {width:100%;padding:10px;background:#1d2729;border:1px solid var(--line);border-radius:5px;color:inherit;margin-bottom:10px;}
+#add-group {width:100%;font-size:12px;margin-bottom:16px;}
+.object-row {display:flex;gap:4px;align-items:center;padding:9px 5px 9px calc(5px + var(--depth)*10px);border:1px solid transparent;border-radius:5px;cursor:pointer;min-width:0;}
+.object-row[aria-selected=true] {background:#29372f;border-color:#718467;}
+.object-row:focus-visible {outline:2px solid var(--accent);outline-offset:-2px;}
+.object-label {flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
+.object-label small {display:block;font-size:10px;color:var(--muted);margin-top:3px;}
+.object-row button {padding:4px;min-width:24px;font-size:12px;}
+.selection-toolbar {display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
+.selection-toolbar button {font-size:11px;}
+#selection-name {font-size:12px;color:var(--accent);flex:1;min-width:90px;overflow-wrap:anywhere;}
+#entity-status {margin:0 0 12px;overflow-wrap:anywhere;}
+#entity-status:empty {display:none;}
+#selection-overlay {position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;}
+#viewport.selecting-objects {cursor:crosshair;}
+#entity-name {width:100%;background:#1d2729;border:1px solid var(--line);border-radius:5px;padding:10px;color:inherit;}
+.entity-actions {display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.entity-actions button {font-size:12px;}
+#objects-dialog {width:min(440px,calc(100vw - 24px));max-height:85dvh;background:#131b1c;color:#e3ebdc;border:1px solid #718467;border-radius:8px;padding:18px;}
+#objects-dialog::backdrop {background:#0009;}
+#close-objects {margin-bottom:18px;}
+@media(max-width:600px){.selection-toolbar{gap:5px;}#selection-name{order:2;flex-basis:100%;}}
+
+.object-row button svg {display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}

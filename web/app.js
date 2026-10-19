@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import {cameraControls} from './camera/controls.js';
+import {entityControls} from './scene/entity-controls.js';
+import {sceneView,editScene,entityCommand,entityScene,kindOf,entityState} from './scene/entities.js';
 import {enableCamera} from './camera/model.js';
 import {waterControls} from './water/controls.js';
 import {lightingControls} from './lighting/controls.js';
@@ -61,14 +63,16 @@ const terrainGenerator = new TerrainGenerator();
 let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
-const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
-const camera = cameraControls({getScene:()=>history.value,getState:()=>state,getField:()=>field,edit:discrete,viewport});
-const water = waterControls(()=>history.value,discrete);
-const lighting = lightingControls(()=>history.value,discrete);
-const atmosphere = atmosphereControls(()=>history.value,discrete);
-const materials = materialControls(() => history.value, discrete);
-const layerControls = terrainControls(() => history.value, discrete);
-const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
+const controlScene=()=>sceneView(history.value);
+const objects=entityControls({getScene:()=>history.value,getState:()=>state,getField:()=>field,command:objectCommand,viewport,finishGesture,onSelect:id=>{const g=entityScene(history.value),n=g.entities.find(n=>n.id===id);if(n&&kindOf(n)==='light'){objects.releaseLocks();lighting.select(g.entities.filter(n=>kindOf(n)==='light').findIndex(n=>n.id===id));objects.sync();}}});
+const heightmaps = heightmapControls({getScene:controlScene,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const camera = cameraControls({getScene:controlScene,getState:()=>state,getField:()=>field,edit:discrete,viewport});
+const water = waterControls(controlScene,discrete);
+const lighting = lightingControls(controlScene,discrete,index=>{const g=entityScene(history.value);objects.select(g.entities.filter(n=>kindOf(n)==='light')[index]?.id??null);});
+const atmosphere = atmosphereControls(controlScene,discrete);
+const materials = materialControls(controlScene, discrete);
+const layerControls = terrainControls(controlScene, discrete);
+const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&state.terrainVisible!==false&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
 
 function draw() {
   if (redraw) return;
@@ -82,7 +86,7 @@ function draw() {
     const width = Math.max(1, Math.floor(bounds.width * scale)), height = Math.max(1, Math.floor(bounds.height * scale));
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
-    try { active.draw(frameUniforms(state, width / height)); sculpt.draw(); }
+    try { active.draw(frameUniforms(state, width / height)); sculpt.draw();objects.draw(); }
     catch (error) { void startGraphics(activeKind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   });
 }
@@ -153,7 +157,7 @@ async function updateGeometry() {
 $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
-  const scene = history.value;
+  const scene = controlScene();objects.releaseLocks();
   layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();water.sync();camera.sync();
   $('upgrade-rendering').hidden=currentRendering(scene);
   $('rendering-model').textContent=currentRendering(scene)?'Current rendering · geology, atmosphere, studio light and lake optics':'Custom / legacy rendering · upgrade to enable all current models';
@@ -166,12 +170,13 @@ function syncControls() {
   $('water-value').textContent = scene.water.level.toFixed(2);
   $('elevation-value').textContent = state.elevation.toFixed(2) + '×';
   $('sun-value').textContent = state.sun + '°';
-  $('study-select').value = studies.find(study => sceneKey(scene) === sceneKey(study.scene))?.id || '';
+  $('study-select').value = studies.find(study => sceneKey(history.value) === sceneKey(study.scene))?.id || '';
   $('undo').disabled = !history.canUndo; $('redo').disabled = !history.canRedo;
   document.querySelectorAll('.study').forEach(b => {
     const selected = sceneKey(history.value) === sceneKey(presetScene(b.dataset.preset));
     b.classList.toggle('active', selected); b.setAttribute('aria-pressed', String(selected));
   });
+  objects.sync();
 }
 function refresh() {
   const next = renderState(history.value);
@@ -182,9 +187,10 @@ function refresh() {
   changed = true; editVersion++;
   if (autosaveEnabled) autosave.enqueue(history.value);
 }
-function edit(change) { if (history.edit(change)) refresh(); }
+function edit(change) { try {if(history.edit(scene=>editScene(scene,change))){refresh();return true;}return false;}catch(error){$('entity-status').textContent=error.message;syncControls();return false;} }
+function objectCommand(command,id,value){finishGesture();try{let result;const changed=history.edit(scene=>{result=entityCommand(scene,command,id,value);});if(changed){refresh();$('entity-status').textContent='Object '+({rename:'renamed',visible:'visibility changed',locked:'lock changed',parent:'regrouped',delete:'deleted',duplicate:'duplicated','add-group':'group added'}[command]??'changed')+'. Undo restores the previous scene.';}return changed?result:false;}catch(error){$('entity-status').textContent=error.message;return false;}}
 function finishGesture() { clearTimeout(gestureTimer); history.end(); syncControls(); }
-function discrete(change) { finishGesture(); edit(change); }
+function discrete(change) { finishGesture();return edit(change); }
 function presetScene(key) { return structuredClone(studies.find(study => study.id === key).scene); }
 $('upgrade-rendering').addEventListener('click',()=>discrete(upgradeScene));
 $('study-select').addEventListener('change', () => {
@@ -334,7 +340,7 @@ async function downloadScene() {
   try {
   finishGesture();
   const scene = history.value;
-  const blob=scene.terrain.generator==='heightmap-v1'?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
+  const blob=sceneView(scene).terrain.generator==='heightmap-v1'?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a'); anchor.href = url;
   anchor.download = (scene.title.replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '').slice(0, 60) || 'landscape') + '.lithosky';

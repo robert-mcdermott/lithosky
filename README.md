@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 3, slice 6 — camera and composition.** Compose
+**Status: wave 3, slice 7 — editable scene foundation.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and lake absorption/reflection/refraction, then
@@ -58,10 +58,24 @@ orbit, Shift-drag to pan and scroll to zoom. With the view focused, arrow keys o
 Home resets. **Graphics & compatibility** can force WebGL 2, disable the GPU or
 retry after failure. GPU failure preserves the current in-memory parameters.
 
+## Objects and direct editing
+
+Open **Objects** to select terrain, water, sun/sky, the active camera, area lights
+and groups. **Select in view** picks visible surfaces; **Inspect** shows their
+controls. Rename, hide, lock or group objects with Undo. Locks also protect
+keyboard and procedural edits. Existing lights can be duplicated/deleted; groups
+can be dissolved without deleting their children. On small screens Objects opens
+a dialog. Selection and guides do not change saved data or PNGs.
+
+The first authored object command upgrades an old file to a v11 component graph,
+preserving its rendering models. IDs, groups and properties survive files and
+recovery. Transform handles and primitives are the next slice. See
+[scene authoring](docs/scene-authoring.md).
+
 ## Terrain layers
 
 Format numbers below are minimum versions for individual capabilities. Scenes
-with the photographic camera save as v10; scenes without it can retain older formats.
+with authored object metadata save as v11; other scenes retain their supported formats.
 
 **Build with layers** creates a new landform from rolling hills (fBm), ridges,
 domain warp and terraces. Add, reorder, disable and tune up to eight layers;
@@ -140,9 +154,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.3.0-dev.6 --out dist/releases/0.3.0-dev.6`
+`go run ./tools/release --version 0.3.0-dev.7 --out dist/releases/0.3.0-dev.7`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.3.0-dev.6` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.7` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development
