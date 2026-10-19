@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import {cameraControls} from './camera/controls.js';
+import {enableCamera} from './camera/model.js';
 import {waterControls} from './water/controls.js';
 import {lightingControls} from './lighting/controls.js';
 import { atmosphereControls } from './atmosphere/controls.js';
@@ -16,7 +18,7 @@ import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
 import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey, upgradeScene, currentRendering } from './scene/document.js';
-import { validateStudies } from './scene/studies.js';
+import { validateStudies,validateCompositions } from './scene/studies.js';
 import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
 
@@ -40,11 +42,12 @@ for (const [id, name] of [['scenes', 'Scenes'], ['controls', 'Controls']]) {
 }
 
 async function main() {
-const [schemaResponse, studiesResponse] = await Promise.all([fetch('/api/scene-schema'), fetch('/scenes/studies.json')]);
+const [schemaResponse, studiesResponse,compositionResponse] = await Promise.all([fetch('/api/scene-schema'), fetch('/scenes/studies.json'),fetch('/scenes/compositions.json')]);
 if (!schemaResponse.ok) throw new Error('Cannot load the scene schema. Restart Lithosky.');
 const schema = await schemaResponse.json();
 if (!studiesResponse.ok) throw new Error('Cannot load starter scenes. Restart Lithosky.');
-const studies = validateStudies(await studiesResponse.json(), schema);
+if(!compositionResponse.ok)throw Error('Cannot load composition studies. Restart Lithosky.');
+const studies = [...validateStudies(await studiesResponse.json(), schema),...validateCompositions(await compositionResponse.json(),schema)];
 for (const study of studies) {
   const option = document.createElement('option'); option.value = study.id; option.textContent = study.scene.title; $('study-select').append(option);
 }
@@ -59,6 +62,7 @@ let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
 const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const camera = cameraControls({getScene:()=>history.value,getState:()=>state,getField:()=>field,edit:discrete,viewport});
 const water = waterControls(()=>history.value,discrete);
 const lighting = lightingControls(()=>history.value,discrete);
 const atmosphere = atmosphereControls(()=>history.value,discrete);
@@ -150,7 +154,7 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();water.sync();
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();water.sync();camera.sync();
   $('upgrade-rendering').hidden=currentRendering(scene);
   $('rendering-model').textContent=currentRendering(scene)?'Current rendering · geology, atmosphere, studio light and lake optics':'Custom / legacy rendering · upgrade to enable all current models';
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
@@ -172,8 +176,8 @@ function syncControls() {
 function refresh() {
   const next = renderState(history.value);
   const geometryChanged = geometryKey(state) !== geometryKey(next);
-  if (renderKey(state) !== renderKey(next)) finalRender.invalidate();
-  sculpt.cancel();state = next; syncControls();
+  const renderChanged=renderKey(state)!==renderKey(next);
+  sculpt.cancel();state = next; syncControls();if(renderChanged)finalRender.invalidate();
   if (geometryChanged) updateGeometry(); else draw();
   changed = true; editVersion++;
   if (autosaveEnabled) autosave.enqueue(history.value);
@@ -212,30 +216,35 @@ $('palette').addEventListener('change', () => { const value = $('palette').value
 $('water-enabled').addEventListener('change', () => { const value = $('water-enabled').checked; discrete(scene => { scene.water.enabled = value; }); });
 $('graphics-mode').addEventListener('change', () => void startGraphics());
 $('retry').addEventListener('click', () => void startGraphics());
-function resetCamera() { discrete(scene => { scene.camera = defaultScene().camera; }); }
+function resetCamera() { discrete(scene => { const lens=scene.camera.lens;scene.camera={yaw:.28,pitch:.3,distance:23};if(lens)scene.camera.lens={...lens,targetX:0,targetY:1.8,targetZ:-4,roll:0}; }); }
 $('reset-camera').addEventListener('click', resetCamera);
 function travel(direction) { finishGesture(); if (history[direction]()) refresh(); }
 $('undo').addEventListener('click', () => travel('undo'));
 $('redo').addEventListener('click', () => travel('redo'));
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+function panCamera(scene,dx,dy) {enableCamera(scene);const f=frameUniforms(renderState(scene),viewport.clientWidth/Math.max(1,viewport.clientHeight)),scale=2*scene.camera.distance*f[7]/Math.max(1,viewport.clientHeight),l=scene.camera.lens;for(const [k,i,min,max]of [['targetX',0,-64,64],['targetY',1,-32,96],['targetZ',2,-64,64]])l[k]=clamp(l[k]+(-f[4+i]*dx+f[8+i]*dy)*scale,min,max);}
 let pointer = null;
-viewport.addEventListener('pointerdown', e => { if (e.button !== 0) return; finishGesture(); history.begin(); viewport.focus(); viewport.setPointerCapture(e.pointerId); pointer = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+viewport.addEventListener('pointerdown', e => { if (e.button !== 0) return; finishGesture(); history.begin(); viewport.focus(); viewport.setPointerCapture(e.pointerId); pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, pan:e.shiftKey }; });
 viewport.addEventListener('pointermove', e => {
   if (!pointer || pointer.id !== e.pointerId) return;
-  edit(scene => { scene.camera.yaw = wrapYaw(scene.camera.yaw - (e.clientX - pointer.x) * 0.005); scene.camera.pitch = clamp(scene.camera.pitch + (e.clientY - pointer.y) * 0.004, 0.08, 1.2); });
+  if(pointer.pan){edit(scene=>panCamera(scene,e.clientX-pointer.x,e.clientY-pointer.y));}else edit(scene => { scene.camera.yaw = wrapYaw(scene.camera.yaw - (e.clientX - pointer.x) * 0.005); scene.camera.pitch = clamp(scene.camera.pitch + (e.clientY - pointer.y) * 0.004, scene.camera.lens?-1.4:.08,scene.camera.lens?1.4:1.2); });
   pointer.x = e.clientX; pointer.y = e.clientY;
 });
-for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) viewport.addEventListener(event, () => { if (pointer) { pointer = null; finishGesture(); } });
+viewport.addEventListener('pointerup',()=>{if(pointer){pointer=null;finishGesture();}});
+function cancelCameraGesture(){if(!pointer)return;const id=pointer.id;pointer=null;if(history.cancel())refresh();if(viewport.hasPointerCapture(id))viewport.releasePointerCapture(id);}
+for(const event of ['pointercancel','lostpointercapture'])viewport.addEventListener(event,cancelCameraGesture);
 viewport.addEventListener('wheel', e => {
   e.preventDefault(); history.begin();
-  edit(scene => { scene.camera.distance = clamp(scene.camera.distance * Math.exp(clamp(e.deltaY, -100, 100) * 0.001), 10, 48); });
+  edit(scene => { scene.camera.distance = clamp(scene.camera.distance * Math.exp(clamp(e.deltaY, -100, 100) * 0.001), scene.camera.lens ? .5 : 10, scene.camera.lens?128:48); });
   clearTimeout(gestureTimer); gestureTimer = setTimeout(finishGesture, 180);
 }, { passive: false });
 viewport.addEventListener('keydown', e => {
+  if(e.key==='Escape'&&pointer){e.preventDefault();cancelCameraGesture();return;}
+  if(e.shiftKey&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();history.begin();edit(scene=>panCamera(scene,e.key==='ArrowLeft'?-20:e.key==='ArrowRight'?20:0,e.key==='ArrowUp'?-20:e.key==='ArrowDown'?20:0));return;}
   const actions = {
     ArrowLeft: c => c.yaw = wrapYaw(c.yaw - 0.08), ArrowRight: c => c.yaw = wrapYaw(c.yaw + 0.08),
-    ArrowUp: c => c.pitch = clamp(c.pitch + 0.06, 0.08, 1.2), ArrowDown: c => c.pitch = clamp(c.pitch - 0.06, 0.08, 1.2),
-    '+': c => c.distance = Math.max(10, c.distance - 1), '=': c => c.distance = Math.max(10, c.distance - 1), '-': c => c.distance = Math.min(48, c.distance + 1),
+    ArrowUp: c => c.pitch = clamp(c.pitch + 0.06, c.lens?-1.4:.08, c.lens?1.4:1.2), ArrowDown: c => c.pitch = clamp(c.pitch - 0.06, c.lens?-1.4:.08, c.lens?1.4:1.2),
+    '+': c => c.distance = Math.max(c.lens ? .5 : 10, c.distance - 1), '=': c => c.distance = Math.max(c.lens ? .5 : 10, c.distance - 1), '-': c => c.distance = Math.min(c.lens?128:48, c.distance + 1),
   };
   if (e.key === 'Home') { e.preventDefault(); resetCamera(); }
   if (actions[e.key]) { e.preventDefault(); history.begin(); edit(scene => actions[e.key](scene.camera)); }

@@ -92,6 +92,38 @@ func TestLakePortableRoundTrip(t *testing.T) {
 		t.Fatal("nondeterministic v9 container", err)
 	}
 }
+func TestCameraPortableRoundTrip(t *testing.T) {
+	doc, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(doc, &imported); err != nil {
+		t.Fatal(err)
+	}
+	current, err := os.ReadFile("../../docs/site/assets/snow-composition.lithosky")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var camera map[string]any
+	if err := json.Unmarshal(current, &camera); err != nil {
+		t.Fatal(err)
+	}
+	camera["terrain"] = imported["terrain"]
+	doc, err = json.Marshal(camera)
+	if err != nil {
+		t.Fatal(err)
+	}
+	file, err := Save(doc, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, asset, err := Open(file)
+	if err != nil || !bytes.Equal(asset, raw) || !bytes.Equal(got, doc) {
+		t.Fatal("v10 camera or imported samples changed", err)
+	}
+	again, err := Save(got, asset)
+	if err != nil || !bytes.Equal(file, again) {
+		t.Fatal("nondeterministic v10 container", err)
+	}
+}
 func TestUnsafeContainers(t *testing.T) {
 	doc, raw, _ := fixture(t)
 	good, _ := Save(doc, raw)

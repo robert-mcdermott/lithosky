@@ -1,7 +1,7 @@
 {
-  "sourceHash": "07209d5c479a14229e5639be38d2573a688e493da322e64ac41c07640c72cc26",
+  "sourceHash": "0646871e06fc005ec111d013199c0063733e91b22b346dd13aa33488323b57a6",
   "sceneSHA256": "756238aec48673e5b139a62c587a98879994c0a76fbf455950ccaad9c230e2d6",
-  "capturedAt": "2026-10-19T02:23:39.900Z",
+  "capturedAt": "2026-10-19T03:19:16.357Z",
   "records": [
     {
       "name": "water-classic",
@@ -75,7 +75,7 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 14085,
+      "milliseconds": 16343,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
@@ -162,12 +162,12 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 13566,
+      "milliseconds": 15119,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
       },
-      "sha256": "7cfaa744089d4d754b26530207ffb46eb478d24a490d744341b46da04325afa8"
+      "sha256": "15ee0eb4b4f0d4723f8580412d0a2f02e063b9fe4791499d5a7bc5360f992b0b"
     },
     {
       "name": "water-ripples",
@@ -249,12 +249,12 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 13701,
+      "milliseconds": 15174,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
       },
-      "sha256": "996e060ece64fb68af9ffc130768c25ef75b12b6c28cc444b292d5072f65e087"
+      "sha256": "e2cd646e3aeae559252a9689ecb905da1904750daf5719ee2293c3fc422d8270"
     },
     {
       "name": "water-clear",
@@ -336,12 +336,12 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 13562,
+      "milliseconds": 15203,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
       },
-      "sha256": "2a9c35c4414806c8b051084598e893c7b437b8879c54cabd1cfa176d6fd6f61b"
+      "sha256": "f822c52dc9e5bd92b4c5259af5a37d86201619daf5106c3bb410e6313a12285b"
     },
     {
       "name": "water-grazing",
@@ -423,12 +423,12 @@
       "height": 540,
       "detail": 1024,
       "samples": 64,
-      "milliseconds": 13983,
+      "milliseconds": 14984,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
       },
-      "sha256": "dcf617f4a3e2bdfcfbd94b4cc764a4927c1b3d2803879d23f4cbeb94b4a5060c"
+      "sha256": "892f1fe3aed06c0bd614049b59491d9723714858331176d38f5fc46f1f2c7eb8"
     },
     {
       "name": "water-clean",
@@ -510,12 +510,12 @@
       "height": 540,
       "detail": 1024,
       "samples": 256,
-      "milliseconds": 47584,
+      "milliseconds": 50598,
       "statistics": {
         "blackPixels": 0,
         "whitePixels": 0
       },
-      "sha256": "1be1a5a63a044b75c9801b75c061e2cdd2a8148d375558bfa0187bd56eb3bee6"
+      "sha256": "6e17d3295285f47d4710543727196dfd31e6668615b98dc741eef50edb1c87f4"
     }
   ],
   "errors": [],
@@ -666,11 +666,11 @@
     "errors": [
       {
         "samples": 8,
-        "rmse": 2.4517102873980305
+        "rmse": 2.334813221175899
       },
       {
         "samples": 64,
-        "rmse": 0.822962129545866
+        "rmse": 0.7948427517440163
       }
     ],
     "method": "Unfiltered progressive prefixes compared with their 256-sample result; display-code RMSE over x80–559/y80–329."

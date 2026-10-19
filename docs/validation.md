@@ -907,6 +907,50 @@ classic 14.09 s, calm 13.57 s, ripples 13.70 s, clear 13.56 s, grazing 13.98 s
 (all 64 samples), and 47.58 s for the identical ripple scene at 256 samples.
 These local observations are not cross-device performance guarantees.
 
+## Wave 3 slice 6 — camera and composition
+
+Build 0.3.0-dev.6 adds the v10 thin-lens camera and independently bounded render
+regions/2K exports. Legacy scenes retain their pinhole projection and sample
+sequence when the new aperture is disabled. The camera upgrade, lens/target
+edits, Undo/Redo, canceled drags and named save/reopen/recovery pass in the real
+browser. The redo branch retained during a canceled gesture is included in the
+4 MiB history budget. Go validators and portable imported-heightmap containers
+round-trip v10 cameras without changing samples or metadata.
+
+The actual camera shader agrees with 4,096 CPU-reference scalar values within
+the 0.00005 tolerance. Full-frame and cropped output match exactly over 16,435
+pixels with pinhole and finite-aperture cameras. Actual complete first samples
+at 2048×1152, 1365×2048 and 2048² confirm image-buffer allocation/cancellation.
+The UI completes a 1365×2048 PNG and a 171×256 region export, invalidates stale
+output after lens edits, fits 1440/768/390/320px widths and retains camera editing
+under WebGL fallback. These checks run in a disposable app/profile.
+
+The original composition gallery captures mountain/coast/snow at a 2048-pixel
+long edge, 64 samples and Fine terrain, plus nine native-pixel crops and an
+explicit pinhole/thin-lens pair. `camera-captures.json` stores the exact scenes,
+source/image hashes, GPU/browser, timings and image-buffer budgets. The site
+builder rejects stale or mismatched camera and prior rendering records.
+
+The [integrated visual review](visual-quality.md) records a **failed photographic
+quality gate**: repetitive landforms/materials, smooth snow, noisy deep shadows
+and finite-world horizon continuity remain unresolved. Camera correctness and
+2K export are implemented; they do not establish photographic credibility.
+Native Windows/Linux app-window/GPU release checks also remain open.
+
+The refreshed legacy v9 ripple-water PNG differs from commit `2f66875` at only
+7 of 518,400 pixels, by at most one 8-bit code value (RGB RMSE 0.00212). This
+checks visual compatibility after moving projection/filtering into camera
+uniforms; it is not a perceptual-quality score.
+
+Final local verification: **220 JavaScript tests**, `go test -race ./...` and
+`go vet ./...` pass. All six capture families have current source/scene/image
+provenance. The generated site checks four pages, 161 links and 27 image
+references; desktop/mobile browser checks pass all pages, image decodes,
+navigation, local-resource policy and scene download. The renderer smoke test
+also passes 1,024 intersection rays, PNG/display pixel equality, pending-output
+invalidation, preparation failure, cancellation, device-loss retry, extreme
+legacy water/camera fixtures and WebGL fallback, with no unexpected browser errors.
+
 The generated site passes browser checks at 1440px and 390px on all four pages,
 including every image decode, local-resource policy, navigation, keyboard focus
 and scene download. The refreshed lighting PNG comparison still passes positive

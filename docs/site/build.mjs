@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { digest, sourceHash } from '../capture/source.mjs';
 import { validateScene } from '../../web/scene/document.js';
-import { validateStudies } from '../../web/scene/studies.js';
+import { validateStudies, validateCompositions } from '../../web/scene/studies.js';
 import { checkSite } from './check.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url)), root=path.resolve(here,'../..');
 export const escapeHTML=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
@@ -18,6 +18,7 @@ export function buildSite(destination=path.join(root,'dist/site')) {
   const version=/var version = "([^"]+)"/.exec(fs.readFileSync(path.join(root,'main.go'),'utf8'))[1];
   const schema=JSON.parse(fs.readFileSync(path.join(root,'internal/scene/schema.json')));
   const studies=validateStudies(JSON.parse(fs.readFileSync(path.join(root,'web/scenes/studies.json'))),schema);
+  const compositions=validateCompositions(JSON.parse(fs.readFileSync(path.join(root,'web/scenes/compositions.json'))),schema);
   const captures=JSON.parse(fs.readFileSync(path.join(here,'assets/captures.json')));
   if(captures.version!==version || captures.sourceHash!==sourceHash(root)) throw new Error('Captures are stale. Rebuild the app and run docs/capture/run.mjs.');
   if(captures.records.length!==studies.length) throw new Error('Incomplete gallery captures.');
@@ -62,17 +63,24 @@ export function buildSite(destination=path.join(root,'dist/site')) {
   const waterNames=['water-classic','water-calm','water-ripples','water-clear','water-grazing','water-clean'];
   if(water.sourceHash!==sourceHash(root)||water.sceneSHA256!==digest(waterScene)||water.records.length!==6||water.probes.scalars!==2048||water.probes.worst>.0001||water.probes.cases.length!==6||water.noise?.referenceSamples!==256||water.noise.errors[1].rmse>=water.noise.errors[0].rmse*.65||water.probes.cases.filter(c=>c.dark).some(c=>c.radiance.some(x=>x!==0)))throw Error('Water captures are stale. Run docs/capture/water-run.mjs.');
   for(const name of waterNames){const r=water.records.find(r=>r.name===name),bytes=fs.readFileSync(path.join(here,'assets',name+'.png'));if(!r||r.sha256!==digest(bytes)||r.width!==960||r.height!==540||r.detail!==1024||r.samples!==(name==='water-clean'?256:64)||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==960||bytes.readUInt32BE(20)!==540)throw Error('Water capture provenance mismatch: '+name);validateScene(r.scene,schema);}
+  const camera=JSON.parse(fs.readFileSync(path.join(here,'assets/camera-captures.json')));
+  const cameraNames=[...compositions.flatMap(s=>[s.id+'-composition',...['foreground','middle','horizon'].map(r=>s.id+'-composition-'+r)]),'camera-pinhole','camera-lens'];
+  if(camera.sourceHash!==sourceHash(root)||camera.records.length!==14||camera.diagnostics.reports.length!==2||camera.diagnostics.reports.some(r=>r.scalars!==2048||r.worst>5e-5)||camera.diagnostics.regions.length!==2||camera.diagnostics.regions.some(r=>r.different!==0)||camera.diagnostics.large.length!==3||!camera.workflow.saveReopenRecovery||!camera.workflow.dragCancel||!camera.workflow.webglEditing||camera.workflow.errors.length)throw Error('Camera captures are stale. Run docs/capture/camera-run.mjs.');
+  for(const name of cameraNames){const r=camera.records.find(r=>r.name===name),bytes=fs.readFileSync(path.join(here,'assets',name+'.png'));if(!r||r.sha256!==digest(bytes)||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==r.width||bytes.readUInt32BE(20)!==r.height)throw Error('Camera capture provenance mismatch: '+name);if(r.scene)validateScene(r.scene,schema);else if(r.width!==256||r.height!==128||!r.parent||!r.crop)throw Error('Invalid composition crop: '+name);}
+  for(const s of compositions){const r=camera.records.find(r=>r.id===s.id),scene=JSON.parse(fs.readFileSync(path.join(here,'assets',s.id+'-composition.lithosky')));if(JSON.stringify(r.scene)!==JSON.stringify(s.scene)||JSON.stringify(scene)!==JSON.stringify(s.scene)||Math.max(r.width,r.height)!==2048||r.samples!==64||r.detail!==1024)throw Error('Composition provenance mismatch: '+s.id);}
+  const compositionGallery=compositions.map(s=>{const r=camera.records.find(r=>r.id===s.id),name=s.id+'-composition';return `<article class="study"><a href="assets/${name}.png"><img src="assets/${name}.png" alt="${escapeHTML(s.description)} in Lithosky" width="${r.width}" height="${r.height}" loading="lazy"></a><h3>${escapeHTML(s.scene.title)}</h3><p>${r.width} × ${r.height} · 64 samples · 1024² terrain</p><p><a href="assets/${name}.lithosky" download>Download scene</a> · <a href="assets/${name}-foreground.png">Foreground crop</a> · <a href="assets/${name}-middle.png">Middle crop</a> · <a href="assets/${name}-horizon.png">Horizon crop</a></p></article>`;}).join('\n');
   const gallery=studies.map((s,i)=>`<article class="study" id="${s.id}"><a href="assets/${s.id}.png" aria-label="View ${escapeHTML(s.scene.title)} at full size"><img src="assets/${s.id}.png" alt="${escapeHTML(s.description)} rendered in Lithosky" width="960" height="540" loading="lazy"></a><div class="study-caption"><span class="number">0${i+1}</span><div><h2>${escapeHTML(s.scene.title)}</h2><p>${escapeHTML(s.description)}.</p><p class="small">Seed ${s.scene.terrain.seed} · 960 × 540 · 64 samples · 512² terrain</p><a href="scenes/${s.id}.lithosky" download>Open this starting point ↗</a></div></div></article>`).join('\n');
   const temp=fs.mkdtempSync(path.join(path.dirname(out),'.lithosky-site-'));
   try {
     fs.mkdirSync(path.join(temp,'assets'));fs.mkdirSync(path.join(temp,'scenes'));
+    for(const name of ['camera-captures.json',...cameraNames.map(n=>n+'.png'),...compositions.map(s=>s.id+'-composition.lithosky')])fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
     for(const name of ['silver-basin.lithosky','water-captures.json',...waterNames.map(n=>n+'.png'),'radiant-highlands.lithosky','lighting-captures.json',...lightingNames.map(n=>n+'.png'),'weathered-highlands.lithosky','material-captures.json',...materialNames.map(name=>name+'.png'),'sunlit-ridges.lithosky','terrain-128.png','terrain-512.png','terrain-1024.png','terrain-captures.json','site.css','studio.png','daylight.lithosky','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
     fs.copyFileSync(path.join(root,'web/favicon.svg'),path.join(temp,'assets/icon.svg'));
     for(const s of studies) fs.copyFileSync(path.join(here,'assets',s.id+'.lithosky'),path.join(temp,'scenes',s.id+'.lithosky'));
     for(const name of ['LICENSE','NOTICE']) fs.copyFileSync(path.join(root,name),path.join(temp,name+'.txt'));
     fs.copyFileSync(path.join(here,'assets/captures.json'),path.join(temp,'assets/captures.json'));
     for(const [id,title,description] of pages) {
-      const content=fs.readFileSync(path.join(here,'pages',id+'.html'),'utf8').replaceAll('{{version}}',escapeHTML(version)).replaceAll('{{gallery}}',gallery);
+      const content=fs.readFileSync(path.join(here,'pages',id+'.html'),'utf8').replaceAll('{{version}}',escapeHTML(version)).replaceAll('{{gallery}}',gallery).replaceAll('{{compositions}}',compositionGallery);
       const nav=pages.map(([key,label])=>`<a href="${key}.html"${key===id?' aria-current="page"':''}>${key==='index'?'Home':escapeHTML(label)}</a>`).join('');
       fs.writeFileSync(path.join(temp,id+'.html'),`<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHTML(description)}"><meta name="theme-color" content="#eeeede"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'"><title>${escapeHTML(title)}${id==='index'?' — Landscape studio':' · Lithosky'}</title><link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="assets/site.css"></head>

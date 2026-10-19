@@ -235,3 +235,77 @@ larger camera/composition review; later waves add the sky and ecological systems
 
 Measurements in the S1–S4 sections above describe those slices' original runs.
 Refreshed capture manifests contain the current build's hashes and local timings.
+
+## W3.S6 — compose through a saved lens
+
+Build 0.3.0-dev.6 adds lens/target/roll/framing, traced depth of field and render
+regions. The original [Amber ridges](site/assets/mountain-composition.lithosky),
+[Tidal light](site/assets/coast-composition.lithosky) and
+[Daylight snow](site/assets/snow-composition.lithosky) scenes demonstrate the
+controls at a 2048-pixel long edge, 64 samples and 1024² final terrain.
+They are downloadable starting points in the app and generated gallery.
+
+![Amber ridges](site/assets/mountain-composition.png)
+
+![Tidal light](site/assets/coast-composition.png)
+
+![Daylight snow](site/assets/snow-composition.png)
+
+These are original, unretouched renderer exports. They are new compositions,
+**not identical-camera before/after comparisons** against previous slices.
+Their [capture record](site/assets/camera-captures.json) stores exact scenes,
+source/image hashes, dimensions, settings, GPU/browser, timing and image-buffer
+budgets. The gallery links unscaled 256×128 foreground, middle and horizon crops
+from each export. The pinhole/thin-lens pair changes only aperture enablement;
+its deliberately small camera scale makes blur visible without claiming that
+a kilometre-scale landscape should look like a miniature.
+
+### Integrated review: photographic gate remains open
+
+The camera implementation is complete locally. **The larger visual acceptance
+target has not passed.** A correct lens and more output pixels expose the
+current renderer’s limitations; neither supplies convincing geology by itself.
+
+| Criterion | Review and work still required |
+|---|---|
+| Geology and silhouette | Fine geometry resolves crests, but ridges repeat and broad slopes remain smooth. More coherent drainage/erosion and rock structure are needed. |
+| Material scale and variation | Solid textures remain visibly mottled; slope-based green patches and smooth snow read as procedural masks. Improve macro/micro structure and snow/rock transitions. |
+| Light and highlights | Exposure is controllable and highlights retain color. Golden-hour shadows still show grain and insufficient natural fill. Evaluate richer sky illumination and sampling. |
+| Atmospheric depth | Layering is limited and the finite terrain meets an approximate planet background. A horizon band can remain; distant terrain/environment continuity needs a real solution. |
+| Water and shore | Reflections and depth separate the lake from land. The coastal study still uses a bounded lake plane, with no ocean boundary, surf or displaced waves. |
+| Noise and aliasing | 64 samples retain visible shadow noise at native resolution. Higher counts reduce stochastic noise; they do not fix smooth geology, texture repetition or a horizon discontinuity. |
+| Composition | Saved landscape/portrait lenses and editable targets make framing possible. The examples remain development studies, below the intended photographic standard. |
+
+The next rendering corrections must address those defects directly, retaining
+the same saved cameras for comparison. Clouds or vegetation must not conceal
+unresolved bare-landscape problems. Wave 3 cannot be advertised as
+photographically convincing on this evidence. The later night/cloud work
+remains planned and is not included in these images.
+
+### Correctness and bounded output
+
+Actual WGSL camera rays match 4,096 CPU-reference scalar values within 0.00005
+relative/absolute tolerance. Full-frame and region renders match byte for byte
+over 16,435 crop pixels, both with and without aperture sampling. Thin-lens CPU
+tests verify rays from different aperture positions meet at the same focal-plane
+point; central picking and rolled/panned projections agree across all frames.
+These checks validate camera math and crop consistency, not photographic merit.
+
+Complete first samples at 2048×1152, 1365×2048 and 2048² verify bounded allocation
+and cancellation. Image-buffer budgets are respectively 54.0, 64.0 and 96.0 MiB,
+plus terrain and other process resources. The UI also completes and downloads a
+1365×2048 PNG and a separately labeled cropped PNG. Focus/pan/Undo, gesture
+cancel, save/reopen/recovery, mobile layout and WebGL camera editing are tested.
+Reproduce with `docs/capture/camera-run.mjs` against an isolated rebuilt app.
+
+Local Chrome 155 / Apple Metal 3 observations include preparation, shader setup,
+tracing and readback; they are individual runs, not performance guarantees:
+
+| Composition | Output | Samples / terrain | Time | GPU image buffers |
+|---|---|---|---:|---:|
+| Amber ridges | 2048 × 1365 | 64 / 1024² | 91.29 s | 63.98 MiB |
+| Tidal light | 2048 × 1365 | 64 / 1024² | 56.26 s | 63.98 MiB |
+| Daylight snow | 1365 × 2048 | 64 / 1024² | 77.11 s | 63.98 MiB |
+
+Each Fine field adds about 48.1 MiB of GPU vertex storage. CPU upload/readback
+copies, worker cache, preview, LUTs and driver overhead are additional.

@@ -10,7 +10,7 @@ out float vDistance;
 void main() {
   vec3 delta = position - eye.xyz;
   float depth = dot(delta, forwardVector.xyz);
-  gl_Position = vec4(dot(delta, rightVector.xyz)/(0.48*eye.w), dot(delta, upVector.xyz)/0.48, 150.1/149.9*depth - 30.0/149.9, depth);
+  gl_Position = vec4(dot(delta, rightVector.xyz)/(rightVector.w*eye.w), dot(delta, upVector.xyz)/rightVector.w, 512.05/511.95*depth - 51.2/511.95, depth);
   vNormal = normal; vColor = color; vDistance = length(delta);
 }`;
 const fragment = `#version 300 es

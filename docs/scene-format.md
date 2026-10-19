@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v9 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v10 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere and v7 geological surfaces v8 studio light transport/color, and v9 lake optics. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere, v7 geological surfaces, v8 studio light transport/color, v9 lake optics and v10 camera/framing. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -264,4 +264,24 @@ remain independently optional. All three terrain families, portable assets,
 history and recovery retain their existing bounds. Disabling lake optics chooses
 the minimum format preserving the remaining capabilities. Opening v1–v8 is
 unchanged; an explicit undoable upgrade adds missing current models. New/default
-scenes and starter studies use v9. See [lake optics](water.md).
+scenes without the photographic camera can use v9. Current starters use v10. See [lake optics](water.md).
+
+## Version 10 camera and framing
+
+V10 adds required `camera.lens` with model `thin-lens-v1`, `frame` (16:9, 3:2,
+2:3 or 1:1), `focalLength` (10–300 mm), `fNumber` (0.7–64), `dof` (boolean),
+`focusDistance` (0.01–10,000,000 metres), `metresPerUnit` (0.1–10,000),
+`targetX`/`targetZ` (−64…64), `targetY` (−32…96) and `roll` (−180…180 degrees).
+All lens fields are required, with no unknown fields. V10 camera pitch spans
+−1.4…1.4 radians and orbit distance 0.5…128 scene units; yaw is unchanged.
+
+The camera works with procedural, layered/sculpted or asset-backed terrain.
+Atmosphere, geology, transport and lake optics remain independently optional.
+An optional v10 atmosphere `groundAlbedo` (0–1) adds an approximate diffuse
+planet background; absent preserves the prior sky LUT. New defaults use 0.12.
+
+Lens, frame and target survive save/open, portable containers and recovery.
+Render region and output dimensions remain temporary UI settings. Opening
+v1–v9 preserves the old pinhole exactly. Use photographic camera, or an explicit
+pan gesture, enables the new camera as one undoable edit. Model interpretation,
+physical units and migration tests are documented in [camera](camera.md).

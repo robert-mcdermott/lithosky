@@ -43,3 +43,43 @@ func TestInvalidDocuments(t *testing.T) {
 		}
 	}
 }
+
+func TestCameraCompositions(t *testing.T) {
+	data, err := os.ReadFile("../../web/scenes/compositions.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var studies []struct {
+		ID    string          `json:"id"`
+		Scene json.RawMessage `json:"scene"`
+	}
+	if err := json.Unmarshal(data, &studies); err != nil {
+		t.Fatal(err)
+	}
+	for _, study := range studies {
+		t.Run(study.ID, func(t *testing.T) {
+			valid, err := Validate(study.Scene)
+			if err != nil {
+				t.Fatal(err)
+			}
+			second, err := Validate(valid)
+			if err != nil || !Equal(valid, second) {
+				t.Fatal("v10 round trip changed scene")
+			}
+			var doc map[string]any
+			if err := json.Unmarshal(valid, &doc); err != nil {
+				t.Fatal(err)
+			}
+			lens := doc["camera"].(map[string]any)["lens"].(map[string]any)
+			for key, value := range map[string]any{"frame": "4:5", "fNumber": 0.1, "focusDistance": 0.0, "roll": 181.0, "metresPerUnit": 0.0} {
+				before := lens[key]
+				lens[key] = value
+				invalid, _ := json.Marshal(doc)
+				if _, err := Validate(invalid); err == nil {
+					t.Fatalf("accepted invalid lens %s", key)
+				}
+				lens[key] = before
+			}
+		})
+	}
+}

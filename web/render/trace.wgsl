@@ -8,7 +8,7 @@ struct Config {
   atmosphereExtra: vec4f, // ozone multiplier, observer altitude km
   material:vec4f, rules:vec4f, geology:vec4f, finish:vec4f,
   transport:vec4f, transportExtra:vec4f, transportLights:vec4f,
-  water:vec4f, waterExtra:vec4f,
+  water:vec4f, waterExtra:vec4f, lens:vec4f, region:vec4u,
 }
 struct Vertex { position: vec4f, normal: vec4f, color: vec4f }
 struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
@@ -130,7 +130,7 @@ fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>, prior:f32) -> vec3f
   if(geological) {
     // Isotropic surface-area ray-cone estimate, widened at grazing angles. Water
     // rays include their preceding path; no screen-space UVs or texture seams.
-    let footprint=clamp((prior+h.t)*.96/f32(config.image.y)/sqrt(max(abs(dot(d,geometric)),.12)),.00025,4.0);
+    let footprint=clamp((prior+h.t)*(2*config.right.w)/f32(config.region.w)/sqrt(max(abs(dot(d,geometric)),.12)),.00025,4.0);
     let base=select(-n,n,dot(n,geometric)>=0);let surface=geologicalSurface(p,base,footprint);
     n=surface.normal;color=surface.color;roughness=surface.roughness;
     if(dot(n,geometric)<.1){n=normalize(n+geometric*(.1-dot(n,geometric)));}
@@ -186,10 +186,12 @@ fn render(@builtin(global_invocation_id) id: vec3u) {
   let xy=id.xy+config.tile.xy;
   if (any(id.xy>=config.tile.zw) || any(xy>=config.image.xy)) { return; }
   let index=xy.y*config.image.x+xy.x;
-  var seed=(index+1u)*747796405u+(config.image.z+1u)*2891336453u+config.image.w;
-  let uv=(vec2f(xy)+vec2f(random(&seed),random(&seed)))/vec2f(config.image.xy)*2-1;
-  let d=normalize(config.forward.xyz+config.right.xyz*(uv.x*.48*config.eye.w)-config.up.xyz*(uv.y*.48));
-  var radiance=trace(config.eye.xyz,d,&seed);
+  let globalPixel=(xy.y+config.region.y)*config.region.z+xy.x+config.region.x;
+  var seed=(globalPixel+1u)*747796405u+(config.image.z+1u)*2891336453u+config.image.w;
+  let uv=(vec2f(xy+config.region.xy)+vec2f(random(&seed),random(&seed)))/vec2f(config.region.zw)*2-1;
+  var disk=vec2f(0);if(config.lens.z>0){disk=vec2f(random(&seed),random(&seed));}
+  let ray=lensRay(uv,disk);
+  var radiance=trace(ray.origin,ray.direction,&seed);
   if(config.atmosphere.x>.5&&config.transport.x<.5){radiance*=4;} // Fixed development exposure for normalized solar irradiance.
   if (!all(radiance>=vec3f(0)) || !all(radiance<vec3f(1e6))) { atomicAdd(&invalid,1u); radiance=vec3f(0); }
   let count=f32(config.image.z);

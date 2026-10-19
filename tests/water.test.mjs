@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {waterDefaults,waterTransmittance,waterNormal,waterUniforms} from '../web/water/model.js';
 import {interfaceF} from '../web/lighting/model.js';
-import {legacyScene,defaultScene,upgradeScene,currentRendering,renderState,validateScene,serializeScene,parseScene,sceneKey,updateSceneVersion} from '../web/scene/document.js';
+import {legacyScene,defaultScene as currentDefaultScene,upgradeScene,currentRendering,renderState,validateScene,serializeScene,parseScene,sceneKey,updateSceneVersion} from '../web/scene/document.js';
 import {atmosphereFromLegacy,sunDirection} from '../web/atmosphere/solar.js';
 import {frameUniforms} from '../web/scene/terrain.js';
 import {layeredTerrain} from '../web/scene/noise.js';
@@ -12,6 +12,7 @@ import {importedTerrain} from '../web/scene/heightmaps.js';
 import {History} from '../web/scene/history.js';
 import {geometryKey,renderKey,TerrainCache} from '../web/scene/generation.js';
 import {validateRenderOptions} from '../web/render/tracer.js';
+const defaultScene=()=>upgradeScene(legacyScene());
 const schema=JSON.parse(fs.readFileSync(new URL('../internal/scene/schema.json',import.meta.url))),near=(a,b,e=1e-10)=>assert.ok(Math.abs(a-b)<e,`${a} vs ${b}`);
 test('homogeneous attenuation obeys identity, reciprocity, multiplicativity and depth/scale/density',()=>{
  const w=waterDefaults();assert.deepEqual(waterTransmittance(0,w),[1,1,1]);
@@ -34,7 +35,7 @@ test('ripple normals are bounded, deterministic, filtered, and vanish for calm w
  const far=waterNormal(3,4,w,4);near(far[1],1);near(far[0],0);near(far[2],0);
 });
 test('new defaults and starter scenes enable current models; legacy opening does not silently upgrade',()=>{
- assert.ok(currentRendering(defaultScene()));assert.equal(defaultScene().version,9);validateScene(defaultScene(),schema);
+ assert.ok(currentRendering(currentDefaultScene()));assert.equal(currentDefaultScene().version,10);validateScene(currentDefaultScene(),schema);
  const old=legacyScene();assert.equal(parseScene(serializeScene(old,schema),schema).version,1);
  for(const study of JSON.parse(fs.readFileSync(new URL('../web/scenes/studies.json',import.meta.url))))assert.ok(currentRendering(validateScene(study.scene,schema)));
 });

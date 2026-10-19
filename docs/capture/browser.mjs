@@ -16,7 +16,7 @@ async (page) => {
     await page.waitForFunction(()=>document.getElementById('render-status').textContent.startsWith('Complete.'),{},{timeout:120000});
     const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Export PNG',exact:true}).click();
     const download=await pending;await download.saveAs(output+'/'+study.id+'.png');
-    if(study.id==='alpine') { await page.screenshot({path:output+'/studio.png',fullPage:true}); }
+    if(study.id==='alpine') { await page.locator('.workspace').evaluate(el=>{el.scrollTop=0;});await page.screenshot({path:output+'/studio.png',fullPage:true}); }
     records.push({id:study.id,scene:study.scene,width:960,height:540,samples:64,detail:512});
     const sceneDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Save scene',exact:true}).click();
     const file=await sceneDownload;await file.saveAs(output+'/'+study.id+'.lithosky');

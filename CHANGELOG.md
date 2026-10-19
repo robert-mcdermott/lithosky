@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0-dev.6 — wave 3 slice 6 (local development)
+
+- Add a saved v10 thin-lens camera, focal length, aperture/focus, roll, pan target
+  and landscape/portrait/square framing; old files retain their pinhole view.
+- Trace depth of field in live/final rendering, pick focus on terrain/water and
+  cancel camera drags without retaining accidental edits.
+- Add full-frame-consistent region rendering/export and bounded 2K output;
+  report pixel dimensions and image-buffer cost before rendering.
+- Add an optional diffuse distant-ground background, original 2K composition
+  studies, native-pixel crops and reproducible camera/GPU/workflow capture records.
+- Complete the integrated image review; geological/snow/horizon defects remain.
+  Photographic quality and native-platform release gates remain open.
+
 ## 0.3.0-dev.5 — wave 3 slice 5 (local development)
 
 - Add saved v9 lake optics: incoming/view attenuation, refracted bed illumination,

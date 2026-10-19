@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {previewDimensions} from '../camera/model.js';
 import {createTracer} from './tracer.js';
 // A disposable 320 × 180 lighting study, using the exact final kernels. Camera
 // gestures retain immediate raster feedback; idle work never queues a full frame.
@@ -10,7 +11,7 @@ export function lightingPreview(getState,getField,onShow) {
   const ticket=epoch;timer=setTimeout(async()=>{
    const abort=new AbortController();controller=abort;let tracer;
    try{
-    tracer=await createTracer(structuredClone(getState()),{width:320,height:180,samples:16,preview:true,signal:abort.signal},getField());
+    tracer=await createTracer(structuredClone(getState()),{...previewDimensions(getState()),samples:16,preview:true,signal:abort.signal},getField());
     if(ticket!==epoch||abort.signal.aborted)return;
     await tracer.run(abort.signal,image=>{if(ticket!==epoch||abort.signal.aborted)return;canvas.width=image.width;canvas.height=image.height;canvas.getContext('2d').putImageData(new ImageData(image.rgba,image.width,image.height),0,0);canvas.hidden=false;onShow();});
    }catch(error){if(ticket===epoch&&!abort.signal.aborted){canvas.hidden=true;document.getElementById('view-description').textContent='Raster preview · Lighting preview unavailable: '+error.message;}}

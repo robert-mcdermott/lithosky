@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-async page=>{page.on('dialog',d=>d.accept());await page.reload();await page.waitForFunction(()=>!document.getElementById('render-start').disabled);await page.locator('#live-preview').uncheck();return await page.evaluate(async()=>{
+async page=>{await page.waitForFunction(()=>!document.getElementById('render-start').disabled);await page.locator('#live-preview').uncheck();return await page.evaluate(async()=>{
  const {createTracer}=await import('/render/tracer.js'),{defaultScene,renderState}=await import('/scene/document.js'),{waterNormal,waterTransmittance}=await import('/water/model.js'),{interfaceF}=await import('/lighting/model.js');
  const state=renderState(defaultScene()),rays=[];for(let i=0;i<256;i++)rays.push({origin:[Math.sin(i)*12,0,Math.cos(i*1.7)*12,i/32],direction:[(i%8)*.04,(i+.5)/256,0]});
  const tracer=await createTracer(state,{width:320,height:180,samples:8,preview:true});let worst=0;

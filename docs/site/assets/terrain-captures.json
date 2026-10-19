@@ -1,7 +1,7 @@
 {
-  "sourceHash": "07209d5c479a14229e5639be38d2573a688e493da322e64ac41c07640c72cc26",
+  "sourceHash": "0646871e06fc005ec111d013199c0063733e91b22b346dd13aa33488323b57a6",
   "sceneSHA256": "382757613c1f242185de035a911f7d52b8f436f4be911475de80c0c6a9096ec3",
-  "capturedAt": "2026-10-19T02:27:30.657Z",
+  "capturedAt": "2026-10-19T03:22:27.285Z",
   "diagnostics": {
     "reports": [
       {
@@ -9,7 +9,7 @@
         "triangles": 32768,
         "verticesBytes": 798768,
         "hierarchyBytes": 2048,
-        "preparationMS": 552.5,
+        "preparationMS": 703.0999999046326,
         "rays": 204,
         "hits": 79,
         "worst": 0.0000052072807363856555
@@ -19,7 +19,7 @@
         "triangles": 131072,
         "verticesBytes": 3170352,
         "hierarchyBytes": 8192,
-        "preparationMS": 181.90000009536743,
+        "preparationMS": 204.5,
         "rays": 204,
         "hits": 79,
         "worst": 0.000009488549409297775
@@ -29,7 +29,7 @@
         "triangles": 524288,
         "verticesBytes": 12632112,
         "hierarchyBytes": 32768,
-        "preparationMS": 440.2000000476837,
+        "preparationMS": 511.09999990463257,
         "rays": 204,
         "hits": 80,
         "worst": 0.000007913720509122868
@@ -39,7 +39,7 @@
         "triangles": 2097152,
         "verticesBytes": 50430000,
         "hierarchyBytes": 131072,
-        "preparationMS": 1104.5999999046326,
+        "preparationMS": 1438.3999998569489,
         "rays": 204,
         "hits": 80,
         "worst": 0.000005797105792737511
@@ -136,7 +136,7 @@
       "width": 960,
       "height": 540,
       "samples": 32,
-      "milliseconds": 3475,
+      "milliseconds": 4136,
       "status": "128 × 128 final cells · 32,768 triangles. Preview remains 128 × 128.",
       "sha256": "b95e7baafe5604775490e12222fcaeb650389e1c5f618e2563ee42669aa2c742"
     },
@@ -145,7 +145,7 @@
       "width": 960,
       "height": 540,
       "samples": 32,
-      "milliseconds": 5637,
+      "milliseconds": 6298,
       "status": "512 × 512 final cells · 524,288 triangles. Preview remains 128 × 128.",
       "sha256": "4aad43f4085084a8ed03ae36cf0e9e38ff5e66b50ac0e127500f41e81c9f92dc"
     },
@@ -154,7 +154,7 @@
       "width": 960,
       "height": 540,
       "samples": 32,
-      "milliseconds": 6588,
+      "milliseconds": 7617,
       "status": "1024 × 1024 final cells · 2,097,152 triangles. Preview remains 128 × 128.",
       "sha256": "7e1148a0e60d8d1c669b06b55ca78f5178f396ca3602d28ea1942d1bb065e7f0"
     }

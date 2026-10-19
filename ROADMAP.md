@@ -62,7 +62,7 @@ existing terrain, material, camera and light capabilities. The editor must ship
 with a small set of actual renderable objects, so users can already add and move
 content before the larger asset/vegetation libraries in Wave 5. Later systems plug
 into the same selection, transforms, history and persistence contracts. These are
-planned capabilities; W3.S4 transport, lighting and exposure is complete locally. W3.S5 water optics and rendering workflow is complete locally. W3.S6 camera/composition quality is next.
+planned capabilities; W3.S4 transport, lighting and exposure is complete locally. W3.S5 water optics and rendering workflow is complete locally. W3.S6 camera/composition implementation and integrated review are complete locally; its photographic visual gate remains open.
 
 ## Decisions from the review
 
@@ -135,7 +135,7 @@ and [image comparisons](docs/visual-quality.md). W3.S4 is complete locally with
 opt-in v8 bounded terrain interreflection, conservative diffuse/GGX dielectric
 transport, MIS, four editable area lights, exposure and filmic color. See
 [light transport](docs/light-transport.md) and the reproducible image comparisons.
-W3.S5 is complete locally: lake absorption/refraction, filtered ripples, damp shores, current defaults, an undoable model upgrade and a shared-kernel live lighting preview. See [lake optics](docs/water.md). W3.S6 is next.
+W3.S5 is complete locally: lake absorption/refraction, filtered ripples, damp shores, current defaults, an undoable model upgrade and a shared-kernel live lighting preview. See [lake optics](docs/water.md). W3.S6 camera/composition implementation is complete locally; see [camera](docs/camera.md) and [integrated review](docs/visual-quality.md). The visual gate remains open.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|
@@ -144,14 +144,14 @@ W3.S5 is complete locally: lake absorption/refraction, filtered ripples, damp sh
 | W3.S3 | Materials evaluated at ray hits: multiscale rock strata/fractures, soil/snow variation, filtered bump normals and roughness, coherent world-space mapping; reusable material definitions for later object assignment | Close-up rock reads as rock rather than smooth colored plastic; aliasing/normal-energy checks; near/middle/far crops and material reference scenes |
 | W3.S4 | **Complete locally.** Energy-conserving diffuse/GGX/dielectric transport, indirect terrain light, MIS, editable area lights, exposure and filmic color controls | White-furnace and sampling tests; light position/direction/size/intensity can be authored; no clipped/chalky highlights or crushed shadows in benchmark scenes; documented linear working space and export transform |
 | W3.S5 | **Complete locally.** Water absorption/refraction, incoming-light attenuation, depth color, filtered ripples and damp shores; current models for new scenes, explicit undoable old-scene upgrade preserving sun direction, shared-kernel live lighting preview, visible file actions and bounded 256-sample rendering | Fresnel/attenuation and dark-scene tests; shallow/deep/calm/ripple/grazing exports; exact-scene before/after review; upgrade/Undo/save/recovery, preview cancellation/WebGL fallback and noise convergence |
-| W3.S6 | Physical camera, depth of field, render region, bounded 2K export with landscape/portrait framing, curated daylight/golden-hour compositions and integrated quality review | Original mountain/coast/snow gallery passes the visual rubric below; reproducible scenes and measured budgets; no claim of photorealism from numerical tests alone |
+| W3.S6 | **Implemented and validated locally; visual acceptance remains open.** Physical camera, depth of field, render region, bounded 2K export with landscape/portrait framing, curated daylight/golden-hour compositions and integrated quality review | Original mountain/coast/snow gallery passes the visual rubric below; reproducible scenes and measured budgets; no claim of photorealism from numerical tests alone |
 | W3.S7 | Editable scene foundation: versioned entity IDs/components, named Objects list, viewport picking, selection inspector, visibility/locks, groups and common undoable editing commands; migrate existing terrain/water/light/camera documents | Old scenes open intact; selection in list/viewport agrees; save/reopen/recovery preserve entities and relationships; locks prevent accidental edits; malformed/cyclic/oversized graphs rejected; authoring remains usable with WebGL preview |
 | W3.S8 | Add and transform: a small original primitive library rendered in preview/final, Add/place, move/rotate/scale handles, world/local axes, numeric fields, snapping, duplicate/copy/paste/delete, multi-selection/group transforms, alignment and terrain placement | Compose a scene with multiple objects and an authored light; occlusion, shadows and transforms agree in preview/final; one gesture is one undo step; Escape restores the prior state; keyboard/numeric routes work; unsupported entity transforms are explicit; object/memory budgets measured |
 | W3.S9 | Composition workspace: perspective/top/front/side editor views, frame selection, named camera bookmarks, active render camera, editable material assignment and terrain material masks; blank-scene and composition templates | A user can start blank, add/place objects, shape/paint terrain, compose through a saved camera, render and reopen the result without code; generated components can be changed without losing unrelated authored work; no rendering of selection handles/guides; original authoring gallery and guides |
 
 Final geometry must no longer inherit the interactive preview's resolution cap.
 W3.S2 establishes this foundation; W3.S3–S4 must deliver the surface and lighting
-quality that geometry alone cannot supply. Attractive bare landscapes are a Wave 3
+quality that geometry alone cannot supply. The S6 review still finds repetitive landforms, coarse surface variation, smooth snow, noisy deep shadows and a finite-world horizon transition. These are explicit rendering debt before the release gate can close; 2K or higher sample counts do not resolve them. Attractive bare landscapes are a Wave 3
 release gate, before vegetation or clouds can hide weaknesses. Wave 3 also requires
 a complete hands-on composition loop through W3.S7–S9. Numerical image-quality
 checks and editor usability are both acceptance gates; neither substitutes for

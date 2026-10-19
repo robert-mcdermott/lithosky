@@ -4,7 +4,7 @@
     "description": "Stone, water & morning light",
     "scene": {
       "format": "lithosky",
-      "version": 9,
+      "version": 10,
       "title": "Alpine quiet",
       "terrain": {
         "generator": "terrain-v1",
@@ -15,7 +15,20 @@
       "camera": {
         "yaw": 0.28,
         "pitch": 0.3,
-        "distance": 23
+        "distance": 23,
+        "lens": {
+          "model": "thin-lens-v1",
+          "frame": "16:9",
+          "focalLength": 21.09375,
+          "fNumber": 8,
+          "dof": false,
+          "focusDistance": 2300,
+          "metresPerUnit": 100,
+          "targetX": 0,
+          "targetY": 1.8,
+          "targetZ": -4,
+          "roll": 0
+        }
       },
       "water": {
         "enabled": true,
@@ -73,7 +86,8 @@
         "altitude": 0,
         "metresPerUnit": 100,
         "aerosols": 1,
-        "ozone": 1
+        "ozone": 1,
+        "groundAlbedo": 0.12
       }
     }
   },
@@ -82,7 +96,7 @@
     "description": "A softer side of the mountains",
     "scene": {
       "format": "lithosky",
-      "version": 9,
+      "version": 10,
       "title": "Evening highlands",
       "terrain": {
         "generator": "terrain-v1",
@@ -93,7 +107,20 @@
       "camera": {
         "yaw": -0.45,
         "pitch": 0.22,
-        "distance": 26
+        "distance": 26,
+        "lens": {
+          "model": "thin-lens-v1",
+          "frame": "16:9",
+          "focalLength": 21.09375,
+          "fNumber": 8,
+          "dof": false,
+          "focusDistance": 2600,
+          "metresPerUnit": 100,
+          "targetX": 0,
+          "targetY": 1.8,
+          "targetZ": -4,
+          "roll": 0
+        }
       },
       "water": {
         "enabled": true,
@@ -151,7 +178,8 @@
         "altitude": 0,
         "metresPerUnit": 100,
         "aerosols": 1,
-        "ozone": 1
+        "ozone": 1,
+        "groundAlbedo": 0.12
       }
     }
   },
@@ -160,7 +188,7 @@
     "description": "An imagined color story",
     "scene": {
       "format": "lithosky",
-      "version": 9,
+      "version": 10,
       "title": "A distant world",
       "terrain": {
         "generator": "terrain-v1",
@@ -171,7 +199,20 @@
       "camera": {
         "yaw": -0.35,
         "pitch": 0.22,
-        "distance": 27
+        "distance": 27,
+        "lens": {
+          "model": "thin-lens-v1",
+          "frame": "16:9",
+          "focalLength": 21.09375,
+          "fNumber": 8,
+          "dof": false,
+          "focusDistance": 2700,
+          "metresPerUnit": 100,
+          "targetX": 0,
+          "targetY": 1.8,
+          "targetZ": -4,
+          "roll": 0
+        }
       },
       "water": {
         "enabled": true,
@@ -229,7 +270,8 @@
         "altitude": 0,
         "metresPerUnit": 100,
         "aerosols": 1,
-        "ozone": 1
+        "ozone": 1,
+        "groundAlbedo": 0.12
       }
     }
   }

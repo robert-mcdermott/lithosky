@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-async page=>{page.on('dialog',d=>d.accept());await page.reload();await page.waitForFunction(()=>!document.getElementById('render-start').disabled);await page.locator('#live-preview').uncheck();return await page.evaluate(async()=>{
+async page=>{await page.waitForFunction(()=>!document.getElementById('render-start').disabled);await page.locator('#live-preview').uncheck();return await page.evaluate(async()=>{
  const {createTracer}=await import('/render/tracer.js'),{defaultScene,renderState}=await import('/scene/document.js'),{TerrainCache}=await import('/scene/generation.js');
  const state=renderState(defaultScene()),field=await new TerrainCache().final(state,512),tracer=await createTracer(state,{width:640,height:360,samples:256},field),images=new Map();
  try {await tracer.run(new AbortController().signal,image=>{if([8,64,256].includes(image.samples))images.set(image.samples,image.rgba);});}finally{tracer.dispose();}

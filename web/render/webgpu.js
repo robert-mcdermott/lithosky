@@ -7,7 +7,8 @@ struct Vertex { @builtin(position) position: vec4f, @location(0) normal: vec3f, 
   let delta = position - camera.eye.xyz;
   let depth = dot(delta, camera.forward.xyz);
   var result: Vertex;
-  result.position = vec4f(dot(delta, camera.right.xyz) / (0.48 * camera.eye.w), dot(delta, camera.up.xyz) / 0.48, 150.0 / 149.9 * depth - 15.0 / 149.9, depth);
+  // Near .05, far 512 covers the extended camera range and bounded terrain.
+  result.position = vec4f(dot(delta, camera.right.xyz) / (camera.right.w * camera.eye.w), dot(delta, camera.up.xyz) / camera.right.w, 512.0 / 511.95 * depth - 25.6 / 511.95, depth);
   result.normal = normal; result.color = color; result.distance = length(delta);
   return result;
 }

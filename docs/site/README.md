@@ -80,7 +80,7 @@ Before advertising a release, update the install page and changelog to the actua
 published status, refresh captures if necessary, and rerun validation.
 
 The guide also offers the original `assets/daylight.lithosky` v6 atmosphere scene.
-It is checked against the shared scene schema by the site test. The three gallery starters now use the current v9 models, including physical
+It is checked against the shared scene schema by the site test. The three gallery starters now use the current v10 camera/models, including physical
 atmosphere and lake optics. Older downloadable comparison scenes retain their
 explicit models.
 
@@ -103,3 +103,11 @@ Lake comparisons use `node docs/capture/water-run.mjs http://127.0.0.1:PORT`.
 The Silver basin v9 scene provides classic/calm/ripple/clear/grazing exports and
 a 256-sample comparison. The source/scene/image hashes, settings, device/timings
 and real GPU water probes are verified by the site builder.
+
+Camera/composition captures use `node docs/capture/camera-run.mjs http://127.0.0.1:PORT`.
+Run it serially with the other GPU captures. It checks actual camera rays, exact
+full/crop pixels, all 2K orientations and editing/recovery/WebGL workflows, then
+exports three original 2K/64-sample/Fine compositions, nine unscaled 256×128 crops
+and an explicit pinhole/thin-lens study. `camera-captures.json` records the scenes,
+source/image hashes, settings, budgets, device and timings. Site generation
+validates provenance; these are rendering studies, not a photographic-quality claim.

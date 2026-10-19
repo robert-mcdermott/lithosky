@@ -54,9 +54,16 @@ export async function buildAtmosphere(settings,eyeHeight,sun,{signal,yieldContro
     if(y%8===0)await yieldControl();
   }
   const height=clamp(settings.altitude/1000+eyeHeight*settings.metresPerUnit/1000,.001,59);
+  const ground=[];
   for(let y=0;y<SH;y++) {
-    check();for(let x=0;x<SW;x++){const d=uvDirection(x/(SW-1),y/(SH-1)),sample=integrate(height,d,sun,m,(h,mu)=>lookupTrans(data,h,mu,m));data.set(sample.radiance,4*(SKY_OFFSET+y*SW+x));}
+    check();for(let x=0;x<SW;x++){const d=uvDirection(x/(SW-1),y/(SH-1)),sample=integrate(height,d,sun,m,(h,mu)=>lookupTrans(data,h,mu,m)),index=4*(SKY_OFFSET+y*SW+x);data.set(sample.radiance,index);if(settings.groundAlbedo&&groundHit(height,d[1],m))ground.push({d,index,T:sample.transmittance});}
     if(y%4===0)await yieldControl();
+  }
+  if(settings.groundAlbedo){
+    // Original diffuse spherical-ground closure. The sky term is a bounded
+    // irradiance quadrature at observer altitude, not multiple scattering.
+    const sky=[0,0,0];for(let i=0;i<32;i++){const mu=Math.sqrt((i+.5)/32),phi=i*2.39996323,d=[Math.sqrt(1-mu*mu)*Math.cos(phi),mu,Math.sqrt(1-mu*mu)*Math.sin(phi)],L=sample2D(data,SKY_OFFSET,SW,SH,...directionUV(d));for(let k=0;k<3;k++)sky[k]+=L[k]*Math.PI/32;}
+    for(const {d,index,T}of ground){const distance=boundary(height,d[1],m),n=[d[0]*distance/m.radius,(m.radius+height+d[1]*distance)/m.radius,d[2]*distance/m.radius],mu=n.reduce((a,x,i)=>a+x*sun[i],0),solar=lookupTrans(data,0,mu,m);for(let k=0;k<3;k++)data[index+k]+=T[k]*settings.groundAlbedo*(sky[k]+solar[k]*Math.max(0,mu))/Math.PI;}
   }
   check();return {data,height};
 }

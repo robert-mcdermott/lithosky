@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 3, slice 5 — lake optics and rendering workflow.** Compose
+**Status: wave 3, slice 6 — camera and composition.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and lake absorption/reflection/refraction, then
@@ -12,6 +12,10 @@ export PNG. WebGPU powers final rendering; WebGL 2 supplies a fallback raster pr
 The generated site and six-platform packaging are implemented. Native Windows/Linux
 release checks remain pending, so v0.1.0 is not yet tagged or published. See the
 [roadmap](ROADMAP.md) and [release gates](docs/releases.md).
+
+The camera/export implementation is complete locally. The integrated image review
+still finds visible geology, surface, snow and horizon defects; photographic
+quality remains a release gate. See [the original render studies](docs/visual-quality.md).
 
 ## Build and run
 
@@ -50,14 +54,14 @@ in one undo step, preserving the actual sun direction. See [lake optics](docs/wa
 ## Preview controls
 
 Choose a study, edit its seed, adjust height/light and select a palette. Drag to
-orbit and scroll to zoom. With the view focused, arrow keys orbit, +/− zoom and
+orbit, Shift-drag to pan and scroll to zoom. With the view focused, arrow keys orbit, Shift-arrow keys pan, +/− zoom and
 Home resets. **Graphics & compatibility** can force WebGL 2, disable the GPU or
 retry after failure. GPU failure preserves the current in-memory parameters.
 
 ## Terrain layers
 
 Format numbers below are minimum versions for individual capabilities. Scenes
-that retain lake optics save as v9, including layered and imported terrain.
+with the photographic camera save as v10; scenes without it can retain older formats.
 
 **Build with layers** creates a new landform from rolling hills (fBm), ridges,
 domain warp and terraces. Add, reorder, disable and tune up to eight layers;
@@ -105,9 +109,13 @@ authoring controls, numerical checks and current limits.
 
 ## Render and export
 
-Choose **Render image** for a progressive 16:9 still at 640 × 360 or 960 × 540,
+Choose **Render image** for a progressive still up to 2048 pixels on its long edge,
 with 8–256 samples per pixel. **Cancel render** keeps the last complete sample;
 **Export PNG** saves it in sRGB. Visual edits clear the old render; renaming keeps it.
+**Camera & composition** saves lens, focus, roll, aim target and landscape, portrait
+or square framing. Optional depth of field uses a thin lens; landscape scenes usually
+remain sharp. **Render a region** traces and exports a crop with the full image’s
+framing and sampling. See [camera controls](docs/camera.md).
 Rendering is bounded and local, with no external libraries or services. This first tracer uses
 single-scattering atmosphere and lake optics; large waves and vegetation
 come later. See [rendering](docs/rendering.md) for controls, limits and validation.
@@ -124,7 +132,7 @@ schema, storage locations, keyboard shortcuts and failure behavior.
 
 ## Website and distribution
 
-Three original starter scenes are shared by the app and downloadable gallery.
+Three original starters and three camera compositions are shared by the app and downloadable gallery.
 Choose **Start with a scene** on any screen size; the Quick guide explains camera
 controls and the path from a scene to a still.
 
@@ -132,9 +140,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.3.0-dev.4 --out dist/releases/0.3.0-dev.4`
+`go run ./tools/release --version 0.3.0-dev.6 --out dist/releases/0.3.0-dev.6`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.3.0-dev.4` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.6` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

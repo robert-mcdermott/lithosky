@@ -1,6 +1,6 @@
 {
   "format": "lithosky",
-  "version": 9,
+  "version": 10,
   "title": "Evening highlands",
   "terrain": {
     "generator": "terrain-v1",
@@ -11,7 +11,20 @@
   "camera": {
     "yaw": -0.45,
     "pitch": 0.22,
-    "distance": 26
+    "distance": 26,
+    "lens": {
+      "model": "thin-lens-v1",
+      "frame": "16:9",
+      "focalLength": 21.09375,
+      "fNumber": 8,
+      "dof": false,
+      "focusDistance": 2600,
+      "metresPerUnit": 100,
+      "targetX": 0,
+      "targetY": 1.8,
+      "targetZ": -4,
+      "roll": 0
+    }
   },
   "water": {
     "enabled": true,
@@ -69,6 +82,7 @@
     "altitude": 0,
     "metresPerUnit": 100,
     "aerosols": 1,
-    "ozone": 1
+    "ozone": 1,
+    "groundAlbedo": 0.12
   }
 }

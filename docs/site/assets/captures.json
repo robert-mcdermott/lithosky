@@ -1,14 +1,14 @@
 {
-  "version": "0.3.0-dev.5",
+  "version": "0.3.0-dev.6",
   "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
-  "capturedAt": "2026-10-19T02:28:05.950Z",
-  "sourceHash": "07209d5c479a14229e5639be38d2573a688e493da322e64ac41c07640c72cc26",
+  "capturedAt": "2026-10-19T03:26:29.658Z",
+  "sourceHash": "0646871e06fc005ec111d013199c0063733e91b22b346dd13aa33488323b57a6",
   "records": [
     {
       "id": "alpine",
       "scene": {
         "format": "lithosky",
-        "version": 9,
+        "version": 10,
         "title": "Alpine quiet",
         "terrain": {
           "generator": "terrain-v1",
@@ -19,7 +19,20 @@
         "camera": {
           "yaw": 0.28,
           "pitch": 0.3,
-          "distance": 23
+          "distance": 23,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "16:9",
+            "focalLength": 21.09375,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2300,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.8,
+            "targetZ": -4,
+            "roll": 0
+          }
         },
         "water": {
           "enabled": true,
@@ -77,20 +90,21 @@
           "altitude": 0,
           "metresPerUnit": 100,
           "aerosols": 1,
-          "ozone": 1
+          "ozone": 1,
+          "groundAlbedo": 0.12
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
       "detail": 512,
-      "sha256": "178eefaa7a1ace9efca4241cfcba97ecb7c1d83a150f1f91e4891e7fb536c772"
+      "sha256": "97cd4caf404f3f9f364351f8c322f12a6f8c44486f8c7325e39ba63d007e2f2e"
     },
     {
       "id": "highland",
       "scene": {
         "format": "lithosky",
-        "version": 9,
+        "version": 10,
         "title": "Evening highlands",
         "terrain": {
           "generator": "terrain-v1",
@@ -101,7 +115,20 @@
         "camera": {
           "yaw": -0.45,
           "pitch": 0.22,
-          "distance": 26
+          "distance": 26,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "16:9",
+            "focalLength": 21.09375,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2600,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.8,
+            "targetZ": -4,
+            "roll": 0
+          }
         },
         "water": {
           "enabled": true,
@@ -159,20 +186,21 @@
           "altitude": 0,
           "metresPerUnit": 100,
           "aerosols": 1,
-          "ozone": 1
+          "ozone": 1,
+          "groundAlbedo": 0.12
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
       "detail": 512,
-      "sha256": "bd39e4266b7b4948b3082b7b1f3a2704ed0cae5edb147450109af58bd76aa1d3"
+      "sha256": "7e58c78d3e257e46487b9117c26d7f14bfb8301f425e6e741b6e595816a357bd"
     },
     {
       "id": "distant",
       "scene": {
         "format": "lithosky",
-        "version": 9,
+        "version": 10,
         "title": "A distant world",
         "terrain": {
           "generator": "terrain-v1",
@@ -183,7 +211,20 @@
         "camera": {
           "yaw": -0.35,
           "pitch": 0.22,
-          "distance": 27
+          "distance": 27,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "16:9",
+            "focalLength": 21.09375,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2700,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.8,
+            "targetZ": -4,
+            "roll": 0
+          }
         },
         "water": {
           "enabled": true,
@@ -241,15 +282,16 @@
           "altitude": 0,
           "metresPerUnit": 100,
           "aerosols": 1,
-          "ozone": 1
+          "ozone": 1,
+          "groundAlbedo": 0.12
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
       "detail": 512,
-      "sha256": "dd586111bfc085514a408e3f7b991ec4a87572ae635d388406e1aa6caa5f8289"
+      "sha256": "45ab9f74d92ca75cb0a47d03cdbf92cdb95d4e5911773eaef7292dc7da712ad5"
     }
   ],
-  "studioSHA256": "4cc74f28a11bcf26b14b3f6fc5f17537017501c4479b2e9d005254a1dc839174"
+  "studioSHA256": "a8a58305e0207f3bd4288cbe024127a1db8bf61a9d5e6353b86878880a1dd0f9"
 }

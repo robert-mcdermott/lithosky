@@ -70,7 +70,7 @@ fn transportLand(origin:vec3f,direction:vec3f,initial:Hit,seed:ptr<function,u32>
   let g=select(-hit.geometric,hit.geometric,dot(d,hit.geometric)<0);var n=select(-hit.normal,hit.normal,dot(d,hit.normal)<0);
   var color=hit.color;var roughness=config.transportExtra.z;
   if(config.material.x>.5) {
-   let footprint=clamp(distance*.96/f32(config.image.y)/sqrt(max(abs(dot(d,g)),.12)),.00025,4.0);
+   let footprint=clamp(distance*(2*config.right.w)/f32(config.region.w)/sqrt(max(abs(dot(d,g)),.12)),.00025,4.0);
    let surface=geologicalSurface(p,n,footprint);n=surface.normal;color=surface.color;roughness=surface.roughness;
   }
   // Limit shading-normal excursions and reject transport below the actual surface.

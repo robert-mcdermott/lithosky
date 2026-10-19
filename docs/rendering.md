@@ -1,7 +1,7 @@
 # Rendering stills
 
 Choose **Render image** to trace the current scene. Preview and output use a
-16:9 camera frame. Choose 640 × 360 or 960 × 540, with 8, 16, 32, 64, 128 or 256 samples per
+saved camera frame: 16:9, 3:2, 2:3 or square. Choose a 640, 960, 1280, 1600 or 2048-pixel long edge, with 8, 16, 32, 64, 128 or 256 samples per
 pixel. More samples reduce antialiasing and sky-occlusion noise. The image updates
 after every complete sample. **Show preview / Show render** compares the two.
 
@@ -14,7 +14,7 @@ encoder callback cannot publish an image from the old scene.
 **Export PNG** downloads a new opaque 8-bit sRGB image at the selected dimensions.
 The filename includes dimensions and completed samples. It contains exactly the
 image pixels, without controls or viewport labels. **Save scene** remains a
-separate operation. Image size, samples, terrain detail and accumulation are transient;
+separate operation. Image size, samples, render region, terrain detail and accumulation are transient;
 they do not change the scene document or survive app shutdown. Studio lighting
 exposure and color settings are saved with the v8 scene.
 
@@ -34,7 +34,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files remain v1–v9. Draft
+These choices are transient render settings; scene files support v1–v10. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.
@@ -92,7 +92,9 @@ and checks cancellation. Completed image readback occurs once per sample. Work
 ends after the selected sample count; live lighting runs a finite 16-sample job after idle and stops. These are
 work bounds, not a hardware-independent latency or watchdog guarantee.
 
-At 960 × 540 the three image buffers total about 11.87 MiB. Geometry adds:
+At 960 × 540 the three image buffers total about 11.87 MiB. At 2048² they total
+96 MiB (24 bytes per output pixel), excluding CPU readback/snapshot/PNG copies.
+A render region allocates only its output pixels. See [camera and crop rules](camera.md). Geometry adds:
 
 | Final cells | Triangles | Vertex buffer | Hierarchy |
 |---|---:|---:|---:|
@@ -190,11 +192,11 @@ filtering is approximate; normal/transport limitations are documented in the
 ## Lake optics and live lighting
 
 See [lake optics](water.md) for the v9 equations, limits, image comparisons and
-controls. The trace uniform block is now 320 bytes (two additional vec4 values);
+controls. The trace uniform block is 352 bytes, including lake, camera and region values;
 existing offsets and storage-buffer counts are unchanged. Live lighting uses the
-same kernels at 320 × 180 / 16 samples / 128² terrain after 450 ms idle, with
+same kernels within a 320-pixel long edge / 16 samples / 128² terrain after 450 ms idle, with
 per-job disposal and stale-result checks. It never feeds PNG export. Final image
-sizes remain 640 × 360 and 960 × 540; sample choices now extend to 128 and 256.
+sizes now reach a 2048-pixel long edge in the saved frame; sample choices extend to 128 and 256.
 
 Browser callbacks `tests/browser-water.mjs`, `tests/browser-water-ui.mjs` and
 `tests/browser-noise.mjs` verify GPU parity, dark/extreme/submerged rays, scene

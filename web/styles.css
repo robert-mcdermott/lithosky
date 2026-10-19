@@ -766,3 +766,13 @@ main:has(.inspector[hidden]) { --controls-width:0px; }
 #lighting-image { position:absolute; inset:0; width:100%; height:100%; image-rendering:auto; pointer-events:none; }
 #lighting-image[hidden] { display:none; }
 @media(max-width:600px) { .workspace-toolbar { top:0; } }
+
+#render-region {position:absolute;inset:0;pointer-events:none;z-index:2;}
+#render-region[hidden] {display:none;}
+#render-region.selecting {pointer-events:auto;cursor:crosshair;touch-action:none;}
+#region-box {position:absolute;border:2px solid #e4f4c5;box-shadow:0 0 0 100vmax #0002;pointer-events:none;}
+.viewport-wrap {overflow:hidden;}
+.region-inputs {display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.region-inputs input {width:100%;min-width:0;}
+#region-fields {margin-block:12px;}
+#render-image {inset:auto;}

@@ -3,7 +3,7 @@ import { frameUniforms, normalize } from './terrain.js';
 import { intersectHeightfield, GRID } from '../render/heightfield.js';
 export function cameraRay(state,aspect,u,v) {
   const f=frameUniforms(state,aspect),origin=Array.from(f.slice(0,3));
-  return {origin,direction:normalize([0,1,2].map(i=>f[12+i]+f[4+i]*(2*u-1)*.48*aspect+f[8+i]*(1-2*v)*.48))};
+  return {origin,direction:normalize([0,1,2].map(i=>f[12+i]+f[4+i]*(2*u-1)*f[7]*aspect+f[8+i]*(1-2*v)*f[7]))};
 }
 export function pickTerrain(field,state,aspect,u,v) {
   if(!field||u<0||u>1||v<0||v>1)return null;
@@ -19,5 +19,5 @@ export function fieldHeight(field,x,z) {
 export function projectPoint(state,aspect,point) {
   const f=frameUniforms(state,aspect),d=point.map((v,i)=>v-f[i]),dot=offset=>d.reduce((n,v,i)=>n+v*f[offset+i],0),depth=dot(12);
   if(depth<=.1)return null;
-  return [.5+dot(4)/(depth*.48*aspect)*.5,.5-dot(8)/(depth*.48)*.5];
+  return [.5+dot(4)/(depth*f[7]*aspect)*.5,.5-dot(8)/(depth*f[7])*.5];
 }
