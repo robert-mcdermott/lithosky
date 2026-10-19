@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {lightingControls} from './lighting/controls.js';
 import { atmosphereControls } from './atmosphere/controls.js';
 import { heightmapControls } from './scene/heightmap-controls.js';
 import { MAX_PROJECT_BYTES } from './scene/heightmaps.js';
@@ -57,6 +58,7 @@ let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
 const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const lighting = lightingControls(()=>history.value,discrete);
 const atmosphere = atmosphereControls(()=>history.value,discrete);
 const materials = materialControls(() => history.value, discrete);
 const layerControls = terrainControls(() => history.value, discrete);
@@ -146,7 +148,7 @@ $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
   const scene = history.value;
-  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;

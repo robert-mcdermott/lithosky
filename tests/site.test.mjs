@@ -14,6 +14,7 @@ test('site generates all pages and portable scenes with checked capture provenan
     for(const id of ['alpine','highland','distant']) assert.equal(JSON.parse(fs.readFileSync(path.join(out,'scenes',id+'.lithosky'))).format,'lithosky');
     const daylight=JSON.parse(fs.readFileSync(path.join(out,'assets/daylight.lithosky'))),schema=JSON.parse(fs.readFileSync(new URL('../internal/scene/schema.json',import.meta.url)));
     assert.equal(validateScene(daylight,schema).version,6);
+    const radiant=JSON.parse(fs.readFileSync(path.join(out,'assets/radiant-highlands.lithosky')));assert.equal(validateScene(radiant,schema).version,8);assert.equal(radiant.lighting.transport.bounces,3);
     assert.equal(buildSite(out).links,report.links);
     fs.appendFileSync(path.join(out,'index.html'),'<a href="guide.html#nonexistent">Bad link</a>');assert.throws(()=>checkSite(out),/missing anchor/);
     buildSite(out);fs.rmSync(path.join(out,'assets','alpine.png'));assert.throws(()=>checkSite(out),/missing local target/);

@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v7 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v8 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere and v7 geological surfaces. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere and v7 geological surfaces and v8 studio light transport/color. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -241,3 +241,16 @@ Switching to a simple surface explicitly removes geology and chooses the minimum
 supported format for the remaining features. Undo restores the earlier definition.
 No generator algorithm, terrain sample, camera or existing v1–v6 file is silently
 upgraded when opened. The material definition is independent of terrain buffers.
+
+## V8 studio lighting
+
+V8 requires `lighting.transport`, model `path-v1`, one to four bounce vertices,
+bounded exposure/roughness/IOR/sun/sky strengths and a filmic or Reinhard curve.
+It accepts all three terrain families; surface, geology and atmosphere are
+optional. At most four rectangular lights each have a name, enabled flag,
+position, azimuth/elevation, size, radiance and linear RGB. Unknown fields, invalid
+numbers, unsupported models and oversized arrays are rejected identically in Go
+and JavaScript. Lighting survives terrain conversion/import, sculpt, atmosphere
+and surface changes. Save/recovery, history budgets and portable assets retain
+their existing limits. Removing studio lighting chooses the minimum format for
+the remaining capabilities. See [light transport](light-transport.md).

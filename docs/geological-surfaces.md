@@ -86,3 +86,8 @@ render invalidation/cancellation and mobile WebGL editing.
 native-pixel foreground/middle/horizon crops and rock/ground/snow reference views.
 It verifies unchanged scene content and source/image hashes. See
 [visual-quality record](visual-quality.md) for the images and measured costs.
+
+With v8 studio lighting enabled, the same geological colors, roughness and bump
+normals feed the conservative diffuse/GGX dielectric BRDF. The rough-diffuse
+angular factor described above applies to classic lighting only. See
+[light transport and color](light-transport.md) for sampling, energy and display limits.

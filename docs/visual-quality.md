@@ -153,3 +153,47 @@ The diffuse tests do not establish conservation for the entire bumped integrator
 
 Reproduce using `docs/capture/material-run.mjs` against an isolated rebuilt app.
 See [geological surface controls and limits](geological-surfaces.md).
+
+## W3.S4: light transport and color
+
+The [Radiant highlands scene](site/assets/radiant-highlands.lithosky) retains the
+previous geological terrain, camera, sun and surface. Studio lighting adds the
+new bounded diffuse/GGX dielectric path integrator and exposure/filmic transform.
+The [capture record](site/assets/lighting-captures.json) contains the exact scene
+for every image, source/scene/PNG hashes, browser/GPU, settings, time, image
+statistics and actual shader probes. All are original unretouched app exports.
+
+| Classic path and fixed display | Studio transport and filmic display |
+|---|---|
+| ![Classic](site/assets/lighting-classic.png) | ![Studio](site/assets/lighting-studio.png) |
+
+This pair changes both transport and display. To isolate terrain interreflection,
+compare [one surface vertex](site/assets/lighting-direct.png) against
+[three](site/assets/lighting-studio.png), both at +2.75 EV with the same filmic
+curve and all other parameters equal. The ravines gain indirect illumination;
+this is a modest improvement, not photographic realism. Smooth procedural
+landforms, surface transitions, an untextured sky and limited water remain visible
+limitations. The new conservative surface mixture is intentionally energy-losing;
+it does not model a fully layered rock coating.
+
+[One additional exposure stop](site/assets/lighting-exposure.png) lifts the entire
+image while preserving a soft highlight shoulder. The
+[authored warm rectangle](site/assets/lighting-area.png) adds a local foreground
+fill. Its placement/direction/size/radiance are recorded with that image. These
+are control studies, not compositional recommendations or a substitute for the
+integrated gallery review in W3.S6. Grain remains visible at 64 samples, especially
+in area-light shadows; no denoiser or postprocessing conceals it.
+
+All five benchmarks use 960 × 540, 64 samples and 1024² final terrain. Their
+unretouched exports contain no fully black or fully white pixels at the chosen
+settings. That numerical check detects gross clipping/crushing, not artistic
+quality. High exposure or directly visible emitters can still quantize to white
+in 8-bit output. See the [working space and transform](light-transport.md).
+
+On the recorded Apple Metal 3 / Chrome 155 run, end-to-end observations were
+12.29 s classic, 13.04 s one vertex, 18.17 s three vertices, 17.61 s exposure +1,
+and 20.93 s with the rectangle. These include preparation and shader setup, not
+isolated GPU timing. The dark-tail (1st percentile) display luminance rises from
+21 to 24 when enabling terrain interreflection at identical exposure. The
+additional exposure stop raises it to 37 while the 99th percentile rises from
+175 to 206, leaving highlight headroom in this scene.

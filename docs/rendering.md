@@ -14,8 +14,9 @@ encoder callback cannot publish an image from the old scene.
 **Export PNG** downloads a new opaque 8-bit sRGB image at the selected dimensions.
 The filename includes dimensions and completed samples. It contains exactly the
 image pixels, without controls or viewport labels. **Save scene** remains a
-separate operation. Image settings and accumulation are transient; they do not
-change the scene document or survive app shutdown.
+separate operation. Image size, samples, terrain detail and accumulation are transient;
+they do not change the scene document or survive app shutdown. Studio lighting
+exposure and color settings are saved with the v8 scene.
 
 Final rendering requires WebGPU. WebGL 2 continues to supply the interactive
 preview and scene editing. If final rendering fails, its image is discarded and
@@ -33,7 +34,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files remain v1–v7. Draft
+These choices are transient render settings; scene files remain v1–v8. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.
@@ -49,17 +50,21 @@ reports an error and allows retry at a lower tier; it never silently downgrades.
 - Ray/box clipping followed by a two-level hierarchy skips empty 8 × 8-cell
   blocks, then tests two triangles per remaining cell.
   Zero direction components, boundary starts, underside rays and parallel rays
-  are handled explicitly. Each traversal stops within 34 blocks and 18 cells per block.
+  are handled explicitly. Each traversal stops within `2 × (grid / 8) + 2` blocks
+  (34 at Draft, 258 at Fine), and 18 cells per visited block.
   Triangle intersections use a minimum distance of 0.001 scene units; secondary rays are
   offset 0.003 units to reduce self-intersection.
 - Terrain receives a directional sun with traced shadows, plus one cosine-weighted
   sky visibility sample. Camera jitter supplies antialiasing. There are no
-  recursive diffuse bounces or indirect light from other terrain surfaces.
+  recursive diffuse bounces or indirect light from other terrain surfaces in the classic path.
+  **Use studio lighting** enables one to four terrain vertices, GGX dielectric
+  reflection, MIS, rectangular emitters and exposure/filmic controls; see
+  [light transport and color](light-transport.md).
 - Calm water is a finite plane over the same X/Z extent, with index of refraction
   1.333. Reflection and refraction share Fresnel weights; total internal reflection
   uses weight one. A simple exponential tint attenuates the transmitted branch.
   Rays first test submerged terrain, so terrain in front of water occludes it.
-- Radiance accumulates in linear floating point. A fixed Reinhard mapping
+- Radiance accumulates in linear floating point. Classic scenes use a fixed Reinhard mapping
   `L / (1 + L)` followed by the piecewise sRGB transfer creates display/export
   bytes. Display and export use the same bytes, with no second gamma conversion.
   Negative, nonfinite or extreme (≥ 1e6) sample radiance increments an error

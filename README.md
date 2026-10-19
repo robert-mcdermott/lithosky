@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 3, slice 1 — physical sun and atmosphere.** Compose
+**Status: wave 3, slice 4 — light transport and color.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and calm-water reflection/refraction, then
@@ -69,7 +69,7 @@ budget; scenes allow 32 strokes of up to 24 marks each.
 rules, or applies a single material preset. Tune transition softness and seeded
 color detail; both palettes work with the rules. Procedural surface settings save as v4
 scenes with the existing terrain and sculpting; imported terrain uses v5, v6
-with atmosphere, or v7 with geology. Older scenes keep their appearance
+with atmosphere, v7 with geology, or v8 with studio lighting. Older scenes keep their appearance
 until customized. Material changes reuse generated heights and traversal bounds.
 
 **Use geological surface** adds original solid rock strata/joints, soil/snow
@@ -89,6 +89,12 @@ aerial perspective to rendered stills. Set sun direction manually or use latitud
 longitude and a UTC date. Atmosphere settings save as v6 with procedural or imported
 terrain; older scenes keep their appearance. See [the atmosphere model](docs/atmosphere.md)
 for controls, reference checks and single-scattering limits.
+
+**Use studio lighting** adds bounded terrain interreflection, diffuse/GGX dielectric
+materials, editable rectangular lights, exposure and filmic color controls. These
+settings save as v8; earlier scenes retain classic lighting until enabled. See
+[light transport and color](docs/light-transport.md) for the working space,
+authoring controls, numerical checks and current limits.
 
 ## Render and export
 
@@ -119,9 +125,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.3.0-dev.3 --out dist/releases/0.3.0-dev.3`
+`go run ./tools/release --version 0.3.0-dev.4 --out dist/releases/0.3.0-dev.4`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.3.0-dev.3` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.4` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

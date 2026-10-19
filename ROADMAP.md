@@ -62,7 +62,7 @@ existing terrain, material, camera and light capabilities. The editor must ship
 with a small set of actual renderable objects, so users can already add and move
 content before the larger asset/vegetation libraries in Wave 5. Later systems plug
 into the same selection, transforms, history and persistence contracts. These are
-planned capabilities; W3.S4 transport, lighting and exposure is the next implementation slice.
+planned capabilities; W3.S4 transport, lighting and exposure is complete locally. W3.S5 water optics is next.
 
 ## Decisions from the review
 
@@ -131,15 +131,18 @@ single scattering with three spectral bands; it does not claim multiple scatteri
 or calibrated spectral color. Native release gates remain open. W3.S2 is complete locally; see
 [visual-quality comparisons](docs/visual-quality.md) and [validation](docs/validation.md).
 W3.S3 geological surfaces is complete locally; see [surface documentation](docs/geological-surfaces.md)
-and [image comparisons](docs/visual-quality.md). W3.S4 transport, lighting and
-exposure is next and has not started.
+and [image comparisons](docs/visual-quality.md). W3.S4 is complete locally with
+opt-in v8 bounded terrain interreflection, conservative diffuse/GGX dielectric
+transport, MIS, four editable area lights, exposure and filmic color. See
+[light transport](docs/light-transport.md) and the reproducible image comparisons.
+W3.S5 water optics is next and has not started.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|
 | W3.S1 | Physical sun/atmosphere LUTs, Rayleigh/Mie/ozone and aerial perspective; manual sun plus geographic positioning | Compare representative radiance/transmittance against published reference data |
 | W3.S2 | Detailed final terrain: independent 128²/512²/1024² tracing tiers, worker preparation, scalable traversal, source-resolution limits and an original ridge benchmark | Thin ridges survive final geometry; CPU/GPU intersection agreement at all tiers; cancel/retry and device budgets; identical-camera before/after renders with recorded cost |
 | W3.S3 | Materials evaluated at ray hits: multiscale rock strata/fractures, soil/snow variation, filtered bump normals and roughness, coherent world-space mapping; reusable material definitions for later object assignment | Close-up rock reads as rock rather than smooth colored plastic; aliasing/normal-energy checks; near/middle/far crops and material reference scenes |
-| W3.S4 | Energy-conserving diffuse/GGX/dielectric transport, indirect terrain light, MIS, editable area lights, exposure and filmic color controls | White-furnace and sampling tests; light position/direction/size/intensity can be authored; no clipped/chalky highlights or crushed shadows in benchmark scenes; documented linear working space and export transform |
+| W3.S4 | **Complete locally.** Energy-conserving diffuse/GGX/dielectric transport, indirect terrain light, MIS, editable area lights, exposure and filmic color controls | White-furnace and sampling tests; light position/direction/size/intensity can be authored; no clipped/chalky highlights or crushed shadows in benchmark scenes; documented linear working space and export transform |
 | W3.S5 | Water absorption/refraction, depth color, ripples and shoreline transitions | Fresnel/attenuation tests plus convincing shallow/deep water and grazing shoreline examples |
 | W3.S6 | Physical camera, depth of field, render region, bounded 2K export with landscape/portrait framing, curated daylight/golden-hour compositions and integrated quality review | Original mountain/coast/snow gallery passes the visual rubric below; reproducible scenes and measured budgets; no claim of photorealism from numerical tests alone |
 | W3.S7 | Editable scene foundation: versioned entity IDs/components, named Objects list, viewport picking, selection inspector, visibility/locks, groups and common undoable editing commands; migrate existing terrain/water/light/camera documents | Old scenes open intact; selection in list/viewport agrees; save/reopen/recovery preserve entities and relationships; locks prevent accidental edits; malformed/cyclic/oversized graphs rejected; authoring remains usable with WebGL preview |

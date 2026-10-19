@@ -743,3 +743,99 @@ All 183 JavaScript tests pass. Go race tests/static checks, binary rebuild and
 references, plus desktop/mobile browser navigation, image decoding, scene
 download, keyboard, overflow and same-origin checks. No release tag, publication
 or native Windows/Linux execution was performed.
+
+## Wave 3, slice 4 — light transport and color
+
+Completed locally as `0.3.0-dev.4`. Studio lighting opts into v8 without changing
+classic v1–v7 renders. The conservative Lambertian/GGX dielectric mixture,
+exact water-interface Fresnel, one-to-four-vertex terrain interreflection, power
+heuristic MIS, up to four authored rectangular lights, saved exposure and filmic
+or luminance Reinhard display are implemented without additional dependencies.
+See [transport equations, working space and limits](light-transport.md).
+
+All 199 JavaScript tests pass. Shared Go/JavaScript fixtures cover v8 and reject
+missing transport, unknown fields, extra lights, unsupported curves, fractional
+bounce depth, out-of-range exposure/color/size and future versions. CPU tests
+cover 36 white-furnace configurations at 32,768 directions each, reciprocity,
+independent hemisphere quadrature versus BSDF sampling, MIS normalization,
+monotonic/gamut-bounded display and stable light frames. Go race tests, static
+analysis and the binary rebuild pass.
+
+Actual WebGPU checks on Apple Metal 3 / Chrome 155 compare 256 evaluation cases
+(2,048 scalars) with the CPU reference: worst normalized error 0.00000449 against
+0.002. Another 3,072 generated directions check sampling, PDF, BSDF and water
+Fresnel; worst normalized error 0.003094 against 0.005. Twelve representative GPU
+furnace cases return reflectance 0.472–0.840; this conservative mixture is
+intentionally energy-losing. These checks do not prove global conservation with
+perturbed shading normals or photographic quality.
+
+Six isolated emitter renders verify zero light with the source off or facing
+away, illumination with it facing down, spatial movement with X, reduced light
+with reduced size and increased light with radiance. At identical settings their
+mean display values are 0, 55.52, 0, 53.21, 7.49 and 75.95 respectively. This
+record is included in `lighting-captures.json` and is reproducible with
+`tests/browser-lighting-energy.mjs`.
+
+Five original unretouched 960 × 540, 64-sample, 1024²-terrain lighting exports
+record exact scene/image/source hashes, settings and histogram statistics. Same
+scene/camera/surface/sun comparisons separate classic versus studio display,
+one versus three terrain vertices, one extra exposure stop and a named warm
+rectangular fill. All five contain zero completely black or completely white
+pixels. Their 1st/50th/99th percentile display luminance values are:
+
+| Study | p01 / p50 / p99 | End-to-end observation |
+|---|---|---|
+| Classic | 15 / 95 / 133 | 12.29 s |
+| One vertex | 21 / 120 / 175 | 13.04 s |
+| Three vertices | 24 / 121 / 175 | 18.17 s |
+| Exposure +1 | 37 / 158 / 206 | 17.61 s |
+| Warm area fill | 46 / 125 / 175 | 20.93 s |
+
+These are local observations including preparation, shader setup, tracing and
+readback, not general performance promises. Grain at low sample counts, smooth
+landforms/material transitions, the clear sky, limited water and incomplete
+indirect air/water transport still limit realism. The images were inspected;
+numerical checks do not replace the W3.S6 integrated visual review.
+
+Prior material, terrain and starter-gallery captures were refreshed against the
+final source hash; the previous terrain/material composition and classic render path are preserved.
+GPU floating-point rounding can change isolated display bytes. The new
+site build/check passes four pages, 126 links and 20 image references. Native
+Windows/Linux release execution remains pending. No release tag or publication
+is implied, and W3.S5 has not started.
+
+The seventh isolated-light case enables the physical atmosphere while sun, sky
+and the emitter are zero (water disabled). Its output is exactly black. This
+catches the corrected sky-strength scaling of camera-segment in-scattering.
+Legacy atmosphere diagnostics still pass 11 cases with worst error 0.00000192.
+
+Browser workflow checks pass v8 migration, numeric validation, four-light bounds,
+selection/edit/removal, Undo/Redo, scene JSON, portable imported terrain,
+recovery, surface/sky/terrain conversions, rendering, cancellation and stale-image
+invalidation. WebGL editing and 390px layouts remain usable. The legacy renderer
+passes 1,024 intersection probes, canvas/PNG byte equality, initialization and
+device-loss failure/retry, partial cancellation, water extremes and editing during
+render/export. Layout checks cover eight sizes from 320px to 1728px, anchored
+pickers, keyboard/native fallback, panel collapse/scroll restoration and retained
+scene/render state, with no unexpected browser errors.
+
+The generated site passes all four pages at 1440px and 390px, decoding every
+image, navigation, scene download, keyboard focus, overflow and local-resource
+checks. Decoding the exported comparison PNGs independently confirms 342,635 of
+518,400 pixels brighten by more than half a display-luminance code with terrain
+interreflection. Mean gain is 1.79 codes; exposure +1 adds 31.87 codes on average
+and reduces no pixel by more than half a code. `browser-lighting-images.mjs`
+reproduces this comparison using permitted same-origin image decoding under the
+site's restrictive CSP. These are image-behavior checks, not a perceptual-quality
+score.
+
+Sun/sky occlusion in the new path uses the full terrain bounds. A custom tall
+heightfield diagnostic finds a hit at 171.918 scene units, verifies that it blocks
+light, and verifies a second direction remains open to the sky. This protects
+against the inherited 150-unit visibility cutoff leaking light through tall
+imported terrain. The traversal still terminates at the bounded heightfield;
+it does not step through empty unbounded space.
+
+An independent decoded-PNG check against the previous committed 1024² terrain
+benchmark finds exactly one changed color channel, by one 8-bit code. This is
+consistent with floating-point shader rounding; the composition is unchanged.

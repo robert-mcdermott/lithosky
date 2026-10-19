@@ -11,7 +11,7 @@ export function defaultScene() {
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2, 3, 4, 5, 6, 7].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3, 4, 5, 6 and 7.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3, 4, 5, 6, 7 and 8.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {
@@ -63,7 +63,7 @@ export function serializeScene(scene, schema) {
   return new TextEncoder().encode(text).length <= MAX_SCENE_BYTES ? text : JSON.stringify(valid) + '\n';
 }
 export function renderState(scene) {
-  return { ...scene.terrain, materials: scene.surface, atmosphere: scene.atmosphere, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
+  return { ...scene.terrain, materials: scene.surface, atmosphere: scene.atmosphere, transport: scene.lighting.transport, ...scene.camera, sun: scene.lighting.sunElevation, waterEnabled: scene.water.enabled, waterLevel: scene.water.level };
 }
 export function wrapYaw(yaw) { return ((yaw + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI; }
 
@@ -74,7 +74,7 @@ export function sceneKey(scene) {
 
 // Choose the minimum format that preserves every enabled scene capability.
 export function updateSceneVersion(scene) {
-  scene.version=scene.surface?.geology?7:scene.atmosphere?6:scene.terrain.generator==='heightmap-v1'?5:scene.surface?4:scene.terrain.generator==='layers-v1'?(scene.terrain.sculpt?3:2):1;
+  scene.version=scene.lighting.transport?8:scene.surface?.geology?7:scene.atmosphere?6:scene.terrain.generator==='heightmap-v1'?5:scene.surface?4:scene.terrain.generator==='layers-v1'?(scene.terrain.sculpt?3:2):1;
   if(scene.version>=3&&scene.terrain.generator==='layers-v1')scene.terrain.sculpt??=[];
   return scene;
 }

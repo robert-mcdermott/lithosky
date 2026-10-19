@@ -390,7 +390,7 @@ main {
   color:#dce9ce;
   font-variant-numeric:tabular-nums
 }
-input[type=number],select {
+input[type=number],#area-name,select {
   width:100%;
   min-width:0;
   border:1px solid #3e4b49;

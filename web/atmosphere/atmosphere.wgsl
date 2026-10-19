@@ -46,7 +46,8 @@ fn aerial(o:vec3f,d:vec3f,distance:f32,color:vec3f)->vec3f {
     let scattering=vec3f(.005802,.013558,.0331)*exp(-h/8)*phaseRayleigh(nu)+vec3f(.003996*config.atmosphere.w*exp(-h/1.2)*phaseMie(nu));
     L+=T*atmosphereSun(h,dot(p/r,config.light.xyz))*scattering*(vec3f(1)-stepT)/max(e,vec3f(1e-9));T*=stepT;
   }
-  return color*T+L;
+  let skyStrength=select(1.0,config.transportExtra.y,config.transport.x>.5);
+  return color*T+L*skyStrength;
 }
 // Diagnostics exercise the same uploaded LUT, phases and attenuation as rendering.
 @compute @workgroup_size(64)

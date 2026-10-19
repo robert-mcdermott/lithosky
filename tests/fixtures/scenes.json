@@ -58,7 +58,7 @@
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 7,
+      "version": 9,
       "title": "Alpine quiet",
       "terrain": {
         "generator": "terrain-v1",
@@ -6293,6 +6293,580 @@
           "fractures": 0.55,
           "bump": 0.6,
           "roughness": 0.7
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 area lights",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 missing transport",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38
+      }
+    }
+  },
+  {
+    "name": "v8 too many lights",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            },
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            },
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            },
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            },
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 exposure overflow",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 9,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 unknown light field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65,
+              "url": "x"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 zero light width",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 0,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 invalid bounce",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 2.5,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 invalid curve",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "x",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 invalid color",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 8,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 2,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "name": "v8 future lighting",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 9,
+      "title": "Alpine quiet",
+      "terrain": {
+        "generator": "terrain-v1",
+        "seed": 1847,
+        "elevation": 1,
+        "palette": "natural"
+      },
+      "camera": {
+        "yaw": 0.28,
+        "pitch": 0.3,
+        "distance": 23
+      },
+      "water": {
+        "enabled": true,
+        "level": 0.25
+      },
+      "lighting": {
+        "sunElevation": 38,
+        "transport": {
+          "model": "path-v1",
+          "bounces": 3,
+          "exposure": 2,
+          "toneMap": "filmic",
+          "sun": 1,
+          "sky": 1,
+          "roughness": 0.65,
+          "ior": 1.5,
+          "lights": [
+            {
+              "name": "Area light",
+              "enabled": true,
+              "x": -8,
+              "y": 14,
+              "z": 4,
+              "yaw": 0,
+              "pitch": -55,
+              "width": 10,
+              "height": 10,
+              "intensity": 2,
+              "red": 1,
+              "green": 0.85,
+              "blue": 0.65
+            }
+          ]
         }
       }
     }

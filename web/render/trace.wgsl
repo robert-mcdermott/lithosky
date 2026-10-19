@@ -7,6 +7,7 @@ struct Config {
   atmosphere: vec4f, // enabled, origin altitude km, km/unit, aerosol multiplier
   atmosphereExtra: vec4f, // ozone multiplier, observer altitude km
   material:vec4f, rules:vec4f, geology:vec4f, finish:vec4f,
+  transport:vec4f, transportExtra:vec4f, transportLights:vec4f,
 }
 struct Vertex { position: vec4f, normal: vec4f, color: vec4f }
 struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
@@ -119,6 +120,7 @@ fn cosineDirection(n: vec3f, seed: ptr<function,u32>) -> vec3f {
   return normalize(tangent*(sqrt(u)*cos(phi))+bitangent*(sqrt(u)*sin(phi))+n*sqrt(1-u));
 }
 fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>, prior:f32) -> vec3f {
+  if(config.transport.x>.5){return transportLand(o,d,h,seed,prior);}
   if (h.t>=1e6) { return sky(d); }
   let p=o+d*h.t; var n=select(-h.normal,h.normal,dot(d,h.geometric)<0);
   let geometric=select(-h.geometric,h.geometric,dot(d,h.geometric)<0);
@@ -151,11 +153,16 @@ fn fresnel(c: f32, eta: f32) -> f32 {
 }
 fn trace(o: vec3f, d: vec3f, seed: ptr<function,u32>) -> vec3f {
   let ground=terrain(o,d,1e6);
+  if(config.transport.x>.5){
+    var limit=ground.t;
+    if(config.bounds.z>.5&&abs(d.y)>1e-8){let t=(config.bounds.w-o.y)/d.y;if(t>.001&&all(abs((o+d*t).xz)<=vec2f(32))){limit=min(limit,t);}}
+    let e=emitter(o,d,limit);if(e.index<4u){let light=areaLights[e.index];return aerial(o,d,e.t,light.color.xyz*light.position.w*select(0.0,1.0,dot(d,light.normal.xyz)<0));}
+  }
   if (config.bounds.z<.5 || abs(d.y)<1e-8) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed,0)); }
   let waterT=(config.bounds.w-o.y)/d.y; let p=o+d*waterT;
   if (waterT<.001 || waterT>=ground.t || any(abs(p.xz)>vec2f(32))) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed,0)); }
   let entering=d.y<0; let n=select(vec3f(0,-1,0),vec3f(0,1,0),entering);
-  let eta=select(1.333,1/1.333,entering); let f=fresnel(clamp(-dot(n,d),0.0,1.0),eta);
+  let eta=select(1.333,1/1.333,entering); let f=select(fresnel(clamp(-dot(n,d),0.0,1.0),eta),interfaceF(clamp(-dot(n,d),0.0,1.0),eta),config.transport.x>.5);
   let reflected=reflect(d,n); let ro=p+n*.003;
   var color=f*land(ro,reflected,terrain(ro,reflected,1e6),seed,waterT);
   if (f<1) {
@@ -180,12 +187,12 @@ fn render(@builtin(global_invocation_id) id: vec3u) {
   let uv=(vec2f(xy)+vec2f(random(&seed),random(&seed)))/vec2f(config.image.xy)*2-1;
   let d=normalize(config.forward.xyz+config.right.xyz*(uv.x*.48*config.eye.w)-config.up.xyz*(uv.y*.48));
   var radiance=trace(config.eye.xyz,d,&seed);
-  if(config.atmosphere.x>.5){radiance*=4;} // Fixed development exposure for normalized solar irradiance.
+  if(config.atmosphere.x>.5&&config.transport.x<.5){radiance*=4;} // Fixed development exposure for normalized solar irradiance.
   if (!all(radiance>=vec3f(0)) || !all(radiance<vec3f(1e6))) { atomicAdd(&invalid,1u); radiance=vec3f(0); }
   let count=f32(config.image.z);
   let average=(accumulation[index].xyz*count+radiance)/(count+1);
   accumulation[index]=vec4f(average,1);
-  let rgb=vec3u(round(clamp(display(average),vec3f(0),vec3f(1))*255));
+  let rgb=vec3u(round(clamp(select(display(average),transportDisplay(average),config.transport.x>.5),vec3f(0),vec3f(1))*255));
   pixels[index]=rgb.x | (rgb.y<<8u) | (rgb.z<<16u) | 0xff000000u;
 }
 // CPU/GPU parity diagnostics use the exact traversal and display functions above.
