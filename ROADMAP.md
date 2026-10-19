@@ -3,8 +3,8 @@
 Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
 previous Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 in progress. The W4.S1 visual core spike is committed
-(0791036); the hero-shot baseline is next.
+**Status:** Wave 4 in progress. W4.S1 is complete except for its gate: the
+owner reviews the hero-shot baseline and the rubric. W4.S2 is next.
 
 ## North star
 
@@ -148,17 +148,22 @@ Measured on an Apple M4 at 1080p:
 | Clean image | about 10 s | — |
 | Full erosion | 3.3 s | — |
 
-Remaining tasks:
+Also done:
 
-- Tag Wave 3's merge commit (51e7e30) as `legacy-renderer-w3`.
-- Add the hero scenes H1–H6 to `bench/hero/`, and extend
-  `bench/capture-spike.mjs` to render each with the previous renderer. This
-  is the "before" picture.
-- Stop committing evidence images. Move the `docs/site/assets` captures out
-  of the tree, keeping only what the site needs.
+- Tagged Wave 3's merge commit (51e7e30) as `legacy-renderer-w3`.
+- Added hero scenes H1–H6 to `bench/hero/`, with a rubric guide and a
+  scores sheet.
+- Added `bench/hero.mjs`, which renders the shots and composes a contact
+  sheet. It produced the legacy "before" baseline.
+- `/spike/` serves its directory index, which fixed a failing smoke test.
+- Evidence images are no longer committed; `bench/out/` is git-ignored.
+
+The old site assets stay in place until the W5.S4 site rebuild. The current
+site build verifies their checksums, and deleting them would not shrink git
+history.
 
 **Gate:** baseline images and timings exist, and the owner agrees to the
-rubric.
+rubric. Scores go in [bench/hero/scores.md](bench/hero/scores.md).
 
 ### W4.S2: Production terrain and erosion
 
@@ -168,8 +173,10 @@ This is the biggest single visual win. It starts from the spike's
 Tasks:
 
 - **Promote the pipeline.** Move generation and erosion out of `web/spike/`
-  and connect them to the scene document, undo and autosave. Erode becomes a
-  seeded, undoable scene operation with a live preview.
+  into a production terrain module with a clean interface: parameters and
+  seed in, textures out, deterministic. Until W4.S3 makes the new tracer the
+  viewport, exercise it through the spike page; the legacy studio keeps its
+  CPU terrain.
 - **Real drainage.** Add a coarse-grid erosion pass (or the virtual-pipe
   model) before the fine 2048² droplet pass. Branching drainage at kilometre
   scale should come from simulation, with the spike's analytic gully noise
@@ -181,13 +188,12 @@ Tasks:
 - **Masks.** Flow accumulation, deposition, wetness, slope, curvature and
   exposure/occlusion, stored as textures. Materials (W4.S6) and later
   scattering consume them.
-- Retire CPU value-noise generation.
 
 **Gate:**
 
-- H1 and H2 silhouettes read as eroded mountains in an owner side-by-side:
-  simulated branching drainage, sharp incised ridges and talus at the base of
-  slopes.
+- Rendered through the spike page at the W4.S1 spike cameras, the mountains
+  read as eroded in an owner side-by-side against the W4.S1 spike: simulated
+  branching drainage, sharp incised ridges and talus at the base of slopes.
 - Eroding a 2048² terrain takes seconds, not minutes.
 
 ### W4.S3: The spike's tracer becomes the viewport
@@ -196,7 +202,12 @@ Tasks:
 
 - **Replace the renderer.** Move the spike's tracer into `web/render/` as the
   studio viewport and final renderer. Delete the old tracer, the triangle
-  heightfield, the legacy shading branches and `web/spike/`.
+  heightfield, the legacy shading branches, CPU value-noise terrain and
+  `web/spike/`.
+- **Connect terrain to scenes.** Store the W4.S2 terrain parameters in the
+  scene document. Erode becomes a seeded, undoable scene operation that
+  autosaves. Re-author the hero scenes in the new format with the same
+  intent.
 - **One render loop.** One persistent device, a full-frame dispatch every
   animation frame, and accumulation and display on the GPU. Read back only for
   export. Interaction lowers resolution and never blocks.

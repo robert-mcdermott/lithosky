@@ -7,7 +7,8 @@ no address bar. Original code and procedural content are Apache-2.0 licensed.
 **Status: course correction after wave 3.** The image core and studio UI are
 being rebuilt for visual quality first: GPU terrain with erosion, a progressive
 viewport tracer, multiple-scattering sky, volumetric clouds and a viewport-first
-studio. See the [roadmap](ROADMAP.md). The current build lets you compose
+studio. See the [roadmap](ROADMAP.md). A standalone preview of the new renderer
+runs at `/spike/` on the address Lithosky prints. The current studio lets you compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and lake absorption/reflection/refraction, then

@@ -55,9 +55,10 @@ func New(assets fs.FS, authority, version string, persistence ...*Persistence) h
 			}
 			return
 		}
+		// Directory paths serve their index page; directories without one stay 404.
 		name := strings.TrimPrefix(r.URL.Path, "/")
-		if name == "" {
-			name = "index.html"
+		if name == "" || strings.HasSuffix(name, "/") {
+			name += "index.html"
 		}
 		if !fs.ValidPath(name) || path.Clean(name) != name {
 			http.NotFound(w, r)

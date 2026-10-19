@@ -1,24 +1,14 @@
 # Rendering spike
 
-A standalone page that tests the V1–V3 direction from `ROADMAP.md` against the current
-renderer. It does not use `web/render`, `web/lighting`, `web/atmosphere` or `web/material`.
+A standalone page (W4.S1) that tests the Wave 4 direction from `ROADMAP.md` against the
+current renderer. It does not use `web/render`, `web/lighting`, `web/atmosphere` or
+`web/material`. W4.S3 moves this code into the app and deletes this folder.
 
 ```bash
 go build -o bin/lithosky . && ./bin/lithosky --window=browser
 ```
 
-Open `/spike/spike.html` on the address Lithosky prints. WebGPU is required.
-
-`/spike/` does not work yet: Go's file server redirects `/spike/index.html` to `/spike/`, and
-`internal/server/server.go` rejects directory paths. The spike leaves the server untouched, so
-the page is `spike.html`; `index.html` forwards to it once the server serves directory index
-pages. The proposed change, plus a `"/spike/"` → 200 case in `server_test.go`:
-
-```go
-if name == "" || strings.HasSuffix(name, "/") {
-	name += "index.html"
-}
-```
+Open `/spike/` on the address Lithosky prints; it forwards to `spike.html`. WebGPU is required.
 
 ## What it does
 
