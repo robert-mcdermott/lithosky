@@ -10,6 +10,7 @@ async (page) => {
   await page.reload();
   await page.waitForFunction(()=>!document.getElementById('render-start').disabled);
   if(await page.getByRole('button',{name:'Keep this scene',exact:true}).isVisible()) await page.getByRole('button',{name:'Keep this scene',exact:true}).click();
+  await page.locator('#live-preview').uncheck();
   const probes=await page.evaluate(async()=>{
     const {createTracer}=await import('/render/tracer.js');
     const {createHeightfield,intersectHeightfield,displayChannel,fresnel}=await import('/render/heightfield.js');

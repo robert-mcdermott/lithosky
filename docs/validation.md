@@ -484,3 +484,645 @@ codec/archive buffers are separately bounded. Assets are retained for Undo and
 recovery; no disk garbage collector was introduced. See [heightmap contracts](heightmaps.md).
 No application dependencies were added, private research committed, release
 published or remote CI run performed. Wave 3 has not started.
+
+## Wave 3, slice 1 — physical sun and atmosphere
+
+Validated 2026-10-18 on macOS arm64, Go 1.26.6, Node 22.17.0 and Chrome
+155 / Apple Metal 3. Development build: `0.3.0-dev.1`. W3.S1 is locally
+implemented; W3.S2 has not started. Existing native Windows/Linux release gates
+remain open, and no release or publication is implied.
+
+Passed `go test -race ./...`, `go vet ./...`, all 160 Node tests and
+`git diff --check`. Site generation/checks cover four pages, 93 links and nine
+images. The final embedded build supplied refreshed, source-verified captures.
+The three original gallery scenes retain their artistic sky; the guide describes
+the opt-in physical model and provides the schema-validated Daylight basin v6
+scene. No application dependency or third-party code/asset was added.
+
+### Numerical reference checks
+
+The tests compare original numerical integration with the published analytic
+atmosphere reference cases described in [atmosphere.md](atmosphere.md). For the
+reference vertical ray, transmittance is 0.886936612 versus 0.886933231 expected;
+phase-weighted radiance is 20.75785607 versus 20.75805056 expected (under 0.001%
+relative error). The reverse vertical ray without aerosols also passes its
+closed-form comparison. Phase functions integrate to one within 0.000002.
+These are single-scattering reference cases, not measured Earth-sky accuracy.
+
+Earth transmittance LUT samples at sea level, horizon, 2 km and 10 km agree with
+4,096-segment reference integration within 0.0002 absolute transmittance. Sky
+samples at zenith, horizon and an oblique angle agree with denser 512-segment
+view / 1,024-segment sun integration within 0.0001 absolute normalized radiance.
+Additional tests cover vacuum/zero-distance identity, ozone/aerosol attenuation,
+planet shadow, night output, the azimuth seam, leap years and finite polar values.
+The NOAA solar approximation differs from the published NREL example by about
+0.2095° elevation and 0.1369° azimuth (test tolerance 0.3°); no ephemeris-level
+precision is claimed.
+
+### Actual browser/GPU checks
+
+`tests/browser-atmosphere.mjs` passes manual/geographic positioning, leap-day
+handling, v1 and unsculpted-v2 upgrades, Undo/Redo, v6 JSON download/open and
+recovery. Imported heightmap scenes retain v6 through material/sculpt edits and
+portable download/open; converting them to layers preserves atmosphere settings.
+Invalidating a finished render disables its stale export. Cancellation during
+preparation returns to an editable state; retry and a −18° night render succeed.
+Mobile WebGL allows atmosphere editing/saving, with no horizontal overflow or
+page errors. Desktop/mobile controls and exported physical-atmosphere stills
+were visually inspected.
+
+Eleven actual GPU diagnostics compare uploaded transmittance, sky radiance and
+aerial-perspective evaluation with CPU values. Maximum absolute difference is
+about 0.00000192. This caught a driver-dependent signed-zero `atan2` result at
+cardinal directions; the shader now handles that limit explicitly. Browser tests
+also caught and fixed a mode selector reading its value after control refresh.
+The final migration review added normalization of unsculpted v2 layer stacks to
+the v6 sculpt-capable terrain contract. Full v6 sculpt/material/asset manifests
+remain below the compact 60 KiB autosave allowance.
+
+An eight-sample 640 × 360 atmosphere render took about 1.0–1.1 seconds including
+lookup preparation in the isolated local run. A direct Node table build took
+about 0.6 seconds. Tables occupy exactly 393,216 bytes on CPU and GPU; row batches
+yield to the UI, cancellation is checked during preparation, and each visible air
+segment uses at most 16 GPU integration segments. These are bounded-work and
+local timing observations, not cross-device performance guarantees.
+
+All existing browser suites also passed: renderer, materials, terrain, sculpting
+and heightmaps. Legacy traversal/PNG comparisons still agree; the largest legacy
+CPU/GPU hit difference remains about 0.0000108 scene units. The material diagnostic
+retains identical pixels between linear and hierarchical traversal. Terrain
+2048² generation took about 1.38 seconds with 166 animation frames observed.
+Some runs overlapped gallery capture; their timing is not an isolated benchmark.
+
+### Limits
+
+The physical model is opt-in single scattering in three approximate spectral
+bands, with normalized solar irradiance and fixed development exposure. It omits
+multiple scattering, ground bounce into the sky, terrain shadows within air,
+stars/moon and calibrated spectral colorimetry. Secondary sky rays reuse the
+camera-altitude table. Water remains the previous simplified model; preview
+haze is approximate. The 128² geometry and existing export sizes remain unchanged.
+No native Windows/Linux execution, remote CI run, release tag or publication was
+performed. W3.S2 material/color work remains a separate slice.
+
+## Studio scrolling and dropdown follow-up
+
+Validated on macOS arm64 with Chrome 155. `tests/browser-layout.mjs` checks
+1728×1117, 1440×900, 1024×600, 768×700, 601×700, 600×700, 390×844 and 320×568.
+Desktop panels stay inside the frame without document overflow; inspector wheel
+input at its boundary does not move the page. Mobile uses document scrolling,
+with no panel scroll containers or horizontal overflow. Resizing from a scrolled
+phone layout back to desktop restores the fixed frame.
+
+Actual option rectangles remain next to their controls and within the viewport
+for scene, image-size, sample, atmosphere and graphics menus, including controls
+deep inside both panels. Escape restores control focus, keyboard and pointer
+selection work, and a physical-atmosphere still completes with export enabled.
+The quick guide remains accessible. No page errors occurred. Desktop menu and
+mobile screenshots were inspected; the product-site studio capture was refreshed.
+
+Menus progressively use the browser's [customizable native select](https://developer.chrome.com/blog/a-customizable-select)
+with its built-in anchor positioning and top-layer picker. Unsupported browsers
+retain their native select. The native CSS fallback was exercised in Chrome;
+Safari/Firefox and native Windows/Linux menus were not tested. No dependency,
+scene format or rendering change is included in this follow-up.
+
+`npm test` passes all 160 tests; `go test ./...` passes. The embedded binary was
+rebuilt. Fresh gallery capture passed scene/hash verification, and site build
+and link checks passed (four pages, 93 links, nine images). `git diff --check`
+passes.
+
+## Collapsible workspace panels
+
+The header's Scenes and Controls buttons independently hide/reopen their panels.
+Grid columns release the hidden panel's width, and the existing resize observer
+updates the preview. Hidden panels leave the focus order; each toggle exposes its
+controlled panel and expanded state. Reopening restores the panel scroll offset.
+Layout state belongs to the current window and resets on reload. Compact layouts
+continue to use the scene picker instead of the scene sidebar; Controls remains
+available on phones.
+
+`tests/browser-panels.mjs` passes on Chrome 155/macOS: independent collapse,
+reclaimed/restored width, preview backing-size updates, Space/Enter operation,
+expanded-state attributes, restored inspector scrolling, retained terrain edits
+and a finished exportable render. It checks open/closed controls at nine widths
+from 320 to 1728 pixels, including breakpoint boundaries. The existing
+`tests/browser-layout.mjs` also passes on the final build. Collapsed desktop and
+compact-header screenshots were visually inspected; no page errors occurred.
+
+All 160 JavaScript tests and Go tests pass. The binary was rebuilt, gallery
+capture verified scene/source hashes, and site build/check passes with four
+pages, 93 links and nine images. `git diff --check` passes.
+
+## Wave 3, slice 2 — detailed final terrain
+
+Development build `0.3.0-dev.2`, validated on macOS arm64/Chrome 155/Apple Metal 3.
+The revised roadmap puts explicit image-quality gates around geometry, surfaces,
+transport/color and composition, with night skies and earlier erosion milestones.
+W3.S2 implements independent final geometry; W3.S3 per-hit geological surfaces has
+not started. Wave 3's photographic-quality gate remains open.
+
+### Geometry, lifecycle and resource checks
+
+Six new tests cover a narrow eight-unit ridge that falls between Draft vertices,
+its grazing silhouette, analytic sloped planes, edge/parallel/miss rays, source
+resolution caps, rejected allocation tiers, cooperative preparation cancellation,
+legacy Draft parity and sculpt replay/undo without changing the preview cache.
+Final CPU and WGSL traversal derive stride, cell size, hierarchy shape and loop
+bounds from the validated 128/256/512/1024 grid. Fine has 2,097,152 triangles,
+50,430,000 vertex bytes and 131,072 hierarchy bytes. GPU storage/buffer limits
+are checked before the terrain buffer is allocated. Final work uses its own
+worker and device; termination/disposal releases their owned resources.
+
+The reproducible `docs/capture/detail-run.mjs` check passes 816 CPU/GPU rays at
+all four tiers. Worst observed hit-distance error is about 0.00000949 scene
+units against a 0.002 tolerance. It passes immediate preparation cancellation,
+scene-edit invalidation, injected large-buffer allocation failure, retry and
+three complete exports. At 960×540/32 samples, observed end-to-end times were
+4.80 s Draft, 7.26 s Detailed and 9.01 s Fine. Timings include fresh worker
+preparation and readback; these are local observations, not general guarantees.
+The isolated per-tier preparation measurements reuse the source cache after
+the first tier and must not be compared as cold-start timings.
+
+### Integrated validation and visual review
+
+All 166 JavaScript tests pass. `go test -race ./...`, `go vet ./...`, binary
+rebuild and `git diff --check` pass. Actual browser suites pass for the renderer,
+terrain, sculpting, materials, heightmaps, atmosphere, responsive layout and
+collapsible panels. Legacy CPU/GPU traversal error remains below 0.000011 units;
+linear/hierarchical diagnostic images retain identical pixels. Imported portable
+scenes, sculpted/material scenes, recovery, GPU loss/fallback and cancellation
+remain functional with the new Detailed default.
+
+Original unretouched Sunlit ridges exports compare the same seed, camera, surface,
+physical sunlight, resolution and samples at Draft/Detailed/Fine. Fine visibly
+resolves smaller ridge crests, gullies and their shadows. The surface remains
+visibly too uniform and smooth for the photographic target; finer geological
+shading and improved transport/exposure remain subsequent slices. See
+[visual-quality record](visual-quality.md) for images and measured costs.
+
+Both capture manifests pass source/scene/image provenance checks. The rebuilt
+site passes four pages, 100 links and 11 image references. Desktop/mobile site
+browser checks pass navigation, image decoding, scene downloads, keyboard access,
+no horizontal overflow and no external asset requests. The comparison uses equal
+image widths on desktop and stacks on phones. Original scene/captures and the
+studio were visually inspected. No new dependencies or third-party assets were
+added. Native Windows/Linux execution, release tags and publication remain pending.
+
+## Wave 3, slice 3 — geological surface materials
+
+Development build `0.3.0-dev.3`, validated locally on macOS arm64, Chrome 155 and
+Apple Metal 3. W3.S3 is complete locally; W3.S4 transport/light/exposure has not
+started. The broader photographic-quality and native release gates remain open.
+
+### Material correctness and filtering
+
+Original CPU and WGSL evaluators consume a material definition, world-space
+point, unit normal, footprint and seed. The shader's explicit `GeoDefinition`
+interface supports later object assignment without terrain-specific texture code.
+Solid grain, warped strata and angular nearest-site joints supply reflectance and
+analytic bump gradients; terrain positions, normals and hierarchy remain intact.
+Unresolved noise work is skipped. New uniform data totals 64 additional bytes;
+no texture storage, external assets or dependencies were added.
+
+Seven new unit tests check noise gradients against finite differences, 27-site
+joint search against an independent 125-site search, joint gradients, normal and
+reflectance bounds, filtering continuity/limits, rough-diffuse reciprocity and
+integrated reflectance, geometry preservation, migration and format round trips.
+Ten shared acceptance fixtures add valid v7 artistic/physical, layered and imported
+scenes plus malformed-model/range/missing-field cases. Both validators pass them.
+Flat-normal rough-diffuse integrated reflectance is bounded by 1.001 in the tested
+quadrature. This does not establish energy conservation of the full bumped/water/
+atmosphere integrator; those transport concerns remain W3.S4.
+
+The actual GPU material probe compares 400 samples and 3,200 scalar outputs
+(albedo, roughness, normal and angular response) with CPU values across five
+presets, both palettes, maximum/bounded seeds and multiple footprints. Maximum
+absolute error is about 0.00005436 against a 0.003 tolerance. Fixed limits bound
+procedural work; grazing/refraction filtering remains an isotropic approximation.
+
+### Editing, persistence and renderer lifecycle
+
+`tests/browser-geology.mjs` passes opt-in v1→v7 migration and Undo/Redo, invalid
+numeric input rejection, JSON save/open, atmosphere enable/removal, layered
+conversion, sculpting, heightmap import, portable save/open and recovery. All
+retain geological definitions and v7 as needed. Returning to a simple surface
+selects the appropriate earlier format and is undoable. Material edits invalidate
+stale exports; preparation cancellation returns to an editable state. Mobile
+WebGL retains material editing without horizontal overflow or page errors.
+
+All existing browser suites pass: renderer, terrain, sculpting, materials,
+heightmaps, atmosphere, layout and panels. The final reusable-shader build was
+also rechecked through renderer lifecycle and geological workflow suites, GPU
+material probes and all three capture workflows. Traversal/atmosphere tolerances
+remain unchanged; linear/hierarchical diagnostic images retain identical pixels.
+The three original starter PNG hashes and the three terrain-comparison PNG hashes
+match the preceding implementation, confirming the legacy render path is intact.
+
+### Images and integration
+
+The original Weathered highlands scene provides equal-camera/light/geometry
+simple/geological landscape exports at 960×540, Fine terrain and 32 samples.
+Unscaled 256×128 foreground, middle-distance and horizon crops retain the exact
+exported pixels. Rock/ground/snow reference views use the same closer camera and
+60° daylight sun with water disabled; those settings differ from the landscape
+and are recorded per image. Saved-scene content and source/scene/image hashes
+are checked during capture/build. Images and the desktop gallery were visually
+inspected. Earlier rounded/overstated fracture patterns were revised to subtler
+angular joints before the final captures.
+
+Current individual end-to-end observations were about 6.4 s for the geological
+landscape and 6.1–7.1 s for the close reference views. They include preparation,
+shader setup, tracing and readback and are not general performance guarantees.
+Material texture/relief is visible, but light/exposure, deep shadows and sky
+richness still limit photographic credibility. See [visual-quality record](visual-quality.md)
+and [geological surface documentation](geological-surfaces.md).
+
+All 183 JavaScript tests pass. Go race tests/static checks, binary rebuild and
+`git diff --check` pass. The site passes four pages, 112 links and 16 image
+references, plus desktop/mobile browser navigation, image decoding, scene
+download, keyboard, overflow and same-origin checks. No release tag, publication
+or native Windows/Linux execution was performed.
+
+## Wave 3, slice 4 — light transport and color
+
+Completed locally as `0.3.0-dev.4`. Studio lighting opts into v8 without changing
+classic v1–v7 renders. The conservative Lambertian/GGX dielectric mixture,
+exact water-interface Fresnel, one-to-four-vertex terrain interreflection, power
+heuristic MIS, up to four authored rectangular lights, saved exposure and filmic
+or luminance Reinhard display are implemented without additional dependencies.
+See [transport equations, working space and limits](light-transport.md).
+
+All 199 JavaScript tests pass. Shared Go/JavaScript fixtures cover v8 and reject
+missing transport, unknown fields, extra lights, unsupported curves, fractional
+bounce depth, out-of-range exposure/color/size and future versions. CPU tests
+cover 36 white-furnace configurations at 32,768 directions each, reciprocity,
+independent hemisphere quadrature versus BSDF sampling, MIS normalization,
+monotonic/gamut-bounded display and stable light frames. Go race tests, static
+analysis and the binary rebuild pass.
+
+Actual WebGPU checks on Apple Metal 3 / Chrome 155 compare 256 evaluation cases
+(2,048 scalars) with the CPU reference: worst normalized error 0.00000449 against
+0.002. Another 3,072 generated directions check sampling, PDF, BSDF and water
+Fresnel; worst normalized error 0.003094 against 0.005. Twelve representative GPU
+furnace cases return reflectance 0.472–0.840; this conservative mixture is
+intentionally energy-losing. These checks do not prove global conservation with
+perturbed shading normals or photographic quality.
+
+Six isolated emitter renders verify zero light with the source off or facing
+away, illumination with it facing down, spatial movement with X, reduced light
+with reduced size and increased light with radiance. At identical settings their
+mean display values are 0, 55.52, 0, 53.21, 7.49 and 75.95 respectively. This
+record is included in `lighting-captures.json` and is reproducible with
+`tests/browser-lighting-energy.mjs`.
+
+Five original unretouched 960 × 540, 64-sample, 1024²-terrain lighting exports
+record exact scene/image/source hashes, settings and histogram statistics. Same
+scene/camera/surface/sun comparisons separate classic versus studio display,
+one versus three terrain vertices, one extra exposure stop and a named warm
+rectangular fill. All five contain zero completely black or completely white
+pixels. Their 1st/50th/99th percentile display luminance values are:
+
+| Study | p01 / p50 / p99 | End-to-end observation |
+|---|---|---|
+| Classic | 15 / 95 / 133 | 12.29 s |
+| One vertex | 21 / 120 / 175 | 13.04 s |
+| Three vertices | 24 / 121 / 175 | 18.17 s |
+| Exposure +1 | 37 / 158 / 206 | 17.61 s |
+| Warm area fill | 46 / 125 / 175 | 20.93 s |
+
+These are local observations including preparation, shader setup, tracing and
+readback, not general performance promises. Grain at low sample counts, smooth
+landforms/material transitions, the clear sky, limited water and incomplete
+indirect air/water transport still limit realism. The images were inspected;
+numerical checks do not replace the W3.S6 integrated visual review.
+
+Prior material, terrain and starter-gallery captures were refreshed against the
+final source hash; the previous terrain/material composition and classic render path are preserved.
+GPU floating-point rounding can change isolated display bytes. The new
+site build/check passes four pages, 126 links and 20 image references. Native
+Windows/Linux release execution remains pending. No release tag or publication
+is implied, and W3.S5 has not started.
+
+The seventh isolated-light case enables the physical atmosphere while sun, sky
+and the emitter are zero (water disabled). Its output is exactly black. This
+catches the corrected sky-strength scaling of camera-segment in-scattering.
+Legacy atmosphere diagnostics still pass 11 cases with worst error 0.00000192.
+
+Browser workflow checks pass v8 migration, numeric validation, four-light bounds,
+selection/edit/removal, Undo/Redo, scene JSON, portable imported terrain,
+recovery, surface/sky/terrain conversions, rendering, cancellation and stale-image
+invalidation. WebGL editing and 390px layouts remain usable. The legacy renderer
+passes 1,024 intersection probes, canvas/PNG byte equality, initialization and
+device-loss failure/retry, partial cancellation, water extremes and editing during
+render/export. Layout checks cover eight sizes from 320px to 1728px, anchored
+pickers, keyboard/native fallback, panel collapse/scroll restoration and retained
+scene/render state, with no unexpected browser errors.
+
+The generated site passes all four pages at 1440px and 390px, decoding every
+image, navigation, scene download, keyboard focus, overflow and local-resource
+checks. Decoding the exported comparison PNGs independently confirms 342,635 of
+518,400 pixels brighten by more than half a display-luminance code with terrain
+interreflection. Mean gain is 1.79 codes; exposure +1 adds 31.87 codes on average
+and reduces no pixel by more than half a code. `browser-lighting-images.mjs`
+reproduces this comparison using permitted same-origin image decoding under the
+site's restrictive CSP. These are image-behavior checks, not a perceptual-quality
+score.
+
+Sun/sky occlusion in the new path uses the full terrain bounds. A custom tall
+heightfield diagnostic finds a hit at 171.918 scene units, verifies that it blocks
+light, and verifies a second direction remains open to the sky. This protects
+against the inherited 150-unit visibility cutoff leaking light through tall
+imported terrain. The traversal still terminates at the bounded heightfield;
+it does not step through empty unbounded space.
+
+An independent decoded-PNG check against the previous committed 1024² terrain
+benchmark finds exactly one changed color channel, by one 8-bit code. This is
+consistent with floating-point shader rounding; the composition is unchanged.
+
+## Wave 3, slice 5 — lake optics and rendering workflow (2026-10-18)
+
+Local development build 0.3.0-dev.5, macOS arm64, Apple Metal 3 / Chrome 155,
+Go 1.26.6 and Node 22.17. The records in prior slice sections are historical;
+refreshed capture manifests record the current source and timings. Native
+Windows/Linux release execution and the integrated W3.S6 visual gate remain open.
+
+- Shared Go/JavaScript fixtures accept current v9 scenes and reject malformed
+  optical parameters. Unit checks cover Beer–Lambert identity/multiplicativity,
+  depth/scale/density, exact Fresnel/TIR, bounded filtered normals, preservation
+  of the actual sun vector, one-step upgrade/Undo/Redo, all terrain families,
+  serialization and terrain cache reuse.
+- Actual GPU water probes compare 256 rays / 2,048 scalar values against CPU
+  transmission, Fresnel and filtered-normal references; worst absolute error is
+  0.00000457 (tolerance 0.0001). Six illumination/extreme-water cases include
+  above-water, submerged, grazing and TIR rays. Every tested dark-scene channel
+  is exactly zero. No additive water glow remains in the v9 path.
+- Browser workflows pass old-scene upgrade, Undo/Redo, numerical water edits,
+  JSON save/reopen and local recovery, idle lighting preview, cancellation with
+  retained complete samples, water-edit stale-export invalidation and WebGL
+  fallback. Four layouts from 320px to 1440px keep file actions accessible with
+  no horizontal overflow. Existing eight-size dropdown and collapsible-panel
+  checks also pass, retaining scene and finished-render state.
+- The renderer regression passes 1,024 legacy terrain intersections (worst
+  distance error below 0.000011), PNG/canvas byte equality, pending-PNG edit
+  invalidation, initialization failure, cancellation, injected device loss/retry,
+  larger image dimensions, extreme legacy water/camera fixtures and WebGL fallback.
+- Unfiltered progressive noise comparison at 640 × 360 / 512² terrain uses the
+  same scene, camera, material and exposure, comparing 8- and 64-sample prefixes
+  against the 256-sample result over x80–559/y80–329. Display-code RMSE falls
+  from 2.452 to 0.823. This is a convergence check, not an independent-reference
+  variance estimate or a perceptual-quality score. No denoiser smooths the output.
+
+The original Silver basin scene and six unretouched 960 × 540 / 1024² exports
+compare classic/calm/ripple/clear/grazing water and 64 versus 256 samples.
+`water-captures.json` records every scene, source/image hashes, GPU probes,
+noise check, device and timings. Public prior lighting/material/terrain/starter
+captures are refreshed as part of the slice. Site generation checks their
+provenance; the water gallery describes model limits explicitly.
+
+The supplied Alpine scene was reproduced privately without modifying the original
+or committing user data. The upgraded output preserves terrain, camera, water
+level and actual sunlight. Water remains visible as water in the displayed and
+exported still. The comparison confirms the specific repair, not photographic
+quality. Remaining limits include procedural material repetition, finite-patch
+horizon artifacts, single-scattering sky/water approximations, no refracted
+area-light bed illumination, and absent clouds/vegetation/denoising.
+
+Final local checks: **211 JavaScript tests pass**, `go test -race ./...` and
+`go vet ./...` pass. The generated site builds/checks four pages, 139 links and
+22 image references with current provenance. Portable v9 imported-terrain files
+round-trip their full samples and scene metadata deterministically; legacy asset
+recovery tests use an explicit stable v1 fixture rather than the evolving gallery.
+
+The adapted older-format browser workflows also pass atmosphere, geology,
+studio/area lighting, heightmap import/export, sculpting, terrain layers and
+material editing/recovery. These now open an explicit v1 fixture where they test
+legacy migrations; the actual starter catalog remains v9. Three legacy material
+fixtures compare 2,202 actual GPU rays and hierarchical versus linear traversal:
+worst hit error is below 0.000010 and rendered pixels match exactly. Fine-cell
+CPU tests fall from 18,559/12,236/28,505 to 2,520/3,041/1,213 respectively.
+
+Current original water capture observations, including preparation/shader/readback:
+classic 14.09 s, calm 13.57 s, ripples 13.70 s, clear 13.56 s, grazing 13.98 s
+(all 64 samples), and 47.58 s for the identical ripple scene at 256 samples.
+These local observations are not cross-device performance guarantees.
+
+## Wave 3 slice 6 — camera and composition
+
+Build 0.3.0-dev.6 adds the v10 thin-lens camera and independently bounded render
+regions/2K exports. Legacy scenes retain their pinhole projection and sample
+sequence when the new aperture is disabled. The camera upgrade, lens/target
+edits, Undo/Redo, canceled drags and named save/reopen/recovery pass in the real
+browser. The redo branch retained during a canceled gesture is included in the
+4 MiB history budget. Go validators and portable imported-heightmap containers
+round-trip v10 cameras without changing samples or metadata.
+
+The actual camera shader agrees with 4,096 CPU-reference scalar values within
+the 0.00005 tolerance. Full-frame and cropped output match exactly over 16,435
+pixels with pinhole and finite-aperture cameras. Actual complete first samples
+at 2048×1152, 1365×2048 and 2048² confirm image-buffer allocation/cancellation.
+The UI completes a 1365×2048 PNG and a 171×256 region export, invalidates stale
+output after lens edits, fits 1440/768/390/320px widths and retains camera editing
+under WebGL fallback. These checks run in a disposable app/profile.
+
+The original composition gallery captures mountain/coast/snow at a 2048-pixel
+long edge, 64 samples and Fine terrain, plus nine native-pixel crops and an
+explicit pinhole/thin-lens pair. `camera-captures.json` stores the exact scenes,
+source/image hashes, GPU/browser, timings and image-buffer budgets. The site
+builder rejects stale or mismatched camera and prior rendering records.
+
+The [integrated visual review](visual-quality.md) records a **failed photographic
+quality gate**: repetitive landforms/materials, smooth snow, noisy deep shadows
+and finite-world horizon continuity remain unresolved. Camera correctness and
+2K export are implemented; they do not establish photographic credibility.
+Native Windows/Linux app-window/GPU release checks also remain open.
+
+The refreshed legacy v9 ripple-water PNG differs from commit `2f66875` at only
+7 of 518,400 pixels, by at most one 8-bit code value (RGB RMSE 0.00212). This
+checks visual compatibility after moving projection/filtering into camera
+uniforms; it is not a perceptual-quality score.
+
+Final local verification: **220 JavaScript tests**, `go test -race ./...` and
+`go vet ./...` pass. All six capture families have current source/scene/image
+provenance. The generated site checks four pages, 161 links and 27 image
+references; desktop/mobile browser checks pass all pages, image decodes,
+navigation, local-resource policy and scene download. The renderer smoke test
+also passes 1,024 intersection rays, PNG/display pixel equality, pending-output
+invalidation, preparation failure, cancellation, device-loss retry, extreme
+legacy water/camera fixtures and WebGL fallback, with no unexpected browser errors.
+
+The generated site passes browser checks at 1440px and 390px on all four pages,
+including every image decode, local-resource policy, navigation, keyboard focus
+and scene download. The refreshed lighting PNG comparison still passes positive
+bounce/exposure contributions with no exposure-induced luminance drop beyond the
+rounding tolerance. The final private Alpine still completes at 960 × 540 /
+1024² in 12.3 s at 64 samples and 44.2 s at 256 samples on this machine.
+
+## Wave 3 slice 7 — editable scene foundation
+
+Build `0.3.0-dev.7` adds v11 entity documents and the Objects workspace. Original
+v1–v10 scenes retain their format until an authored object command migrates them
+in one Undo transaction. Selection, search, tool mode and tree expansion leave
+the document and finished render untouched. Component values are stored once;
+temporary adapters keep the existing terrain, water, camera and lighting tools
+working against stable entity identities.
+
+Shared Go/JavaScript fixtures reject malformed components, duplicate IDs, missing
+core roles, cyclic/dangling/non-group parents, excessive size/depth, blank names,
+and hidden/grouped active cameras. Command tests cover inherited locks, direct
+control bypass attempts, locked descendants during group deletion/regrouping,
+light identity through edits/reordering, Undo/Redo and visibility/cache behavior.
+Portable v11 imported-heightmap containers preserve exact samples and graph
+metadata; a restart recovery test independently checks the component asset path.
+`go test -race ./...` and `go vet ./...` pass, including the standalone binary
+smoke test outside the checkout.
+
+The browser workflow checks list/viewport selection, migration/Undo, metadata
+render preservation, inherited locks, camera keyboard protection, group hiding,
+real area-light duplication/deletion, independent light editing beside locked
+environment/light entities, named save/reopen and recovery. Object
+editing works with WebGL preview. The compact Objects dialog passes at 768, 390
+and 320 pixels without document overflow; tree keyboard navigation retains a tab
+stop when the selected child is collapsed out of view.
+
+Actual WebGPU output before/after all-visible migration matches over 57,600
+pixels with **zero differing bytes**. Hidden terrain misses intersection probes;
+removing terrain/water leaves the sky, hiding the environment produces zero lit
+pixels, and an independent area light remains renderable. Original visible and
+hidden-group basin captures demonstrate component visibility without baking it
+into saved settings. Selection guides never enter PNG export. Capture provenance
+is recorded in `entity-captures.json` alongside the original example document.
+
+This slice establishes editing correctness, not photographic credibility. Picking
+uses the central camera ray and preview field; fine geometry and depth of field
+can differ. There is one terrain, water, environment and active camera, at most
+four area lights, 64 entities and eight group ancestors. Groups organize objects
+without transforms. Primitives, transform handles and multi-selection remain
+the next slice. The [photographic visual gate](visual-quality.md) and native
+Windows/Linux release checks remain open.
+
+Final checks: **227 JavaScript tests pass**. All seven capture families have
+current source/scene/image provenance. The generated site builds and checks four
+pages, 170 links and 29 image references. All **43 pre-existing landscape PNGs**
+are byte-identical to `7eec883`; the studio screenshot is refreshed for the new
+workspace. This is a compatibility result, not a photographic-quality score.
+The final renderer smoke passes 1,024 intersection rays, displayed/exported PNG
+pixel equality, cancellation, stale-output rejection, device loss/retry and WebGL
+fallback with no unexpected browser errors. All four generated pages pass at
+1440px and 390px, including image decodes, local-resource policy, navigation,
+keyboard focus and scene download, with no browser errors or overflow.
+
+## Wave 3 slice 8 — add, place and transform
+
+Build `0.3.0-dev.8` adds the v12 primitive/transform model and direct editing
+tools. The four original closed solids render in both raster backends and the
+shared live/final ray kernels, including primary occlusion, bounced light,
+shadows and water reflection/refraction. Numeric local poses, world/local move
+and rotation, local primitive scaling and uniform group/selection scaling share
+the same matrices. Shear, mirroring, unsupported core/light transforms and
+compounded size/extent budgets are rejected explicitly.
+
+The actual GPU agrees with CPU references on **1,024 rays** across 32 transformed
+solids: 484 hits, maximum distance error **0.00001274** scene units and maximum
+normal-component error **0.00000848**. The test includes inside/outside rays, caps,
+tips and exact box corners. Shifted quadratic origins avoid cancellation on
+distant rays; singular tips/corners use consistent normal conventions. Object
+shadow probes distinguish blocked/open rays. Primitive-only images match with
+terrain geology enabled/disabled, confirming independent starter finishes.
+
+Real browser checks cover all four shapes, Add/placement, numeric poses, snapped
+move/rotate/scale handles, one-gesture Undo, Escape preserving redo, keyboard
+adjustments, multi-selection/groups, descendant locks, remapped clipboard IDs,
+delete/Undo, alignment and conservative terrain placement. Named save/reopen,
+recovery and displayed/exported PNG pixel equality pass. WebGL editing and touch
+multi-selection pass at 768/390/320 pixels with no document overflow. Switching
+from region picking to handles cancels the region picker.
+
+Raster objects use a separate reusable buffer. The WebGL check observes only a
+195,696-byte object upload during an edit and confirms object drawing survives
+terrain regeneration. Pose changes reuse the Objects tree DOM. A maximum preview
+of 32 spheres is **1,824,768 bytes / 16,896 triangles**; analytic records require
+**3,072 bytes**. The browser's six CPU mesh-build observations range from about
+2.4 to 10.5 ms, excluding whole-frame work and GPU uploads. These are local Apple
+Metal 3 / Chrome 155 observations, not cross-device performance guarantees.
+Optimized sphere/mixed preview buffers were byte-compared against the original
+scalar builder before replacement; independent unit tests check transformed
+preview vertices against analytic surfaces and unit-length normals.
+
+Go/JS share malformed and valid v12 fixtures, including group uniformity around
+the numeric tolerance, world-scale/extent limits, unknown transforms and object
+count. V12 portable imported-heightmap and restart-recovery tests preserve full
+samples and graph data. Existing heightfield/cache/history budgets remain intact.
+
+The original Shore observatory study captures an authored light, all four shapes,
+a parent group, a 16-sample live preview and before/after group rotation. The
+rotation changes 92,367 image pixels; Undo restores the original document exactly.
+`spatial-captures.json` records scene/source/image hashes, actual GPU/editor checks,
+budgets, timings and device information. Raster shading remains approximate;
+traced live/final shadows share the exact solid kernels. The example demonstrates
+editing, not photographic landscape credibility. The photographic quality gate,
+native Windows/Linux release checks and slice 9 composition/material work remain
+open.
+
+Final slice checks pass: all 234 JavaScript tests, `go test -race ./...`,
+`go vet ./...`, and all eight serial capture families. The renderer regression
+also passes 1,024 legacy heightfield rays, displayed/exported PNG equality,
+cancellation, stale-export suppression, device-loss recovery and WebGL fallback
+with zero unexpected browser errors. The generated site validates four pages,
+180 links and 32 images; real desktop/mobile browser checks load every image,
+download a scene and follow guide anchors with no overflow or browser errors.
+These checks validate the implemented tools and compatibility, not the open
+photographic-quality gate.
+
+## Wave 3 slice 9 — composition workspace
+
+Build `0.3.0-dev.9` adds v13 camera snapshot bookmarks, optional original object
+finishes and terrain paint strokes. Earlier scene schemas and models remain
+supported. Shared Go/JS fixtures cover malformed bookmarks, ID collisions,
+unsupported fields, paint budgets and the geology requirement. Portable imported
+heightmap and restart recovery tests preserve v13 metadata and complete samples.
+
+Independent projection tests verify orthographic rays, world-to-screen agreement
+and selected-bound framing across top/front/side and portrait/landscape views.
+The real browser workflow starts blank, adds/places geometry, assigns finishes,
+frames/navigates every editor view, saves/applies/replaces/removes camera snapshots,
+sculpts/paints/regenerates terrain and saves/reopens/recovers the result. Editor
+navigation leaves the document unchanged; Escape restores the raster projection.
+Painting cancellation preserves redo, and affected locks reject changes. Decoded
+PNG bytes match the rendered canvas with no guides. Finished images survive editor
+view changes. WebGL editing and 768/390/320 layouts pass without horizontal
+page overflow or unexpected browser errors.
+
+Actual GPU checks compare **1,024 paint samples** with CPU bilinear values;
+maximum channel error is about **7.43e-7**. All five finishes each compare 1,024
+GPU color/normal/roughness evaluations with the CPU definition. The largest
+observed error is about **6.62e-5** for rock. The derived 64² RGBA mask occupies
+**65,536 bytes** in a second uniform binding, within the tested device's limit;
+the final renderer retains eight storage bindings. Paint remains broad material
+weighting; procedural shading supplies smaller detail, not additional geometry.
+
+A 32-sphere raster stress case with rock finishes and feature scale 8 retains
+**1,824,768 bytes** of preview vertices. Six browser mesh rebuilds took about
+**4.4–6.4 ms**, excluding whole-frame work and GPU upload. Raster shading uses
+broad seeded color; full strata/fractures/grain and bump remain in traced live
+and final rendering. These are local Apple Metal 3 / Chrome 155 observations,
+not cross-device guarantees.
+
+The original Stone garden before/after uses identical geometry, camera and light,
+with assigned finishes and terrain paint enabled for the authored version. At
+960 × 540, 64 samples and 128² flat terrain, **198,575 pixels** change. The two
+exports took approximately **8.2 and 9.5 seconds** on the local device. The scene,
+images, source hashes, workspace screenshot and actual GPU/editor reports are
+recorded in `workspace-captures.json`. The scene is an imagined authoring study;
+it does not close the photographic landscape gate. Native Windows/Linux release
+validation remains open.
+
+Final checks pass: **241 JavaScript tests**, `go test -race ./...` and
+`go vet ./...`, including the standalone executable. All nine capture families
+have current source/scene/image records. Every pre-existing scene PNG remains
+byte-identical; three editor screenshots reflect the new controls. The renderer
+regression passes 1,024 legacy heightfield rays, PNG pixel equality, stale-export
+suppression, cancellation, device-loss recovery and WebGL fallback. The generated
+site checks four pages, 193 links and 34 images; desktop/mobile browser checks
+load every image, download a scene and follow guide anchors without overflow or
+unexpected errors.

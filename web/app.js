@@ -1,4 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
+import {workspaceControls} from './camera/workspace.js';
+import {compositionCommand} from './scene/composition.js';
+import {materialAssignment} from './material/assignment.js';
+import {paintControls} from './material/paint-controls.js';
+import {transformControls} from './scene/transform-controls.js';
+import {spatialCommand} from './scene/spatial-editor.js';
+import {primitiveMesh} from './scene/primitives.js';
+import {cameraControls} from './camera/controls.js';
+import {entityControls} from './scene/entity-controls.js';
+import {sceneView,editScene,entityCommand,entityScene,kindOf} from './scene/entities.js';
+import {enableCamera} from './camera/model.js';
+import {waterControls} from './water/controls.js';
+import {lightingControls} from './lighting/controls.js';
+import { atmosphereControls } from './atmosphere/controls.js';
 import { heightmapControls } from './scene/heightmap-controls.js';
 import { MAX_PROJECT_BYTES } from './scene/heightmaps.js';
 import { frameUniforms } from './scene/terrain.js';
@@ -12,18 +26,38 @@ import { createWebGPU } from './render/webgpu.js';
 import { renderStudio } from './render/studio.js';
 import { createWebGL } from './render/webgl.js';
 
-import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey } from './scene/document.js';
-import { validateStudies } from './scene/studies.js';
+import { defaultScene, validateScene, serializeScene, renderState, wrapYaw, sceneKey, upgradeScene, currentRendering } from './scene/document.js';
+import { validateStudies,validateCompositions } from './scene/studies.js';
 import { History } from './scene/history.js';
 import { Autosave } from './scene/autosave.js';
 
 const $ = id => document.getElementById(id);
+// Layout choices never edit the scene or invalidate a finished render.
+for (const [id, name] of [['scenes', 'Scenes'], ['controls', 'Controls']]) {
+  const button = $('toggle-' + id), panel = $(button.getAttribute('aria-controls'));
+  let scrollTop = 0;
+  button.addEventListener('click', () => {
+    if (!panel.hidden) {
+      scrollTop = panel.scrollTop;
+      if (panel.contains(document.activeElement)) button.focus();
+    }
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) panel.scrollTop = scrollTop;
+    button.setAttribute('aria-expanded', String(!panel.hidden));
+    const label = (panel.hidden ? 'Show ' : 'Hide ') + name + ' panel';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+  });
+}
+
 async function main() {
-const [schemaResponse, studiesResponse] = await Promise.all([fetch('/api/scene-schema'), fetch('/scenes/studies.json')]);
+const [schemaResponse, studiesResponse,compositionResponse,templateResponse] = await Promise.all([fetch('/api/scene-schema'), fetch('/scenes/studies.json'),fetch('/scenes/compositions.json'),fetch('/scenes/templates.json')]);
 if (!schemaResponse.ok) throw new Error('Cannot load the scene schema. Restart Lithosky.');
 const schema = await schemaResponse.json();
 if (!studiesResponse.ok) throw new Error('Cannot load starter scenes. Restart Lithosky.');
-const studies = validateStudies(await studiesResponse.json(), schema);
+if(!compositionResponse.ok)throw Error('Cannot load composition studies. Restart Lithosky.');
+if(!templateResponse.ok)throw Error('Cannot load authoring templates.');
+const studies = [...validateStudies(await studiesResponse.json(), schema),...validateCompositions(await compositionResponse.json(),schema),...validateStudies(await templateResponse.json(),schema,['blank','canvas','garden'])];
 for (const study of studies) {
   const option = document.createElement('option'); option.value = study.id; option.textContent = study.scene.title; $('study-select').append(option);
 }
@@ -34,14 +68,28 @@ let downloaded = '', gestureTimer = null, connectingRecovery = false;
 const viewport = $('viewport');
 let mesh = null, field = null, terrainReady = false, active = null, activeKind = 'none';
 const terrainGenerator = new TerrainGenerator();
+let workspace=null;
+const viewState=()=>workspace?.state()??state;
 let terrainEpoch = 0;
 let generation = 0, redraw = 0;
 const finalRender = renderStudio(() => state, () => history.value.title, () => field);
-const heightmaps = heightmapControls({getScene:()=>history.value,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
-const materials = materialControls(() => history.value, discrete);
-const layerControls = terrainControls(() => history.value, discrete);
-const sculpt = sculptControls({viewport,getState:()=>state,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',commit:discrete,prepareView:()=>finalRender.preview()});
+const controlScene=()=>sceneView(history.value);
+const objects=entityControls({getScene:()=>history.value,getState:viewState,getField:()=>field,command:objectCommand,viewport,finishGesture,onSelect:id=>{const g=entityScene(history.value),n=g.entities.find(n=>n.id===id);if(n&&kindOf(n)==='light'){objects.releaseLocks();lighting.select(g.entities.filter(n=>kindOf(n)==='light').findIndex(n=>n.id===id));objects.sync();}transforms.sync();assignment.sync();workspace?.sync();}});
+const transforms=transformControls({getScene:()=>history.value,getState:viewState,getField:()=>terrainReady?field:null,objects,viewport,command:spatialEdit,begin:()=>{finishGesture();history.begin();},end:finishGesture,cancel:()=>{if(history.cancel())refresh();},cancelNavigation:()=>workspace?.cancelNavigation(),prepareView:(keepRender=false)=>{camera.cancel();finalRender.cancelPicking();sculpt.cancel();if(!keepRender)previewView();}});
+const heightmaps = heightmapControls({getScene:controlScene,getVersion:()=>editVersion,commit:discrete,request:assetRequest,generate:state=>terrainGenerator.generate(state,()=>{},'export'),isReady:()=>terrainReady});
+const camera = cameraControls({getScene:controlScene,getState:viewState,getField:()=>field,edit:discrete,viewport});
+const water = waterControls(controlScene,discrete);
+const lighting = lightingControls(controlScene,discrete,index=>{const g=entityScene(history.value);objects.select(g.entities.filter(n=>kindOf(n)==='light')[index]?.id??null);});
+const atmosphere = atmosphereControls(controlScene,discrete);
+const materials = materialControls(controlScene, discrete);
+const layerControls = terrainControls(controlScene, discrete);
+const assignment=materialAssignment({getScene:()=>history.value,objects,command:compositionEdit});
+const sculpt = sculptControls({viewport,getState:viewState,getField:()=>field,isReady:()=>terrainReady&&state.terrainVisible!==false&&activeKind!=='none',commit:discrete,prepareView:()=>previewView()});
 
+const paint=paintControls({viewport,getState:viewState,getScene:()=>history.value,getField:()=>field,isReady:()=>terrainReady&&activeKind!=='none',command:compositionEdit,prepare:()=>{objects.mode(false);for(const mode of ['move','rotate','scale'])if($('tool-'+mode).getAttribute('aria-pressed')==='true')$('tool-'+mode).click();$('sculpt-tool').value='orbit';$('sculpt-tool').dispatchEvent(new Event('change'));camera.cancel();finalRender.cancelPicking();previewView();}});
+workspace=workspaceControls({viewport,getState:()=>state,getScene:()=>history.value,getField:()=>field,objects,command:compositionEdit,prepare:()=>{finishGesture();cancelCameraGesture();transforms.cancel();sculpt.cancel();paint.stop();camera.cancel();finalRender.cancelPicking();previewView();},changed:()=>{finalRender.editing(workspace.working);draw();}});
+function compositionEdit(name,value){finishGesture();try{let result;const changed=history.edit(scene=>{result=compositionCommand(scene,name,value);});if(changed){refresh();return result;}return false;}catch(error){$('workspace-status').textContent=error.message;$('paint-status').textContent=error.message;$('entity-status').textContent=error.message;syncControls();return false;}}
+function previewView(){finalRender.preview();workspace?.sync();}
 function draw() {
   if (redraw) return;
   redraw = requestAnimationFrame(() => {
@@ -54,7 +102,7 @@ function draw() {
     const width = Math.max(1, Math.floor(bounds.width * scale)), height = Math.max(1, Math.floor(bounds.height * scale));
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
-    try { active.draw(frameUniforms(state, width / height)); sculpt.draw(); }
+    try { active.draw(frameUniforms(viewState(), width / height)); sculpt.draw();objects.draw();transforms.draw();paint.draw();workspace.sync(); }
     catch (error) { void startGraphics(activeKind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   });
 }
@@ -84,7 +132,7 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
     result.renderer?.dispose();
     return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [...result.reasons, losses.get(result.kind)]);
   }
-  active = result.renderer; activeKind = result.kind;sculpt.sync();
+  active = result.renderer; activeKind = result.kind;sculpt.sync();paint.sync();
   finalRender.setAvailable(activeKind === 'webgpu' && terrainReady, activeKind === 'webgpu' && !terrainReady ? 'Generate terrain before rendering this scene.' : undefined);
   $('backend').textContent = result.kind === 'none' ? 'Preview unavailable' : result.kind === 'webgpu' ? 'WebGPU' : 'WebGL 2';
   $('graphics-info').textContent = active?.details || 'No active graphics backend. Your scene settings are still available.';
@@ -93,7 +141,7 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
   $('empty-message').textContent = preference === 'none' && !reasons.length ? 'GPU preview is disabled. Select Automatic under Graphics & compatibility to return to your landscape.' : 'No working GPU preview is available. Enable graphics acceleration in your browser, then use Retry graphics. Your scene settings are preserved.';
   if (active) {
     viewport.append(active.canvas);
-    try { if (mesh) active.setMesh(mesh); draw(); }
+    try { if (mesh) active.setMesh(mesh);active.setObjects(primitiveMesh(state.primitives)); draw(); }
     catch (error) { return startGraphics(result.kind === 'webgpu' ? 'webgl2' : 'none', [error.message]); }
   }
   $('status').textContent = active ? `${$('backend').textContent} preview ready` : $('empty-message').textContent;
@@ -101,19 +149,19 @@ async function startGraphics(preference = $('graphics-mode').value, reasons = []
 
 async function updateGeometry() {
   const ticket=++terrainEpoch;
-  terrainReady=false;heightmaps.sync();sculpt.cancel();sculpt.sync();finalRender.setAvailable(false, 'Generating terrain before rendering…');
+  terrainReady=false;heightmaps.sync();paint.sync();sculpt.cancel();sculpt.sync();finalRender.setAvailable(false, 'Generating terrain before rendering…');
   $('cancel-terrain').disabled=false;$('retry-terrain').hidden=true;
   $('terrain-progress').value=0;
   $('terrain-status').textContent='Generating terrain… The previous preview stays visible.';
   try {
     const result=await terrainGenerator.generate(state, progress=>{if(ticket===terrainEpoch)$('terrain-progress').value=progress;});
     if(ticket!==terrainEpoch)return;
-    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;heightmaps.sync();sculpt.sync();
+    mesh=result.mesh;if(result.field)field=result.field;terrainReady=true;heightmaps.sync();sculpt.sync();paint.sync();
     $('terrain-progress').value=1;
     $('terrain-status').textContent=result.heightsChanged?'Terrain ready.':result.surfaceChanged?'Surface updated · heights reused.':'Water updated · terrain surface reused.';
-    $('geometry').textContent=`${result.resolution}² terrain cells · 128² render mesh · 32,768 triangles`;
+    $('geometry').textContent=`${result.resolution}² terrain cells · 128² preview mesh · 32,768 triangles`;
     finalRender.setAvailable(activeKind==='webgpu');
-    if(active) {try {active.setMesh(mesh);} catch(error) {void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}
+    if(active) {try {active.setMesh(mesh);active.setObjects(primitiveMesh(state.primitives));} catch(error) {void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}
     draw();
   } catch(error) {
     if(ticket!==terrainEpoch)return;
@@ -125,8 +173,10 @@ async function updateGeometry() {
 $('cancel-terrain').addEventListener('click',()=>terrainGenerator.cancel());
 $('retry-terrain').addEventListener('click',()=>void updateGeometry());
 function syncControls() {
-  const scene = history.value;
-  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();
+  const scene = controlScene();objects.releaseLocks();
+  layerControls.sync();sculpt.sync();materials.sync();heightmaps.sync();atmosphere.sync();lighting.sync();water.sync();camera.sync();
+  $('upgrade-rendering').hidden=currentRendering(scene);
+  $('rendering-model').textContent=currentRendering(scene)?'Current rendering · geology, atmosphere, studio light and lake optics':'Custom / legacy rendering · upgrade to enable all current models';
   for (const key of ['seed', 'elevation', 'sun', 'palette']) $(key).value = state[key];
   $('scene-title').value = scene.title;
   $('scene-name').textContent = scene.title;
@@ -136,32 +186,37 @@ function syncControls() {
   $('water-value').textContent = scene.water.level.toFixed(2);
   $('elevation-value').textContent = state.elevation.toFixed(2) + '×';
   $('sun-value').textContent = state.sun + '°';
-  $('study-select').value = studies.find(study => sceneKey(scene) === sceneKey(study.scene))?.id || '';
+  $('study-select').value = studies.find(study => sceneKey(history.value) === sceneKey(study.scene))?.id || '';
   $('undo').disabled = !history.canUndo; $('redo').disabled = !history.canRedo;
   document.querySelectorAll('.study').forEach(b => {
     const selected = sceneKey(history.value) === sceneKey(presetScene(b.dataset.preset));
     b.classList.toggle('active', selected); b.setAttribute('aria-pressed', String(selected));
   });
+  objects.sync();transforms.sync();assignment.sync();paint.sync();workspace?.sync();
 }
 function refresh() {
   const next = renderState(history.value);
+  const objectsChanged=JSON.stringify(state.primitives??[])!==JSON.stringify(next.primitives??[]);
   const geometryChanged = geometryKey(state) !== geometryKey(next);
-  if (renderKey(state) !== renderKey(next)) finalRender.invalidate();
-  sculpt.cancel();state = next; syncControls();
-  if (geometryChanged) updateGeometry(); else draw();
+  const renderChanged=renderKey(state)!==renderKey(next);
+  sculpt.cancel();state = next; syncControls();if(renderChanged)finalRender.invalidate();
+  if (geometryChanged) updateGeometry(); else {if(objectsChanged&&active&&mesh){try{active.setObjects(primitiveMesh(state.primitives));}catch(error){void startGraphics(activeKind==='webgpu'?'webgl2':'none',[error.message]);}}draw();}
   changed = true; editVersion++;
   if (autosaveEnabled) autosave.enqueue(history.value);
 }
-function edit(change) { if (history.edit(change)) refresh(); }
+function edit(change) { try {if(history.edit(scene=>editScene(scene,change))){refresh();return true;}return false;}catch(error){$('entity-status').textContent=error.message;syncControls();return false;} }
+function objectCommand(command,id,value){if(Array.isArray(id))return spatialEdit(command==='delete'?'delete-selection':'batch',id,{command,value});finishGesture();try{let result;const changed=history.edit(scene=>{result=entityCommand(scene,command,id,value);});if(changed){refresh();$('entity-status').textContent='Object '+({rename:'renamed',visible:'visibility changed',locked:'lock changed',parent:'regrouped',delete:'deleted',duplicate:'duplicated','add-group':'group added'}[command]??'changed')+'. Undo restores the previous scene.';}return changed?result:false;}catch(error){$('entity-status').textContent=error.message;return false;}}
+function spatialEdit(command,ids,value,base){if(!base)finishGesture();try{let result;const changed=history.edit(scene=>{if(base){for(const key of Object.keys(scene))delete scene[key];Object.assign(scene,structuredClone(base));}result=spatialCommand(scene,command,ids,value);});if(changed){refresh();$('entity-status').textContent='Objects updated. Undo restores the previous scene.';}return changed?result:false;}catch(error){$('entity-status').textContent=error.message;return false;}}
 function finishGesture() { clearTimeout(gestureTimer); history.end(); syncControls(); }
-function discrete(change) { finishGesture(); edit(change); }
+function discrete(change) { finishGesture();return edit(change); }
 function presetScene(key) { return structuredClone(studies.find(study => study.id === key).scene); }
+$('upgrade-rendering').addEventListener('click',()=>discrete(upgradeScene));
 $('study-select').addEventListener('change', () => {
   const key = $('study-select').value; if (!key) return;
-  finishGesture(); if (history.replace(presetScene(key))) refresh();
+  finishGesture(); if (history.replace(presetScene(key))) {refresh();workspace.setView('render');}
 });
 document.querySelectorAll('.study').forEach(button => button.addEventListener('click', () => {
-  finishGesture(); if (history.replace(presetScene(button.dataset.preset))) refresh();
+  finishGesture(); if (history.replace(presetScene(button.dataset.preset))) {refresh();workspace.setView('render');}
 }));
 $('scene-title').addEventListener('change', () => {
   const title = $('scene-title').value.trim();
@@ -185,30 +240,35 @@ $('palette').addEventListener('change', () => { const value = $('palette').value
 $('water-enabled').addEventListener('change', () => { const value = $('water-enabled').checked; discrete(scene => { scene.water.enabled = value; }); });
 $('graphics-mode').addEventListener('change', () => void startGraphics());
 $('retry').addEventListener('click', () => void startGraphics());
-function resetCamera() { discrete(scene => { scene.camera = defaultScene().camera; }); }
+function resetCamera() { if(workspace?.working){workspace.setView('render');return;}discrete(scene => { const lens=scene.camera.lens;scene.camera={yaw:.28,pitch:.3,distance:23};if(lens)scene.camera.lens={...lens,targetX:0,targetY:1.8,targetZ:-4,roll:0}; }); }
 $('reset-camera').addEventListener('click', resetCamera);
 function travel(direction) { finishGesture(); if (history[direction]()) refresh(); }
 $('undo').addEventListener('click', () => travel('undo'));
 $('redo').addEventListener('click', () => travel('redo'));
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+function panCamera(scene,dx,dy) {enableCamera(scene);const f=frameUniforms(renderState(scene),viewport.clientWidth/Math.max(1,viewport.clientHeight)),scale=2*scene.camera.distance*f[7]/Math.max(1,viewport.clientHeight),l=scene.camera.lens;for(const [k,i,min,max]of [['targetX',0,-64,64],['targetY',1,-32,96],['targetZ',2,-64,64]])l[k]=clamp(l[k]+(-f[4+i]*dx+f[8+i]*dy)*scale,min,max);}
 let pointer = null;
-viewport.addEventListener('pointerdown', e => { if (e.button !== 0) return; finishGesture(); history.begin(); viewport.focus(); viewport.setPointerCapture(e.pointerId); pointer = { id: e.pointerId, x: e.clientX, y: e.clientY }; });
+viewport.addEventListener('pointerdown', e => { if (e.button !== 0) return; finishGesture(); history.begin(); viewport.focus(); viewport.setPointerCapture(e.pointerId); pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, pan:e.shiftKey }; });
 viewport.addEventListener('pointermove', e => {
   if (!pointer || pointer.id !== e.pointerId) return;
-  edit(scene => { scene.camera.yaw = wrapYaw(scene.camera.yaw - (e.clientX - pointer.x) * 0.005); scene.camera.pitch = clamp(scene.camera.pitch + (e.clientY - pointer.y) * 0.004, 0.08, 1.2); });
+  if(pointer.pan){edit(scene=>panCamera(scene,e.clientX-pointer.x,e.clientY-pointer.y));}else edit(scene => { scene.camera.yaw = wrapYaw(scene.camera.yaw - (e.clientX - pointer.x) * 0.005); scene.camera.pitch = clamp(scene.camera.pitch + (e.clientY - pointer.y) * 0.004, scene.camera.lens?-1.4:.08,scene.camera.lens?1.4:1.2); });
   pointer.x = e.clientX; pointer.y = e.clientY;
 });
-for (const event of ['pointerup', 'pointercancel', 'lostpointercapture']) viewport.addEventListener(event, () => { if (pointer) { pointer = null; finishGesture(); } });
+viewport.addEventListener('pointerup',()=>{if(pointer){pointer=null;finishGesture();}});
+function cancelCameraGesture(){if(!pointer)return;const id=pointer.id;pointer=null;if(history.cancel())refresh();if(viewport.hasPointerCapture(id))viewport.releasePointerCapture(id);}
+for(const event of ['pointercancel','lostpointercapture'])viewport.addEventListener(event,cancelCameraGesture);
 viewport.addEventListener('wheel', e => {
   e.preventDefault(); history.begin();
-  edit(scene => { scene.camera.distance = clamp(scene.camera.distance * Math.exp(clamp(e.deltaY, -100, 100) * 0.001), 10, 48); });
+  edit(scene => { scene.camera.distance = clamp(scene.camera.distance * Math.exp(clamp(e.deltaY, -100, 100) * 0.001), scene.camera.lens ? .5 : 10, scene.camera.lens?128:48); });
   clearTimeout(gestureTimer); gestureTimer = setTimeout(finishGesture, 180);
 }, { passive: false });
 viewport.addEventListener('keydown', e => {
+  if(e.key==='Escape'&&pointer){e.preventDefault();cancelCameraGesture();return;}
+  if(e.shiftKey&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();history.begin();edit(scene=>panCamera(scene,e.key==='ArrowLeft'?-20:e.key==='ArrowRight'?20:0,e.key==='ArrowUp'?-20:e.key==='ArrowDown'?20:0));return;}
   const actions = {
     ArrowLeft: c => c.yaw = wrapYaw(c.yaw - 0.08), ArrowRight: c => c.yaw = wrapYaw(c.yaw + 0.08),
-    ArrowUp: c => c.pitch = clamp(c.pitch + 0.06, 0.08, 1.2), ArrowDown: c => c.pitch = clamp(c.pitch - 0.06, 0.08, 1.2),
-    '+': c => c.distance = Math.max(10, c.distance - 1), '=': c => c.distance = Math.max(10, c.distance - 1), '-': c => c.distance = Math.min(48, c.distance + 1),
+    ArrowUp: c => c.pitch = clamp(c.pitch + 0.06, c.lens?-1.4:.08, c.lens?1.4:1.2), ArrowDown: c => c.pitch = clamp(c.pitch - 0.06, c.lens?-1.4:.08, c.lens?1.4:1.2),
+    '+': c => c.distance = Math.max(c.lens ? .5 : 10, c.distance - 1), '=': c => c.distance = Math.max(c.lens ? .5 : 10, c.distance - 1), '-': c => c.distance = Math.min(c.lens?128:48, c.distance + 1),
   };
   if (e.key === 'Home') { e.preventDefault(); resetCamera(); }
   if (actions[e.key]) { e.preventDefault(); history.begin(); edit(scene => actions[e.key](scene.camera)); }
@@ -298,7 +358,7 @@ async function downloadScene() {
   try {
   finishGesture();
   const scene = history.value;
-  const blob=scene.version===5?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
+  const blob=sceneView(scene).terrain.generator==='heightmap-v1'?await (await assetRequest('/api/project/save',{body:serializeScene(scene,schema)})).blob():new Blob([serializeScene(scene,schema)],{type:'application/json'});
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a'); anchor.href = url;
   anchor.download = (scene.title.replace(/[^a-z0-9_-]+/gi, '-').replace(/^-|-$/g, '').slice(0, 60) || 'landscape') + '.lithosky';
@@ -323,7 +383,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && aut
 void connectRecovery();
 $('help').addEventListener('click', () => $('guide').showModal());
 new ResizeObserver(draw).observe(viewport);
-window.addEventListener('pagehide', () => { if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; sculpt.cancel(); terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
+window.addEventListener('pagehide', () => { transforms.cancel();paint.cancel();workspace.cancel();if (autosaveEnabled) void autosave.flush(); generation++; terrainEpoch++; sculpt.cancel(); terrainGenerator.cancel(); terrainReady=false; finalRender.invalidate('Render stopped.'); active?.dispose(); active = null; });
 window.addEventListener('pageshow', e => { if (e.persisted) {void updateGeometry();void startGraphics();} });
 void updateGeometry();
 syncControls();

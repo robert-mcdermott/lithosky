@@ -9,6 +9,10 @@ async page=>{
  await page.evaluate(async()=>{const {History}=await import('/scene/history.js');for(const name of ['edit','undo','redo']){const original=History.prototype[name];History.prototype[name]=function(...args){const r=original.apply(this,args);window.heightmapScene=this.value;return r;};}});
  const download=async(id)=>{const event=page.waitForEvent('download');await page.locator(id).click();const file=await event,chunks=[];for await(const c of await file.createReadStream())chunks.push(c);return {file,bytes:Buffer.concat(chunks)};};
  const importMap=async(buffer,name='terrain.heightmap')=>{await page.locator('#heightmap-file').setInputFiles({name,mimeType:'application/octet-stream',buffer});await page.waitForFunction(()=>document.getElementById('heightmap-status').textContent.startsWith('Heightmap imported.'));await ready();};
+ // Explicit old-format fixture: new starter studies use v9.
+ const legacyFixture=await page.evaluate(async()=>(await import('/scene/document.js')).legacyScene());
+ await page.locator('#scene-file').setInputFiles({name:'legacy-fixture.lithosky',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(legacyFixture))});
+ await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Opened legacy-fixture.lithosky'));await ready();await page.locator('#live-preview').uncheck();
  // Migrate the v1 starter through a full-depth export; no UI canvas conversion.
  const original=await download('#export-heightmap');check(original.bytes.subarray(0,2).toString()==='PK','Export is not a bundle');
  await importMap(original.bytes);let scene=await page.evaluate(()=>window.heightmapScene);check(scene.version===5&&scene.terrain.resolution===128,'v1 migration');
@@ -43,7 +47,7 @@ async page=>{
  await page.waitForFunction(()=>document.getElementById('heightmap-status').textContent.includes('scene changed while importing'));await page.unroute('**/api/heightmap/import');
  check(await page.evaluate(()=>window.heightmapScene.terrain.resolution)===256,'Stale import replaced newer scene');
  await page.waitForFunction(()=>document.getElementById('autosave-status').textContent==='Recovery saved on this device');
- await page.reload();await ready();await page.getByRole('button',{name:'Restore scene',exact:true}).click();await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Recovery restored.'));await ready();
+ await page.reload();await ready();await page.locator('#live-preview').uncheck();await page.getByRole('button',{name:'Restore scene',exact:true}).click();await page.waitForFunction(()=>document.getElementById('file-status').textContent.startsWith('Recovery restored.'));await ready();
  check((await page.locator('#heightmap-info').textContent()).includes('257 × 257'),'Heightmap recovery');
  await page.getByRole('combobox',{name:'Samples',exact:true}).selectOption('8');await page.getByRole('button',{name:'Render image',exact:true}).click();await page.waitForFunction(()=>document.getElementById('render-status').textContent.startsWith('Complete.'),{},{timeout:60000});
  const rendered=await page.locator('#render-status').textContent(),image=await download('#export-image');await image.file.saveAs('/Users/rmcdermo/mycode/lithosky/output/playwright/w2-heightmap.png');

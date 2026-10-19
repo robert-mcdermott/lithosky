@@ -1,0 +1,775 @@
+{
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
+  "capturedAt": "2026-10-19T06:38:24.170Z",
+  "diagnostics": {
+    "reports": [
+      {
+        "modern": false,
+        "scalars": 2048,
+        "worst": 8.459354972067956e-8
+      },
+      {
+        "modern": true,
+        "scalars": 2048,
+        "worst": 1.0228436786441364e-7
+      }
+    ],
+    "regions": [
+      {
+        "dof": false,
+        "crop": {
+          "x": 37,
+          "y": 21,
+          "width": 173,
+          "height": 95
+        },
+        "pixels": 16435,
+        "different": 0
+      },
+      {
+        "dof": true,
+        "crop": {
+          "x": 37,
+          "y": 21,
+          "width": 173,
+          "height": 95
+        },
+        "pixels": 16435,
+        "different": 0
+      }
+    ],
+    "large": [
+      {
+        "width": 2048,
+        "height": 1152,
+        "samples": 1,
+        "milliseconds": 476.80000019073486,
+        "imageBuffersBytes": 56623104
+      },
+      {
+        "width": 1365,
+        "height": 2048,
+        "samples": 1,
+        "milliseconds": 734.6999998092651,
+        "imageBuffersBytes": 67092480
+      },
+      {
+        "width": 2048,
+        "height": 2048,
+        "samples": 1,
+        "milliseconds": 985.4000000953674,
+        "imageBuffersBytes": 100663296
+      }
+    ],
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3"
+    }
+  },
+  "workflow": {
+    "upgradeUndo": true,
+    "focus": 2487.2034259080597,
+    "panUndo": true,
+    "dragCancel": true,
+    "saveReopenRecovery": true,
+    "portraitPNG": "Alpine-quiet-1365x2048-8spp.png",
+    "region": {
+      "width": 171,
+      "height": 256
+    },
+    "layouts": [
+      {
+        "width": 1440,
+        "overflow": false
+      },
+      {
+        "width": 768,
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "overflow": false
+      },
+      {
+        "width": 320,
+        "overflow": false
+      }
+    ],
+    "webglEditing": true,
+    "errors": []
+  },
+  "records": [
+    {
+      "name": "mountain-composition",
+      "id": "mountain",
+      "scene": {
+        "format": "lithosky",
+        "version": 10,
+        "title": "Amber ridges",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 9837,
+          "elevation": 1.3,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": 0.3,
+          "pitch": 0.12,
+          "distance": 26,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "3:2",
+            "focalLength": 28,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2600,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 3.5,
+            "targetZ": -6,
+            "roll": 0
+          }
+        },
+        "water": {
+          "enabled": false,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1.5,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 12,
+          "sunAzimuth": 135,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.8,
+          "ozone": 1,
+          "groundAlbedo": 0.12
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 14,
+          "sandHeight": -3,
+          "rockSlope": 42,
+          "blend": 0.45,
+          "detail": 0.8,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 0.25,
+            "strata": 0.35,
+            "fractures": 0.65,
+            "bump": 0.15,
+            "roughness": 0.65
+          }
+        }
+      },
+      "width": 2048,
+      "height": 1365,
+      "samples": 64,
+      "detail": 1024,
+      "milliseconds": 86457,
+      "imageBuffersBytes": 67092480,
+      "sha256": "4bb117d6f192d47952f17c2e458b40da7b2ea9abfd463971339684fdc5465cac"
+    },
+    {
+      "name": "mountain-composition-foreground",
+      "parent": "mountain-composition",
+      "crop": {
+        "x": 896,
+        "y": 1028,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "19b9f126326c1e971f21bbd77eb128a6ef6afb85b08acce09ed2cc9d0563669f"
+    },
+    {
+      "name": "mountain-composition-middle",
+      "parent": "mountain-composition",
+      "crop": {
+        "x": 896,
+        "y": 618,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "9aa9ea39ece662e43b59bb1318dda74d8136c6bc4508e3dcb3e790c56abe7e33"
+    },
+    {
+      "name": "mountain-composition-horizon",
+      "parent": "mountain-composition",
+      "crop": {
+        "x": 896,
+        "y": 209,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "79174c1dbebfc7a9ab788a19eda37b940c397ae76349c9f4d1d283e9253bafc4"
+    },
+    {
+      "name": "coast-composition",
+      "id": "coast",
+      "scene": {
+        "format": "lithosky",
+        "version": 10,
+        "title": "Tidal light",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 972,
+          "elevation": 0.7,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": -0.45,
+          "pitch": 0.16,
+          "distance": 18,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "3:2",
+            "focalLength": 28,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 1800,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.2,
+            "targetZ": 0,
+            "roll": 0
+          }
+        },
+        "water": {
+          "enabled": true,
+          "level": 1.1,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.18,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 14,
+          "sandHeight": 1.3,
+          "rockSlope": 44,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 0.25,
+            "strata": 0.25,
+            "fractures": 0.65,
+            "bump": 0.15,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 15,
+          "sunAzimuth": 250,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.6,
+          "ozone": 1,
+          "groundAlbedo": 0.12
+        }
+      },
+      "width": 2048,
+      "height": 1365,
+      "samples": 64,
+      "detail": 1024,
+      "milliseconds": 50357,
+      "imageBuffersBytes": 67092480,
+      "sha256": "b341688daafc79979beed5a51c8ebf52dff43129cb58e2b140ebee50d6d89397"
+    },
+    {
+      "name": "coast-composition-foreground",
+      "parent": "coast-composition",
+      "crop": {
+        "x": 896,
+        "y": 1028,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "33735605a103eb4960e0e7e193dae81c1d34fda4bf6480bcf1f8c9e250c54158"
+    },
+    {
+      "name": "coast-composition-middle",
+      "parent": "coast-composition",
+      "crop": {
+        "x": 896,
+        "y": 618,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "530bf9376d16772a33b689bd204043dd7a1f8b4ee905d1833b32304cce67bffc"
+    },
+    {
+      "name": "coast-composition-horizon",
+      "parent": "coast-composition",
+      "crop": {
+        "x": 896,
+        "y": 209,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "cb6a8655181a6c11e4229b94af9ae130bc60d2b92b5eb8ff1c7e535bd87d7d23"
+    },
+    {
+      "name": "snow-composition",
+      "id": "snow",
+      "scene": {
+        "format": "lithosky",
+        "version": 10,
+        "title": "Daylight snow",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 12384,
+          "elevation": 1.1,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": 0.6,
+          "pitch": 0.1,
+          "distance": 26,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "2:3",
+            "focalLength": 28,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2600,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 3,
+            "targetZ": -5,
+            "roll": 0
+          }
+        },
+        "water": {
+          "enabled": false,
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.25,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1.5,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 22,
+          "sunAzimuth": 125,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.4,
+          "ozone": 1,
+          "groundAlbedo": 0.12
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 4.8,
+          "sandHeight": -3,
+          "rockSlope": 54,
+          "blend": 0.7,
+          "detail": 0.8,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 0.25,
+            "strata": 0.15,
+            "fractures": 0.65,
+            "bump": 0.15,
+            "roughness": 0.65
+          }
+        }
+      },
+      "width": 1365,
+      "height": 2048,
+      "samples": 64,
+      "detail": 1024,
+      "milliseconds": 75593,
+      "imageBuffersBytes": 67092480,
+      "sha256": "8b1355d203253de973b68f1b2ff2e42f7b0015eabded7cfdfa271ea15d41f970"
+    },
+    {
+      "name": "snow-composition-foreground",
+      "parent": "snow-composition",
+      "crop": {
+        "x": 554,
+        "y": 1574,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "a28436e7e11fca584e8b8e098e22891b0219df2330dc6e2abad6cf0ffc72b257"
+    },
+    {
+      "name": "snow-composition-middle",
+      "parent": "snow-composition",
+      "crop": {
+        "x": 554,
+        "y": 960,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "d86f597de97835fcc06c322b0ec2fc196aff6e3e1512dfbbaf625a6cb0244ea5"
+    },
+    {
+      "name": "snow-composition-horizon",
+      "parent": "snow-composition",
+      "crop": {
+        "x": 554,
+        "y": 345,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "45160794d227f94a396408d8844802de054b57613b5fc178465180920db9ad33"
+    },
+    {
+      "name": "camera-pinhole",
+      "scene": {
+        "format": "lithosky",
+        "version": 10,
+        "title": "Thin lens study",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 972,
+          "elevation": 0.7,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": -0.45,
+          "pitch": 0.16,
+          "distance": 18,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "3:2",
+            "focalLength": 50,
+            "fNumber": 1,
+            "dof": false,
+            "focusDistance": 1.5,
+            "metresPerUnit": 0.1,
+            "targetX": 0,
+            "targetY": 1.2,
+            "targetZ": 0,
+            "roll": 0
+          }
+        },
+        "water": {
+          "enabled": true,
+          "level": 1.1,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.18,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 14,
+          "sandHeight": 1.3,
+          "rockSlope": 44,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 0.25,
+            "strata": 0.25,
+            "fractures": 0.65,
+            "bump": 0.15,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 15,
+          "sunAzimuth": 250,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.6,
+          "ozone": 1,
+          "groundAlbedo": 0.12
+        }
+      },
+      "width": 640,
+      "height": 427,
+      "samples": 128,
+      "detail": 1024,
+      "sha256": "bd2daa13c705e31ac579029cc7a906a79ff1d1e6e4069d861a2fe59eff9c4396"
+    },
+    {
+      "name": "camera-lens",
+      "scene": {
+        "format": "lithosky",
+        "version": 10,
+        "title": "Thin lens study",
+        "terrain": {
+          "generator": "terrain-v1",
+          "seed": 972,
+          "elevation": 0.7,
+          "palette": "natural"
+        },
+        "camera": {
+          "yaw": -0.45,
+          "pitch": 0.16,
+          "distance": 18,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "3:2",
+            "focalLength": 50,
+            "fNumber": 1,
+            "dof": true,
+            "focusDistance": 1.5,
+            "metresPerUnit": 0.1,
+            "targetX": 0,
+            "targetY": 1.2,
+            "targetZ": 0,
+            "roll": 0
+          }
+        },
+        "water": {
+          "enabled": true,
+          "level": 1.1,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.18,
+            "wavelength": 1,
+            "shore": 0.06
+          }
+        },
+        "lighting": {
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 14,
+          "sandHeight": 1.3,
+          "rockSlope": 44,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 0.25,
+            "strata": 0.25,
+            "fractures": 0.65,
+            "bump": 0.15,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 15,
+          "sunAzimuth": 250,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.6,
+          "ozone": 1,
+          "groundAlbedo": 0.12
+        }
+      },
+      "width": 640,
+      "height": 427,
+      "samples": 128,
+      "detail": 1024,
+      "sha256": "0318d3c6733c1b4ccfa348a5e02bf65396313aad54e16741620d2bc92be890ea"
+    }
+  ],
+  "errors": []
+}

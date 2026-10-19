@@ -57,9 +57,10 @@ replay and dense scalar height grids. Pristine and sculpted fields are separate;
 undo stores scene parameter strings under a 4 MiB budget instead of dense grids. The editor manages a single cancellable job and rejects stale
 results. Seed/layer/resolution edits regenerate heights; elevation, palette and material rules
 reuse heights; water reuses traced terrain surfaces; camera and light changes
-submit no terrain job. Both graphics paths consume the worker's bounded 128²
-render geometry. V4 materials use original height/slope blends and seeded vertex
-color detail. A 16² block hierarchy bounds 8² cells per block for CPU/GPU traversal;
+submit no preview terrain job. WebGPU and WebGL preview consume the worker's
+bounded 128² geometry. Final rendering prepares 128²/512²/1024² geometry in a
+separate worker, capped by layered/imported source resolution. V4 materials use original height/slope blends and seeded vertex
+color detail. A grid-dependent hierarchy bounds 8² cells per block for CPU/GPU traversal;
 material-only edits reuse those bounds. See [terrain authoring](terrain.md) for budgets and contracts.
 
 ## Scene and project boundaries
@@ -95,3 +96,22 @@ publication and never advertise planned functionality as shipped. W1.S4 implemen
 The standard-library archive builder/verifier lives in `tools/release/`; native
 smoke CI precedes package artifacts. Site deployment and release publication remain
 separate from generation. See [release readiness](releases.md).
+
+## Physical atmosphere
+
+Wave 3 adds an opt-in v6 atmosphere with bounded CPU-generated Float32 lookup
+tables uploaded to the WebGPU tracer. Preview uses the same sun vector while
+retaining approximate haze. The tables and integration are original, dependency-free
+code. See [atmosphere model, units and validation](atmosphere.md). Atmosphere-only
+edits invalidate rendering without rebuilding terrain or traversal bounds.
+
+## Geological materials
+
+V7 adds opt-in solid procedural materials, with a reusable pure evaluator in
+`web/material/geology.js` and an original WGSL counterpart. Definitions remain
+independent of terrain geometry. Preview uses filtered vertex colors; final
+rendering evaluates actual hit positions, surface gradients and rough diffuse
+response with an approximate footprint. The final uniform block is 240 bytes; no
+texture buffers or external assets are required. A shared minimum-version helper
+preserves geology when other scene capabilities are enabled, removed or replaced.
+See [geological surfaces](geological-surfaces.md) for the validation contract.

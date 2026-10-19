@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {quantizeHeights,decodeHeightSamples,exportSamples,importedTerrain} from '../web/scene/heightmaps.js';
 import {TerrainCache,generateHeights} from '../web/scene/generation.js';
-import {defaultScene,sceneKey,renderState,validateScene,serializeScene,parseScene} from '../web/scene/document.js';
+import {legacyScene as defaultScene,sceneKey,renderState,validateScene,serializeScene,parseScene} from '../web/scene/document.js';
 import {History} from '../web/scene/history.js';
 import {sculptHeights} from '../web/scene/sculpt.js';
 const schema=JSON.parse(readFileSync(new URL('../internal/scene/schema.json',import.meta.url))),fast={yieldControl:async()=>{}};

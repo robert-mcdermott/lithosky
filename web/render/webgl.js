@@ -10,8 +10,9 @@ out float vDistance;
 void main() {
   vec3 delta = position - eye.xyz;
   float depth = dot(delta, forwardVector.xyz);
-  gl_Position = vec4(dot(delta, rightVector.xyz)/(0.48*eye.w), dot(delta, upVector.xyz)/0.48, 150.1/149.9*depth - 30.0/149.9, depth);
-  vNormal = normal; vColor = color; vDistance = length(delta);
+  if(forwardVector.w>0.5){gl_Position=vec4(dot(delta,rightVector.xyz)/(rightVector.w*eye.w),dot(delta,upVector.xyz)/rightVector.w,2.0*(depth-0.05)/1023.95-1.0,1.0);}
+  else {gl_Position = vec4(dot(delta, rightVector.xyz)/(rightVector.w*eye.w), dot(delta, upVector.xyz)/rightVector.w, 1024.05/1023.95*depth - 102.4/1023.95, depth);}
+  vNormal = normal; vColor = color; vDistance = forwardVector.w>0.5?0.0:length(delta);
 }`;
 const fragment = `#version 300 es
 precision highp float;
@@ -21,9 +22,9 @@ uniform vec4 light, fog;
 out vec4 outputColor;
 void main() {
   float diffuse = max(0.0, dot(normalize(vNormal), light.xyz));
-  vec3 lit = vColor * (0.32 + diffuse * 0.85);
+  vec3 lit = vColor * (0.32 + diffuse * 0.85) * (1.0-light.w);
   float haze = 1.0 - exp(-vDistance*vDistance*0.00042);
-  outputColor = vec4(mix(lit, fog.xyz, haze), 1.0);
+  outputColor = vec4(mix(lit, fog.xyz*(1.0-light.w), haze), 1.0);
 }`;
 
 export function createWebGL(canvas, onLost) {
@@ -43,24 +44,23 @@ export function createWebGL(canvas, onLost) {
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
     shaders.forEach(shader => gl.deleteShader(shader)); shaders.length = 0;
-    const buffer = gl.createBuffer(), vao = gl.createVertexArray();
-    gl.bindVertexArray(vao); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    for (let i = 0; i < 3; i++) { gl.enableVertexAttribArray(i); gl.vertexAttribPointer(i, 3, gl.FLOAT, false, 36, i * 12); }
+    const buffer=gl.createBuffer(),objectBuffer=gl.createBuffer(),makeVAO=buffer=>{const vao=gl.createVertexArray();gl.bindVertexArray(vao);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);for(let i=0;i<3;i++){gl.enableVertexAttribArray(i);gl.vertexAttribPointer(i,3,gl.FLOAT,false,36,i*12);}return vao;},vao=makeVAO(buffer),objectVAO=makeVAO(objectBuffer);
     const uniforms = ['eye', 'rightVector', 'upVector', 'forwardVector', 'light', 'fog'].map(name => gl.getUniformLocation(program, name));
-    let count = 0;
+    let count = 0,objectCount=0,objectCapacity=0;
     return {
       canvas,
       details: `WebGL 2 · preview only · max texture ${gl.getParameter(gl.MAX_TEXTURE_SIZE)} px`,
       setMesh(mesh) { gl.bindBuffer(gl.ARRAY_BUFFER, buffer); gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW); count = mesh.length / 9; },
+      setObjects(mesh){gl.bindBuffer(gl.ARRAY_BUFFER,objectBuffer);if(mesh.byteLength>objectCapacity){gl.bufferData(gl.ARRAY_BUFFER,mesh,gl.DYNAMIC_DRAW);objectCapacity=mesh.byteLength;}else if(mesh.byteLength)gl.bufferSubData(gl.ARRAY_BUFFER,0,mesh);objectCount=mesh.length/9;},
       draw(values) {
         if (disposed || gl.isContextLost()) return;
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(values[20], values[21], values[22], 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST); gl.useProgram(program); gl.bindVertexArray(vao);
         uniforms.forEach((location, i) => gl.uniform4fv(location, values.subarray(i * 4, i * 4 + 4)));
-        gl.drawArrays(gl.TRIANGLES, 0, count);
+        if(count)gl.drawArrays(gl.TRIANGLES, 0, count);if(objectCount){gl.bindVertexArray(objectVAO);gl.drawArrays(gl.TRIANGLES,0,objectCount);}
       },
-      dispose() { disposed = true; canvas.removeEventListener('webglcontextlost', lost); gl.deleteBuffer(buffer); gl.deleteVertexArray(vao); gl.deleteProgram(program); gl.getExtension('WEBGL_lose_context')?.loseContext(); },
+      dispose() { disposed = true; canvas.removeEventListener('webglcontextlost', lost); gl.deleteBuffer(buffer);gl.deleteBuffer(objectBuffer);gl.deleteVertexArray(objectVAO); gl.deleteVertexArray(vao); gl.deleteProgram(program); gl.getExtension('WEBGL_lose_context')?.loseContext(); },
     };
   } catch (error) { disposed = true; canvas.removeEventListener('webglcontextlost', lost); shaders.forEach(s => gl.deleteShader(s)); gl.deleteProgram(program); gl.getExtension('WEBGL_lose_context')?.loseContext(); throw error; }
 }

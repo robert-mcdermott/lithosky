@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { decodeHeightSamples,loadHeightSamples } from './heightmaps.js';
 import { heightAt, normalize, surfacePoint } from './terrain.js';
-import { buildHierarchy } from '../render/heightfield.js';
+import { buildHierarchy, finalBudget } from '../render/heightfield.js';
 import { sculptHeights } from './sculpt.js';
 export const RENDER_GRID = 128;
 export const RESOLUTIONS = Object.freeze([256, 512, 1024, 2048]);
@@ -19,7 +19,7 @@ export function baseKey(state) {
 }
 export const heightKey = state => JSON.stringify([baseKey(state), state.sculpt ?? []]);
 export const surfaceKey = state => JSON.stringify([heightKey(state), state.elevation, state.palette, state.seed, state.materials ?? null]);
-export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0]);
+export const geometryKey = state => JSON.stringify([surfaceKey(state), state.waterEnabled, state.waterEnabled ? state.waterLevel : 0, state.waterOptics ?? null,state.terrainVisible!==false]);
 const yieldTask = () => new Promise(resolve => setTimeout(resolve, 0));
 function canceled(signal) { if (signal?.aborted) throw new DOMException('Terrain generation canceled.', 'AbortError'); }
 
@@ -57,7 +57,7 @@ export function sampleHeights(heights, resolution, legacy = null) {
     const px = x * .5 - 32, pz = z * .5 - 32, i = (z * (RENDER_GRID+1) + x) * 5;
     samples.set([at(px,pz),at(px-.08,pz),at(px+.08,pz),at(px,pz-.08),at(px,pz+.08)],i);
   }
-  return { heights, samples, resolution };
+  return { heights, samples, resolution, sample:at };
 }
 function buildSurface(base, state) {
   const vertices = new Float32Array((RENDER_GRID+1) ** 2 * 12);
@@ -72,11 +72,12 @@ function buildSurface(base, state) {
   return { vertices, low, high };
 }
 function buildPreview(field, base, state) {
+  if(state.terrainVisible===false&&!state.waterEnabled)return new Float32Array(0);
   const points = new Float32Array((RENDER_GRID+1) ** 2 * 9);
   for (let i=0;i<points.length/9;i++) {
     const v=field.vertices, j=i*12;
     // Retain traced terrain reflectance unless a preview water surface covers it.
-    const rawHeight=base.samples[i*5]*state.elevation;
+    const rawHeight=state.terrainVisible===false?state.waterLevel-1:base.samples[i*5]*state.elevation;
     const water=state.waterEnabled && rawHeight<state.waterLevel;
     const p=water ? surfacePoint(v[j],v[j+2],rawHeight,[0,1,0],state) : [...v.slice(j,j+3),...v.slice(j+4,j+7),...v.slice(j+8,j+11)];
     points.set(p,i*9);
@@ -88,7 +89,38 @@ function buildPreview(field, base, state) {
   }
   return mesh;
 }
+// Final geometry is prepared separately from the fixed interactive mesh.
+export async function buildFinalSurface(base,state,requested,{signal,onProgress=()=>{},yieldControl=yieldTask}={}) {
+  finalBudget(requested); // Validate before allocating a potentially large field.
+  const resolution=state.generator==='layers-v1'||state.generator==='heightmap-v1' ? Math.min(requested,base.resolution) : requested;
+  const {verticesBytes}=finalBudget(resolution);
+  const vertices=new Float32Array(verticesBytes/4),cell=64/resolution,delta=Math.min(.08,cell/2);
+  const e=state.elevation,dry={...state,waterEnabled:false},at=base.sample;
+  // Fine final vertices carry a cheap fallback color; the shader evaluates geology
+  // at actual hits. Avoid evaluating the full solid texture at a million vertices.
+  if(dry.materials?.geology)dry.materials={...dry.materials,geology:undefined};
+  let low=Infinity,high=-Infinity;
+  for(let z=0;z<=resolution;z++) {
+    canceled(signal);
+    for(let x=0;x<=resolution;x++) {
+      const px=x*cell-32,pz=z*cell-32,h=at(px,pz)*e;
+      const normal=normalize([(at(px-delta,pz)-at(px+delta,pz))*e,2*delta,(at(px,pz-delta)-at(px,pz+delta))*e]);
+      const point=surfacePoint(px,pz,h,normal,dry),i=(z*(resolution+1)+x)*12;
+      vertices.set(point.slice(0,3),i);vertices.set(point.slice(3,6),i+4);vertices.set(point.slice(6,9),i+8);
+      low=Math.min(low,vertices[i+1]);high=Math.max(high,vertices[i+1]);
+    }
+    if(z%8===0||z===resolution){onProgress((z+1)/(resolution+1));await yieldControl();}
+  }
+  canceled(signal);
+  const field={vertices,low,high,resolution};field.hierarchy=buildHierarchy(field);return field;
+}
 export class TerrainCache {
+  async final(state,requested,options={}) {
+    finalBudget(requested);
+    await this.build(state,{...options,onProgress:p=>options.onProgress?.(p*.5)});
+    if(requested===128)return {...this.field,vertices:this.field.vertices.slice(),hierarchy:this.field.hierarchy.slice()};
+    return buildFinalSurface(this.effective,state,requested,{...options,onProgress:p=>options.onProgress?.(.5+p*.5)});
+  }
   async build(state, options) {
     const heightsChanged=this.heightsKey!==heightKey(state);
     const surfaceChanged=this.fieldKey!==surfaceKey(state);
@@ -114,4 +146,4 @@ export class TerrainCache {
   }
 }
 
-export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun]);
+export const renderKey = state => JSON.stringify([geometryKey(state), state.yaw, state.pitch, state.distance, state.sun, state.atmosphere ?? null,state.transport ?? null, state.waterOptics ?? null,state.lens??null,state.environmentVisible!==false,state.primitives?.length?state.primitives.map(({id,...object})=>object):[]]);

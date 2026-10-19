@@ -1,0 +1,387 @@
+{
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
+  "sceneSHA256": "37a4ec7a862775c707e0659b6eb6178460238e186b551adbd07224e22f10db90",
+  "studioSHA256": "f4933fb2e941ca415c573f655c4af90520e8c60a32da53948a01d24db3709a2b",
+  "capturedAt": "2026-10-19T06:33:44.551Z",
+  "workflow": {
+    "migrationUndo": true,
+    "selectionPreservesSceneAndRender": true,
+    "groupLocks": true,
+    "keyboardLock": true,
+    "visibilityAndPicking": true,
+    "lightDuplicateDelete": true,
+    "saveReopenRecovery": true,
+    "webgl": true,
+    "layouts": [
+      {
+        "width": 768,
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "overflow": false
+      },
+      {
+        "width": 320,
+        "overflow": false
+      }
+    ],
+    "errors": []
+  },
+  "gpu": {
+    "migrationPixels": 57600,
+    "migrationDifferences": 0,
+    "hiddenTerrainMiss": true,
+    "skyPixels": 57600,
+    "darkPixels": 0,
+    "independentLightPixels": 57600,
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+    "hardware": {
+      "vendor": "apple",
+      "architecture": "metal-3"
+    }
+  },
+  "records": [
+    {
+      "name": "entity-basin",
+      "scene": {
+        "format": "lithosky",
+        "version": 11,
+        "title": "Editable basin",
+        "entities": [
+          {
+            "id": "terrain-main",
+            "name": "Highlands",
+            "parent": "landscape",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "terrain": {
+                "generator": "terrain-v1",
+                "seed": 1847,
+                "elevation": 1,
+                "palette": "natural"
+              },
+              "surface": {
+                "preset": "rules",
+                "snowHeight": 5.4,
+                "sandHeight": 0.6,
+                "rockSlope": 39,
+                "blend": 0.6,
+                "detail": 0.25,
+                "detailScale": 1,
+                "geology": {
+                  "model": "geology-v1",
+                  "scale": 1,
+                  "strata": 0.65,
+                  "fractures": 0.55,
+                  "bump": 0.6,
+                  "roughness": 0.7
+                }
+              }
+            }
+          },
+          {
+            "id": "water-main",
+            "name": "Lake",
+            "parent": "landscape",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "water": {
+                "enabled": true,
+                "level": 0.25,
+                "optics": {
+                  "model": "lake-v1",
+                  "metresPerUnit": 100,
+                  "density": 1,
+                  "ripples": 0.35,
+                  "wavelength": 1,
+                  "shore": 0.06
+                }
+              }
+            }
+          },
+          {
+            "id": "environment-main",
+            "name": "Sun & sky",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "environment": {
+                "lighting": {
+                  "sunElevation": 38,
+                  "transport": {
+                    "model": "path-v1",
+                    "bounces": 3,
+                    "exposure": 2.75,
+                    "toneMap": "filmic",
+                    "sun": 1,
+                    "sky": 1,
+                    "roughness": 0.65,
+                    "ior": 1.5
+                  }
+                },
+                "atmosphere": {
+                  "model": "earth-single-v1",
+                  "mode": "manual",
+                  "sunElevation": 39.381955415560675,
+                  "sunAzimuth": 233.130102354156,
+                  "latitude": 47.6062,
+                  "longitude": -122.3321,
+                  "year": 2026,
+                  "day": 172,
+                  "utcMinutes": 1200,
+                  "altitude": 0,
+                  "metresPerUnit": 100,
+                  "aerosols": 1,
+                  "ozone": 1,
+                  "groundAlbedo": 0.12
+                }
+              }
+            }
+          },
+          {
+            "id": "camera-main",
+            "name": "Vista camera",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "camera": {
+                "yaw": 0.28,
+                "pitch": 0.3,
+                "distance": 23,
+                "lens": {
+                  "model": "thin-lens-v1",
+                  "frame": "16:9",
+                  "focalLength": 21.09375,
+                  "fNumber": 8,
+                  "dof": false,
+                  "focusDistance": 2300,
+                  "metresPerUnit": 100,
+                  "targetX": 0,
+                  "targetY": 1.8,
+                  "targetZ": -4,
+                  "roll": 0
+                }
+              }
+            }
+          },
+          {
+            "id": "landscape",
+            "name": "Landscape",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "group": {}
+            }
+          },
+          {
+            "id": "light-fill",
+            "name": "Warm fill",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "areaLight": {
+                "enabled": true,
+                "x": -8,
+                "y": 14,
+                "z": 4,
+                "yaw": 0,
+                "pitch": -55,
+                "width": 10,
+                "height": 10,
+                "intensity": 0.3,
+                "red": 1,
+                "green": 0.85,
+                "blue": 0.65
+              }
+            }
+          }
+        ]
+      },
+      "width": 960,
+      "height": 540,
+      "samples": 64,
+      "detail": 1024,
+      "milliseconds": 18862,
+      "sha256": "d9c90880519e1d358d1c8db4c0718e38cf755b94a8688742cc3670bcbf8f972f"
+    },
+    {
+      "name": "entity-hidden",
+      "scene": {
+        "format": "lithosky",
+        "version": 11,
+        "title": "Editable basin",
+        "entities": [
+          {
+            "id": "terrain-main",
+            "name": "Highlands",
+            "parent": "landscape",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "terrain": {
+                "generator": "terrain-v1",
+                "seed": 1847,
+                "elevation": 1,
+                "palette": "natural"
+              },
+              "surface": {
+                "preset": "rules",
+                "snowHeight": 5.4,
+                "sandHeight": 0.6,
+                "rockSlope": 39,
+                "blend": 0.6,
+                "detail": 0.25,
+                "detailScale": 1,
+                "geology": {
+                  "model": "geology-v1",
+                  "scale": 1,
+                  "strata": 0.65,
+                  "fractures": 0.55,
+                  "bump": 0.6,
+                  "roughness": 0.7
+                }
+              }
+            }
+          },
+          {
+            "id": "water-main",
+            "name": "Lake",
+            "parent": "landscape",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "water": {
+                "enabled": true,
+                "level": 0.25,
+                "optics": {
+                  "model": "lake-v1",
+                  "metresPerUnit": 100,
+                  "density": 1,
+                  "ripples": 0.35,
+                  "wavelength": 1,
+                  "shore": 0.06
+                }
+              }
+            }
+          },
+          {
+            "id": "environment-main",
+            "name": "Sun & sky",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "environment": {
+                "lighting": {
+                  "sunElevation": 38,
+                  "transport": {
+                    "model": "path-v1",
+                    "bounces": 3,
+                    "exposure": 2.75,
+                    "toneMap": "filmic",
+                    "sun": 1,
+                    "sky": 1,
+                    "roughness": 0.65,
+                    "ior": 1.5
+                  }
+                },
+                "atmosphere": {
+                  "model": "earth-single-v1",
+                  "mode": "manual",
+                  "sunElevation": 39.381955415560675,
+                  "sunAzimuth": 233.130102354156,
+                  "latitude": 47.6062,
+                  "longitude": -122.3321,
+                  "year": 2026,
+                  "day": 172,
+                  "utcMinutes": 1200,
+                  "altitude": 0,
+                  "metresPerUnit": 100,
+                  "aerosols": 1,
+                  "ozone": 1,
+                  "groundAlbedo": 0.12
+                }
+              }
+            }
+          },
+          {
+            "id": "camera-main",
+            "name": "Vista camera",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "camera": {
+                "yaw": 0.28,
+                "pitch": 0.3,
+                "distance": 23,
+                "lens": {
+                  "model": "thin-lens-v1",
+                  "frame": "16:9",
+                  "focalLength": 21.09375,
+                  "fNumber": 8,
+                  "dof": false,
+                  "focusDistance": 2300,
+                  "metresPerUnit": 100,
+                  "targetX": 0,
+                  "targetY": 1.8,
+                  "targetZ": -4,
+                  "roll": 0
+                }
+              }
+            }
+          },
+          {
+            "id": "landscape",
+            "name": "Landscape",
+            "parent": "",
+            "visible": false,
+            "locked": false,
+            "components": {
+              "group": {}
+            }
+          },
+          {
+            "id": "light-fill",
+            "name": "Warm fill",
+            "parent": "",
+            "visible": true,
+            "locked": false,
+            "components": {
+              "areaLight": {
+                "enabled": true,
+                "x": -8,
+                "y": 14,
+                "z": 4,
+                "yaw": 0,
+                "pitch": -55,
+                "width": 10,
+                "height": 10,
+                "intensity": 0.3,
+                "red": 1,
+                "green": 0.85,
+                "blue": 0.65
+              }
+            }
+          }
+        ]
+      },
+      "width": 960,
+      "height": 540,
+      "samples": 64,
+      "detail": 1024,
+      "milliseconds": 8278,
+      "sha256": "5208b3651f22a1e7b50831653923a85ccbc775cef7fa8723c9668e8bbc674bed"
+    }
+  ],
+  "selectionPreservedRender": true,
+  "visibilityUndo": true,
+  "errors": []
+}

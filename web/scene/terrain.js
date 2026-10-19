@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import {cameraFrame} from '../camera/model.js';
+import { sunDirection } from '../atmosphere/solar.js';
 import { materialColor } from './materials.js';
 import { noise, layeredHeight } from './noise.js';
 export const defaults = Object.freeze({ seed: 1847, elevation: 1, sun: 38, palette: 'natural', yaw: 0.28, pitch: 0.3, distance: 23, waterEnabled: true, waterLevel: 0.25 });
@@ -57,11 +59,8 @@ export function createTerrain(state, resolution = 128) {
 }
 
 export function frameUniforms(state, aspect) {
-  const target = [0, 1.8, -4];
-  const eye = [Math.sin(state.yaw) * Math.cos(state.pitch) * state.distance, Math.sin(state.pitch) * state.distance + target[1], Math.cos(state.yaw) * Math.cos(state.pitch) * state.distance + target[2]];
-  const forward = normalize(target.map((v, i) => v - eye[i]));
-  const right = normalize(cross(forward, [0, 1, 0])), up = cross(right, forward);
-  const light = normalize([-0.6, Math.sin(state.sun * Math.PI / 180), 0.45]);
+  const camera=cameraFrame(state,aspect);
+  const light = state.atmosphere ? sunDirection(state.atmosphere) : normalize([-0.6, Math.sin(state.sun * Math.PI / 180), 0.45]);
   const fog = state.palette === 'otherworld' ? [0.39, 0.37, 0.53] : [0.57, 0.66, 0.67];
-  return new Float32Array([...eye, aspect, ...right, 0, ...up, 0, ...forward, 0, ...light, 0, ...fog, 0]);
+  return new Float32Array([...camera, ...light, state.environmentVisible===false?1:0, ...fog, 0]);
 }

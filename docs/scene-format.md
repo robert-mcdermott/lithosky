@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v12 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials and v5 imported heightmaps. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere, v7 geological surfaces, v8 studio light transport/color, v9 lake optics and v10 camera/framing and v11 entities/components. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -133,6 +133,22 @@ addition to the bundled schema. Open rejects bare v5 manifests. Recovery uses
 small JSON manifests referencing immutable local assets; the two formats have
 different portability guarantees. See [heightmap format and storage](heightmaps.md).
 
+## Version 6 atmosphere
+
+V6 requires an atmosphere object with model earth-single-v1 and mode manual or
+geographic. All manual and geographic fields are retained when switching modes.
+Its terrain is original v1, sculpt-capable layered v3, or imported v5; an optional
+surface uses the v4 contract. Imported v6 scenes use the same two-entry portable
+container as v5; procedural v6 scenes remain JSON. Rendering derives the geographic
+sun direction without changing stored manual values.
+
+Bounds: sunElevation −18…90°, sunAzimuth 0…360°, latitude −90…90°, longitude
+−180…180°, year 2000…2100, day 1…366 (366 only in leap years), utcMinutes
+0…1439, altitude 0…10000 metres, metresPerUnit 1…1000, aerosols 0…5 and ozone
+0…2. Year/day/minutes are integers. Go and JS reject missing/unknown fields and
+non-leap day 366. See [atmosphere contracts](atmosphere.md). Enabling this model is
+an explicit undoable upgrade; subsequent terrain/material edits retain v6.
+
 ## Open, save and history
 
 **Open…** reads a local file with the browser picker. Byte size, container contents, UTF-8 and schema
@@ -144,7 +160,7 @@ so delayed reads cannot silently erase new work. Open and Restore are undoable.
 The browser decides the download destination and any duplicate-name suffix. It
 does not overwrite an earlier scene file in place. The UI says “Download
 requested”; it cannot confirm that a user accepted a browser download dialog.
-Open also has Ctrl/⌘ O. Procedural files contain parameters only. V5 containers additionally include one
+Open also has Ctrl/⌘ O. Procedural files contain parameters only. V5 and asset-backed v6 containers additionally include one
 validated height asset. External URLs, filesystem paths and scripts are forbidden.
 
 Undo/Redo use Ctrl/⌘ Z, Ctrl/⌘ Shift Z, or Ctrl Y, except within text/number fields
@@ -213,3 +229,135 @@ this process's recovery ID. `GET /api/recovery` lists valid snapshots;
 `GET /api/recovery/<id>` accepts only an opaque 32-character lowercase hex ID.
 The storage root is confined with `os.Root`; clients cannot supply filesystem
 paths. This API is internal, not the future automation interface.
+
+## V7 geological surfaces
+
+V7 requires `surface.geology` with model `geology-v1` and bounded scale,
+strata, fractures, bump and roughness. It retains the prior surface preset and
+height/slope controls, accepts the three existing terrain families, and optionally
+includes atmosphere. Imported samples use the existing portable container.
+Removing atmosphere or changing terrain cannot downgrade a geological scene.
+Switching to a simple surface explicitly removes geology and chooses the minimum
+supported format for the remaining features. Undo restores the earlier definition.
+No generator algorithm, terrain sample, camera or existing v1–v6 file is silently
+upgraded when opened. The material definition is independent of terrain buffers.
+
+## V8 studio lighting
+
+V8 requires `lighting.transport`, model `path-v1`, one to four bounce vertices,
+bounded exposure/roughness/IOR/sun/sky strengths and a filmic or Reinhard curve.
+It accepts all three terrain families; surface, geology and atmosphere are
+optional. At most four rectangular lights each have a name, enabled flag,
+position, azimuth/elevation, size, radiance and linear RGB. Unknown fields, invalid
+numbers, unsupported models and oversized arrays are rejected identically in Go
+and JavaScript. Lighting survives terrain conversion/import, sculpt, atmosphere
+and surface changes. Save/recovery, history budgets and portable assets retain
+their existing limits. Removing studio lighting chooses the minimum format for
+the remaining capabilities. See [light transport](light-transport.md).
+
+## V9 lake optics
+
+V9 requires `water.optics` with model `lake-v1`, metresPerUnit [1, 10000],
+density [0.1, 8], ripples [0, 1], wavelength [0.1, 8] and shore [0, 0.5]. All
+are required finite numbers. Studio lighting, atmosphere and geological surfaces
+remain independently optional. All three terrain families, portable assets,
+history and recovery retain their existing bounds. Disabling lake optics chooses
+the minimum format preserving the remaining capabilities. Opening v1–v8 is
+unchanged; an explicit undoable upgrade adds missing current models. New/default
+scenes without the photographic camera can use v9. Current starters use v10. See [lake optics](water.md).
+
+## Version 10 camera and framing
+
+V10 adds required `camera.lens` with model `thin-lens-v1`, `frame` (16:9, 3:2,
+2:3 or 1:1), `focalLength` (10–300 mm), `fNumber` (0.7–64), `dof` (boolean),
+`focusDistance` (0.01–10,000,000 metres), `metresPerUnit` (0.1–10,000),
+`targetX`/`targetZ` (−64…64), `targetY` (−32…96) and `roll` (−180…180 degrees).
+All lens fields are required, with no unknown fields. V10 camera pitch spans
+−1.4…1.4 radians and orbit distance 0.5…128 scene units; yaw is unchanged.
+
+The camera works with procedural, layered/sculpted or asset-backed terrain.
+Atmosphere, geology, transport and lake optics remain independently optional.
+An optional v10 atmosphere `groundAlbedo` (0–1) adds an approximate diffuse
+planet background; absent preserves the prior sky LUT. New defaults use 0.12.
+
+Lens, frame and target survive save/open, portable containers and recovery.
+Render region and output dimensions remain temporary UI settings. Opening
+v1–v9 preserves the old pinhole exactly. Use photographic camera, or an explicit
+pan gesture, enables the new camera as one undoable edit. Model interpretation,
+physical units and migration tests are documented in [camera](camera.md).
+
+## Version 11 entities and components
+
+V11 contains exactly `format`, `version`, `title` and `entities`. The 4–64 entities
+have exactly `id`, `name`, `parent`, `visible`, `locked` and `components`. IDs
+match `[a-z][a-z0-9-]{0,47}` and are unique; names are 1–40 Unicode code points
+and cannot be all whitespace. Parent is the empty string for the scene root, or
+a group ID. Missing, non-group, self/cyclic and more-than-eight-ancestor parents
+are rejected. Visibility and locks inherit through groups without rewriting
+child flags. Selection/search/expansion/tool state is not saved.
+
+Each component set has one role: `terrain` (plus optional `surface`), `water`,
+`camera`, `environment`, `areaLight` or `group`. Exactly one terrain, water, camera
+and environment is required. Their parameter/model definitions retain the earlier
+versions’ bounds. The camera accepts legacy pinhole or thin-lens data; it must
+remain visible and unparented. Environment contains `lighting` and optional
+`atmosphere`; its transport omits the old inline `lights` array. Up to four
+area-light entities carry the old numeric/enabled fields, with their name in
+entity metadata. Lights require studio transport. A group component is `{}`.
+Unknown component sets and fields fail validation. The root has no duplicate
+terrain, camera, lighting, water or surface data.
+
+The editor creates an ephemeral legacy control view, maps edits back to the owning
+entities and validates one history transaction. Opening old files leaves them
+unchanged; a first authored object command migrates their original values and
+model IDs. Existing emitters get stable migration IDs; newly authored entities
+get fresh IDs. Subsequent component edits do not regenerate identities.
+Deleting a group promotes its children; deleting core singleton components is
+unsupported. Locks are editor command policy, not a restriction on explicitly
+opening/replacing a whole document.
+
+Asset lookup follows the terrain component. Imported samples remain in the
+existing portable ZIP container, with the same checksum, dimensions, recovery
+references and 20 MiB budget. Scalar scenes keep the 128 KiB budget.
+Go and JS share structural schema and semantic graph fixtures. See
+[authoring behavior and validation](scene-authoring.md).
+
+## Version 12 — primitives and transforms
+
+V12 retains the v11 root and core components. Primitive components contain `shape`
+(`box`, `sphere`, `cylinder`, `cone`), three linear `color` channels (0–1) and
+`roughness` (0.1–1). A primitive requires a `transform`; every v12 group also has
+one. Core terrain/water/camera/environment and area-light components cannot own
+a transform. V11 metadata edits retain v11; the first primitive/transform command
+upgrades atomically and adds identity group transforms without changing pixels.
+
+A transform has exactly three-number `position`, `rotation` and `scale` arrays.
+Local bounds are ±128 units, ±180 degrees and positive 0.05–16 scales. Composition
+is `T × Rz × Ry × Rx × S` on column vectors. Parent matrices precede children.
+Groups must scale uniformly; core roles and lights cannot inherit a nonidentity
+group transform. Compounded scales are 0.01–64; conservative transformed unit
+bounds stay within ±256 world units. There are at most 32 primitives within the
+existing 64-entity, eight-ancestor, 128 KiB document budget. Unknown components,
+mirroring, singular/oversized transforms and excessive geometry are rejected by
+both validators. Selection, handles, snapping, tool mode, clipboard and render
+regions remain workspace state. See [object tools](object-tools.md) for editing,
+rendering approximations, buffer budgets and supported/unsupported operations.
+
+## Version 13: composition authoring
+
+V13 extends the v12 graph; existing formats are unchanged. A required `bookmarks`
+array contains zero to eight `{id,name,camera}` snapshots using the existing camera
+schema. IDs are unique across bookmarks/entities; names cannot be blank. The single
+camera entity remains the active render camera. Applying a bookmark copies its
+snapshot; editor views and navigation are temporary UI state.
+
+Primitive components retain shape/color/roughness and may add `finish` with
+`preset` (solid/rock/snow/sand/ground), `scale` (0.25–8) and `detail` (0–1).
+Terrain `surface` may add `paint`: up to 32 `{material,radius,strength,points}`
+strokes, with 32 XZ points each and 512 total. Radius is 1–16 units, strength
+0.05–1, points lie in ±32, and material is rock/snow/sand/ground/erase. Paint
+requires geology. Continuous stroke masks replay deterministically to a derived
+64² RGBA float mask, bilinearly sampled for preview/final weights. No dense paint
+image enters the document, history or recovery. Existing document/entity/transform
+and portable heightmap limits remain in force. Unknown fields/finishes and malformed
+bookmarks/paint are rejected in both Go and JS.

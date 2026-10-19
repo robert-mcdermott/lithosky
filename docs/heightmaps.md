@@ -46,15 +46,17 @@ Go's standard [PNG codec](https://pkg.go.dev/image/png) handles compression and 
 The v1 generator exports 129² samples. Its analytic normals become sampled normals
 when imported; this is an explicit terrain conversion, not a bitwise render-image
 promise. Layered and imported grids export their current authoring resolution.
-Preview and final tracing continue to use the shared 128² render mesh.
+Preview remains 128². Final geometry supports up to 1024² cells, capped by the
+imported source resolution; choosing a larger tier does not invent source detail.
 
 ## Portable scene files
 
-**Save scene** keeps v1–v4 procedural scenes as JSON. For v5 imported terrain,
+**Save scene** keeps procedural scenes as JSON. For imported terrain (v5, or v6
+with physical atmosphere),
 `.lithosky` is a ZIP with exactly `scene.json` and `heightmap.bin`. The manifest is
 at most 128 KiB; the asset is row-major unsigned 16-bit big-endian height samples,
 with `(resolution + 1)² × 2` bytes. The manifest's lowercase SHA-256 reference
-must match those bytes. A v5 JSON manifest alone is not a portable scene and is
+must match those bytes. An imported-terrain JSON manifest alone is not a portable scene and is
 rejected by Open; missing samples are never fetched from external locations.
 
 Open validates the entire container and asset before changing the scene. Older

@@ -1,14 +1,14 @@
 {
-  "version": "0.2.0-dev.4",
+  "version": "0.3.0-dev.9",
   "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
-  "capturedAt": "2026-10-18T22:23:02.119Z",
-  "sourceHash": "1e68781927050eb2db01b9e5c6ab8de0cb2486e3a2a23067cf0b691ed00c54d3",
+  "capturedAt": "2026-10-19T06:45:38.368Z",
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
   "records": [
     {
       "id": "alpine",
       "scene": {
         "format": "lithosky",
-        "version": 1,
+        "version": 10,
         "title": "Alpine quiet",
         "terrain": {
           "generator": "terrain-v1",
@@ -19,26 +19,92 @@
         "camera": {
           "yaw": 0.28,
           "pitch": 0.3,
-          "distance": 23
+          "distance": 23,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "16:9",
+            "focalLength": 21.09375,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2300,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.8,
+            "targetZ": -4,
+            "roll": 0
+          }
         },
         "water": {
           "enabled": true,
-          "level": 0.25
+          "level": 0.25,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
         },
         "lighting": {
-          "sunElevation": 38
+          "sunElevation": 38,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 39.381955415560675,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1,
+          "groundAlbedo": 0.12
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
-      "sha256": "0bd8e747dd577ee45dba31979b0202c589dfb9e3a056e63b160827add347e683"
+      "detail": 512,
+      "sha256": "97cd4caf404f3f9f364351f8c322f12a6f8c44486f8c7325e39ba63d007e2f2e"
     },
     {
       "id": "highland",
       "scene": {
         "format": "lithosky",
-        "version": 1,
+        "version": 10,
         "title": "Evening highlands",
         "terrain": {
           "generator": "terrain-v1",
@@ -49,26 +115,92 @@
         "camera": {
           "yaw": -0.45,
           "pitch": 0.22,
-          "distance": 26
+          "distance": 26,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "16:9",
+            "focalLength": 21.09375,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2600,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.8,
+            "targetZ": -4,
+            "roll": 0
+          }
         },
         "water": {
           "enabled": true,
-          "level": 1.1
+          "level": 1.1,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
         },
         "lighting": {
-          "sunElevation": 12
+          "sunElevation": 12,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 15.494202934499175,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1,
+          "groundAlbedo": 0.12
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
-      "sha256": "5f268eec794b89ad95cc757b4a08f14c321691c5aab9fcf7f964af74ce2de733"
+      "detail": 512,
+      "sha256": "7e58c78d3e257e46487b9117c26d7f14bfb8301f425e6e741b6e595816a357bd"
     },
     {
       "id": "distant",
       "scene": {
         "format": "lithosky",
-        "version": 1,
+        "version": 10,
         "title": "A distant world",
         "terrain": {
           "generator": "terrain-v1",
@@ -79,21 +211,87 @@
         "camera": {
           "yaw": -0.35,
           "pitch": 0.22,
-          "distance": 27
+          "distance": 27,
+          "lens": {
+            "model": "thin-lens-v1",
+            "frame": "16:9",
+            "focalLength": 21.09375,
+            "fNumber": 8,
+            "dof": false,
+            "focusDistance": 2700,
+            "metresPerUnit": 100,
+            "targetX": 0,
+            "targetY": 1.8,
+            "targetZ": -4,
+            "roll": 0
+          }
         },
         "water": {
           "enabled": true,
-          "level": 2.7
+          "level": 2.7,
+          "optics": {
+            "model": "lake-v1",
+            "metresPerUnit": 100,
+            "density": 1,
+            "ripples": 0.35,
+            "wavelength": 1,
+            "shore": 0.06
+          }
         },
         "lighting": {
-          "sunElevation": 25
+          "sunElevation": 25,
+          "transport": {
+            "model": "path-v1",
+            "bounces": 3,
+            "exposure": 2.75,
+            "toneMap": "filmic",
+            "sun": 1,
+            "sky": 1,
+            "roughness": 0.65,
+            "ior": 1.5,
+            "lights": []
+          }
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 5.4,
+          "sandHeight": 0.6,
+          "rockSlope": 39,
+          "blend": 0.6,
+          "detail": 0.25,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.65,
+            "fractures": 0.55,
+            "bump": 0.6,
+            "roughness": 0.7
+          }
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 29.40086862930625,
+          "sunAzimuth": 233.130102354156,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 1,
+          "ozone": 1,
+          "groundAlbedo": 0.12
         }
       },
       "width": 960,
       "height": 540,
       "samples": 64,
-      "sha256": "f912b1e252e0f70b8bcbac71b7ff078606f9300f4cb9a836e59f737f38bbb5eb"
+      "detail": 512,
+      "sha256": "45ab9f74d92ca75cb0a47d03cdbf92cdb95d4e5911773eaef7292dc7da712ad5"
     }
   ],
-  "studioSHA256": "ba0c1463c82b610fcd2a9d186a34d813b350f730491e97cd2a82acdc5b45efd9"
+  "studioSHA256": "b6ff9da6a8ceda5ee70cbd122e4cbd7964df36230430c6b9cdea4faf6a9cfcc1"
 }

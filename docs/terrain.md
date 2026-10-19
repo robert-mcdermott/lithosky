@@ -46,14 +46,13 @@ budget, not a bound on browser process memory, garbage collection or GPU memory.
 Only one generation job runs at a time. Inputs are bounded by both scene
 validators, and unsupported grid sizes are rejected before allocation.
 
-**Preview and final rendering still use 128 × 128 cells (32,768 triangles).**
-Their positions come from the same reduced grid, and normals use bilinear samples
-of the dense field at ±0.08 units. High generation resolution can improve normals
-but does not increase rendered silhouette detail yet. Higher-resolution traced
-geometry needs additional geometry/upload budgets beyond the hierarchy introduced
-in W2.S3. These generation
-budgets do not promise 2048² rendered geometry. Version 1 uses its original analytic
-samples and normals, preserving legacy render buffers.
+**Preview remains 128 × 128 cells; final rendering now offers 128²/512²/1024².**
+Final geometry samples the dense source, capped by its actual resolution. Normals
+use a central difference of min(0.08, half a final cell) to resolve finer slopes.
+The original generator is sampled analytically at the selected tier. Draft keeps
+its previous samples/normals. Final preparation has separate geometry and upload
+budgets; see [rendering](rendering.md). A 2048² source is currently capped at 1024²
+for tracing, not silently promised as 2048² geometry.
 
 ## Worker ownership and invalidation
 
@@ -119,8 +118,8 @@ the saved stroke list; regenerate or Undo to continue. Scene v3 persists the lis
 
 Undo history stores bounded strings under a separate 4 MiB budget (100 entries
 maximum). These are application data budgets, not total process-memory limits.
-Preview and tracing remain at 128² cells: brush radii start at 0.5 units, but fine
-features can still be underrepresented at the current render-mesh resolution.
+Preview remains 128²; fine sculpt features are better resolved by Detailed/Fine
+final geometry, subject to the source grid resolution.
 
 ## Surface materials
 
@@ -142,14 +141,14 @@ heights can overlap intentionally; snow is applied last.
 **Color detail** modulates reflectance using two seeded value-noise frequencies
 with weights 0.7/0.3 and at most ±45% variation at full strength. **Detail frequency**
 scales their world-space coordinates. Zero detail gives the preset colors without
-variation. Detail is evaluated at render vertices and interpolated identically
-by preview and tracing. It does not displace geometry or perturb normals; this
+variation. Detail is evaluated at vertices and interpolated by preview and tracing; their
+geometry tiers can differ, so fine final geometry resolves more color variation. It does not displace geometry or perturb normals; this
 slice does not provide subpixel textures, bump mapping or physical material BRDFs.
 All reflectance channels stay within [0,1]. These are artistic surface controls.
 
 ## Hierarchical traversal
 
-The worker builds 16 × 16 block bounds over the shared 128² render mesh. Each
+The preview worker builds 16 × 16 block bounds over its 128² mesh. Each
 block contains 8 × 8 cells and encloses all 9 × 9 rounded vertex heights, including
 shared edges. Two Float32 values per block require exactly 2 KiB. Surface-color
 edits reuse these bounds; height changes rebuild them. Worker-to-UI transfers copy
@@ -165,8 +164,8 @@ hits. At most 34 block steps and 18 fine-cell steps per intersected block are
 possible. Camera, shadow, sky-occlusion, water and CPU picking rays share this
 hierarchy. GPU tracing retains a linear diagnostic mode for parity/benchmarks.
 
-The hierarchy accelerates the current shared mesh; it does not increase its
-128² resolution. See [rendering](rendering.md) and [measured validation](validation.md)
+Final rendering now builds the same 8 × 8-cell leaf layout at the selected trace
+resolution, with up to 128² blocks at 1024². Preview keeps its original hierarchy. See [rendering](rendering.md) and [measured validation](validation.md)
 for image budgets, comparisons and limitations.
 
 ## Imported heightmaps
@@ -182,7 +181,7 @@ See [heightmaps](heightmaps.md) for scale, precision, budgets and original examp
 `npm test` checks fixed Float32 seed hashes, noise composition, negative-height
 terraces, legacy buffer equality, all four allocation budgets, partial-generation
 cancellation, cache invalidation, and late-result/error/retry handling. Shared
-Go/JavaScript fixtures validate all five scene versions and malformed layer, sculpt
+Go/JavaScript fixtures validate the supported scene versions and malformed layer, sculpt
 and material payloads.
 
 For actual browser tests, build and start with an isolated `--data-dir`, then use
@@ -197,3 +196,13 @@ GPU grazing/silhouette probes and comparative traversal render times/pixels.
 recovery, malformed inputs and mobile export.
 `tests/browser-render.mjs` covers the existing tracer regression suite. Browser
 checks need a working WebGPU device; Node tests alone do not prove GPU support.
+
+## Geological definitions
+
+Use geological surface enables v7 solid rock strata/joints, soil/snow variation,
+bump and roughness evaluated in the final shader at each hit. Preview retains
+filtered vertex colors; fine final vertices carry a cheap fallback color because
+the complete model is evaluated by the tracer. Neither positions nor terrain
+normals/hierarchy are changed. Geological edits reuse heights and bounds, and
+remain compatible with sculpting and imported terrain. See
+[geological surfaces](geological-surfaces.md) for controls, filtering and limits.

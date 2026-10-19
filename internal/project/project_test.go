@@ -47,7 +47,7 @@ func TestPortableRoundTrip(t *testing.T) {
 		t.Fatal("metadata-only v5 opened")
 	}
 	// Opening and saving a v1 starter preserves its version and parameters.
-	legacy, err := os.ReadFile("../../docs/site/assets/alpine.lithosky")
+	legacy, err := os.ReadFile("../../tests/fixtures/legacy.lithosky")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,6 +58,106 @@ func TestPortableRoundTrip(t *testing.T) {
 	saved, err := Save(v1, nil)
 	if err != nil || !bytes.Equal(v1, saved) {
 		t.Fatal("v1 migration", err)
+	}
+}
+func TestLakePortableRoundTrip(t *testing.T) {
+	doc, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(doc, &imported); err != nil {
+		t.Fatal(err)
+	}
+	current, err := os.ReadFile("../../docs/site/assets/silver-basin.lithosky")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var lake map[string]any
+	if err := json.Unmarshal(current, &lake); err != nil {
+		t.Fatal(err)
+	}
+	lake["terrain"] = imported["terrain"]
+	doc, err = json.Marshal(lake)
+	if err != nil {
+		t.Fatal(err)
+	}
+	file, err := Save(doc, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, asset, err := Open(file)
+	if err != nil || !bytes.Equal(asset, raw) || !bytes.Equal(got, doc) {
+		t.Fatal("v9 optics or samples changed in portable scene", err)
+	}
+	again, err := Save(got, asset)
+	if err != nil || !bytes.Equal(file, again) {
+		t.Fatal("nondeterministic v9 container", err)
+	}
+}
+func TestCameraPortableRoundTrip(t *testing.T) {
+	doc, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(doc, &imported); err != nil {
+		t.Fatal(err)
+	}
+	current, err := os.ReadFile("../../docs/site/assets/snow-composition.lithosky")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var camera map[string]any
+	if err := json.Unmarshal(current, &camera); err != nil {
+		t.Fatal(err)
+	}
+	camera["terrain"] = imported["terrain"]
+	doc, err = json.Marshal(camera)
+	if err != nil {
+		t.Fatal(err)
+	}
+	file, err := Save(doc, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, asset, err := Open(file)
+	if err != nil || !bytes.Equal(asset, raw) || !bytes.Equal(got, doc) {
+		t.Fatal("v10 camera or imported samples changed", err)
+	}
+	again, err := Save(got, asset)
+	if err != nil || !bytes.Equal(file, again) {
+		t.Fatal("nondeterministic v10 container", err)
+	}
+}
+func TestEntityPortableRoundTrip(t *testing.T) {
+	old, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(old, &imported); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile("../../tests/fixtures/entities.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixtures []struct{ Scene map[string]any }
+	if err := json.Unmarshal(data, &fixtures); err != nil {
+		t.Fatal(err)
+	}
+	doc := fixtures[0].Scene
+	nodes := doc["entities"].([]any)
+	for _, v := range nodes {
+		c := v.(map[string]any)["components"].(map[string]any)
+		if c["terrain"] != nil {
+			c["terrain"] = imported["terrain"]
+		}
+	}
+	manifest, _ := json.Marshal(doc)
+	file, err := Save(manifest, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, samples, err := Open(file)
+	if err != nil || !bytes.Equal(got, manifest) || !bytes.Equal(samples, raw) {
+		t.Fatal("entity components or asset changed", err)
+	}
+	again, err := Save(got, samples)
+	if err != nil || !bytes.Equal(again, file) {
+		t.Fatal("nondeterministic entity container", err)
 	}
 }
 func TestUnsafeContainers(t *testing.T) {
@@ -144,4 +244,78 @@ func FuzzOpen(f *testing.F) {
 			}
 		}
 	})
+}
+
+func TestSpatialPortableRoundTrip(t *testing.T) {
+	old, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(old, &imported); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile("../../tests/fixtures/spatial.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixtures []struct{ Scene map[string]any }
+	if err := json.Unmarshal(data, &fixtures); err != nil {
+		t.Fatal(err)
+	}
+	doc := fixtures[0].Scene
+	nodes := doc["entities"].([]any)
+	for _, v := range nodes {
+		c := v.(map[string]any)["components"].(map[string]any)
+		if c["terrain"] != nil {
+			c["terrain"] = imported["terrain"]
+		}
+	}
+	manifest, _ := json.Marshal(doc)
+	file, err := Save(manifest, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, samples, err := Open(file)
+	if err != nil || !bytes.Equal(got, manifest) || !bytes.Equal(samples, raw) {
+		t.Fatal("entity components or asset changed", err)
+	}
+	again, err := Save(got, samples)
+	if err != nil || !bytes.Equal(again, file) {
+		t.Fatal("nondeterministic entity container", err)
+	}
+}
+
+func TestCompositionPortableRoundTrip(t *testing.T) {
+	old, raw, _ := fixture(t)
+	var imported map[string]any
+	if err := json.Unmarshal(old, &imported); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile("../../tests/fixtures/composition.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixtures []struct{ Scene map[string]any }
+	if err := json.Unmarshal(data, &fixtures); err != nil {
+		t.Fatal(err)
+	}
+	doc := fixtures[0].Scene
+	nodes := doc["entities"].([]any)
+	for _, v := range nodes {
+		c := v.(map[string]any)["components"].(map[string]any)
+		if c["terrain"] != nil {
+			c["terrain"] = imported["terrain"]
+		}
+	}
+	manifest, _ := json.Marshal(doc)
+	file, err := Save(manifest, raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, samples, err := Open(file)
+	if err != nil || !bytes.Equal(got, manifest) || !bytes.Equal(samples, raw) {
+		t.Fatal("entity components or asset changed", err)
+	}
+	again, err := Save(got, samples)
+	if err != nil || !bytes.Equal(again, file) {
+		t.Fatal("nondeterministic entity container", err)
+	}
 }

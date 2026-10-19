@@ -78,3 +78,61 @@ checkout, private research, recovery data or release artifacts as website files.
 The packaging workflow uploads a site artifact for review; it never deploys it.
 Before advertising a release, update the install page and changelog to the actual
 published status, refresh captures if necessary, and rerun validation.
+
+The guide also offers the original `assets/daylight.lithosky` v6 atmosphere scene.
+It is checked against the shared scene schema by the site test. The three gallery starters now use the current v10 camera/models, including physical
+atmosphere and lake optics. Older downloadable comparison scenes retain their
+explicit models.
+
+The gallery also includes an original final-terrain detail comparison. After
+rebuilding the app, run `node docs/capture/detail-run.mjs http://127.0.0.1:PORT`
+(with `PLAYWRIGHT_CLI` pointing to an installed CLI). It checks CPU/GPU intersections
+at four tiers, preparation cancellation and scene-edit invalidation, then exports
+identical-camera 128²/512²/1024² images and `terrain-captures.json`. Site builds
+verify source/scene/image hashes and image dimensions; rerun this capture after
+render-affecting sources change. Scene files do not store transient render tiers.
+
+Geological material comparisons use `docs/capture/material-run.mjs` with the same
+isolated app/CLI workflow. It captures matching landscape views, rock/ground/snow
+reference views and unscaled 256×128 crops, verifies saved scene content, and runs
+actual CPU/GPU material probes. Builds validate source/scene/image provenance in
+`material-captures.json`; rerun all capture commands after render sources
+change. The original Weathered highlands scene uses opt-in v7 surfaces.
+
+Lake comparisons use `node docs/capture/water-run.mjs http://127.0.0.1:PORT`.
+The Silver basin v9 scene provides classic/calm/ripple/clear/grazing exports and
+a 256-sample comparison. The source/scene/image hashes, settings, device/timings
+and real GPU water probes are verified by the site builder.
+
+Camera/composition captures use `node docs/capture/camera-run.mjs http://127.0.0.1:PORT`.
+Run it serially with the other GPU captures. It checks actual camera rays, exact
+full/crop pixels, all 2K orientations and editing/recovery/WebGL workflows, then
+exports three original 2K/64-sample/Fine compositions, nine unscaled 256×128 crops
+and an explicit pinhole/thin-lens study. `camera-captures.json` records the scenes,
+source/image hashes, settings, budgets, device and timings. Site generation
+validates provenance; these are rendering studies, not a photographic-quality claim.
+
+Entity/authoring captures use `node docs/capture/entity-run.mjs http://127.0.0.1:PORT`.
+The original v11 Editable basin file, visible/hidden-group renders and workspace
+screenshot are checked against editing/recovery/WebGL and actual GPU results.
+`entity-captures.json` records current source/scene/image hashes and measured
+settings. The site validates and copies these public assets explicitly. This
+example demonstrates editing behavior; photographic acceptance remains open.
+
+Primitive/transform captures use `node docs/capture/spatial-run.mjs http://127.0.0.1:PORT`.
+The original v12 Shore observatory scene has all four shapes and an authored light.
+The runner checks GPU hit/normal/shadow/material agreement, editor gestures and
+persistence/fallbacks, then exports an original still, live preview, rotated-group
+still and workspace screenshot. `spatial-captures.json` records checked provenance
+and budgets; run serially with the seven existing capture families.
+
+The ninth capture family covers composition authoring:
+
+```sh
+node docs/capture/workspace-run.mjs http://127.0.0.1:PORT
+```
+
+It repeats actual workspace and GPU material/mask checks, renders the original
+Stone garden comparison and records source/scene/image hashes plus a workspace
+screenshot. Run all nine families serially from the same frozen embedded build.
+The site validates these records and copies authoring templates from the app catalog.

@@ -1,0 +1,620 @@
+{
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
+  "sceneSHA256": "abc0082679a0ee53f73963cc604b472deb338ff1da987315eee69388c8c40e02",
+  "capturedAt": "2026-10-19T06:44:23.869Z",
+  "records": [
+    {
+      "name": "material-simple",
+      "scene": {
+        "format": "lithosky",
+        "version": 6,
+        "title": "Weathered highlands",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 9837,
+          "elevation": 1.3,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": -0.7,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 18,
+          "sunAzimuth": 240,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.7,
+          "ozone": 1
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 14,
+          "sandHeight": -3,
+          "rockSlope": 46,
+          "blend": 0.45,
+          "detail": 0.8,
+          "detailScale": 1
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 32,
+      "milliseconds": 8591,
+      "sha256": "f076dd1bc1dcd6ed801965767dce5fe63498ef5b9615273f2d4ba6ac7e010957"
+    },
+    {
+      "name": "material-simple-foreground",
+      "parent": "material-simple",
+      "crop": {
+        "name": "foreground",
+        "x": 320,
+        "y": 350,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "c1edd5e08545c90172fb57c1cc213333202cb8b39bb6bbc4d1fb192549913030"
+    },
+    {
+      "name": "material-simple-middle",
+      "parent": "material-simple",
+      "crop": {
+        "name": "middle",
+        "x": 410,
+        "y": 190,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "bec1d7943812d4476f6f073c72ad8590bc098daf61f712bc5341fd368d11d2a8"
+    },
+    {
+      "name": "material-simple-horizon",
+      "parent": "material-simple",
+      "crop": {
+        "name": "horizon",
+        "x": 150,
+        "y": 28,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "9f21eed2720429cbbe7c1b0c4fd9f42f695a74486b334cfc4b808a2c646675dc"
+    },
+    {
+      "name": "material-geology",
+      "scene": {
+        "format": "lithosky",
+        "version": 7,
+        "title": "Weathered highlands",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 9837,
+          "elevation": 1.3,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": -0.7,
+          "pitch": 0.3,
+          "distance": 23
+        },
+        "water": {
+          "enabled": true,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 18,
+          "sunAzimuth": 240,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.7,
+          "ozone": 1
+        },
+        "surface": {
+          "preset": "rules",
+          "snowHeight": 14,
+          "sandHeight": -3,
+          "rockSlope": 46,
+          "blend": 0.45,
+          "detail": 0.8,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.75,
+            "fractures": 0.65,
+            "bump": 0.65,
+            "roughness": 0.65
+          }
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 32,
+      "milliseconds": 10166,
+      "sha256": "98321ad9cd1d2eff157f50cde4173e37e99091fd652ca0b2b93c0b9ac0491277"
+    },
+    {
+      "name": "material-geology-foreground",
+      "parent": "material-geology",
+      "crop": {
+        "name": "foreground",
+        "x": 320,
+        "y": 350,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "87885218f417b16882e94543c96a8b1e8842cb881988d486d586fe1504b5728f"
+    },
+    {
+      "name": "material-geology-middle",
+      "parent": "material-geology",
+      "crop": {
+        "name": "middle",
+        "x": 410,
+        "y": 190,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "cef6a56cc2a36b274633ae5416b872bf221f42159b4283bcd0d958710dcf8838"
+    },
+    {
+      "name": "material-geology-horizon",
+      "parent": "material-geology",
+      "crop": {
+        "name": "horizon",
+        "x": 150,
+        "y": 28,
+        "width": 256,
+        "height": 128
+      },
+      "width": 256,
+      "height": 128,
+      "sha256": "3604dca5e8fac5b4eb079f31c4b4e0e6a3b7e70eda9c2c74b6dbfa95c5b68b24"
+    },
+    {
+      "name": "material-rock",
+      "scene": {
+        "format": "lithosky",
+        "version": 7,
+        "title": "Weathered highlands",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 9837,
+          "elevation": 1.3,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": -0.7,
+          "pitch": 0.75,
+          "distance": 10
+        },
+        "water": {
+          "enabled": false,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 60,
+          "sunAzimuth": 240,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.7,
+          "ozone": 1
+        },
+        "surface": {
+          "preset": "rock",
+          "snowHeight": 14,
+          "sandHeight": -3,
+          "rockSlope": 46,
+          "blend": 0.45,
+          "detail": 0.8,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.75,
+            "fractures": 0.65,
+            "bump": 0.65,
+            "roughness": 0.65
+          }
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 32,
+      "milliseconds": 9694,
+      "sha256": "aa45ebe3c9c6bf4c545a2faed76016e1c48c7465ac335b38ee28a041686008ce"
+    },
+    {
+      "name": "material-ground",
+      "scene": {
+        "format": "lithosky",
+        "version": 7,
+        "title": "Weathered highlands",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 9837,
+          "elevation": 1.3,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": -0.7,
+          "pitch": 0.75,
+          "distance": 10
+        },
+        "water": {
+          "enabled": false,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 60,
+          "sunAzimuth": 240,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.7,
+          "ozone": 1
+        },
+        "surface": {
+          "preset": "ground",
+          "snowHeight": 14,
+          "sandHeight": -3,
+          "rockSlope": 46,
+          "blend": 0.45,
+          "detail": 0.8,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.75,
+            "fractures": 0.65,
+            "bump": 0.65,
+            "roughness": 0.65
+          }
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 32,
+      "milliseconds": 9719,
+      "sha256": "17dc4eba871b107282e8e6395a782e479decc076cfe3734a112da22d4e884068"
+    },
+    {
+      "name": "material-snow",
+      "scene": {
+        "format": "lithosky",
+        "version": 7,
+        "title": "Weathered highlands",
+        "terrain": {
+          "generator": "layers-v1",
+          "seed": 9837,
+          "elevation": 1.3,
+          "palette": "natural",
+          "resolution": 1024,
+          "sculpt": [],
+          "layers": [
+            {
+              "kind": "warp",
+              "enabled": true,
+              "strength": 0.14,
+              "scale": 0.65,
+              "octaves": 5
+            },
+            {
+              "kind": "fbm",
+              "enabled": true,
+              "strength": 0.65,
+              "scale": 0.55,
+              "octaves": 6
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.85,
+              "scale": 1.3,
+              "octaves": 8
+            },
+            {
+              "kind": "ridge",
+              "enabled": true,
+              "strength": 0.1,
+              "scale": 6,
+              "octaves": 6
+            }
+          ]
+        },
+        "camera": {
+          "yaw": -0.7,
+          "pitch": 0.75,
+          "distance": 10
+        },
+        "water": {
+          "enabled": false,
+          "level": 0.25
+        },
+        "lighting": {
+          "sunElevation": 38
+        },
+        "atmosphere": {
+          "model": "earth-single-v1",
+          "mode": "manual",
+          "sunElevation": 60,
+          "sunAzimuth": 240,
+          "latitude": 47.6062,
+          "longitude": -122.3321,
+          "year": 2026,
+          "day": 172,
+          "utcMinutes": 1200,
+          "altitude": 0,
+          "metresPerUnit": 100,
+          "aerosols": 0.7,
+          "ozone": 1
+        },
+        "surface": {
+          "preset": "snow",
+          "snowHeight": 14,
+          "sandHeight": -3,
+          "rockSlope": 46,
+          "blend": 0.45,
+          "detail": 0.8,
+          "detailScale": 1,
+          "geology": {
+            "model": "geology-v1",
+            "scale": 1,
+            "strata": 0.75,
+            "fractures": 0.65,
+            "bump": 0.65,
+            "roughness": 0.65
+          }
+        }
+      },
+      "width": 960,
+      "height": 540,
+      "detail": 1024,
+      "samples": 32,
+      "milliseconds": 8130,
+      "sha256": "ab964f93119588a239bf65282223c56b211bbd121f3c9278aaa69e1b29462bf3"
+    }
+  ],
+  "regions": [
+    {
+      "name": "foreground",
+      "x": 320,
+      "y": 350,
+      "width": 256,
+      "height": 128
+    },
+    {
+      "name": "middle",
+      "x": 410,
+      "y": 190,
+      "width": 256,
+      "height": 128
+    },
+    {
+      "name": "horizon",
+      "x": 150,
+      "y": 28,
+      "width": 256,
+      "height": 128
+    }
+  ],
+  "errors": [],
+  "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "hardware": {
+    "vendor": "apple",
+    "architecture": "metal-3",
+    "description": ""
+  },
+  "probes": [
+    {
+      "preset": "rules",
+      "rays": 80,
+      "worst": 0.000031960481910120464
+    },
+    {
+      "preset": "rock",
+      "rays": 80,
+      "worst": 0.00005436048751716882
+    },
+    {
+      "preset": "sand",
+      "rays": 80,
+      "worst": 0.0000037745253884668983
+    },
+    {
+      "preset": "snow",
+      "rays": 80,
+      "worst": 0.0000010878372752598509
+    },
+    {
+      "preset": "ground",
+      "rays": 80,
+      "worst": 0.000003524820278127949
+    }
+  ]
+}

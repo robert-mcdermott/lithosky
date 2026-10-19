@@ -1,5 +1,106 @@
 # Changelog
 
+## 0.3.0-dev.9 — wave 3 slice 9 (local development)
+
+- Add separate perspective/top/front/side editor views and frame selection, with
+  shared projection for picking, placement, handles, sculpting and painting.
+- Add named camera snapshot bookmarks and explicit use of a perspective editor
+  view as the active render camera; keep temporary navigation out of files/history.
+- Add per-object procedural/solid material assignment, linear tint and finish edits,
+  plus bounded terrain material painting/erasing shared by preview/live/final.
+- Add blank, terrain-canvas and original garden templates, v13 persistence, strict
+  Go/JS validation, portable recovery and an original authoring gallery.
+- Validate complete browser workflows, GPU material/mask agreement, export equality
+  and WebGL layouts. Photographic acceptance and native release checks remain open.
+
+## 0.3.0-dev.8 — wave 3 slice 8 (local development)
+
+- Add original closed box/sphere/cylinder/cone primitives in raster, live and final
+  rendering, with analytic intersections, shared transforms, occlusion, traced
+  shadows, water reflections/refraction and independent starter finishes.
+- Add v12 transforms, Add/place, move/rotate/scale handles, world/local axes,
+  snapping, exact numeric and keyboard edits, multi-selection and uniform groups.
+- Add atomic duplicate/copy/paste/delete, grouping, alignment and terrain placement;
+  preserve world pose during parenting and enforce locks through parent transforms.
+- Keep each gesture in one Undo step; cancel restores the scene and redo branch.
+  Preserve scene/asset recovery and WebGL editing within measured object budgets.
+- Add an original observatory study, reproducible GPU/editor evidence and guides.
+  Composition views/material assignment remain slice 9. Photographic acceptance
+  and native-platform release checks remain open.
+
+## 0.3.0-dev.7 — wave 3 slice 7 (local development)
+
+- Add a versioned entity/component scene model with stable IDs, strict graph
+  validation and portable asset/recovery support; old scenes retain their models.
+- Add searchable Objects, viewport picking, selection-driven inspection,
+  names, visibility, locks, groups, reparenting and light duplication/deletion.
+- Enforce inherited locks through the common editing command path. Apply
+  inherited visibility to raster, live lighting, final rays and picking.
+- Keep selection/guides outside saved scene data and exported images. Add
+  original editing examples, GPU/workflow evidence and product-site guidance.
+- Transform handles/primitives remain in the next slice. Photographic visual
+  acceptance and native-platform release gates remain open.
+
+## 0.3.0-dev.6 — wave 3 slice 6 (local development)
+
+- Add a saved v10 thin-lens camera, focal length, aperture/focus, roll, pan target
+  and landscape/portrait/square framing; old files retain their pinhole view.
+- Trace depth of field in live/final rendering, pick focus on terrain/water and
+  cancel camera drags without retaining accidental edits.
+- Add full-frame-consistent region rendering/export and bounded 2K output;
+  report pixel dimensions and image-buffer cost before rendering.
+- Add an optional diffuse distant-ground background, original 2K composition
+  studies, native-pixel crops and reproducible camera/GPU/workflow capture records.
+- Complete the integrated image review; geological/snow/horizon defects remain.
+  Photographic quality and native-platform release gates remain open.
+
+## 0.3.0-dev.5 — wave 3 slice 5 (local development)
+
+- Add saved v9 lake optics: incoming/view attenuation, refracted bed illumination,
+  light-dependent single scattering, filtered normal ripples and damp shores.
+- Enable current models in new/default starter scenes; retain old files unchanged
+  and offer one undoable rendering upgrade preserving actual sunlight direction.
+- Add a cancellable shared-kernel WebGPU lighting preview; retain immediate raster
+  feedback and WebGL fallback. Keep desktop scene file actions visible.
+- Extend sampling to 256, label samples separately from geometry detail, and add
+  original water/noise comparisons with strict capture provenance.
+- Native release gates and integrated photographic-quality review remain open.
+
+## v0.3.0 — unreleased
+
+Earlier development build: 0.3.0-dev.3. Wave 3, slice 3:
+
+- Opt-in per-hit geological surfaces with original solid rock strata, angular joints, soil/snow variation and bump detail.
+- Filtered multiscale detail, world-space mapping and bounded normal perturbations; rough diffuse response uses spatially varying roughness.
+- Geological surface controls and reusable CPU/WGSL material evaluation; WebGPU/WebGL previews retain filtered vertex colors.
+- V7 scenes preserve the material through sculpting, terrain conversion, atmosphere changes, portable heightmaps and recovery; legacy formats remain supported.
+- Original landscape/material comparisons and near/middle/horizon crops from actual renderer output; shader/reference, filtering and energy checks.
+
+Wave 3, slice 2:
+
+- Visual-quality roadmap: detailed terrain, per-hit surfaces, lighting/exposure and measured image reviews take priority; night skies gain a dedicated slice.
+- Independent Draft (128²), Detailed (512², default) and Fine (1024²) final terrain; lightweight preview retained.
+- Cancellable final preparation replays sculpting and respects imported/layered source resolution.
+- CPU/GPU traversal scales to over two million terrain triangles with explicit memory checks.
+- Original same-camera terrain comparisons, reproducible capture records and regression tests.
+- Existing files remain compatible; Draft retains the previous mesh. No photorealistic-quality claim yet.
+
+Wave 3, slice 1:
+
+- Opt-in physical Earth sky, Rayleigh/Mie scattering, ozone absorption and aerial perspective.
+- Offline manual/geographic sun direction with latitude, longitude and UTC date controls.
+- Bounded transmittance/sky lookup tables, cancelable preparation and GPU reference checks.
+- V6 scenes preserve atmosphere across terrain edits, portable heightmaps, undo and recovery.
+- Published analytic atmosphere and solar reference comparisons; single-scattering limits documented.
+
+Studio UI follow-up:
+
+- Independent Scenes and Controls panel toggles reclaim workspace width and preserve edits/renders.
+
+- Fixed desktop scroll ownership: workspace and settings scroll inside the app frame.
+- Anchored, themed dropdown menus in supporting browsers, with native fallback.
+- Preserved single-page mobile scrolling and added responsive/keyboard browser checks.
+
 ## v0.2.0 — unreleased
 
 Development build: 0.2.0-dev.4. Wave 2, slice 4:
