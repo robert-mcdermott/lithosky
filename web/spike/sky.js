@@ -2,8 +2,8 @@
 // Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and
 // aerial perspective. All four rebuild on the GPU whenever the sun or haze changes.
 
-import { bindGroup, computePipeline, dispatch2d, storageTexture, uniformBuffer } from './gpu.js';
-import { StructWriter } from './struct.js';
+import { bindGroup, computePipeline, dispatch2d, storageTexture, uniformBuffer } from '../gpu/device.js';
+import { StructWriter } from '../gpu/struct.js';
 
 export const AERIAL_DISTANCE = 160000;
 const AERIAL_SIZE = 32;

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Presents the accumulation buffer with exposure and AgX, and captures it as PNG.
 
-import { bindGroup, shaderModule, uniformBuffer } from './gpu.js';
-import { StructWriter } from './struct.js';
+import { bindGroup, shaderModule, uniformBuffer } from '../gpu/device.js';
+import { StructWriter } from '../gpu/struct.js';
 
 const CAPTURE_FORMAT = 'rgba8unorm';
 

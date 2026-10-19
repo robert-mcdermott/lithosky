@@ -3,8 +3,8 @@
 Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
 previous Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 in progress. W4.S1 is complete except for its gate: the
-owner reviews the hero-shot baseline and the rubric. W4.S2 is next.
+**Status:** Wave 4 in progress. W4.S1 and W4.S2 are complete; W4.S3 (the new
+tracer becomes the viewport) is next.
 
 ## North star
 
@@ -166,8 +166,16 @@ rubric. Scores go in [bench/hero/scores.md](bench/hero/scores.md).
 
 ### W4.S2: Production terrain and erosion
 
-This is the biggest single visual win. It starts from the spike's
-`wgsl/terrain/` shaders.
+**Done.** Terrain lives in `web/terrain/` (see its README) and every shader in
+`web/wgsl/`. A stream-power drainage solve on a 1024² grid (16 m) carves
+connected valley networks: depression filling, multiple-flow-direction area,
+semi-implicit incision and talus. A 768² solve does the same for the 196 km far
+field. The analytic gully noise is reduced to fine detail, and 1.6 M droplets
+add gullies and scree. Heightmap import feeds the same pipeline. A full build
+takes 3.5 s of GPU time and finishes 4–5 s after page load, rendered live. The
+W4.S1 vs W4.S2 side-by-sides are made with `bench/compare.mjs`.
+
+Original plan, for reference:
 
 Tasks:
 

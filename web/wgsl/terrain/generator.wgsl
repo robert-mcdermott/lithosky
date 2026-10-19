@@ -87,8 +87,8 @@ fn carvedLandform(world: vec2f, shape: TerrainShape) -> vec2f {
 }
 
 const LAKE_DEPTH: f32 = 45.0;
-const GULLY_WAVELENGTH: f32 = 900.0;
-const GULLY_AMPLITUDE: f32 = 70.0;
+const GULLY_WAVELENGTH: f32 = 450.0;
+const GULLY_AMPLITUDE: f32 = 35.0;
 const SLOPE_PROBE: f32 = 30.0;
 
 fn alpineHeight(world: vec2f, shape: TerrainShape) -> f32 {

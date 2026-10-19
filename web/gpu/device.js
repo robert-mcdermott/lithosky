@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // One persistent WebGPU device and a small WGSL include step.
 
-const SHADER_ROOT = new URL('./wgsl/', import.meta.url);
+const SHADER_ROOT = new URL('../wgsl/', import.meta.url);
 const INCLUDE_LINE = /^#include "([^"]+)"$/;
 const sources = new Map();
 
@@ -38,17 +38,18 @@ async function fetchSource(path) {
 }
 
 // Expands `#include "path"` lines depth-first, including each file once.
-async function expand(path, included) {
+// `read(path)` returns the source text; paths are relative to the shader root.
+export async function expandIncludes(path, read, included = new Set()) {
   if (included.has(path)) {
     return '';
   }
   included.add(path);
-  const lines = (await fetchSource(path)).split('\n');
+  const lines = (await read(path)).split('\n');
   const output = [];
   for (const line of lines) {
     const match = INCLUDE_LINE.exec(line.trim());
     if (match) {
-      output.push(await expand(match[1], included));
+      output.push(await expandIncludes(match[1], read, included));
     } else {
       output.push(line);
     }
@@ -57,7 +58,7 @@ async function expand(path, included) {
 }
 
 export async function shaderModule(device, path) {
-  const code = await expand(path, new Set());
+  const code = await expandIncludes(path, fetchSource);
   const module = device.createShaderModule({ label: path, code });
   const info = await module.getCompilationInfo();
   const errors = info.messages.filter(message => message.type === 'error');

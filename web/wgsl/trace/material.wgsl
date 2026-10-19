@@ -63,7 +63,8 @@ fn terrainAlbedo(world: vec3f, land: Landform) -> vec3f {
     let meadow = mix(meadowLush, meadowDry, dryness) * (0.8 + 0.4 * fleck);
     let crowns = forestCrowns(world.xz);
     let forest = mix(vec3f(0.012, 0.018, 0.012), vec3f(0.04, 0.06, 0.032), crowns);
-    let gravel = vec3f(0.25, 0.24, 0.22);
+    // Stream beds: wet gravel, darker than the surrounding ground.
+    let gravel = vec3f(0.07, 0.072, 0.065) * (0.8 + 0.4 * fleck);
     let snow = vec3f(0.86, 0.88, 0.92);
     let shore = vec3f(0.09, 0.085, 0.07) * (0.85 + 0.3 * grain);
 
@@ -78,7 +79,7 @@ fn terrainAlbedo(world: vec3f, land: Landform) -> vec3f {
     let forestCover = clearings * (1.0 - smoothstep(0.35, 0.6, land.flow));
     let forestSlope = 1.0 - smoothstep(0.2, 0.32, steep);
     let forestWeight = forestSlope * forestHeight * forestCover * (1.0 - screeWeight * 0.7);
-    let gravelWeight = smoothstep(0.55, 0.85, land.flow) * (1.0 - smoothstep(0.04, 0.12, land.slope));
+    let gravelWeight = smoothstep(0.72, 0.95, land.flow) * (1.0 - smoothstep(0.04, 0.12, land.slope)) * 0.8;
     let snowHeight = land.height + hollow * 300.0 + land.broad * 250.0 + variation * 350.0;
     let snowSlope = 1.0 - smoothstep(0.28, 0.42, steep);
     let snowWeight = smoothstep(SNOW_LINE - 150.0, SNOW_LINE + 150.0, snowHeight) * snowSlope;

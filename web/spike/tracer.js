@@ -2,8 +2,8 @@
 // The progressive path tracer: a full-frame dispatch per sample into a GPU accumulation
 // buffer. Nothing is read back; the display pass reads the same buffer.
 
-import { bindGroup, computePipeline, storageBuffer, uniformBuffer } from './gpu.js';
-import { StructWriter } from './struct.js';
+import { bindGroup, computePipeline, storageBuffer, uniformBuffer } from '../gpu/device.js';
+import { StructWriter } from '../gpu/struct.js';
 import { AERIAL_DISTANCE } from './sky.js';
 
 export class Tracer {

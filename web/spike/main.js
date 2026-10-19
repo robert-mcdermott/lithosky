@@ -5,14 +5,16 @@
 import { alpineQuiet, overviewCamera, sunDirection } from './camera.js';
 import { buildControls } from './controls.js';
 import { Display } from './display.js';
-import { createDevice } from './gpu.js';
+import { createDevice } from '../gpu/device.js';
 import { SUN_ANGULAR_RADIUS, Sky } from './sky.js';
-import { FAR_SIZE, FAR_SPACING, NEAR_EXTENT, Terrain } from './terrain.js';
+import { importHeightmap } from '../terrain/heightmap.js';
+import { terrainSettings } from '../terrain/settings.js';
+import { FAR_SIZE, FAR_SPACING, NEAR_EXTENT, Terrain } from '../terrain/terrain.js';
 import { Tracer } from './tracer.js';
 
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const BATCHES_PER_FRAME = 2;
+const TERRAIN_STAGES_PER_FRAME = 4;
 const MAX_SAMPLES_PER_FRAME = 12;
 const MAX_FRAMES_IN_FLIGHT = 2;
 const FOG_HEIGHT = 250;
@@ -28,11 +30,15 @@ const ALPINE_QUIET_LIGHT = { exposure: -0.5, fog: 0.3 };
 const DEFAULTS = {
   ...GOLDEN_HOUR,
   seed: 1847,
-  erosion: 1,
+  relief: 3200,
+  drainage: 1,
+  rills: 1,
   camera: 'alpine',
   viewMode: 0,
   bounces: 2,
 };
+
+const TERRAIN_KEYS = ['seed', 'relief', 'drainage', 'rills'];
 
 const VIEW_OPTIONS = [[0, 'Image'], [1, 'Albedo'], [2, 'Flow'], [3, 'Sediment'], [4, 'Curvature'], [5, 'Normals']];
 const CAMERA_OPTIONS = [['alpine', 'Alpine quiet'], ['overview', 'Overview']];
@@ -82,8 +88,14 @@ async function start() {
     alpine: study.camera,
     overview: overviewCamera(study.camera, placement.centre, WIDTH / HEIGHT),
   };
+  const terrainFrom = values => terrainSettings({
+    seed: values.seed,
+    relief: values.relief,
+    drainage: values.drainage,
+    rills: values.rills,
+  });
   const [terrain, tracer] = await Promise.all([
-    Terrain.create(device, placement),
+    Terrain.create(device, placement, terrainFrom(DEFAULTS)),
     Tracer.create(device, WIDTH, HEIGHT),
   ]);
   const sky = await Sky.create(device, tracer.frameBuffer);
@@ -97,7 +109,6 @@ async function start() {
     completedSamples: 0,
     convergeSeconds: 0,
     erosionSeconds: null,
-    generateSeconds: null,
     pathsPerSecond: 0,
     samplesPerFrame: 1,
     firstSampleSeconds: null,
@@ -132,7 +143,7 @@ async function start() {
 
   const apply = (key, value) => {
     state[key] = value;
-    if (key === 'seed' || key === 'erosion') {
+    if (TERRAIN_KEYS.includes(key)) {
       terrainDirty = true;
     } else if (key === 'viewMode' || key === 'exposure' || key === 'look') {
       if (key === 'viewMode') {
@@ -144,9 +155,38 @@ async function start() {
   };
 
   const erodeMore = () => {
-    terrain.scheduleErosion(1);
+    if (terrain.busy) {
+      return;
+    }
+    terrain.erodeMore(0.5);
     erosionStart = performance.now();
     erosionActive = true;
+    stats.erosionSeconds = null;
+  };
+
+  const heightmapInput = document.createElement('input');
+  heightmapInput.type = 'file';
+  heightmapInput.accept = '.png,.heightmap,application/zip';
+  heightmapInput.hidden = true;
+  document.body.append(heightmapInput);
+  heightmapInput.addEventListener('change', async () => {
+    const file = heightmapInput.files[0];
+    heightmapInput.value = '';
+    if (!file) {
+      return;
+    }
+    try {
+      const heights = await importHeightmap(file);
+      terrain.setHeightmap({ ...heights, base: 150, relief: state.relief });
+      terrainDirty = true;
+      setValues({ camera: 'overview' });
+    } catch (error) {
+      showError(error);
+    }
+  });
+  const useProcedural = () => {
+    terrain.clearHeightmap();
+    terrainDirty = true;
   };
 
   const studyLight = { ...ALPINE_QUIET_LIGHT, sunElevation: study.sun.elevation, sunAzimuth: study.sun.azimuth };
@@ -165,8 +205,12 @@ async function start() {
     { key: 'fog', label: 'Valley fog', min: 0, max: 4, step: 0.05, live: true, format: plain },
     { key: 'exposure', label: 'Exposure', min: -4, max: 4, step: 0.1, live: true, format: v => `${v.toFixed(1)} EV` },
     { key: 'seed', label: 'Seed', min: 1, max: 9999, step: 1, format: v => String(v) },
-    { key: 'erosion', label: 'Erosion', min: 0, max: 3, step: 0.05, format: v => `${v.toFixed(2)}×` },
-    { type: 'button', label: 'Erode', action: erodeMore },
+    { key: 'relief', label: 'Relief', min: 800, max: 6000, step: 50, format: v => `${Math.round(v)} m` },
+    { key: 'drainage', label: 'Drainage', min: 0, max: 3, step: 0.05, format: v => `${v.toFixed(2)}×` },
+    { key: 'rills', label: 'Rills', min: 0, max: 3, step: 0.05, format: v => `${v.toFixed(2)}×` },
+    { type: 'button', label: 'Erode more', action: erodeMore },
+    { type: 'button', label: 'Heightmap…', action: () => heightmapInput.click() },
+    { type: 'button', label: 'Procedural', action: useProcedural },
     { key: 'camera', label: 'Camera', type: 'choice', options: CAMERA_OPTIONS, parse: String },
     { key: 'viewMode', label: 'View', type: 'choice', options: VIEW_OPTIONS, parse: Number },
     { key: 'look', label: 'Look', type: 'choice', options: LOOK_OPTIONS, parse: String },
@@ -189,7 +233,7 @@ async function start() {
     const seconds = (now - resetTime) / 1000;
     stats.samples = sampleIndex;
     stats.convergeSeconds = seconds;
-    const erosion = erosionActive ? ` · eroding ${Math.round(terrain.progress * 100)}%` : '';
+    const erosion = erosionActive ? ` · building terrain ${Math.round(terrain.progress * 100)}%` : '';
     const rate = (stats.pathsPerSecond / 1e6).toFixed(1);
     statsLine.textContent = `${stats.completedSamples} spp · ${seconds.toFixed(1)} s · ${rate} M paths/s${erosion}`;
   };
@@ -208,10 +252,11 @@ async function start() {
     };
     const lighting = view();
     const timings = {
-      generateMs: await time(() => terrain.generate(state.seed)),
-      erosionBatchMs: await time(() => {
-        terrain.scheduleErosion(1 / 24);
-        terrain.erodeStep(1);
+      terrainBuildMs: await time(() => {
+        terrain.generate(terrainFrom(state));
+        while (terrain.step()) {
+          // Queue every stage at once; the timer waits for the GPU to finish them all.
+        }
       }),
       skyMs: await time(() => sky.rebuild()),
       sampleMs: await time(() => tracer.sample(lighting, 1)),
@@ -228,7 +273,7 @@ async function start() {
   let framesInFlight = 0;
 
   const adaptSamples = latency => {
-    if (terrain.eroding || erosionActive) {
+    if (terrain.busy || erosionActive) {
       stats.samplesPerFrame = 1;
     } else if (latency < 25 && stats.samplesPerFrame < MAX_SAMPLES_PER_FRAME) {
       stats.samplesPerFrame++;
@@ -247,21 +292,18 @@ async function start() {
     }
     if (terrainDirty) {
       terrainDirty = false;
-      const generateStart = performance.now();
-      terrain.generate(state.seed);
-      device.queue.onSubmittedWorkDone().then(() => {
-        stats.generateSeconds = (performance.now() - generateStart) / 1000;
-      });
-      terrain.scheduleErosion(state.erosion);
+      terrain.generate(terrainFrom(state));
       erosionStart = performance.now();
-      erosionActive = terrain.eroding;
-      stats.erosionSeconds = erosionActive ? null : 0;
+      erosionActive = true;
+      stats.erosionSeconds = null;
       resetAccumulation();
     }
-    if (terrain.eroding) {
-      terrain.erodeStep(BATCHES_PER_FRAME);
+    if (terrain.busy) {
+      for (let i = 0; i < TERRAIN_STAGES_PER_FRAME; i++) {
+        terrain.step();
+      }
       resetAccumulation();
-      if (!terrain.eroding) {
+      if (!terrain.busy) {
         device.queue.onSubmittedWorkDone().then(() => {
           stats.erosionSeconds = (performance.now() - erosionStart) / 1000;
           erosionActive = false;
@@ -310,7 +352,7 @@ async function start() {
     set: setValues,
     erode: erodeMore,
     get eroding() {
-      return terrain.eroding || erosionActive;
+      return terrain.busy || erosionActive;
     },
     capture: () => display.capturePng(state),
     restart: resetAccumulation,
