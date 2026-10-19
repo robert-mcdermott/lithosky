@@ -4,7 +4,10 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 3, slice 9 — composition workspace.** Compose
+**Status: course correction after wave 3.** The image core and studio UI are
+being rebuilt for visual quality first: GPU terrain with erosion, a progressive
+viewport tracer, multiple-scattering sky, volumetric clouds and a viewport-first
+studio. See the [roadmap](ROADMAP.md). The current build lets you compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and lake absorption/reflection/refraction, then
