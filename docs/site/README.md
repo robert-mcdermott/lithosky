@@ -90,3 +90,10 @@ at four tiers, preparation cancellation and scene-edit invalidation, then export
 identical-camera 128²/512²/1024² images and `terrain-captures.json`. Site builds
 verify source/scene/image hashes and image dimensions; rerun this capture after
 render-affecting sources change. Scene files do not store transient render tiers.
+
+Geological material comparisons use `docs/capture/material-run.mjs` with the same
+isolated app/CLI workflow. It captures matching landscape views, rock/ground/snow
+reference views and unscaled 256×128 crops, verifies saved scene content, and runs
+actual CPU/GPU material probes. Builds validate source/scene/image provenance in
+`material-captures.json`; rerun all three capture commands after render sources
+change. The original Weathered highlands scene uses opt-in v7 surfaces.

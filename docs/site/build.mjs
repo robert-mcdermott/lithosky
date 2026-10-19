@@ -36,11 +36,22 @@ export function buildSite(destination=path.join(root,'dist/site')) {
     const record=terrain.records.find(r=>r.detail===detail),bytes=fs.readFileSync(path.join(here,'assets','terrain-'+detail+'.png'));
     if(!record||record.sha256!==digest(bytes)||record.width!==960||record.height!==540||record.samples!==32||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==960||bytes.readUInt32BE(20)!==540)throw new Error('Terrain comparison provenance mismatch: '+detail);
   }
+  const materials=JSON.parse(fs.readFileSync(path.join(here,'assets/material-captures.json')));
+  const materialScene=fs.readFileSync(path.join(here,'assets/weathered-highlands.lithosky'));
+  validateScene(JSON.parse(materialScene),schema);
+  const materialNames=['material-simple','material-geology','material-rock','material-ground','material-snow',...['simple','geology'].flatMap(kind=>['foreground','middle','horizon'].map(region=>'material-'+kind+'-'+region))];
+  if(materials.sourceHash!==sourceHash(root)||materials.sceneSHA256!==digest(materialScene)||materials.records.length!==materialNames.length)throw new Error('Material captures are stale. Run docs/capture/material-run.mjs.');
+  for(const name of materialNames) {
+    const record=materials.records.find(r=>r.name===name),bytes=fs.readFileSync(path.join(here,'assets',name+'.png'));
+    if(!record||record.sha256!==digest(bytes)||!bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))||bytes.readUInt32BE(16)!==record.width||bytes.readUInt32BE(20)!==record.height)throw new Error('Material capture provenance mismatch: '+name);
+    if(record.scene){validateScene(record.scene,schema);if(record.width!==960||record.height!==540||record.samples!==32||record.detail!==1024)throw new Error('Material capture settings mismatch: '+name);}
+    else if(record.width!==256||record.height!==128||!record.parent||!record.crop)throw new Error('Material crop mismatch: '+name);
+  }
   const gallery=studies.map((s,i)=>`<article class="study" id="${s.id}"><a href="assets/${s.id}.png" aria-label="View ${escapeHTML(s.scene.title)} at full size"><img src="assets/${s.id}.png" alt="${escapeHTML(s.description)} rendered in Lithosky" width="960" height="540" loading="lazy"></a><div class="study-caption"><span class="number">0${i+1}</span><div><h2>${escapeHTML(s.scene.title)}</h2><p>${escapeHTML(s.description)}.</p><p class="small">Seed ${s.scene.terrain.seed} · 960 × 540 · 64 samples · 512² terrain</p><a href="scenes/${s.id}.lithosky" download>Open this starting point ↗</a></div></div></article>`).join('\n');
   const temp=fs.mkdtempSync(path.join(path.dirname(out),'.lithosky-site-'));
   try {
     fs.mkdirSync(path.join(temp,'assets'));fs.mkdirSync(path.join(temp,'scenes'));
-    for(const name of ['sunlit-ridges.lithosky','terrain-128.png','terrain-512.png','terrain-1024.png','terrain-captures.json','site.css','studio.png','daylight.lithosky','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
+    for(const name of ['weathered-highlands.lithosky','material-captures.json',...materialNames.map(name=>name+'.png'),'sunlit-ridges.lithosky','terrain-128.png','terrain-512.png','terrain-1024.png','terrain-captures.json','site.css','studio.png','daylight.lithosky','terraced-basin.png','terraced-basin-scale.json','terraced-basin.heightmap','terraced-basin.lithosky',...studies.map(s=>s.id+'.png')]) fs.copyFileSync(path.join(here,'assets',name),path.join(temp,'assets',name));
     fs.copyFileSync(path.join(root,'web/favicon.svg'),path.join(temp,'assets/icon.svg'));
     for(const s of studies) fs.copyFileSync(path.join(here,'assets',s.id+'.lithosky'),path.join(temp,'scenes',s.id+'.lithosky'));
     for(const name of ['LICENSE','NOTICE']) fs.copyFileSync(path.join(root,name),path.join(temp,name+'.txt'));

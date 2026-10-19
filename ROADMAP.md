@@ -1,6 +1,6 @@
 # Lithosky implementation roadmap
 
-Status: wave 3, slices 1–2 complete locally; native release gates remain open.
+Status: wave 3, slices 1–3 complete locally; native release gates remain open.
 Updated 2026-10-18. Each wave produces one minor release; a completed slice is not a released version. No calendar estimates
 until the rendering spikes have measurements. The private PRD is input, not a
 contract. Research and comparisons stay in ignored `product_research/`.
@@ -62,7 +62,7 @@ existing terrain, material, camera and light capabilities. The editor must ship
 with a small set of actual renderable objects, so users can already add and move
 content before the larger asset/vegetation libraries in Wave 5. Later systems plug
 into the same selection, transforms, history and persistence contracts. These are
-planned capabilities; W3.S3 remains the next implementation slice.
+planned capabilities; W3.S4 transport, lighting and exposure is the next implementation slice.
 
 ## Decisions from the review
 
@@ -130,7 +130,9 @@ and [validation](docs/validation.md). The first physical atmosphere is explicitl
 single scattering with three spectral bands; it does not claim multiple scattering
 or calibrated spectral color. Native release gates remain open. W3.S2 is complete locally; see
 [visual-quality comparisons](docs/visual-quality.md) and [validation](docs/validation.md).
-W3.S3 geological surfaces is next and has not started.
+W3.S3 geological surfaces is complete locally; see [surface documentation](docs/geological-surfaces.md)
+and [image comparisons](docs/visual-quality.md). W3.S4 transport, lighting and
+exposure is next and has not started.
 
 | Slice | Focus | Acceptance gate |
 |---|---|---|

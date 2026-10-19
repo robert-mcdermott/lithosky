@@ -2,7 +2,15 @@
 
 ## v0.3.0 — unreleased
 
-Development build: 0.3.0-dev.2. Wave 3, slice 2:
+Development build: 0.3.0-dev.3. Wave 3, slice 3:
+
+- Opt-in per-hit geological surfaces with original solid rock strata, angular joints, soil/snow variation and bump detail.
+- Filtered multiscale detail, world-space mapping and bounded normal perturbations; rough diffuse response uses spatially varying roughness.
+- Geological surface controls and reusable CPU/WGSL material evaluation; WebGPU/WebGL previews retain filtered vertex colors.
+- V7 scenes preserve the material through sculpting, terrain conversion, atmosphere changes, portable heightmaps and recovery; legacy formats remain supported.
+- Original landscape/material comparisons and near/middle/horizon crops from actual renderer output; shader/reference, filtering and energy checks.
+
+Wave 3, slice 2:
 
 - Visual-quality roadmap: detailed terrain, per-hit surfaces, lighting/exposure and measured image reviews take priority; night skies gain a dedicated slice.
 - Independent Draft (128²), Detailed (512², default) and Fine (1024²) final terrain; lightweight preview retained.

@@ -104,3 +104,14 @@ tables uploaded to the WebGPU tracer. Preview uses the same sun vector while
 retaining approximate haze. The tables and integration are original, dependency-free
 code. See [atmosphere model, units and validation](atmosphere.md). Atmosphere-only
 edits invalidate rendering without rebuilding terrain or traversal bounds.
+
+## Geological materials
+
+V7 adds opt-in solid procedural materials, with a reusable pure evaluator in
+`web/material/geology.js` and an original WGSL counterpart. Definitions remain
+independent of terrain geometry. Preview uses filtered vertex colors; final
+rendering evaluates actual hit positions, surface gradients and rough diffuse
+response with an approximate footprint. The final uniform block is 240 bytes; no
+texture buffers or external assets are required. A shared minimum-version helper
+preserves geology when other scene capabilities are enabled, removed or replaced.
+See [geological surfaces](geological-surfaces.md) for the validation contract.

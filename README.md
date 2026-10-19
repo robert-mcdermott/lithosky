@@ -68,13 +68,20 @@ budget; scenes allow 32 strokes of up to 24 marks each.
 **Customize surface** blends sand, ground, rock and snow using height and slope
 rules, or applies a single material preset. Tune transition softness and seeded
 color detail; both palettes work with the rules. Procedural surface settings save as v4
-scenes with the existing terrain and sculpting; imported terrain stays v5. Older scenes keep their appearance
+scenes with the existing terrain and sculpting; imported terrain uses v5, v6
+with atmosphere, or v7 with geology. Older scenes keep their appearance
 until customized. Material changes reuse generated heights and traversal bounds.
+
+**Use geological surface** adds original solid rock strata/joints, soil/snow
+variation, filtered bump detail and roughness in final renders. Feature scale,
+strata, fractures, bump and roughness are editable. These opt-in surfaces save as
+v7 scenes; old scenes keep their simple materials. Preview colors remain
+approximate. See [geological surfaces](docs/geological-surfaces.md).
 
 **Import heightmap…** accepts 16-bit grayscale PNG or a heightmap bundle, with
 explicit height and physical-scale metadata. Imported terrain supports sculpting
 and materials. **Export heightmap** bundles a full-depth PNG with its scale;
-**Save scene** embeds imported samples in a portable v5 container. Older JSON
+**Save scene** embeds imported samples in a portable scene container. Older JSON
 scenes remain supported. See [heightmaps and original examples](docs/heightmaps.md).
 
 **Use physical atmosphere** adds a computed Earth sky, sunlight attenuation and
@@ -112,9 +119,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.3.0-dev.2 --out dist/releases/0.3.0-dev.2`
+`go run ./tools/release --version 0.3.0-dev.3 --out dist/releases/0.3.0-dev.3`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.3.0-dev.2` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.3` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development

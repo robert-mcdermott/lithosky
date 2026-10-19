@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
+import { updateSceneVersion } from './document.js';
 import { layeredTerrain, newLayer } from './noise.js';
 import { terrainBudget } from './generation.js';
 export function terrainControls(getScene, edit) {
   const $=id=>document.getElementById(id); let shown='';
-  $('enable-layers').addEventListener('click',()=>edit(scene=>{scene.version=scene.atmosphere?6:scene.surface?4:2;scene.terrain=layeredTerrain(scene.terrain);if(scene.surface||scene.atmosphere)scene.terrain.sculpt=[];}));
+  $('enable-layers').addEventListener('click',()=>edit(scene=>{scene.terrain=layeredTerrain(scene.terrain);if(scene.surface||scene.atmosphere)scene.terrain.sculpt=[];updateSceneVersion(scene);}));
   $('terrain-resolution').addEventListener('change',()=>{const value=Number($('terrain-resolution').value);edit(scene=>{scene.terrain.resolution=value;});});
   $('add-layer').addEventListener('click',()=>{const kind=$('layer-kind').value;edit(scene=>{if(scene.terrain.layers.length<8)scene.terrain.layers.push(newLayer(kind));});});
   function sync() {
@@ -12,7 +13,7 @@ export function terrainControls(getScene, edit) {
     if(!layered) {shown='';return;}
     $('terrain-resolution').value=terrain.resolution;
     const budget=terrainBudget(terrain.resolution);
-    $('terrain-budget').textContent=`${terrain.resolution} × ${terrain.resolution} cells · ${(budget.heightBytes/1048576).toFixed(1)} MiB height grid · about ${Math.ceil(budget.peakBytes/1048576)} MiB generation budget. Preview and stills currently use a 128 × 128 mesh.`;
+    $('terrain-budget').textContent=`${terrain.resolution} × ${terrain.resolution} cells · ${(budget.heightBytes/1048576).toFixed(1)} MiB height grid · about ${Math.ceil(budget.peakBytes/1048576)} MiB generation budget. Preview stays at 128²; final detail reaches 1024² when the source supports it.`;
     $('add-layer').disabled=terrain.layers.length>=8;
     const key=JSON.stringify(terrain.layers);if(key===shown)return;shown=key;
     const focus=document.activeElement?.id;

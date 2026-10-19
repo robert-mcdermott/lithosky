@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { evaluateGeology } from '../material/geology.js';
 import { noise } from './noise.js';
 export const materialDefaults = () => ({preset:'rules',snowHeight:5.4,sandHeight:.6,rockSlope:39,blend:.6,detail:.25,detailScale:1});
 const clamp = x => Math.max(0,Math.min(1,x));
@@ -7,6 +8,7 @@ const mix = (a,b,t) => a.map((v,i)=>v+(b[i]-v)*t);
 // Linear reflectances, authored here; no downloaded textures. Detail affects color
 // only, so both renderers retain the same normals, silhouettes and triangle mesh.
 export function materialColor(x,z,height,normal,state) {
+  if(state.materials.geology)return evaluateGeology(state.materials,[x,height,z],normal,.35,state.seed,state.palette).color;
   const m=state.materials,alien=state.palette==='otherworld';
   const colors=alien ? {ground:[.36,.27,.46],rock:[.43,.38,.53],sand:[.58,.41,.48],snow:[.83,.78,.93]}
     : {ground:[.28,.35,.26],rock:[.39,.41,.37],sand:[.5,.48,.34],snow:[.82,.85,.82]};

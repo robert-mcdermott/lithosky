@@ -181,7 +181,7 @@ See [heightmaps](heightmaps.md) for scale, precision, budgets and original examp
 `npm test` checks fixed Float32 seed hashes, noise composition, negative-height
 terraces, legacy buffer equality, all four allocation budgets, partial-generation
 cancellation, cache invalidation, and late-result/error/retry handling. Shared
-Go/JavaScript fixtures validate all five scene versions and malformed layer, sculpt
+Go/JavaScript fixtures validate the supported scene versions and malformed layer, sculpt
 and material payloads.
 
 For actual browser tests, build and start with an isolated `--data-dir`, then use
@@ -196,3 +196,13 @@ GPU grazing/silhouette probes and comparative traversal render times/pixels.
 recovery, malformed inputs and mobile export.
 `tests/browser-render.mjs` covers the existing tracer regression suite. Browser
 checks need a working WebGPU device; Node tests alone do not prove GPU support.
+
+## Geological definitions
+
+Use geological surface enables v7 solid rock strata/joints, soil/snow variation,
+bump and roughness evaluated in the final shader at each hit. Preview retains
+filtered vertex colors; fine final vertices carry a cheap fallback color because
+the complete model is evaluated by the tracer. Neither positions nor terrain
+normals/hierarchy are changed. Geological edits reuse heights and bounds, and
+remain compatible with sculpting and imported terrain. See
+[geological surfaces](geological-surfaces.md) for controls, filtering and limits.

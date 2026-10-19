@@ -668,3 +668,78 @@ no horizontal overflow and no external asset requests. The comparison uses equal
 image widths on desktop and stacks on phones. Original scene/captures and the
 studio were visually inspected. No new dependencies or third-party assets were
 added. Native Windows/Linux execution, release tags and publication remain pending.
+
+## Wave 3, slice 3 — geological surface materials
+
+Development build `0.3.0-dev.3`, validated locally on macOS arm64, Chrome 155 and
+Apple Metal 3. W3.S3 is complete locally; W3.S4 transport/light/exposure has not
+started. The broader photographic-quality and native release gates remain open.
+
+### Material correctness and filtering
+
+Original CPU and WGSL evaluators consume a material definition, world-space
+point, unit normal, footprint and seed. The shader's explicit `GeoDefinition`
+interface supports later object assignment without terrain-specific texture code.
+Solid grain, warped strata and angular nearest-site joints supply reflectance and
+analytic bump gradients; terrain positions, normals and hierarchy remain intact.
+Unresolved noise work is skipped. New uniform data totals 64 additional bytes;
+no texture storage, external assets or dependencies were added.
+
+Seven new unit tests check noise gradients against finite differences, 27-site
+joint search against an independent 125-site search, joint gradients, normal and
+reflectance bounds, filtering continuity/limits, rough-diffuse reciprocity and
+integrated reflectance, geometry preservation, migration and format round trips.
+Ten shared acceptance fixtures add valid v7 artistic/physical, layered and imported
+scenes plus malformed-model/range/missing-field cases. Both validators pass them.
+Flat-normal rough-diffuse integrated reflectance is bounded by 1.001 in the tested
+quadrature. This does not establish energy conservation of the full bumped/water/
+atmosphere integrator; those transport concerns remain W3.S4.
+
+The actual GPU material probe compares 400 samples and 3,200 scalar outputs
+(albedo, roughness, normal and angular response) with CPU values across five
+presets, both palettes, maximum/bounded seeds and multiple footprints. Maximum
+absolute error is about 0.00005436 against a 0.003 tolerance. Fixed limits bound
+procedural work; grazing/refraction filtering remains an isotropic approximation.
+
+### Editing, persistence and renderer lifecycle
+
+`tests/browser-geology.mjs` passes opt-in v1→v7 migration and Undo/Redo, invalid
+numeric input rejection, JSON save/open, atmosphere enable/removal, layered
+conversion, sculpting, heightmap import, portable save/open and recovery. All
+retain geological definitions and v7 as needed. Returning to a simple surface
+selects the appropriate earlier format and is undoable. Material edits invalidate
+stale exports; preparation cancellation returns to an editable state. Mobile
+WebGL retains material editing without horizontal overflow or page errors.
+
+All existing browser suites pass: renderer, terrain, sculpting, materials,
+heightmaps, atmosphere, layout and panels. The final reusable-shader build was
+also rechecked through renderer lifecycle and geological workflow suites, GPU
+material probes and all three capture workflows. Traversal/atmosphere tolerances
+remain unchanged; linear/hierarchical diagnostic images retain identical pixels.
+The three original starter PNG hashes and the three terrain-comparison PNG hashes
+match the preceding implementation, confirming the legacy render path is intact.
+
+### Images and integration
+
+The original Weathered highlands scene provides equal-camera/light/geometry
+simple/geological landscape exports at 960×540, Fine terrain and 32 samples.
+Unscaled 256×128 foreground, middle-distance and horizon crops retain the exact
+exported pixels. Rock/ground/snow reference views use the same closer camera and
+60° daylight sun with water disabled; those settings differ from the landscape
+and are recorded per image. Saved-scene content and source/scene/image hashes
+are checked during capture/build. Images and the desktop gallery were visually
+inspected. Earlier rounded/overstated fracture patterns were revised to subtler
+angular joints before the final captures.
+
+Current individual end-to-end observations were about 6.4 s for the geological
+landscape and 6.1–7.1 s for the close reference views. They include preparation,
+shader setup, tracing and readback and are not general performance guarantees.
+Material texture/relief is visible, but light/exposure, deep shadows and sky
+richness still limit photographic credibility. See [visual-quality record](visual-quality.md)
+and [geological surface documentation](geological-surfaces.md).
+
+All 183 JavaScript tests pass. Go race tests/static checks, binary rebuild and
+`git diff --check` pass. The site passes four pages, 112 links and 16 image
+references, plus desktop/mobile browser navigation, image decoding, scene
+download, keyboard, overflow and same-origin checks. No release tag, publication
+or native Windows/Linux execution was performed.

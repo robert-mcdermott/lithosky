@@ -33,7 +33,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files remain v1–v6. Draft
+These choices are transient render settings; scene files remain v1–v7. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.
@@ -42,9 +42,10 @@ reports an error and allows retry at a lower tier; it never silently downgrades.
 
 - A bounded heightfield spans −32 to 32 in X and Z. Preview and final geometry
   sample the same landform, triangle convention, camera and surface rules at
-  different resolutions. V4 color detail is still evaluated per vertex, not per
-  ray hit. Fine geometry improves silhouettes and resolves smaller surface
-  variations, but does not yet supply bump mapping or geological materials.
+  different resolutions. Simple V4 surface detail remains per vertex. Opt-in v7 geological definitions
+  evaluate at every ray hit with filtered solid grain/strata/joints, bounded bump
+  normals and rough diffuse response; see [geological surfaces](geological-surfaces.md).
+  Fine geometry improves silhouettes independently of material detail.
 - Ray/box clipping followed by a two-level hierarchy skips empty 8 × 8-cell
   blocks, then tests two triangles per remaining cell.
   Zero direction components, boundary starts, underside rays and parallel rays
@@ -172,3 +173,8 @@ See [visual-quality comparisons](visual-quality.md) for the original Sunlit ridg
 scene, unretouched Draft/Detailed/Fine renders, GPU intersection checks and recorded
 preparation/render costs. Run `docs/capture/detail-run.mjs` against an isolated
 rebuilt app to reproduce the captures and manifest.
+
+Opt-in geology adds 64 uniform bytes and fixed bounded procedural work per land
+hit, without texture buffers or geometry displacement. Surface-area ray-cone
+filtering is approximate; normal/transport limitations are documented in the
+[geological surface notes](geological-surfaces.md). Old v1–v6 surfaces remain unchanged.

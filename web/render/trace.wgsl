@@ -6,6 +6,7 @@ struct Config {
   tile: vec4u,
   atmosphere: vec4f, // enabled, origin altitude km, km/unit, aerosol multiplier
   atmosphereExtra: vec4f, // ozone multiplier, observer altitude km
+  material:vec4f, rules:vec4f, geology:vec4f, finish:vec4f,
 }
 struct Vertex { position: vec4f, normal: vec4f, color: vec4f }
 struct Hit { t: f32, normal: vec3f, color: vec3f, geometric: vec3f }
@@ -117,17 +118,30 @@ fn cosineDirection(n: vec3f, seed: ptr<function,u32>) -> vec3f {
   let tangent=normalize(cross(helper,n)); let bitangent=cross(n,tangent);
   return normalize(tangent*(sqrt(u)*cos(phi))+bitangent*(sqrt(u)*sin(phi))+n*sqrt(1-u));
 }
-fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>) -> vec3f {
+fn land(o: vec3f, d: vec3f, h: Hit, seed: ptr<function,u32>, prior:f32) -> vec3f {
   if (h.t>=1e6) { return sky(d); }
-  let p=o+d*h.t; let n=select(-h.normal,h.normal,dot(d,h.geometric)<0);
+  let p=o+d*h.t; var n=select(-h.normal,h.normal,dot(d,h.geometric)<0);
   let geometric=select(-h.geometric,h.geometric,dot(d,h.geometric)<0);
+  var color=h.color;var roughness=0.0;
+  let geological=config.material.x>.5;
+  if(geological) {
+    // Isotropic surface-area ray-cone estimate, widened at grazing angles. Water
+    // rays include their preceding path; no screen-space UVs or texture seams.
+    let footprint=clamp((prior+h.t)*.96/f32(config.image.y)/sqrt(max(abs(dot(d,geometric)),.12)),.00025,4.0);
+    let base=select(-n,n,dot(n,geometric)>=0);let surface=geologicalSurface(p,base,footprint);
+    n=surface.normal;color=surface.color;roughness=surface.roughness;
+    if(dot(n,geometric)<.1){n=normalize(n+geometric*(.1-dot(n,geometric)));}
+  }
   let start=p+geometric*.003;
   let sun=config.light.xyz;
-  let visibility=select(0.0,1.0,terrain(start,sun,150).t>=1e6);
+  var visibility=select(0.0,1.0,terrain(start,sun,150).t>=1e6);
+  if(geological && dot(sun,geometric)<=0){visibility=0;}
   let ambient=cosineDirection(n,seed);
   let open=select(0.0,1.0,dot(ambient,geometric)>0 && terrain(start,ambient,150).t>=1e6);
-  if(config.atmosphere.x>.5){return h.color*(skyScattering(ambient)*open+pointSun(p)*max(dot(n,sun),0.0)*visibility/3.14159265);}
-  let radiance=h.color*(sky(ambient)*open + vec3f(2.8,2.6,2.2)*max(dot(n,sun),0.0)*visibility);
+  var directResponse=1.0;var ambientResponse=1.0;
+  if(geological){directResponse=roughDiffuse(n,-d,sun,roughness);ambientResponse=roughDiffuse(n,-d,ambient,roughness);}
+  if(config.atmosphere.x>.5){return color*(skyScattering(ambient)*open*ambientResponse+pointSun(p)*max(dot(n,sun),0.0)*visibility*directResponse/3.14159265);}
+  let radiance=color*(sky(ambient)*open*ambientResponse + vec3f(2.8,2.6,2.2)*max(dot(n,sun),0.0)*visibility*directResponse);
   // Preserve the legacy artistic atmosphere for pre-v6 scenes.
   return mix(radiance,sky(d)*.7,1-exp(-h.t*.009));
 }
@@ -137,19 +151,19 @@ fn fresnel(c: f32, eta: f32) -> f32 {
 }
 fn trace(o: vec3f, d: vec3f, seed: ptr<function,u32>) -> vec3f {
   let ground=terrain(o,d,1e6);
-  if (config.bounds.z<.5 || abs(d.y)<1e-8) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed)); }
+  if (config.bounds.z<.5 || abs(d.y)<1e-8) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed,0)); }
   let waterT=(config.bounds.w-o.y)/d.y; let p=o+d*waterT;
-  if (waterT<.001 || waterT>=ground.t || any(abs(p.xz)>vec2f(32))) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed)); }
+  if (waterT<.001 || waterT>=ground.t || any(abs(p.xz)>vec2f(32))) { return aerial(o,d,select(ground.t,0.0,ground.t>=1e6),land(o,d,ground,seed,0)); }
   let entering=d.y<0; let n=select(vec3f(0,-1,0),vec3f(0,1,0),entering);
   let eta=select(1.333,1/1.333,entering); let f=fresnel(clamp(-dot(n,d),0.0,1.0),eta);
   let reflected=reflect(d,n); let ro=p+n*.003;
-  var color=f*land(ro,reflected,terrain(ro,reflected,1e6),seed);
+  var color=f*land(ro,reflected,terrain(ro,reflected,1e6),seed,waterT);
   if (f<1) {
     let transmitted=refract(d,n,eta); let to=p-n*.003; let hit=terrain(to,transmitted,1e6);
     let distance=select(waterT,min(hit.t,80.0),entering);
     let absorption=select(vec3f(.12,.045,.025),vec3f(.045,.09,.025),config.fog.x<.5);
     let transmittance=exp(-absorption*distance);
-    color+=(1-f)*(land(to,transmitted,hit,seed)*transmittance+vec3f(.025,.11,.13)*(1-transmittance));
+    color+=(1-f)*(land(to,transmitted,hit,seed,waterT)*transmittance+vec3f(.025,.11,.13)*(1-transmittance));
   }
   return aerial(o,d,waterT,color);
 }

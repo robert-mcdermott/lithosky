@@ -95,6 +95,9 @@ export async function buildFinalSurface(base,state,requested,{signal,onProgress=
   const {verticesBytes}=finalBudget(resolution);
   const vertices=new Float32Array(verticesBytes/4),cell=64/resolution,delta=Math.min(.08,cell/2);
   const e=state.elevation,dry={...state,waterEnabled:false},at=base.sample;
+  // Fine final vertices carry a cheap fallback color; the shader evaluates geology
+  // at actual hits. Avoid evaluating the full solid texture at a million vertices.
+  if(dry.materials?.geology)dry.materials={...dry.materials,geology:undefined};
   let low=Infinity,high=-Infinity;
   for(let z=0;z<=resolution;z++) {
     canceled(signal);

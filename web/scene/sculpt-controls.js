@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { updateSceneVersion } from './document.js';
 import { MAX_DABS, MAX_STROKES, extendStroke } from './sculpt.js';
 import { fieldHeight, pickTerrain, projectPoint } from './sculpt-view.js';
 export function sculptControls({viewport,getState,getField,isReady,commit,prepareView}) {
@@ -58,7 +59,7 @@ export function sculptControls({viewport,getState,getField,isReady,commit,prepar
   }
   function apply(staged) {
     if(!staged?.points.length)return;
-    try {commit(scene=>{scene.version=scene.atmosphere?6:scene.terrain.generator==='heightmap-v1'?5:scene.surface?4:3;scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);});status('Stroke applied. Undo restores the preceding terrain.');}
+    try {commit(scene=>{scene.terrain.sculpt??=[];scene.terrain.sculpt.push(staged);updateSceneVersion(scene);});status('Stroke applied. Undo restores the preceding terrain.');}
     catch(error){status('Could not apply stroke: '+error.message);}
     sync();
   }

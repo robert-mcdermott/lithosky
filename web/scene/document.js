@@ -11,7 +11,7 @@ export function defaultScene() {
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2, 3, 4, 5, 6].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3, 4, 5 and 6.');
+  if (![1, 2, 3, 4, 5, 6, 7].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1, 2, 3, 4, 5, 6 and 7.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {
@@ -70,4 +70,11 @@ export function wrapYaw(yaw) { return ((yaw + Math.PI) % (2 * Math.PI) + 2 * Mat
 // JSON property order is not scene content (Go recovery canonicalizes keys).
 export function sceneKey(scene) {
   return JSON.stringify(scene,(key,value)=>value && typeof value==='object' && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b))) : value);
+}
+
+// Choose the minimum format that preserves every enabled scene capability.
+export function updateSceneVersion(scene) {
+  scene.version=scene.surface?.geology?7:scene.atmosphere?6:scene.terrain.generator==='heightmap-v1'?5:scene.surface?4:scene.terrain.generator==='layers-v1'?(scene.terrain.sculpt?3:2):1;
+  if(scene.version>=3&&scene.terrain.generator==='layers-v1')scene.terrain.sculpt??=[];
+  return scene;
 }

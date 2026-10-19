@@ -64,3 +64,92 @@ PLAYWRIGHT_CLI=/path/to/playwright-cli node docs/capture/detail-run.mjs http://1
 Open the downloaded scene and select the desired Terrain detail, image size and
 sample count; transient render settings are not stored in scene files. Inspect
 [the revised roadmap](../ROADMAP.md) for the subsequent material/light/sky gates.
+
+## W3.S3 — geological surfaces
+
+Development build 0.3.0-dev.3 adds solid per-hit geological definitions.
+The original [Weathered highlands scene](site/assets/weathered-highlands.lithosky)
+uses the same seed, geometry, camera, sun and 32 samples at 960 × 540 for the
+paired views below; only the geological model is enabled/removed. Source settings,
+saved-scene checks and image hashes are in the
+[material capture record](site/assets/material-captures.json).
+
+Simple:
+
+![Simple surface](site/assets/material-simple.png)
+
+Geological:
+
+![Geological surface](site/assets/material-geology.png)
+
+### Foreground — native 256 × 128 crops
+
+Simple:
+
+![Simple foreground](site/assets/material-simple-foreground.png)
+
+Geological:
+
+![Geological foreground](site/assets/material-geology-foreground.png)
+
+### Middle — native 256 × 128 crops
+
+Simple:
+
+![Simple middle](site/assets/material-simple-middle.png)
+
+Geological:
+
+![Geological middle](site/assets/material-geology-middle.png)
+
+### Horizon — native 256 × 128 crops
+
+Simple:
+
+![Simple horizon](site/assets/material-simple-horizon.png)
+
+Geological:
+
+![Geological horizon](site/assets/material-geology-horizon.png)
+
+The new model breaks up the previously uniform stone with layered tone, angular
+joints, mineral grain and bump relief. Soil and snow have distinct variation and
+roughness. Review at native size: the geometry silhouettes are unchanged, and
+fine texture attenuates toward the horizon. The image still has simplified light,
+deep shadows and a restrained sky; it does not meet the complete photographic
+target. Full transport, glossy response and exposure remain W3.S4.
+
+### Material reference views
+
+These closer views use the same camera, 60° daylight sun and terrain with three
+different presets; water is disabled to expose the surface. Their light and camera
+differ from the paired landscape views and are recorded per image in the manifest.
+
+[Rock](site/assets/material-rock.png) · [Ground](site/assets/material-ground.png) ·
+[Snow](site/assets/material-snow.png). These are original, unretouched application
+exports, not downloaded textures or generated marketing images.
+
+### Local observations
+
+Apple Metal 3 / Chrome 155 on macOS arm64. Fine (1024²), 960 × 540, 32 samples;
+individual end-to-end observations include worker preparation, pipeline setup,
+tracing and readback. Some CPU checks ran during capture, so these are neither
+isolated GPU timings nor general performance guarantees.
+
+| View | End-to-end time |
+|---|---:|
+| simple | 6.79 s |
+| geology | 6.39 s |
+| rock | 6.14 s |
+| ground | 6.15 s |
+| snow | 7.09 s |
+
+The shader material probe compares 400 samples (3,200 scalar outputs) across five
+presets, both palettes, several seeds including the maximum value and several footprints with the
+CPU evaluator. Maximum observed absolute difference is below 0.000055 against a
+0.003 tolerance. Unit checks independently verify gradients, joint search, normal
+limits, filtering continuity and rough-diffuse reciprocity/integrated reflectance.
+The diffuse tests do not establish conservation for the entire bumped integrator.
+
+Reproduce using `docs/capture/material-run.mjs` against an isolated rebuilt app.
+See [geological surface controls and limits](geological-surfaces.md).

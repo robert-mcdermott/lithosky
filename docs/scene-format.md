@@ -1,8 +1,8 @@
 # Scene files and recovery
 
-Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5/v6 asset-backed
+Procedural `.lithosky` files are UTF-8 JSON limited to 128 KiB; v5–v7 asset-backed
 files use a portable ZIP container limited to 20 MiB. This build opens v1
-legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps and v6 atmosphere. The authoritative
+legacy landscapes, v2 layered terrain, v3 sculpted terrain, v4 surface materials, v5 imported heightmaps, v6 atmosphere and v7 geological surfaces. The authoritative
 [JSON Schema](../internal/scene/schema.json) is
 embedded in the Go binary and served at `/api/scene-schema`. Small independent
 Go/JavaScript validators implement only its bundled vocabulary. They use the
@@ -229,3 +229,15 @@ this process's recovery ID. `GET /api/recovery` lists valid snapshots;
 `GET /api/recovery/<id>` accepts only an opaque 32-character lowercase hex ID.
 The storage root is confined with `os.Root`; clients cannot supply filesystem
 paths. This API is internal, not the future automation interface.
+
+## V7 geological surfaces
+
+V7 requires `surface.geology` with model `geology-v1` and bounded scale,
+strata, fractures, bump and roughness. It retains the prior surface preset and
+height/slope controls, accepts the three existing terrain families, and optionally
+includes atmosphere. Imported samples use the existing portable container.
+Removing atmosphere or changing terrain cannot downgrade a geological scene.
+Switching to a simple surface explicitly removes geology and chooses the minimum
+supported format for the remaining features. Undo restores the earlier definition.
+No generator algorithm, terrain sample, camera or existing v1–v6 file is silently
+upgraded when opened. The material definition is independent of terrain buffers.
