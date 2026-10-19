@@ -8,7 +8,7 @@ import {intersectHeightfield} from '../render/heightfield.js';
 import {fieldHeight} from './sculpt-view.js';
 import {primitiveBudget} from './primitives.js';
 
-export function transformControls({getScene,getState,getField,objects,viewport,command,begin,end,cancel,prepareView}){
+export function transformControls({getScene,getState,getField,objects,viewport,command,begin,end,cancel,prepareView,cancelNavigation}){
  const $=id=>document.getElementById(id),canvas=$('transform-overlay');let tool='',placing=false,drag=null,clipboard=null,frame=0;
  const graph=()=>entityScene(getScene()),message=text=>{$('entity-status').textContent=text;};
  function setTool(value){if(drag)abort();tool=tool===value?'':value;placing=false;objects.mode(false);$('sculpt-tool').value='orbit';$('sculpt-tool').dispatchEvent(new Event('change'));prepareView();sync();viewport.focus();}
@@ -19,7 +19,7 @@ export function transformControls({getScene,getState,getField,objects,viewport,c
  $('sculpt-tool').addEventListener('change',()=>{if($('sculpt-tool').value!=='orbit'){tool='';placing=false;sync();}});
  $('transform-space').addEventListener('change',draw);
  $('place-primitive').addEventListener('click',()=>{if(drag)abort();placing=!placing;tool='';objects.mode(false);$('sculpt-tool').value='orbit';$('sculpt-tool').dispatchEvent(new Event('change'));prepareView();sync();viewport.focus();message(placing?'Click terrain or water to place the primitive. Escape cancels.':'Placement canceled.');});
- $('add-primitive').addEventListener('click',()=>{const state=getState();if(state.terrainVisible!==false&&!getField()){message('Wait for terrain generation before adding at the aim target.');return;}const p=[state.lens?.targetX??0,0,state.lens?.targetZ??-4];if(getField()&&state.terrainVisible!==false&&Math.abs(p[0])<=32&&Math.abs(p[2])<=32)p[1]=fieldHeight(getField(),p[0],p[2]);if(invoke('add',{shape:$('add-shape').value,position:p})){tool='move';placing=false;prepareView();sync();}});
+ $('add-primitive').addEventListener('click',()=>{const state=getState();if(state.terrainVisible!==false&&!getField()){message('Wait for terrain generation before adding at the aim target.');return;}const p=[state.editor?.target[0]??state.lens?.targetX??0,0,state.editor?.target[2]??state.lens?.targetZ??-4];if(getField()&&state.terrainVisible!==false&&Math.abs(p[0])<=32&&Math.abs(p[2])<=32)p[1]=fieldHeight(getField(),p[0],p[2]);if(invoke('add',{shape:$('add-shape').value,position:p})){tool='move';placing=false;prepareView();sync();}});
  $('copy-objects').addEventListener('click',()=>{try{clipboard=copySelection(getScene(),objects.selection);message('Copied '+clipboard.roots.length+' object(s). The object clipboard stays in this window.');sync();}catch(e){message(e.message);}});
  $('paste-objects').addEventListener('click',()=>invoke('paste',clipboard));
  for(const [button,name]of [['duplicate-objects','duplicate-selection'],['group-objects','group-selection'],['delete-objects','delete-selection']])$(button).addEventListener('click',()=>invoke(name));
@@ -67,6 +67,7 @@ export function transformControls({getScene,getState,getField,objects,viewport,c
  for(const event of ['pointercancel','lostpointercapture'])viewport.addEventListener(event,()=>{if(drag)abort();},true);
  window.addEventListener('keydown',e=>{
   const editing=e.target.matches('input,textarea,select,[contenteditable=true]'),inView=e.target.closest('#viewport,#objects-tree');if(editing&&!drag)return;
+  if(e.key==='Escape'&&!drag&&cancelNavigation?.()){e.preventDefault();e.stopImmediatePropagation();return;}
   if(e.key==='Escape'&&(drag||placing||tool&&inView)){e.preventDefault();e.stopImmediatePropagation();if(drag)abort();else{placing=false;tool='';objects.mode(false);sync();}return;}
   if(!inView)return;
   if((e.ctrlKey||e.metaKey)&&!e.altKey){const action={c:'copy-objects',v:'paste-objects',d:'duplicate-objects'}[e.key.toLowerCase()];if(action){e.preventDefault();e.stopImmediatePropagation();if(drag)abort();$(action).click();return;}if(e.key.toLowerCase()==='a'){e.preventDefault();objects.select(graph().entities.filter(n=>kindOf(n)==='primitive').map(n=>n.id));return;}if(drag&&e.key.toLowerCase()==='z'){e.preventDefault();e.stopImmediatePropagation();abort();return;}}

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.3.0-dev.9 — wave 3 slice 9 (local development)
+
+- Add separate perspective/top/front/side editor views and frame selection, with
+  shared projection for picking, placement, handles, sculpting and painting.
+- Add named camera snapshot bookmarks and explicit use of a perspective editor
+  view as the active render camera; keep temporary navigation out of files/history.
+- Add per-object procedural/solid material assignment, linear tint and finish edits,
+  plus bounded terrain material painting/erasing shared by preview/live/final.
+- Add blank, terrain-canvas and original garden templates, v13 persistence, strict
+  Go/JS validation, portable recovery and an original authoring gallery.
+- Validate complete browser workflows, GPU material/mask agreement, export equality
+  and WebGL layouts. Photographic acceptance and native release checks remain open.
+
 ## 0.3.0-dev.8 — wave 3 slice 8 (local development)
 
 - Add original closed box/sphere/cylinder/cone primitives in raster, live and final

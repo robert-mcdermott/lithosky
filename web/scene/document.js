@@ -29,7 +29,7 @@ export function currentRendering(scene) {scene=sceneView(scene);return !!(scene.
 // Only the vocabulary in the bundled schema is implemented. User-supplied
 // schemas, references, external resources and coercions are never evaluated.
 export function validateScene(value, schema) {
-  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1–12.');
+  if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].includes(value?.version)) throw new Error('Unsupported scene version. This build opens versions 1–13.');
   function check(value, rule, path) {
     const fail = message => { throw new Error(`${path}: ${message}`); };
     if (rule.oneOf) {

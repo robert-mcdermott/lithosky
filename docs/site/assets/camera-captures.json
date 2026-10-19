@@ -1,6 +1,6 @@
 {
-  "sourceHash": "cbc6346d144dfa0542843c2b93d3d7efba4f99f295965714df7890d48c2210d9",
-  "capturedAt": "2026-10-19T05:39:58.304Z",
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
+  "capturedAt": "2026-10-19T06:38:24.170Z",
   "diagnostics": {
     "reports": [
       {
@@ -43,21 +43,21 @@
         "width": 2048,
         "height": 1152,
         "samples": 1,
-        "milliseconds": 668.0999999046326,
+        "milliseconds": 476.80000019073486,
         "imageBuffersBytes": 56623104
       },
       {
         "width": 1365,
         "height": 2048,
         "samples": 1,
-        "milliseconds": 611.3000001907349,
+        "milliseconds": 734.6999998092651,
         "imageBuffersBytes": 67092480
       },
       {
         "width": 2048,
         "height": 2048,
         "samples": 1,
-        "milliseconds": 1208.5,
+        "milliseconds": 985.4000000953674,
         "imageBuffersBytes": 100663296
       }
     ],
@@ -69,7 +69,7 @@
   },
   "workflow": {
     "upgradeUndo": true,
-    "focus": 2487.1985254216775,
+    "focus": 2487.2034259080597,
     "panUndo": true,
     "dragCancel": true,
     "saveReopenRecovery": true,
@@ -227,7 +227,7 @@
       "height": 1365,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 105475,
+      "milliseconds": 86457,
       "imageBuffersBytes": 67092480,
       "sha256": "4bb117d6f192d47952f17c2e458b40da7b2ea9abfd463971339684fdc5465cac"
     },
@@ -365,7 +365,7 @@
       "height": 1365,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 69343,
+      "milliseconds": 50357,
       "imageBuffersBytes": 67092480,
       "sha256": "b341688daafc79979beed5a51c8ebf52dff43129cb58e2b140ebee50d6d89397"
     },
@@ -535,7 +535,7 @@
       "height": 2048,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 97175,
+      "milliseconds": 75593,
       "imageBuffersBytes": 67092480,
       "sha256": "8b1355d203253de973b68f1b2ff2e42f7b0015eabded7cfdfa271ea15d41f970"
     },

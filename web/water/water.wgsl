@@ -34,7 +34,7 @@ fn lakeVisibility(p:vec3f,l:vec3f,air:vec3f)->f32 {
 fn lakeBed(o:vec3f,d:vec3f,h:Hit,prior:f32)->vec3f {
  if(h.t>=1e6){return vec3f(0);}
  let p=o+d*h.t;let g=select(-h.geometric,h.geometric,dot(d,h.geometric)<0);var n=select(-h.normal,h.normal,dot(d,h.normal)<0);var color=h.color;
- if(config.material.x>.5&&h.material.x<.5) {let footprint=clamp((prior+h.t)*(2*config.right.w)/f32(config.region.w)/sqrt(max(abs(dot(d,g)),.12)),.00025,4.0);let surface=geologicalSurface(p,n,footprint);color=surface.color;n=surface.normal;}
+ if((config.material.x>.5&&h.material.x<.5)||h.material.x>1.5) {let footprint=clamp((prior+h.t)*(2*config.right.w)/f32(config.region.w)/sqrt(max(abs(dot(d,g)),.12)),.00025,4.0);let surface=authoredSurface(h,p,n,footprint);color=surface.color;n=surface.normal;}
  if(dot(n,g)<.2){n=normalize(n+g*(.2-dot(n,g)));}
  color*=.62;var result=vec3f(0);let depth=max(0.0,config.bounds.w-p.y);let sun=config.light.xyz;
  if(sun.y>0) {

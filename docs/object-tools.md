@@ -11,7 +11,7 @@ ray-traced stills and PNG export. They occlude each other and terrain, cast trac
 shadows, appear in water reflections/refraction and participate in bounded light
 transport. With current rendering their starter finishes are opaque rough dielectrics; older
 scenes retain their lighting model until explicitly upgraded. Material assignment
-and painting remain slice 9 work; these primitives are not a vegetation library.
+and painting are available in [composition workspace](composition-workspace.md); these primitives are not a vegetation library.
 
 ## Selection and editing
 
@@ -23,7 +23,8 @@ selection and helpers never enter the exported image.
 
 Use **Move, Rotate or Scale**, or W/E/R while the viewport or object list is
 focused. Drag an axis handle. World and local axes apply to moving and rotating;
-scale handles use local axes. The white central scale handle scales uniformly.
+scale handles use local axes. Separate orthographic editor views and frame selection
+are available in [composition workspace](composition-workspace.md). The white central scale handle scales uniformly.
 Multiple objects rotate/scale around their shared pivot. A single object uses its
 origin; grouping a selection puts the group's origin at the selection center.
 Selected ancestors are applied once, even if their children are also selected.

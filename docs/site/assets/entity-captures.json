@@ -1,8 +1,8 @@
 {
-  "sourceHash": "cbc6346d144dfa0542843c2b93d3d7efba4f99f295965714df7890d48c2210d9",
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
   "sceneSHA256": "37a4ec7a862775c707e0659b6eb6178460238e186b551adbd07224e22f10db90",
-  "studioSHA256": "15e9720f03024b5803c8986835d8d212fa082342091df26939854dcc72a6cd86",
-  "capturedAt": "2026-10-19T05:34:06.588Z",
+  "studioSHA256": "f4933fb2e941ca415c573f655c4af90520e8c60a32da53948a01d24db3709a2b",
+  "capturedAt": "2026-10-19T06:33:44.551Z",
   "workflow": {
     "migrationUndo": true,
     "selectionPreservesSceneAndRender": true,
@@ -208,7 +208,7 @@
       "height": 540,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 24502,
+      "milliseconds": 18862,
       "sha256": "d9c90880519e1d358d1c8db4c0718e38cf755b94a8688742cc3670bcbf8f972f"
     },
     {
@@ -377,7 +377,7 @@
       "height": 540,
       "samples": 64,
       "detail": 1024,
-      "milliseconds": 10562,
+      "milliseconds": 8278,
       "sha256": "5208b3651f22a1e7b50831653923a85ccbc775cef7fa8723c9668e8bbc674bed"
     }
   ],

@@ -55,8 +55,8 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) && object["version"] != float64(6) && object["version"] != float64(7) && object["version"] != float64(8) && object["version"] != float64(9) && object["version"] != float64(10) && object["version"] != float64(11) && object["version"] != float64(12) {
-		return nil, errors.New("unsupported scene version; this build opens versions 1–12")
+	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) && object["version"] != float64(6) && object["version"] != float64(7) && object["version"] != float64(8) && object["version"] != float64(9) && object["version"] != float64(10) && object["version"] != float64(11) && object["version"] != float64(12) && object["version"] != float64(13) {
+		return nil, errors.New("unsupported scene version; this build opens versions 1–13")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Original closed unit solids: radius/half extent .5, Y is the vertical axis.
+import {FINISHES,objectPreviewColor} from '../material/objects.js';
 import {point,inverse,unit,boundsFor} from './spatial.js';
 export const SHAPES=['box','sphere','cylinder','cone'];
 export const primitiveDefaults=shape=>({shape,color:shape==='sphere'?[.16,.32,.35]:shape==='cone'?[.48,.28,.12]:[.52,.48,.39],roughness:.65});
@@ -25,7 +26,7 @@ export function intersectPrimitive(object,origin,direction,limit=1e6){
  return n?{t:best,normal:normal(inv,Math.hypot(...n)<1e-12?[0,1,0]:n),id:object.id}:null;
 }
 export const primitiveBounds=object=>boundsFor(object.matrix,object.shape);
-export function primitiveUniforms(objects=[]){if(objects.length>32)throw Error('Primitive GPU budget exceeded.');const data=new Float32Array(Math.max(1,objects.length)*24);for(const [i,o]of objects.entries())data.set([...(o.inverse??inverse(o.matrix)),...o.color,SHAPES.indexOf(o.shape),o.roughness,0,0,0],i*24);return data;}
+export function primitiveUniforms(objects=[]){if(objects.length>32)throw Error('Primitive GPU budget exceeded.');const data=new Float32Array(Math.max(1,objects.length)*24);for(const [i,o]of objects.entries())data.set([...(o.inverse??inverse(o.matrix)),...o.color,SHAPES.indexOf(o.shape),o.roughness,Math.max(0,FINISHES.indexOf(o.finish?.preset)),o.finish?.scale??1,o.finish?.detail??0],i*24);return data;}
 const library=new Map();
 function localMesh(shape){
  if(library.has(shape))return library.get(shape);const vertices=[],tri=(a,b,c,na,nb=na,nc=na)=>{if(Math.hypot(...cross3(b.map((v,i)=>v-a[i]),c.map((v,i)=>v-a[i])))<1e-9)return;for(const [p,n]of [[a,na],[b,nb],[c,nc]])vertices.push(...p,...n);};
@@ -41,6 +42,7 @@ export function primitiveMesh(objects=[]){
  for(const object of objects){const mesh=localMesh(object.shape),m=object.matrix,n=object.inverse??inverse(m),color=object.color;
   for(let i=0;i<mesh.length;i+=6,j+=9){const x=mesh[i],y=mesh[i+1],z=mesh[i+2],a=mesh[i+3],b=mesh[i+4],c=mesh[i+5],nx=n[0]*a+n[1]*b+n[2]*c,ny=n[4]*a+n[5]*b+n[6]*c,nz=n[8]*a+n[9]*b+n[10]*c,length=Math.hypot(nx,ny,nz)||1;
    out[j]=m[0]*x+m[4]*y+m[8]*z+m[12];out[j+1]=m[1]*x+m[5]*y+m[9]*z+m[13];out[j+2]=m[2]*x+m[6]*y+m[10]*z+m[14];out[j+3]=nx/length;out[j+4]=ny/length;out[j+5]=nz/length;out[j+6]=color[0];out[j+7]=color[1];out[j+8]=color[2];
+   if(object.finish&&object.finish.preset!=='solid'){const c=objectPreviewColor(object,out[j],out[j+1],out[j+2]);out.set(c,j+6);}
   }
  }return out;
 }

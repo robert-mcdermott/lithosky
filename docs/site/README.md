@@ -125,3 +125,14 @@ The runner checks GPU hit/normal/shadow/material agreement, editor gestures and
 persistence/fallbacks, then exports an original still, live preview, rotated-group
 still and workspace screenshot. `spatial-captures.json` records checked provenance
 and budgets; run serially with the seven existing capture families.
+
+The ninth capture family covers composition authoring:
+
+```sh
+node docs/capture/workspace-run.mjs http://127.0.0.1:PORT
+```
+
+It repeats actual workspace and GPU material/mask checks, renders the original
+Stone garden comparison and records source/scene/image hashes plus a workspace
+screenshot. Run all nine families serially from the same frozen embedded build.
+The site validates these records and copies authoring templates from the app catalog.

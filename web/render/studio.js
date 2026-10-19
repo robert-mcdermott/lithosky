@@ -9,7 +9,7 @@ import {lightingPreview} from './preview.js';
 // Only a complete sample from the current scene may be shown or exported.
 export function renderStudio(getState, getTitle, getField = () => null) {
   const $=id=>document.getElementById(id), canvas=$('render-image');
-  let epoch=0, controller=null, snapshot=null, available=false, busy=false;
+  let epoch=0, controller=null, snapshot=null, available=false, busy=false,editorMode=false;
   const live=lightingPreview(getState,getField,()=>{if(!busy&&canvas.hidden){$('view-kind').textContent='LIGHTING PREVIEW';$('view-description').textContent='Lighting preview · Same water and lighting models, up to 320 px · 128² terrain. Render a still for final detail and export.';}});
   const region=regionControls(invalidate);
   const options=()=>{const size=imageDimensions(Number($('render-size').value),getState().lens?.frame);return {...size,region:region.get(size.width,size.height),samples:Number($('render-samples').value),detail:Number($('render-detail').value)};};
@@ -26,10 +26,10 @@ export function renderStudio(getState, getTitle, getField = () => null) {
     $('export-image').disabled=!snapshot||busy;
     $('render-size').disabled=busy; $('render-samples').disabled=busy; $('render-detail').disabled=busy;
     $('show-preview').disabled=!snapshot||busy;
-    $('live-preview').disabled=busy;region.busy(busy);
+    $('live-preview').disabled=busy||editorMode;region.busy(busy);
   }
   function invalidate(message) {
-    live.block(false);
+    live.block(editorMode);
     epoch++; controller?.abort(); controller=null; busy=false; snapshot=null;
     $('render-detail-status').textContent='Final terrain: up to '+$('render-detail').value+'² cells, limited by source resolution. Preview remains 128².';
     const settings=options(),r=settings.region??settings,bytes=r.width*r.height*24;
@@ -81,7 +81,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
   });
   $('show-preview').addEventListener('click',()=>{
     showRender(canvas.hidden);
-    if(canvas.hidden)live.block(false);else live.block(true);
+    if(canvas.hidden)live.block(editorMode);else live.block(true);
   });
   $('export-image').addEventListener('click',async()=>{
     if (!snapshot || busy) return;
@@ -102,6 +102,7 @@ export function renderStudio(getState, getTitle, getField = () => null) {
   });
   for (const id of ['render-size','render-samples','render-detail']) $(id).addEventListener('change',()=>invalidate('Render settings changed. Start a new render.'));
   return {
+    editing(value){editorMode=value;live.block(value||!canvas.hidden);controls();},
     invalidate,cancelPicking(){region.cancel();},
     preview() { if (busy) invalidate('Render stopped for terrain editing.'); else showRender(false); },
     setAvailable(value, message) { available=value;live.setAvailable(value); invalidate(message ?? (value?'Ready to render the saved frame.':'Final rendering requires WebGPU. Select Automatic and Retry graphics; scene editing and saving remain available.')); },

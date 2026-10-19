@@ -71,6 +71,7 @@ fn evaluateGeologicalMaterial(definition:GeoDefinition,p:vec3f,normal:vec3f,foot
   } else {
     switch u32(material.y) {case 1u:{weights.y=1;}case 2u:{weights.w=1;}case 3u:{weights.z=1;}default:{weights.x=1;}}
   }
+  if(definition.material.x<1.5){weights=applyPaint(weights,p.xz);}
   var color=soil*weights.x+rock*weights.y+sand*weights.z+snow*weights.w;
   if(material.z>.5){color=vec3f(color.x*1.12+color.z*.15,color.y*.62,color.z*1.3+color.x*.45);}
   let gradient=factor*g.w*(grain.xyz*(.035*weights.y+.012*weights.x+.008*weights.z+.002*weights.w)+weights.y*(phaseGradient*cos(phase)*bandWeight*g.y*.002-crack.xyz*3.5*fissureDerivative*g.z*.001));

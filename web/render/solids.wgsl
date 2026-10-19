@@ -31,7 +31,7 @@ fn solidHit(index:u32,origin:vec3f,direction:vec3f,limit:f32)->Hit {
  if(found&&shape==0u){let p=o+d*distance;for(var i=0u;i<3u;i++){if(abs(abs(p[i])-.5)<1e-5){normal=vec3f(0);normal[i]=sign(p[i]);break;}}}
  if(!found){return miss();}if(dot(normal,normal)<1e-15){normal=vec3f(0,1,0);}
  let n=normalize((transpose(object.inverse)*vec4f(normal,0)).xyz);
- return Hit(distance,n,object.color.xyz,n,vec2f(1,object.finish.x));
+ return Hit(distance,n,object.color.xyz,n,vec4f(1+object.finish.y,object.finish.x,object.finish.z,object.finish.w));
 }
 fn terrain(o:vec3f,d:vec3f,limit:f32)->Hit {
  var hit=terrainField(o,d,limit);

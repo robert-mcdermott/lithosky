@@ -82,8 +82,13 @@ func validateEntities(doc map[string]any) error {
 			}
 		}
 	}
-	if doc["version"] == float64(12) {
-		return validateSpatial(doc)
+	if doc["version"].(float64) >= 12 {
+		if err := validateSpatial(doc); err != nil {
+			return err
+		}
+	}
+	if doc["version"] == float64(13) {
+		return validateComposition(doc)
 	}
 	return nil
 }

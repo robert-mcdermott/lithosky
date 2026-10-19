@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {editorFrame,viewCamera} from './editor.js';
 export const FRAMES=Object.freeze({'16:9':16/9,'3:2':3/2,'2:3':2/3,'1:1':1});
 export const LONG_EDGES=Object.freeze([640,960,1280,1600,2048]);
 const norm=v=>{const n=Math.hypot(...v)||1;return v.map(x=>x/n);};
@@ -17,6 +18,7 @@ export function imageDimensions(longEdge,frame='16:9') {
 }
 export function previewDimensions(state) {const a=frameAspect(state);return a>=1?{width:320,height:Math.round(320/a)}:{width:Math.round(320*a),height:320};}
 export function cameraFrame(state,aspect) {
+ if(state.editor){const frame=editorFrame(state.editor,aspect);if(frame)return frame;return cameraFrame({...state,...viewCamera(state.editor),editor:undefined},aspect);}
  const l=state.lens,target=l?[l.targetX,l.targetY,l.targetZ]:[0,1.8,-4];
  const eye=[Math.sin(state.yaw)*Math.cos(state.pitch)*state.distance+target[0],Math.sin(state.pitch)*state.distance+target[1],Math.cos(state.yaw)*Math.cos(state.pitch)*state.distance+target[2]];
  const forward=norm(target.map((v,i)=>v-eye[i])),r=norm(cross(forward,[0,1,0])),u=cross(r,forward),roll=(l?.roll??0)*Math.PI/180;
@@ -27,6 +29,7 @@ export function cameraFrame(state,aspect) {
 export function lensUniforms(state) {const l=state.lens;return new Float32Array(l?[1,l.focusDistance/l.metresPerUnit,l.dof?l.focalLength/(2*l.fNumber)/1000/l.metresPerUnit:0,0]:[0,1,0,0]);}
 export function cameraRay(state,aspect,u,v,diskU=0,diskV=0) {
  const f=cameraFrame(state,aspect),lens=lensUniforms(state),origin=Array.from(f.slice(0,3));
+ if(f[15]>.5){for(let i=0;i<3;i++)origin[i]+=f[4+i]*(2*u-1)*f[7]*aspect+f[8+i]*(1-2*v)*f[7];return {origin,direction:Array.from(f.slice(12,15))};}
  let direction=norm([0,1,2].map(i=>f[12+i]+f[4+i]*(2*u-1)*f[7]*aspect+f[8+i]*(1-2*v)*f[7]));
  if(lens[2]>0){const radius=Math.sqrt(diskU)*lens[2],angle=2*Math.PI*diskV,axial=direction.reduce((s,x,i)=>s+x*f[12+i],0),focus=origin.map((x,i)=>x+direction[i]*lens[1]/axial);
   for(let i=0;i<3;i++)origin[i]+=radius*(Math.cos(angle)*f[4+i]+Math.sin(angle)*f[8+i]);direction=norm(focus.map((x,i)=>x-origin[i]));}

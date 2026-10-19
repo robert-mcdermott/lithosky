@@ -1,8 +1,8 @@
 {
-  "sourceHash": "cbc6346d144dfa0542843c2b93d3d7efba4f99f295965714df7890d48c2210d9",
+  "sourceHash": "feaa1d4d2ea75736ae417ab50c3be3641ad2cc8bf858a58f67f410bcde10954c",
   "sceneSHA256": "3c8f8a60405cded7ef2b3d4d1cf0718877edb9aaba37c077d0e729dc0e82554c",
-  "studioSHA256": "271bb935defbf485c196556928712d4425482a326b8b2c7502e350c3e7ec5114",
-  "capturedAt": "2026-10-19T05:32:57.661Z",
+  "studioSHA256": "1247ce45799a3a6146063611a5f83a5ee2053a0daef9a5a8d3489e22fb8991d6",
+  "capturedAt": "2026-10-19T06:32:50.655Z",
   "workflow": {
     "addFourShapes": true,
     "numeric": true,
@@ -45,12 +45,12 @@
       "count": 32,
       "bytes": 1824768,
       "milliseconds": [
-        4.8999998569488525,
-        10.5,
-        2.6000001430511475,
-        2.3999998569488525,
-        3.4000000953674316,
-        2.8999998569488525
+        2.5,
+        7.299999952316284,
+        1.2999999523162842,
+        1.2999999523162842,
+        1.4000000953674316,
+        1.4000000953674316
       ]
     },
     "rays": 1024,
@@ -435,7 +435,7 @@
       "height": 540,
       "samples": 64,
       "detail": 128,
-      "milliseconds": 12385,
+      "milliseconds": 7120,
       "sha256": "ad5a524422b1846a70748c7bd8f9db9fd7cad6cdfdbc0e34737e78dc1b59ce96"
     },
     {
@@ -1156,7 +1156,7 @@
       "height": 540,
       "samples": 64,
       "detail": 128,
-      "milliseconds": 8923,
+      "milliseconds": 7662,
       "sha256": "1fda2dcdd5f44fc7904bf249a6b124cbc4cac4c3e58631f41f5e246e4bc9455c"
     }
   ],

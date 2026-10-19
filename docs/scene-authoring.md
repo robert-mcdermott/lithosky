@@ -43,7 +43,7 @@ the Objects list to select occluded lights. Guides never enter PNG export.
 The active camera always remains visible and outside groups. Its lock protects
 saved camera navigation and lens edits. Move/rotate/scale handles, primitives, multi-selection and clipboard operations
 are available in [slice 8 object tools](object-tools.md). Additional editor cameras
-remain slice 9 work. This foundation does not present proxy geometry as a rendered object.
+are available in [composition workspace](composition-workspace.md). This foundation does not present proxy geometry as a rendered object.
 
 Every authored command uses validation and the shared Undo history. A lock is
 enforced at the command boundary, including keyboard navigation, sculpt commits,
@@ -104,3 +104,7 @@ Set `PLAYWRIGHT_CLI` to an installed CLI or the documented wrapper. Rebuild the
 isolated app first. The capture checks embedded asset hashes, workflow/GPU
 results, scene/image hashes and an Undo round trip. Site generation rejects stale
 or mismatched evidence. Captures are serial GPU runs, not parallel benchmarks.
+
+The [composition workspace](composition-workspace.md) adds separate editor views,
+frame selection, camera snapshots, object finishes, terrain paint and blank templates
+in v13, completing the local manual composition loop.

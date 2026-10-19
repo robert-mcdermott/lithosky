@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {validateComposition} from './composition.js';
 import {worldMatrix,identityTransform,transformDefaults,validateSpatial,inverse,multiply,decompose} from './spatial.js';
 // V11 owns component data once. Legacy control views are temporary adapters.
 export const MAX_ENTITIES=64,MAX_DEPTH=8;
@@ -34,14 +35,14 @@ export function validateEntities(scene) {
  if(nodes.filter(n=>kindOf(n)==='light').length>4)throw Error('At most four area lights are supported.');
  const env=nodes.find(n=>kindOf(n)==='environment').components.environment;if(nodes.some(n=>kindOf(n)==='light')&&!env.lighting.transport)throw Error('Area lights require studio lighting.');
  for(const n of nodes){const seen=new Set([n.id]);let parent=n.parent,depth=0;while(parent){const p=map.get(parent);if(!p||kindOf(p)!=='group'||seen.has(parent))throw Error('Invalid or cyclic entity parent.');if(++depth>MAX_DEPTH)throw Error('Group nesting exceeds eight levels.');seen.add(parent);parent=p.parent;}if(kindOf(n)==='camera'&&(!n.visible||n.parent))throw Error('The active camera must remain visible and outside groups.');}
- if(scene.version===12)validateSpatial(scene);
+ if(scene.version>=12)validateSpatial(scene);if(scene.version>=13)validateComposition(scene);
 }
 export function assertUnlocked(before,after) {
  if(!before.entities)return;
  const previous=new Map(before.entities.map(n=>[n.id,n])),next=new Map(after.entities.map(n=>[n.id,n]));
  const parents=(map,n)=>{const path=[];for(let depth=0;n?.parent&&depth<=MAX_DEPTH;depth++){path.push(n.parent);n=map.get(n.parent);}return path;};
  for(const n of before.entities){if(!entityState(before,n.id).locked)continue;const other=next.get(n.id);if(!other)throw Error(n.name+' is locked. Unlock it before editing.');
-  const comparable=structuredClone(other);if(before.version<12&&after.version===12&&kindOf(n)==='group'&&!n.components.transform&&identityTransform(comparable.components.transform))delete comparable.components.transform;
+  const comparable=structuredClone(other);if(before.version<12&&after.version>=12&&kindOf(n)==='group'&&!n.components.transform&&identityTransform(comparable.components.transform))delete comparable.components.transform;
   const ownUnlock=n.locked&&!entityState(before,n.parent).locked&&same({...n,locked:false},comparable);
   if((!ownUnlock&&!same(n,comparable))||!same(parents(previous,n),parents(next,other))||!same(worldMatrix(before,n.id),worldMatrix(after,n.id)))throw Error(n.name+' is locked. Unlock it before editing.');
  }
@@ -64,14 +65,14 @@ export function editScene(scene,change) {
 // Commands mutate a transaction candidate; the caller validates before publish.
 export function entityCommand(scene,command,id,value,newId=newID()) {
  const graph=entityScene(scene),before=structuredClone(graph),n=graph.entities.find(n=>n.id===id);
- if(command==='add-group'){if(graph.entities.length>=MAX_ENTITIES)throw Error('Entity limit reached.');graph.entities.push(node(newId,'New group',graph.version===12?{group:{},transform:transformDefaults()}:{group:{}}));}
+ if(command==='add-group'){if(graph.entities.length>=MAX_ENTITIES)throw Error('Entity limit reached.');graph.entities.push(node(newId,'New group',graph.version>=12?{group:{},transform:transformDefaults()}:{group:{}}));}
  else {
   if(!n)throw Error('Choose an object first.');const kind=kindOf(n);
   if(command==='rename'){n.name=value.trim();if(!n.name)throw Error('Enter an object name.');}
   else if(command==='visible'){if(kind==='camera')throw Error('The active camera is always used.');n.visible=value;}
   else if(command==='locked')n.locked=value;
-  else if(command==='parent'){const world=scene.version===12&&n.components.transform?worldMatrix(graph,id):null;if(kind==='camera')throw Error('The active camera cannot be grouped.');if(entityState(before,value).locked)throw Error('Unlock the destination group first.');n.parent=value;if(world)n.components.transform=decompose(multiply(inverse(worldMatrix(graph,value)),world));}
-  else if(command==='delete'){if(!['group','light','primitive'].includes(kind))throw Error('Hide core scene objects instead of deleting them.');for(const child of graph.entities)if(child.parent===id){const world=graph.version===12&&child.components.transform?worldMatrix(graph,child.id):null;child.parent=n.parent;if(world)child.components.transform=decompose(multiply(inverse(worldMatrix(graph,n.parent)),world));}graph.entities=graph.entities.filter(e=>e.id!==id);}
+  else if(command==='parent'){const world=scene.version>=12&&n.components.transform?worldMatrix(graph,id):null;if(kind==='camera')throw Error('The active camera cannot be grouped.');if(entityState(before,value).locked)throw Error('Unlock the destination group first.');n.parent=value;if(world)n.components.transform=decompose(multiply(inverse(worldMatrix(graph,value)),world));}
+  else if(command==='delete'){if(!['group','light','primitive'].includes(kind))throw Error('Hide core scene objects instead of deleting them.');for(const child of graph.entities)if(child.parent===id){const world=graph.version>=12&&child.components.transform?worldMatrix(graph,child.id):null;child.parent=n.parent;if(world)child.components.transform=decompose(multiply(inverse(worldMatrix(graph,n.parent)),world));}graph.entities=graph.entities.filter(e=>e.id!==id);}
   else if(command==='duplicate'){if(!['light','primitive'].includes(kind))throw Error('Use Duplicate selection for groups.');const copy=structuredClone(n);copy.id=newId;copy.name=(n.name+' copy').slice(0,40);graph.entities.push(copy);if(entityState(before,id).locked)throw Error(n.name+' is locked.');}
   else throw Error('Unknown scene command.');
  }

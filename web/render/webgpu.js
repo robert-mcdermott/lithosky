@@ -8,8 +8,9 @@ struct Vertex { @builtin(position) position: vec4f, @location(0) normal: vec3f, 
   let depth = dot(delta, camera.forward.xyz);
   var result: Vertex;
   // Near .05, far 1024 covers the extended camera range and bounded terrain.
-  result.position = vec4f(dot(delta, camera.right.xyz) / (camera.right.w * camera.eye.w), dot(delta, camera.up.xyz) / camera.right.w, 1024.0 / 1023.95 * depth - 51.2 / 1023.95, depth);
-  result.normal = normal; result.color = color; result.distance = length(delta);
+  if(camera.forward.w>.5){result.position=vec4f(dot(delta,camera.right.xyz)/(camera.right.w*camera.eye.w),dot(delta,camera.up.xyz)/camera.right.w,(depth-.05)/1023.95,1);}
+  else {result.position = vec4f(dot(delta, camera.right.xyz) / (camera.right.w * camera.eye.w), dot(delta, camera.up.xyz) / camera.right.w, 1024.0 / 1023.95 * depth - 51.2 / 1023.95, depth);}
+  result.normal = normal; result.color = color; result.distance = select(length(delta),0.0,camera.forward.w>.5);
   return result;
 }
 @fragment fn fragmentMain(v: Vertex) -> @location(0) vec4f {
@@ -71,7 +72,7 @@ export async function createWebGPU(canvas, onLost) {
         device.queue.writeBuffer(uniform, 0, values);
         const encoder = device.createCommandEncoder();
         const pass = encoder.beginRenderPass({ colorAttachments: [{ view: context.getCurrentTexture().createView(), clearValue: { r: values[20], g: values[21], b: values[22], a: 1 }, loadOp: 'clear', storeOp: 'store' }], depthStencilAttachment: { view: depth.createView(), depthClearValue: 1, depthLoadOp: 'clear', depthStoreOp: 'discard' } });
-        pass.setPipeline(pipeline); pass.setBindGroup(0, group); pass.setVertexBuffer(0, vertexBuffer); pass.draw(count);if(objectCount){pass.setVertexBuffer(0,objectBuffer);pass.draw(objectCount);} pass.end();
+        pass.setPipeline(pipeline); pass.setBindGroup(0, group); pass.setVertexBuffer(0, vertexBuffer); if(count)pass.draw(count);if(objectCount){pass.setVertexBuffer(0,objectBuffer);pass.draw(objectCount);} pass.end();
         device.queue.submit([encoder.finish()]);
       },
       dispose() { disposed = true; device.removeEventListener('uncapturederror', onError); vertexBuffer?.destroy();objectBuffer?.destroy(); uniform.destroy(); depth?.destroy(); context.unconfigure(); device.destroy(); },

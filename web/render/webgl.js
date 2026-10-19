@@ -10,8 +10,9 @@ out float vDistance;
 void main() {
   vec3 delta = position - eye.xyz;
   float depth = dot(delta, forwardVector.xyz);
-  gl_Position = vec4(dot(delta, rightVector.xyz)/(rightVector.w*eye.w), dot(delta, upVector.xyz)/rightVector.w, 1024.05/1023.95*depth - 102.4/1023.95, depth);
-  vNormal = normal; vColor = color; vDistance = length(delta);
+  if(forwardVector.w>0.5){gl_Position=vec4(dot(delta,rightVector.xyz)/(rightVector.w*eye.w),dot(delta,upVector.xyz)/rightVector.w,2.0*(depth-0.05)/1023.95-1.0,1.0);}
+  else {gl_Position = vec4(dot(delta, rightVector.xyz)/(rightVector.w*eye.w), dot(delta, upVector.xyz)/rightVector.w, 1024.05/1023.95*depth - 102.4/1023.95, depth);}
+  vNormal = normal; vColor = color; vDistance = forwardVector.w>0.5?0.0:length(delta);
 }`;
 const fragment = `#version 300 es
 precision highp float;
@@ -57,7 +58,7 @@ export function createWebGL(canvas, onLost) {
         gl.clearColor(values[20], values[21], values[22], 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.enable(gl.DEPTH_TEST); gl.useProgram(program); gl.bindVertexArray(vao);
         uniforms.forEach((location, i) => gl.uniform4fv(location, values.subarray(i * 4, i * 4 + 4)));
-        gl.drawArrays(gl.TRIANGLES, 0, count);if(objectCount){gl.bindVertexArray(objectVAO);gl.drawArrays(gl.TRIANGLES,0,objectCount);}
+        if(count)gl.drawArrays(gl.TRIANGLES, 0, count);if(objectCount){gl.bindVertexArray(objectVAO);gl.drawArrays(gl.TRIANGLES,0,objectCount);}
       },
       dispose() { disposed = true; canvas.removeEventListener('webglcontextlost', lost); gl.deleteBuffer(buffer);gl.deleteBuffer(objectBuffer);gl.deleteVertexArray(objectVAO); gl.deleteVertexArray(vao); gl.deleteProgram(program); gl.getExtension('WEBGL_lose_context')?.loseContext(); },
     };

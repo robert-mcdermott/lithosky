@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {paintWeights,blendPaint} from './masks.js';
 // Original world-space procedural surfaces. Values and derivatives mirror WGSL.
 export const geologyDefaults=()=>({model:'geology-v1',scale:1,strata:.65,fractures:.55,bump:.6,roughness:.7});
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
@@ -83,6 +84,7 @@ export function evaluateGeology(material,p,normal,footprint,seed=0,palette='natu
     const b=smooth(material.snowHeight-material.blend,material.snowHeight+material.blend,h)*(1-r);
     weights=[(1-r)*(1-a)*(1-b),r*(1-b),(1-r)*a*(1-b),b];
   } else weights[presets.indexOf(material.preset)]=1;
+  weights=blendPaint(weights,paintWeights(material.paint,p[0],p[2]));
   let color=[0,0,0];[soil,rock,sand,snow].forEach((c,j)=>{color=color.map((x,k)=>x+c[k]*weights[j]);});
   if(palette==='otherworld')color=[color[0]*1.12+color[2]*.15,color[1]*.62,color[2]*1.3+color[0]*.45];
   const gradient=[0,1,2].map(k=>factor*g.bump*(

@@ -4,7 +4,7 @@ import {transformDefaults,worldMatrix,multiply,inverse,decompose,compose,transla
 import {primitiveDefaults,SHAPES} from './primitives.js';
 import {fieldHeight} from './sculpt-view.js';
 const id=()=> 'entity-'+crypto.randomUUID().replaceAll('-','');
-export function authorScene(scene){const graph=entityScene(scene);graph.version=12;for(const n of graph.entities)if(kindOf(n)==='group')n.components.transform??=transformDefaults();return graph;}
+export function authorScene(scene){const graph=entityScene(scene);graph.version=Math.max(12,graph.version);for(const n of graph.entities)if(kindOf(n)==='group')n.components.transform??=transformDefaults();return graph;}
 export function descendants(scene,id){const ids=new Set([id]);for(let i=0;i<8;i++)for(const n of scene.entities)if(ids.has(n.parent))ids.add(n.id);return scene.entities.filter(n=>ids.has(n.id));}
 export function selectionRoots(scene,ids){const set=new Set(ids),map=new Map(scene.entities.map(n=>[n.id,n]));return [...set].map(id=>map.get(id)).filter(n=>n&&!function(){let p=map.get(n.parent);while(p){if(set.has(p.id))return true;p=map.get(p.parent);}return false;}());}
 export function transformable(scene,n){return !!n&&descendants(scene,n.id).every(e=>['primitive','group'].includes(kindOf(e)));}

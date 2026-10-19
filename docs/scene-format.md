@@ -342,3 +342,22 @@ mirroring, singular/oversized transforms and excessive geometry are rejected by
 both validators. Selection, handles, snapping, tool mode, clipboard and render
 regions remain workspace state. See [object tools](object-tools.md) for editing,
 rendering approximations, buffer budgets and supported/unsupported operations.
+
+## Version 13: composition authoring
+
+V13 extends the v12 graph; existing formats are unchanged. A required `bookmarks`
+array contains zero to eight `{id,name,camera}` snapshots using the existing camera
+schema. IDs are unique across bookmarks/entities; names cannot be blank. The single
+camera entity remains the active render camera. Applying a bookmark copies its
+snapshot; editor views and navigation are temporary UI state.
+
+Primitive components retain shape/color/roughness and may add `finish` with
+`preset` (solid/rock/snow/sand/ground), `scale` (0.25–8) and `detail` (0–1).
+Terrain `surface` may add `paint`: up to 32 `{material,radius,strength,points}`
+strokes, with 32 XZ points each and 512 total. Radius is 1–16 units, strength
+0.05–1, points lie in ±32, and material is rock/snow/sand/ground/erase. Paint
+requires geology. Continuous stroke masks replay deterministically to a derived
+64² RGBA float mask, bilinearly sampled for preview/final weights. No dense paint
+image enters the document, history or recovery. Existing document/entity/transform
+and portable heightmap limits remain in force. Unknown fields/finishes and malformed
+bookmarks/paint are rejected in both Go and JS.

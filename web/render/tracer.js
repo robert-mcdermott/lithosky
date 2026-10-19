@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import {paintMask} from '../material/masks.js';
 import {primitiveUniforms} from '../scene/primitives.js';
 import {FRAMES,LONG_EDGES,lensUniforms,pixelRegion} from '../camera/model.js';
 import {waterUniforms} from '../water/model.js';
@@ -24,7 +25,7 @@ export async function createTracer(state, options, preparedField = null) {
   if (['layers-v1','heightmap-v1'].includes(state.generator) && !preparedField) throw new Error('Generate the terrain before rendering.');
   const field=preparedField ?? createHeightfield(state),grid=fieldGrid(field),budget=finalBudget(grid);
   if(field.vertices.byteLength!==budget.verticesBytes||!Number.isFinite(field.low)||!Number.isFinite(field.high)||field.low>field.high)throw new Error('Invalid final terrain field.');
-  const constants={solidCount:state.primitives?.length??0,useHierarchy:options.traversal==='linear'?0:1,grid};
+  const constants={paintEnabled:!!state.materials?.paint?.length,solidCount:state.primitives?.length??0,useHierarchy:options.traversal==='linear'?0:1,grid};
   if (!navigator.gpu) throw new Error('Final rendering requires WebGPU. The scene can still be edited and saved.');
   const adapter=await navigator.gpu.requestAdapter();
   if (!adapter) throw new Error('No WebGPU adapter is available for final rendering.');
@@ -50,7 +51,8 @@ export async function createTracer(state, options, preparedField = null) {
     if(!waterSource.ok)throw new Error('Cannot load water shader.');
     const cameraSource=await fetch(new URL('../camera/camera.wgsl',import.meta.url));if(!cameraSource.ok)throw Error('Cannot load camera shader.');
     const solidSource=await fetch(new URL('./solids.wgsl',import.meta.url));if(!solidSource.ok)throw Error('Cannot load solid shader.');
-    const module=device.createShaderModule({code:await response.text()+'\n'+await atmosphereSource.text()+'\n'+await materialSource.text()+'\n'+await lightingSource.text()+'\n'+await waterSource.text()+'\n'+await cameraSource.text()+'\n'+await solidSource.text()});
+    const authoringSource=await fetch(new URL('../material/authoring.wgsl',import.meta.url));if(!authoringSource.ok)throw Error('Cannot load authored materials.');
+    const module=device.createShaderModule({code:await response.text()+'\n'+await atmosphereSource.text()+'\n'+await materialSource.text()+'\n'+await lightingSource.text()+'\n'+await waterSource.text()+'\n'+await cameraSource.text()+'\n'+await solidSource.text()+'\n'+await authoringSource.text()});
     const compilation=await module.getCompilationInfo();
     const errors=compilation.messages.filter(m=>m.type==='error');
     if (errors.length) throw new Error(errors.map(m=>m.message).join('; '));
@@ -87,7 +89,8 @@ export async function createTracer(state, options, preparedField = null) {
     device.queue.writeBuffer(skyBuffer,0,atmosphere.data);
     device.queue.writeBuffer(uniform,0,config);
     const solidData=primitiveUniforms(state.primitives),solidsBuffer=buffer(solidData.byteLength,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);device.queue.writeBuffer(solidsBuffer,0,solidData);
-    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[2,accumulation],[3,pixels],[4,invalid],[7,hierarchy],[8,skyBuffer],[9,lights],[10,solidsBuffer]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
+    const paintData=paintMask(state.materials?.paint),paintBuffer=buffer(paintData.byteLength,GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST);device.queue.writeBuffer(paintBuffer,0,paintData);
+    const group=device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:[[0,uniform],[1,vertices],[2,accumulation],[3,pixels],[4,invalid],[7,hierarchy],[8,skyBuffer],[9,lights],[10,solidsBuffer],[11,paintBuffer]].map(([binding,b])=>({binding,resource:{buffer:b}}))});
     const validation=await device.popErrorScope(); if (validation) throw new Error(validation.message);
     check();
     return {
@@ -128,14 +131,14 @@ export async function createTracer(state, options, preparedField = null) {
       async probe(rays, atmosphereTest=false) {
         if (running) throw new Error('Cannot probe during a render.');
         if (!rays.length || rays.length>4096) throw new Error('Invalid probe count.');
-        const solidTest=atmosphereTest==='solids',cameraTest=atmosphereTest==='camera',waterRayTest=atmosphereTest==='water-rays',waterTest=atmosphereTest==='water',shadowTest=atmosphereTest==='shadows',materialTest=atmosphereTest==='materials',transportTest=['transport','sampling'].includes(atmosphereTest),stride=(cameraTest||waterTest||materialTest||transportTest)?32:16;
-        const p=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:solidTest?'solidProbe':cameraTest?'cameraProbe':waterRayTest?'waterRayProbe':waterTest?'waterProbe':shadowTest?'shadowProbe':transportTest?(atmosphereTest==='sampling'?'transportSampleProbe':'transportProbe'):materialTest?'materialProbe':atmosphereTest?'atmosphereProbe':'probe',constants}});
+        const paintTest=atmosphereTest==='paint',objectMaterialTest=atmosphereTest==='object-materials',solidTest=atmosphereTest==='solids',cameraTest=atmosphereTest==='camera',waterRayTest=atmosphereTest==='water-rays',waterTest=atmosphereTest==='water',shadowTest=atmosphereTest==='shadows',materialTest=atmosphereTest==='materials',transportTest=['transport','sampling'].includes(atmosphereTest),stride=(objectMaterialTest||cameraTest||waterTest||materialTest||transportTest)?32:16;
+        const p=await device.createComputePipelineAsync({layout:'auto',compute:{module,entryPoint:paintTest?'paintProbe':objectMaterialTest?'objectMaterialProbe':solidTest?'solidProbe':cameraTest?'cameraProbe':waterRayTest?'waterRayProbe':waterTest?'waterProbe':shadowTest?'shadowProbe':transportTest?(atmosphereTest==='sampling'?'transportSampleProbe':'transportProbe'):materialTest?'materialProbe':atmosphereTest?'atmosphereProbe':'probe',constants}});
         const input=buffer(rays.length*32,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_DST);
         const output=buffer(rays.length*stride,GPUBufferUsage.STORAGE|GPUBufferUsage.COPY_SRC);
         const read=buffer(rays.length*stride,GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ);
         try {
           device.queue.writeBuffer(input,0,new Float32Array(rays.flatMap(({origin,direction})=>[...origin.slice(0,3),origin[3]??0,...direction,0])));
-          const group=device.createBindGroup({layout:p.getBindGroupLayout(0),entries:(solidTest?[[5,input],[6,output],[10,solidsBuffer]]:waterRayTest?[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy],[8,skyBuffer],[9,lights],[10,solidsBuffer]]:shadowTest?[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy],[9,lights],[10,solidsBuffer]]:(cameraTest||waterTest||materialTest||transportTest)?[[0,uniform],[5,input],[6,output]]:atmosphereTest?[[0,uniform],[5,input],[6,output],[8,skyBuffer]]:[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy],[10,solidsBuffer]]).map(([binding,b])=>({binding,resource:{buffer:b}}))});
+          const group=device.createBindGroup({layout:p.getBindGroupLayout(0),entries:(paintTest?[[5,input],[6,output],[11,paintBuffer]]:objectMaterialTest?[[0,uniform],[5,input],[6,output],[10,solidsBuffer],[11,paintBuffer]]:solidTest?[[5,input],[6,output],[10,solidsBuffer]]:waterRayTest?[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy],[8,skyBuffer],[9,lights],[10,solidsBuffer],[11,paintBuffer]]:shadowTest?[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy],[9,lights],[10,solidsBuffer]]:materialTest?[[0,uniform],[5,input],[6,output],[11,paintBuffer]]:(cameraTest||waterTest||transportTest)?[[0,uniform],[5,input],[6,output]]:atmosphereTest?[[0,uniform],[5,input],[6,output],[8,skyBuffer]]:[[0,uniform],[1,vertices],[5,input],[6,output],[7,hierarchy],[10,solidsBuffer]]).map(([binding,b])=>({binding,resource:{buffer:b}}))});
           const encoder=device.createCommandEncoder(), pass=encoder.beginComputePass();
           pass.setPipeline(p); pass.setBindGroup(0,group); pass.dispatchWorkgroups(Math.ceil(rays.length/64)); pass.end();
           encoder.copyBufferToBuffer(output,0,read,0,rays.length*stride); device.queue.submit([encoder.finish()]);

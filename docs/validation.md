@@ -1073,3 +1073,56 @@ with zero unexpected browser errors. The generated site validates four pages,
 download a scene and follow guide anchors with no overflow or browser errors.
 These checks validate the implemented tools and compatibility, not the open
 photographic-quality gate.
+
+## Wave 3 slice 9 — composition workspace
+
+Build `0.3.0-dev.9` adds v13 camera snapshot bookmarks, optional original object
+finishes and terrain paint strokes. Earlier scene schemas and models remain
+supported. Shared Go/JS fixtures cover malformed bookmarks, ID collisions,
+unsupported fields, paint budgets and the geology requirement. Portable imported
+heightmap and restart recovery tests preserve v13 metadata and complete samples.
+
+Independent projection tests verify orthographic rays, world-to-screen agreement
+and selected-bound framing across top/front/side and portrait/landscape views.
+The real browser workflow starts blank, adds/places geometry, assigns finishes,
+frames/navigates every editor view, saves/applies/replaces/removes camera snapshots,
+sculpts/paints/regenerates terrain and saves/reopens/recovers the result. Editor
+navigation leaves the document unchanged; Escape restores the raster projection.
+Painting cancellation preserves redo, and affected locks reject changes. Decoded
+PNG bytes match the rendered canvas with no guides. Finished images survive editor
+view changes. WebGL editing and 768/390/320 layouts pass without horizontal
+page overflow or unexpected browser errors.
+
+Actual GPU checks compare **1,024 paint samples** with CPU bilinear values;
+maximum channel error is about **7.43e-7**. All five finishes each compare 1,024
+GPU color/normal/roughness evaluations with the CPU definition. The largest
+observed error is about **6.62e-5** for rock. The derived 64² RGBA mask occupies
+**65,536 bytes** in a second uniform binding, within the tested device's limit;
+the final renderer retains eight storage bindings. Paint remains broad material
+weighting; procedural shading supplies smaller detail, not additional geometry.
+
+A 32-sphere raster stress case with rock finishes and feature scale 8 retains
+**1,824,768 bytes** of preview vertices. Six browser mesh rebuilds took about
+**4.4–6.4 ms**, excluding whole-frame work and GPU upload. Raster shading uses
+broad seeded color; full strata/fractures/grain and bump remain in traced live
+and final rendering. These are local Apple Metal 3 / Chrome 155 observations,
+not cross-device guarantees.
+
+The original Stone garden before/after uses identical geometry, camera and light,
+with assigned finishes and terrain paint enabled for the authored version. At
+960 × 540, 64 samples and 128² flat terrain, **198,575 pixels** change. The two
+exports took approximately **8.2 and 9.5 seconds** on the local device. The scene,
+images, source hashes, workspace screenshot and actual GPU/editor reports are
+recorded in `workspace-captures.json`. The scene is an imagined authoring study;
+it does not close the photographic landscape gate. Native Windows/Linux release
+validation remains open.
+
+Final checks pass: **241 JavaScript tests**, `go test -race ./...` and
+`go vet ./...`, including the standalone executable. All nine capture families
+have current source/scene/image records. Every pre-existing scene PNG remains
+byte-identical; three editor screenshots reflect the new controls. The renderer
+regression passes 1,024 legacy heightfield rays, PNG pixel equality, stale-export
+suppression, cancellation, device-loss recovery and WebGL fallback. The generated
+site checks four pages, 193 links and 34 images; desktop/mobile browser checks
+load every image, download a scene and follow guide anchors without overflow or
+unexpected errors.

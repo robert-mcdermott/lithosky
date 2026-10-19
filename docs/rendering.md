@@ -34,7 +34,7 @@ the requested resolution. The actual final cell/triangle count is shown after
 preparation. Generation resolution, final geometry detail, image dimensions and
 sample count are different controls. More samples do not create missing geometry.
 
-These choices are transient render settings; scene files support v1–v12. Draft
+These choices are transient render settings; scene files support v1–v13. Draft
 retains the previous mesh and shading. The new default can change the appearance
 of existing scenes without changing their saved parameters. A failed detailed job
 reports an error and allows retry at a lower tier; it never silently downgrades.
@@ -208,3 +208,11 @@ same solid traversal participates in primary, shadow, bounce and water rays.
 Raster previews use bounded tessellations and approximate lighting; live lighting
 uses the final solid/shadow kernels. Primitive records occupy at most 3 KiB and
 one extra storage binding, bringing the main renderer to eight storage bindings.
+
+Slice 9 adds original procedural primitive finishes and a 64² world-XZ terrain
+material mask. Authored surfaces evaluate color, filtered bump normals and roughness
+at every relevant hit, including secondary/water rays. A second 65,536-byte uniform
+binding stores derived paint weights; the eight-storage-binding budget is retained.
+Editor orthographic projection exists only in raster/picking/authoring helpers;
+final and live tracing always use the saved perspective render camera. See
+[composition workspace](composition-workspace.md) for paint limits and evidence.

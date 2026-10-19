@@ -9,7 +9,7 @@ export function materialControls(getScene,edit) {
     if(scene.terrain.generator==='layers-v1')scene.terrain.sculpt??=[];
   }));
   $('enable-geology').addEventListener('click',()=>edit(scene=>{scene.surface??=materialDefaults();scene.surface.geology=geologyDefaults();updateSceneVersion(scene);}));
-  $('disable-geology').addEventListener('click',()=>edit(scene=>{delete scene.surface.geology;updateSceneVersion(scene);}));
+  $('disable-geology').addEventListener('click',()=>edit(scene=>{delete scene.surface.geology;delete scene.surface.paint;updateSceneVersion(scene);}));
   const geologyKeys=['scale','strata','fractures','bump','roughness'];
   for(const key of geologyKeys)$('geology-'+key).addEventListener('change',()=>{
     const input=$('geology-'+key);if(input.value===''||!input.checkValidity()){sync();return;}

@@ -4,7 +4,7 @@ A local landscape studio for natural and imagined worlds. A single Go executable
 contains the frontend and backend and opens a desktop-style browser window with
 no address bar. Original code and procedural content are Apache-2.0 licensed.
 
-**Status: wave 3, slice 8 — add, place and transform.** Compose
+**Status: wave 3, slice 9 — composition workspace.** Compose
 seeded terrain with camera, water, light and palette controls; open/save versioned
 `.lithosky` scenes, undo/redo edits and recover local autosaves. Render a still
 with traced terrain, sun/sky lighting and lake absorption/reflection/refraction, then
@@ -71,13 +71,17 @@ The first authored object metadata command upgrades an old file to a v11 compone
 preserving its rendering models. IDs, groups and properties survive files and
 recovery. Add original primitives, place them in the view, use move/rotate/scale handles,
 snap, group, align, duplicate and copy/paste objects. Transform edits save as v12;
-see [object tools](docs/object-tools.md) for shortcuts, limits and original examples. See
+see [object tools](docs/object-tools.md) for shortcuts, limits and original examples.
+Choose separate perspective/top/front/side editor views, frame selection, save camera
+bookmarks, assign object finishes and paint terrain materials. Blank studio, Terrain
+canvas and Stone garden provide editable starting points. These edits save as v13;
+see [composition workspace](docs/composition-workspace.md). See
 [scene authoring](docs/scene-authoring.md).
 
 ## Terrain layers
 
 Format numbers below are minimum versions for individual capabilities. Scenes
-with authored object metadata save as v11 (v12 with primitives/transforms); other scenes retain their supported formats.
+with authored object metadata save as v11 (v12 with primitives/transforms; v13 with composition/material authoring); other scenes retain their supported formats.
 
 **Build with layers** creates a new landform from rolling hills (fBm), ridges,
 domain warp and terraces. Add, reorder, disable and tune up to eight layers;
@@ -148,7 +152,8 @@ schema, storage locations, keyboard shortcuts and failure behavior.
 
 ## Website and distribution
 
-Three original starters and three camera compositions are shared by the app and downloadable gallery.
+Three original starters, three camera compositions and three authoring templates are
+shared by the app and downloadable gallery.
 Choose **Start with a scene** on any screen size; the Quick guide explains camera
 controls and the path from a scene to a still.
 
@@ -156,9 +161,9 @@ controls and the path from a scene to a still.
 its links and capture provenance, and copies only public assets. `npm run site:serve`
 previews it locally. See [site workflow](docs/site/README.md) for capture and publishing.
 
-`go run ./tools/release --version 0.3.0-dev.8 --out dist/releases/0.3.0-dev.8`
+`go run ./tools/release --version 0.3.0-dev.9 --out dist/releases/0.3.0-dev.9`
 builds six archives with notices, starters, build metadata and checksums.
-Use `go run ./tools/release --verify dist/releases/0.3.0-dev.8` to check them.
+Use `go run ./tools/release --verify dist/releases/0.3.0-dev.9` to check them.
 See [packaging and release readiness](docs/releases.md); these commands do not publish.
 
 ## Development
