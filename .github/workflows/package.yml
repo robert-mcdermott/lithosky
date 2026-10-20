@@ -50,15 +50,8 @@ jobs:
           LITHOSKY_PACKAGE_VERSION: ${{ inputs.version }}
         run: go run ./tools/release --version "$LITHOSKY_PACKAGE_VERSION" --out dist/releases
       - run: go run ./tools/release --verify dist/releases
-      - run: npm run site
       - uses: actions/upload-artifact@v4
         with:
           name: lithosky-packages
           path: dist/releases/*
-          if-no-files-found: error
-      - uses: actions/upload-artifact@v4
-        with:
-          name: lithosky-product-site
-          path: dist/site/
-          include-hidden-files: true
           if-no-files-found: error

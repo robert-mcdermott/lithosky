@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.4.0-dev.3 — wave 4 slice 3 (local development)
+
+- The app is now a full-window, progressively path-traced view with a compact
+  panel. It has presets, terrain, sun and sky, lens and image controls; orbit, pan,
+  zoom and fly navigation; undo/redo; autosave and recovery; Open/Save; and PNG
+  export at up to 3840 px.
+- New renderer in `web/render/`. It uses one persistent WebGPU device and direct
+  heightfield tracing, and renders at half resolution while the camera moves.
+- Scenes reset to a clean version 1 format, defined once in
+  `internal/scene/schema.json` (3.9 KB, down from 272 KB); older scene files no
+  longer open.
+- Rock fracture and strata detail sharpen close slopes, and gullies now come and go
+  across slopes.
+- The legacy renderer, its form-based UI, the old scene versions and the old
+  product site are removed.
+
+## 0.4.0-dev.2 — wave 4 slice 2 (local development)
+
+- GPU stream-power drainage (depression filling, multiple-flow-direction area,
+  semi-implicit incision, talus) carves valley networks on the near tile and the
+  far field. Droplets add gullies and scree, and heightmap import feeds the same
+  pipeline.
+
+## 0.4.0-dev.1 — wave 4 slice 1 (local development)
+
+- A rendering spike proved GPU erosion and direct heightfield path tracing about
+  13x faster than the legacy renderer. Hero-shot benchmark and baseline added.
+
 ## 0.3.0-dev.9 — wave 3 slice 9 (local development)
 
 - Add separate perspective/top/front/side editor views and frame selection, with

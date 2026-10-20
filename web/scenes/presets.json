@@ -1,0 +1,289 @@
+[
+  {
+    "id": "H1",
+    "name": "Alpine lake, golden hour",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "id": "H2",
+    "name": "Snow peaks",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Snow peaks",
+      "terrain": {
+        "seed": 5521,
+        "relief": 4200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          5200,
+          3600,
+          9800
+        ],
+        "target": [
+          0,
+          1600,
+          -1500
+        ],
+        "focalLength": 35
+      },
+      "sun": {
+        "elevation": 32,
+        "azimuth": 200
+      },
+      "atmosphere": {
+        "haze": 0.8,
+        "fog": 0
+      },
+      "image": {
+        "exposure": -0.4,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "id": "H3",
+    "name": "Misty valley at dawn",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Misty valley at dawn",
+      "terrain": {
+        "seed": 3307,
+        "relief": 2600,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          620,
+          7200
+        ],
+        "target": [
+          0,
+          320,
+          0
+        ],
+        "focalLength": 40
+      },
+      "sun": {
+        "elevation": 2,
+        "azimuth": 80
+      },
+      "atmosphere": {
+        "haze": 2.5,
+        "fog": 2.5
+      },
+      "image": {
+        "exposure": 2.2,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "id": "H4",
+    "name": "Canyon at sunset",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Canyon at sunset",
+      "terrain": {
+        "seed": 7741,
+        "relief": 1800,
+        "drainage": 2.5,
+        "rills": 1.5,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          -3200,
+          1700,
+          2400
+        ],
+        "target": [
+          800,
+          500,
+          -2200
+        ],
+        "focalLength": 28
+      },
+      "sun": {
+        "elevation": 4,
+        "azimuth": 255
+      },
+      "atmosphere": {
+        "haze": 1.2,
+        "fog": 0.2
+      },
+      "image": {
+        "exposure": 1.6,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "id": "H5",
+    "name": "Stormy shore",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Stormy shore",
+      "terrain": {
+        "seed": 6203,
+        "relief": 2200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          330,
+          6600
+        ],
+        "target": [
+          0,
+          260,
+          0
+        ],
+        "focalLength": 24
+      },
+      "sun": {
+        "elevation": 9,
+        "azimuth": 240
+      },
+      "atmosphere": {
+        "haze": 4,
+        "fog": 1.5
+      },
+      "image": {
+        "exposure": 0.6,
+        "look": "none"
+      }
+    }
+  },
+  {
+    "id": "H6",
+    "name": "High massif",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "High massif",
+      "terrain": {
+        "seed": 4242,
+        "relief": 6000,
+        "drainage": 1.5,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          8500,
+          3400,
+          8500
+        ],
+        "target": [
+          0,
+          2200,
+          0
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 14,
+        "azimuth": 300
+      },
+      "atmosphere": {
+        "haze": 3,
+        "fog": 0.8
+      },
+      "image": {
+        "exposure": 1.2,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "id": "overview",
+    "name": "Overview",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Overview",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          9620,
+          12210
+        ],
+        "target": [
+          0,
+          900,
+          0
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 39.4,
+        "azimuth": 249
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.3
+      },
+      "image": {
+        "exposure": -0.5,
+        "look": "punchy"
+      }
+    }
+  }
+]

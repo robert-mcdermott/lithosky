@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Imports a 16-bit grayscale PNG heightmap (or a Lithosky .heightmap bundle) through the
-// local server, which validates and decodes it, and returns normalized samples for
+// local server, which validates, decodes and stores it. Scenes reference the stored copy by
+// { asset, resolution }; loadHeightmap() reads it back as normalized samples for
 // Terrain.setHeightmap().
 
 const SIZES = [129, 257, 513, 1025, 2049];
@@ -69,12 +70,19 @@ export async function importHeightmap(file) {
     throw new Error((await imported.text()).trim() || 'The heightmap could not be imported.');
   }
   const { asset, scale: stored } = await imported.json();
-  const response = await fetch(`/api/heightmaps/${asset}`, { headers: { 'X-Lithosky-Session': token } });
+  const reference = { asset, resolution: stored.resolution };
+  return { reference, ...(await loadHeightmap(reference, token)) };
+}
+
+// Reads a stored heightmap: { size, samples } with samples in 0..1.
+export async function loadHeightmap({ asset, resolution }, token = null) {
+  const session = token ?? await sessionToken();
+  const response = await fetch(`/api/heightmaps/${asset}`, { headers: { 'X-Lithosky-Session': session } });
   if (!response.ok) {
-    throw new Error('The imported heightmap could not be read back.');
+    throw new Error('The heightmap is missing or damaged. Reopen the saved scene file.');
   }
   const samples = normalizeSamples(new Uint8Array(await response.arrayBuffer()));
-  const side = stored.resolution + 1;
+  const side = resolution + 1;
   if (samples.length !== side * side) {
     throw new Error('Heightmap sample count does not match its size.');
   }

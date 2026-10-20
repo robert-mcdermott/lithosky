@@ -105,8 +105,10 @@ fn alpineHeight(world: vec2f, shape: TerrainShape) -> f32 {
     let coarse = rangeHeight(domain.p, domain.q, max(LANDFORM_WAVELENGTH, shape.finestWavelength), shape);
     let detail = (full - coarse) * (1.0 - 0.75 * centre.y);
     let worn = gullies(world, gradient, GULLY_WAVELENGTH, GULLY_AMPLITUDE, shape.finestWavelength, shape.seed);
+    // Gullies come and go across a slope instead of combing all of it evenly.
+    let gullyCover = smoothstep(-0.25, 0.45, fbm(world / 2400.0 + vec2f(31.0, 17.0), 3u, shape.seed + 41u));
 
-    let height = centre.x + detail * 0.6 + worn.height;
+    let height = centre.x + detail * 0.6 + worn.height * (0.25 + 1.1 * gullyCover);
     let fromCamera = world - shape.curvatureOrigin;
     return height - dot(fromCamera, fromCamera) / (2.0 * EARTH_RADIUS_M);
 }

@@ -3,9 +3,9 @@ Copyright 2026 Lithosky contributors
 
 Licensed under the Apache License, Version 2.0.
 
-Third-party code adapted in web/spike/ (rendering spike):
+Third-party code adapted in Lithosky:
 
-web/spike/wgsl/display/agx.wgsl
+web/wgsl/display/agx.wgsl
   AgX tone mapping ported from three.js r170,
   src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js.
   Copyright 2010-2024 three.js authors. MIT License:
@@ -44,3 +44,9 @@ Algorithms implemented from their publications (no code copied):
     Revisited", JCGT 6(1), 2017.
   - Droplet erosion: H. T. Beyer, "Implementation of a method for hydraulic
     erosion", 2015.
+  - Depression filling: O. Planchon and F. Darboux, "A fast, simple and
+    versatile algorithm to fill the depressions of digital elevation models",
+    Catena 46, 2001.
+  - Stream-power incision: J. Braun and S. D. Willett, "A very efficient O(n),
+    implicit and parallel method to solve the stream power equation governing
+    fluvial incision and landscape evolution", Geomorphology 180-181, 2013.

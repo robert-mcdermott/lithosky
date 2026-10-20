@@ -4,21 +4,23 @@ These six fixed compositions are the benchmark every slice is judged against (se
 [the roadmap](../../ROADMAP.md#hero-shots)). Tests prove correctness; these images
 prove progress.
 
-| File | Shot | Aim |
+| Preset | Shot | Aim |
 |---|---|---|
-| `H1-alpine-lake-golden-hour.lithosky` | Alpine lake, golden hour | Eroded peaks, warm rim light, blue shadowed valleys, a near-mirror lake, layered haze |
-| `H2-snow-peaks-cumulus.lithosky` | Snow peaks under cumulus | Snow in hollows and on lee slopes, bare rock on ridges, cumulus and cloud shadows |
-| `H3-misty-valley-dawn.lithosky` | Misty valley at dawn | Ridgelines fading into low fog, light shafts, a soft pastel sky |
-| `H4-desert-canyon-sunset.lithosky` | Desert canyon at sunset | Stratified rock, talus, sand in washes, warm bounce light in the shadows |
-| `H5-stormy-coast.lithosky` | Stormy coast | Storm towers with a low sun breaking through, wet rock, rough water |
-| `H6-imagined-world.lithosky` | Imagined world | An alien palette with coherent light, a second sun or a ringed planet |
+| `H1` | Alpine lake, golden hour | Eroded peaks, warm rim light, blue shadowed valleys, a near-mirror lake, layered haze |
+| `H2` | Snow peaks under cumulus | Snow in hollows and on lee slopes, bare rock on ridges, cumulus and cloud shadows |
+| `H3` | Misty valley at dawn | Ridgelines fading into low fog, light shafts, a soft pastel sky |
+| `H4` | Desert canyon at sunset | Stratified rock, talus, sand in washes, warm bounce light in the shadows |
+| `H5` | Stormy coast | Storm towers with a low sun breaking through, wet rock, rough water |
+| `H6` | Imagined world | An alien palette with coherent light, a second sun or a ringed planet |
 
-The current files are v10 scenes for the legacy renderer. Their terrain and cameras come
-from the curated Wave 3 studies, and sun, haze and surfaces are set toward each shot. The
-legacy renderer has no clouds, fog volumes or erosion, so H2, H3 and H5 can only
-approximate their aims. When W4.S3 replaces the renderer, re-author each shot in the new
-scene format with the same intent. Keep each shot's composition stable after that, so
+The shots are the `H1`–`H6` entries in [web/scenes/presets.json](../../web/scenes/presets.json),
+so they also appear in the app under **Start from**. Some aims (clouds, oceans, desert and
+alien materials) wait for later slices. Keep each shot's composition stable so
 side-by-sides stay comparable.
+
+The W4.S1 baseline was rendered with the legacy renderer. Those images (in
+`bench/out/baseline-legacy/`) and their scores in [scores.md](scores.md) are the "before"
+picture.
 
 ## Rendering
 
@@ -27,23 +29,25 @@ go build -o bin/lithosky . && ./bin/lithosky --window=browser --no-open --port 8
 ```
 
 ```bash
-node bench/hero.mjs --url http://127.0.0.1:8123 --label baseline-legacy
+node bench/hero.mjs --url http://127.0.0.1:8123 --label w4s3
 ```
+
+Each shot renders through the app's own export path at 1920 × 1080:
 
 | Option | Effect |
 |---|---|
-| (default) | 2048 px long edge, 64 spp, 1024² terrain; about a minute per shot with the legacy renderer |
-| `--quick` | 960 px, 16 spp, 512² terrain, for framing |
-| `--only H1,H3` | Render a subset |
+| `--samples N` | Sets samples per pixel (default 256) |
+| `--only H1,H3` | Renders a subset |
 
 Output goes to the git-ignored `bench/out/<label>/`: one PNG per shot, `contact-sheet.png`
-and `timings.json`. The harness needs Playwright and Chrome.
+and `timings.json`. `node bench/compare.mjs --before <dir> --after <dir>` stacks two runs.
+The scripts need Playwright and Chrome.
 
 ## Review
 
 At the end of each image slice:
 
-1. Render with the slice's label, for example `--label w4s2`.
+1. Render with the slice's label, for example `--label w4s3`.
 2. Compare its contact sheet with the previous slice's.
 3. Have the owner score every shot from 1 to 5 on the criteria below.
 4. Record the scores in [scores.md](scores.md).

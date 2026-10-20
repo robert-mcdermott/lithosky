@@ -31,7 +31,10 @@ fn shadePoint(position: vec3f, field: u32, depth: f32) -> SurfacePoint {
         coarsest = 2.0 * fields.far.spacing;
     }
     let rockiness = saturate(point.land.slope * 4.0);
-    let detail = detailGradient(position.xz, pixelFootprint(depth), coarsest, 0.4 + 0.8 * rockiness);
+    let footprint = pixelFootprint(depth);
+    let snowless = 1.0 - smoothstep(0.75, 0.85, point.albedo.g);
+    var detail = detailGradient(position.xz, footprint, coarsest, 0.4 + 0.8 * rockiness);
+    detail += rockDetailGradient(position, gradient, footprint, rockiness * snowless);
     point.normal = normalize(vec3f(-gradient.x - detail.x, 1.0, -gradient.y - detail.y));
     return point;
 }

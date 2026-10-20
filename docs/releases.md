@@ -1,16 +1,17 @@
 # Packaging and release readiness
 
-Wave 1 targets v0.1.0; wave 2 targets v0.2.0; wave 3 targets v0.3.0. The current source is
-`0.3.0-dev.4`; there is no release tag or publication implied by completing implementation. Packages are unsigned and
-not notarized. The generated website describes development capabilities only.
+Nothing has been released. Wave 4 is tagged v0.4.0 when it completes but is not
+published. The first public release is First Light (v0.5.0) at the end of Wave 5, as
+the [roadmap](../ROADMAP.md) describes. The current source is `0.4.0-dev.3`. Packages
+are unsigned and not notarized.
 
 ## Local packages
 
 From the repository root, with Go 1.26+ installed:
 
 ```sh
-go run ./tools/release --version 0.3.0-dev.4 --out dist/releases/0.3.0-dev.4
-go run ./tools/release --verify dist/releases/0.3.0-dev.4
+go run ./tools/release --version 0.4.0-dev.3 --out dist/releases/0.4.0-dev.3
+go run ./tools/release --verify dist/releases/0.4.0-dev.3
 ```
 
 The destination must not exist. Use a fresh directory for a second build. The
@@ -54,29 +55,25 @@ browser or GPU.
 
 The Check workflow runs on macOS, Windows and Linux. The manual **Package
 development or release candidate** workflow requires all three native smoke jobs
-and JavaScript/site tests before creating archives and a generated-site artifact.
+and the JavaScript tests before creating archives.
 It retains native smoke JSON reports. Uploads are CI artifacts for review, not
-GitHub Releases or website deployment. No workflow has been run remotely by this
-local task; native Windows/Linux results are pending.
+GitHub Releases. Native Windows/Linux results are pending.
 
 ## Remaining release gates
 
-Before tagging v0.1.0, record evidence for the actual release commit:
+Before tagging the first public release, record evidence for the actual release commit:
 
 - Green native CI smoke on macOS, Windows and Linux, with its workflow run ID.
 - Extract the matching archive on a clean user profile on each OS with a compatible
   browser installed. Launch its real app window; verify no address bar, correct
   close behavior, and temporary-profile cleanup.
-- Select each starter, orbit/zoom/reset, save/open, edit/undo and recover after an
-  interrupted session. Render and export a PNG; test cancellation and WebGL preview
-  fallback. Record OS, architecture, browser, GPU, dimensions and sample count.
+- Select each preset, orbit/pan/zoom, save/open, edit/undo and recover after an
+  interrupted session. Export a PNG. Record OS, architecture, browser, GPU,
+  dimensions and sample count.
 - Run archive verification and review all license notices. Confirm no private
   research, local recovery files, credentials or unrelated assets are included.
-- Build/preview the site and confirm capabilities, screenshots, versions and
-  download links match the release. Only then create the release/tag and publish
-  the reviewed site as separate authorized actions.
+- Rebuild the product site from real renders (W5.S4), then create the release and tag
+  as separate authorized actions.
 
-Local macOS and cross-build evidence is in [validation](validation.md). Native
-Windows/Linux acceptance is still open. Wave 2 and wave 3 development were explicitly
-requested; it does not close those pending release checks. Broader hardware testing and
-signing remain documented distribution limits.
+Native Windows/Linux acceptance is still open. Broader hardware testing and signing
+remain documented distribution limits.

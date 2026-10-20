@@ -3,8 +3,8 @@
 Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
 previous Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 in progress. W4.S1 and W4.S2 are complete; W4.S3 (the new
-tracer becomes the viewport) is next.
+**Status:** Wave 4 in progress. W4.S1–S3 are complete; W4.S4 (sky, atmosphere
+and light) is next.
 
 ## North star
 
@@ -205,7 +205,15 @@ Tasks:
 
 ### W4.S3: The spike's tracer becomes the viewport
 
-Tasks:
+**Done.** The app is now a full-window progressive render with a compact panel,
+built on `web/render/` and a clean version 1 scene format whose schema the server
+and browser share. The legacy renderer, its UI, old scene versions, the old site
+and `web/spike/` are removed. Exports render H1–H6 at 1920 × 1080 in 3–6 s at 96
+samples. Rock fracture and strata detail sharpen close slopes. The viewport
+denoiser, sky importance sampling and blue-noise sampling moved to W4.S4. The W3
+primitives return with the object tools in W5.S3.
+
+Original plan, for reference:
 
 - **Replace the renderer.** Move the spike's tracer into `web/render/` as the
   studio viewport and final renderer. Delete the old tracer, the triangle
@@ -242,6 +250,11 @@ The spike already has the Hillaire LUTs, height fog with terrain-shadowed
 in-scattering, and AgX.
 
 Tasks:
+
+- **Sampling and noise (moved from W4.S3).**
+  - an edge-aware à-trous viewport denoiser (albedo, normal and depth guides)
+  - importance-sampled sky
+  - blue-noise or low-discrepancy sequences
 
 - **Correct haze everywhere.** Bounce rays and reflections use the
   aerial-perspective LUT at the hit point. This replaces the camera-altitude

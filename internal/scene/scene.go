@@ -44,6 +44,7 @@ var schema = func() Rule {
 	return r
 }()
 
+// Validate checks a version 1 scene against the embedded schema and returns it re-encoded.
 func Validate(data []byte) ([]byte, error) {
 	if len(data) > MaxBytes {
 		return nil, errors.New("scene exceeds 128 KiB")
@@ -55,32 +56,15 @@ func Validate(data []byte) ([]byte, error) {
 	if err := json.Unmarshal(data, &value); err != nil {
 		return nil, errors.New("invalid scene JSON")
 	}
-	if object, ok := value.(map[string]any); ok && object["version"] != float64(1) && object["version"] != float64(2) && object["version"] != float64(3) && object["version"] != float64(4) && object["version"] != float64(5) && object["version"] != float64(6) && object["version"] != float64(7) && object["version"] != float64(8) && object["version"] != float64(9) && object["version"] != float64(10) && object["version"] != float64(11) && object["version"] != float64(12) && object["version"] != float64(13) {
-		return nil, errors.New("unsupported scene version; this build opens versions 1–13")
+	if object, ok := value.(map[string]any); ok && object["format"] == "lithosky" && object["version"] != float64(1) {
+		return nil, errors.New("unsupported scene version; this build opens version 1")
 	}
 	if err := validate(value, schema, "scene"); err != nil {
 		return nil, err
 	}
-	obj := value.(map[string]any)
-	if obj["version"].(float64) >= 11 {
-		if err := validateEntities(obj); err != nil {
-			return nil, err
-		}
-	}
-	view := componentView(obj)
-	if view["terrain"].(map[string]any)["generator"] == "heightmap-v1" {
-		t := view["terrain"].(map[string]any)
-		if !heightmap.ValidHash(t["asset"].(string)) || t["minimum"].(float64) > t["maximum"].(float64) {
-			return nil, errors.New("invalid heightmap reference or range")
-		}
-	}
-	if view["atmosphere"] != nil {
-		a := view["atmosphere"].(map[string]any)
-		year := int(a["year"].(float64))
-		leap := year%4 == 0 && (year%100 != 0 || year%400 == 0)
-		if a["day"] == float64(366) && !leap {
-			return nil, errors.New("day 366 requires a leap year")
-		}
+	terrain := value.(map[string]any)["terrain"].(map[string]any)
+	if reference, ok := terrain["heightmap"].(map[string]any); ok && !heightmap.ValidHash(reference["asset"].(string)) {
+		return nil, errors.New("invalid heightmap reference")
 	}
 	return json.Marshal(value)
 }
@@ -169,21 +153,17 @@ func validate(value any, rule Rule, path string) error {
 
 func Equal(a, b []byte) bool { return bytes.Equal(a, b) }
 
+// AssetInfo returns the heightmap asset a scene references and its resolution, if any.
 func AssetInfo(data []byte) (string, int) {
-	type terrainInfo struct {
-		Asset      string
-		Resolution int
-	}
 	var doc struct {
-		Terrain  terrainInfo
-		Entities []struct{ Components struct{ Terrain terrainInfo } }
-	}
-	_ = json.Unmarshal(data, &doc)
-	for _, n := range doc.Entities {
-		if n.Components.Terrain.Asset != "" {
-			return n.Components.Terrain.Asset, n.Components.Terrain.Resolution
+		Terrain struct {
+			Heightmap struct {
+				Asset      string
+				Resolution int
+			}
 		}
 	}
-	return doc.Terrain.Asset, doc.Terrain.Resolution
+	_ = json.Unmarshal(data, &doc)
+	return doc.Terrain.Heightmap.Asset, doc.Terrain.Heightmap.Resolution
 }
 func Asset(data []byte) string { id, _ := AssetInfo(data); return id }

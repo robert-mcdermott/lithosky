@@ -110,3 +110,28 @@ fn detailGradient(world: vec2f, footprint: f32, coarsest: f32, strength: f32) ->
     }
     return gradient;
 }
+
+// Rock relief below the heightfield's resolution: ridged fracture creases plus strata ledges
+// that steepen and flatten the slope along contour lines. Octaves finer than a few pixels fade.
+fn rockDetailGradient(world: vec3f, slopeGradient: vec2f, footprint: f32, strength: f32) -> vec2f {
+    var gradient = vec2f(0.0);
+    var wavelength = 28.0;
+    var amplitude = 2.6 * strength;
+    for (var octave = 0u; octave < 6u; octave++) {
+        let fade = smoothstep(2.0 * footprint, 6.0 * footprint, wavelength);
+        if (fade <= 0.0) {
+            break;
+        }
+        // Ridged noise: |n| has creases where n crosses zero.
+        let n = gradientNoise(world.xz / wavelength, 701u + octave);
+        gradient += sign(n.x) * n.yz * (amplitude / wavelength) * fade;
+        wavelength *= 0.45;
+        amplitude *= 0.42;
+    }
+    let layer = 8.0 + 4.0 * fbm(world.xz / 450.0, 2u, 733u);
+    let strataFade = smoothstep(1.5 * footprint, 5.0 * footprint, layer);
+    let phase = world.y / layer + 1.5 * fbm(world.xz / 220.0, 2u, 739u);
+    gradient += slopeGradient * cos(phase * TWO_PI) * 0.45 * strength * strataFade;
+    return gradient;
+}
+

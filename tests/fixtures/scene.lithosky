@@ -1,0 +1,37 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Alpine lake, golden hour",
+  "terrain": {
+    "seed": 1847,
+    "relief": 3200,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      860,
+      6000
+    ],
+    "target": [
+      0,
+      180,
+      3800
+    ],
+    "focalLength": 21
+  },
+  "sun": {
+    "elevation": 6,
+    "azimuth": 314
+  },
+  "atmosphere": {
+    "haze": 1.6,
+    "fog": 0.5
+  },
+  "image": {
+    "exposure": 1.8,
+    "look": "punchy"
+  }
+}
