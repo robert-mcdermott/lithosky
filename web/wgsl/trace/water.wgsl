@@ -33,22 +33,28 @@ fn rippleGradient(world: vec2f, footprint: f32) -> vec2f {
     return gradient;
 }
 
-// Haze over a reflected path, fading toward the sky behind the reflected point.
-fn hazeOver(radiance: vec3f, direction: vec3f, origin: vec3f, span: f32) -> vec3f {
-    let medium = sampleMedium(origin.y * 0.001);
-    let transmittance = exp(-medium.extinction * span * 0.001);
-    return radiance * transmittance + skyRadiance(direction) * (1.0 - transmittance);
+// Haze along a reflected path, from the aerial-perspective LUT. A calm mirror shows the
+// reflected scene as if seen straight through the water plane, so the air between the
+// water and the reflected point is the camera ray's air between `waterDepth` and
+// `waterDepth + span`.
+fn hazeOver(radiance: vec3f, viewDirection: vec3f, waterDepth: f32, span: f32) -> vec3f {
+    let atWater = aerialPerspective(viewDirection, waterDepth);
+    let beyond = aerialPerspective(viewDirection, waterDepth + span);
+    let toWater = max(atWater.transmittance, vec3f(1e-4));
+    let transmittance = saturate(beyond.transmittance / toWater);
+    let luminance = max(beyond.luminance - atWater.luminance, vec3f(0.0)) / toWater;
+    return radiance * transmittance + luminance;
 }
 
-fn reflectionRadiance(origin: vec3f, direction: vec3f, travelled: f32) -> vec3f {
+fn reflectionRadiance(origin: vec3f, direction: vec3f, viewDirection: vec3f, waterDepth: f32) -> vec3f {
     let hit = traceScene(origin, direction, MAX_DISTANCE, BOUNCE_EFFORT);
     if (hit.field == FIELD_NONE) {
         return limitLuminance(skyRadiance(direction) + sunDisk(direction), REFLECTION_LIMIT);
     }
-    let point = shadePoint(origin + direction * hit.t, hit.field, travelled + hit.t);
+    let point = shadePoint(origin + direction * hit.t, hit.field, waterDepth + hit.t);
     let skyLight = skyRadiance(normalize(point.normal + vec3f(0.0, 1.0, 0.0))) * 0.8;
-    let lit = directSun(point, travelled + hit.t) + point.albedo * skyLight;
-    return hazeOver(lit, direction, origin, hit.t);
+    let lit = directSun(point, waterDepth + hit.t) + point.albedo * skyLight;
+    return hazeOver(lit, viewDirection, waterDepth, hit.t);
 }
 
 fn shadeWater(position: vec3f, direction: vec3f, depth: f32) -> vec3f {
@@ -59,7 +65,7 @@ fn shadeWater(position: vec3f, direction: vec3f, depth: f32) -> vec3f {
     var reflected = reflect(direction, normal);
     reflected.y = abs(reflected.y);
     let lifted = position + vec3f(0.0, 0.05, 0.0);
-    let mirror = reflectionRadiance(lifted, reflected, depth);
+    let mirror = reflectionRadiance(lifted, reflected, direction, depth);
 
     let shadow = traceScene(lifted, frame.sunDirection, SHADOW_DISTANCE, SHADOW_EFFORT);
     let sunVisible = select(0.0, 1.0, shadow.field == FIELD_NONE && shadow.t != TRACE_EXHAUSTED);

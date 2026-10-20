@@ -187,8 +187,34 @@
           "type": "string",
           "enum": [
             "none",
-            "punchy"
+            "punchy",
+            "cinematic",
+            "soft",
+            "mono"
           ]
+        },
+        "autoExposure": {
+          "type": "boolean"
+        },
+        "bloom": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "warmth": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "vignette": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "grain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         }
       }
     }

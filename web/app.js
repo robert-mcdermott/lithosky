@@ -6,10 +6,10 @@
 import { advance, distanceToTarget, dolly, orbit, pan, tanHalfFov } from './render/camera.js';
 import { Renderer, VIEW_MODES } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { defaultScene, validateScene } from './scene/document.js';
+import { defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
 import { History } from './scene/history.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
-import { button, choice, element, section, slider } from './ui/controls.js';
+import { button, choice, element, section, slider, toggle } from './ui/controls.js';
 
 const $ = id => document.getElementById(id);
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
@@ -82,7 +82,12 @@ async function start() {
     fetchJson('/api/session'),
   ]);
   token = session.token;
-  const validate = scene => validateScene(scene, schema);
+  // Every scene in history carries the full set of image settings.
+  const validate = scene => {
+    const valid = validateScene(scene, schema);
+    valid.image = imageSettingsOf(valid);
+    return valid;
+  };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
   const canvas = $('view');
   const renderer = await Renderer.create(canvas, history.value);
@@ -229,18 +234,31 @@ async function start() {
   );
 
   const imageSection = section('Image');
-  const look = choice({ label: 'Look', options: [['punchy', 'Rich'], ['none', 'Natural']] }, value => edit(draft => {
+  const look = choice({
+    label: 'Look',
+    options: [['punchy', 'Rich'], ['none', 'Natural'], ['cinematic', 'Cinematic'], ['soft', 'Soft'], ['mono', 'Black & white']],
+  }, value => edit(draft => {
     draft.image.look = value;
   }));
   bindings.push(scene => look.set(scene.image.look));
+  const autoExposure = toggle({ label: 'Auto exposure' }, checked => edit(draft => {
+    draft.image.autoExposure = checked;
+  }));
+  bindings.push(scene => autoExposure.set(scene.image.autoExposure));
   const show = choice({
     label: 'Show',
     options: [['image', 'Image'], ['albedo', 'Colour'], ['flow', 'Drainage'], ['sediment', 'Sediment'],
       ['curvature', 'Curvature'], ['normals', 'Normals']],
   }, value => renderer.setViewMode(VIEW_MODES[value]));
+  const amount = value => `${Math.round(value * 100)}%`;
   imageSection.body.append(
-    sliderFor({ path: 'image.exposure', label: 'Exposure', min: -4, max: 4, step: 0.1, live: true, format: v => `${v.toFixed(1)} EV` }),
     look.node,
+    autoExposure.node,
+    sliderFor({ path: 'image.exposure', label: 'Exposure', min: -4, max: 4, step: 0.1, live: true, format: v => `${v > 0 ? '+' : ''}${v.toFixed(1)} EV` }),
+    sliderFor({ path: 'image.warmth', label: 'Warmth', min: -1, max: 1, step: 0.02, live: true, format: v => `${v > 0 ? '+' : ''}${Math.round(v * 100)}` }),
+    sliderFor({ path: 'image.bloom', label: 'Glow', min: 0, max: 1, step: 0.01, live: true, format: amount }),
+    sliderFor({ path: 'image.vignette', label: 'Vignette', min: 0, max: 1, step: 0.01, live: true, format: amount }),
+    sliderFor({ path: 'image.grain', label: 'Grain', min: 0, max: 1, step: 0.01, live: true, format: amount }),
     show.node,
   );
 

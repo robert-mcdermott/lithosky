@@ -53,7 +53,7 @@ fn fogScatter(origin: vec3f, direction: vec3f, depth: f32) -> FogSample {
         return result;
     }
     let transmittance = exp(-total);
-    let opticalDepth = -log(1.0 - random1() * (1.0 - transmittance));
+    let opticalDepth = -log(1.0 - sample2().x * (1.0 - transmittance));
     let t = min(fogDistanceAt(origin, direction, opticalDepth), depth);
     let position = origin + direction * t;
 

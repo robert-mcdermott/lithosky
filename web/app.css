@@ -185,13 +185,22 @@ button.primary {
 
 .control {
   display: grid;
-  grid-template-columns: 5.8rem 1fr 3.6rem;
+  grid-template-columns: 6.6rem 1fr 3.4rem;
   align-items: center;
   gap: 0.5rem;
 }
 
 .control-choice {
-  grid-template-columns: 5.8rem 1fr;
+  grid-template-columns: 6.6rem 1fr;
+}
+
+.control-toggle {
+  grid-template-columns: 6.6rem auto;
+  justify-content: start;
+}
+
+.control-toggle input {
+  accent-color: var(--accent);
 }
 
 .control-name {

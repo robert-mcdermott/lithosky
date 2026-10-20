@@ -25,7 +25,8 @@ Everything visual runs in WebGPU on one persistent device:
 | `web/render/renderer.js` | The frame loop: terrain build stages, sky LUTs, tracing and display |
 | `web/render/tracer.js` | The progressive path tracer: one full-frame sample per dispatch into a GPU accumulation buffer |
 | `web/render/sky.js` | Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and aerial perspective |
-| `web/render/display.js` | Exposure, AgX tone mapping and sRGB; stretches a smaller render to the canvas; PNG capture |
+| `web/render/post.js` | GPU post passes: resolve, an edge-aware à-trous denoiser guided by first-hit albedo, normal and distance, six-level bloom, and an auto-exposure meter |
+| `web/render/display.js` | Exposure (metered or manual), white balance, looks (AgX, ACES, soft, mono), vignette, grain and sRGB; stretches a smaller render to the canvas; PNG capture |
 | `web/render/camera.js` | Camera basis, orbit, pan, dolly and sun direction |
 | `web/wgsl/` | All shaders, joined by a small `#include` step (`web/gpu/device.js`) |
 

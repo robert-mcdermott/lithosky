@@ -11,7 +11,8 @@ Highlights:
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
   and talus.
 - **Rendering.** The path-traced view fills the window and refines in about a second.
-- **Light.** A physical sky with aerial perspective and AgX tone mapping.
+- **Light.** A physical sky with aerial perspective.
+- **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
 
 Clouds, landform-driven materials and the full studio come in later slices. Nothing has
 been released yet.
@@ -52,7 +53,8 @@ The panel holds:
 - terrain: seed, relief, drainage, gullies, scree, Erode more, heightmap import
 - sun and sky: sun height and direction, haze, valley fog
 - lens
-- exposure, look, and debug views of the drainage and landform masks
+- image: look, auto exposure, exposure, warmth, glow, vignette, grain, and debug views of
+  the drainage and landform masks
 
 **Export image** renders a PNG at up to 3840 px. **Save** writes a `.lithosky` scene.
 

@@ -45,7 +45,7 @@ fn surfaceOffset(point: SurfacePoint, depth: f32) -> vec3f {
 }
 
 fn directSun(point: SurfacePoint, depth: f32) -> vec3f {
-    let direction = sampleCone(frame.sunDirection, frame.sunCosRadius, random2());
+    let direction = sampleCone(frame.sunDirection, frame.sunCosRadius, sample2());
     let cosine = dot(point.normal, direction);
     if (cosine <= 0.0) {
         return vec3f(0.0);

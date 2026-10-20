@@ -1,16 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
-// Presents the accumulation buffer with exposure and AgX, and captures it as PNG.
-// The rendered image may be smaller than the output; it is stretched to fill it.
+// Presents the post-processed HDR image (bloom, exposure, white balance, look, vignette,
+// grain) and captures it as PNG. The rendered image may be smaller than the output; it is
+// stretched to fill it.
 
 import { bindGroup, shaderModule, uniformBuffer } from '../gpu/device.js';
 import { StructWriter } from '../gpu/struct.js';
+import { BLOOM_LEVELS } from './post.js';
 
 const CAPTURE_FORMAT = 'rgba8unorm';
 
-export const LOOKS = Object.freeze({ none: 0, punchy: 1 });
+export const LOOKS = Object.freeze({ none: 0, punchy: 1, cinematic: 2, soft: 3, mono: 4 });
 
-// Scene radiance is relative to a sun illuminance of 1; this maps EV 0 to a bright day.
+// Scene radiance is relative to a sun illuminance of 1; this maps manual EV 0 to a bright day.
 const EXPOSURE_SCALE = 12;
+const BLOOM_SCALE = 0.08;
+const GRAIN_SEED = 7;
 
 export class Display {
   static async create(device, context, format) {
@@ -30,29 +34,32 @@ export class Display {
     this.device = device;
     this.context = context;
     this.pipelines = pipelines;
-    this.uniform = uniformBuffer(device, 'display', 32);
-    this.accumulation = null;
+    this.uniform = uniformBuffer(device, 'display', 48);
+    this.resources = null;
     this.groups = null;
   }
 
-  bind(accumulation) {
-    if (accumulation === this.accumulation) {
+  // `resources` come from Post.run(); `post` supplies the sampler and exposure meter.
+  bind(resources, post) {
+    if (resources === this.resources) {
       return;
     }
-    this.accumulation = accumulation;
+    this.resources = resources;
+    const entries = [this.uniform, resources.hdr.createView(), resources.bloom.createView(), post.sampler, post.exposure];
     this.groups = {
-      screen: bindGroup(this.device, this.pipelines.screen, [this.uniform, accumulation]),
-      capture: bindGroup(this.device, this.pipelines.capture, [this.uniform, accumulation]),
+      screen: bindGroup(this.device, this.pipelines.screen, entries),
+      capture: bindGroup(this.device, this.pipelines.capture, entries),
     };
   }
 
-  // `image` is { exposure, look, viewMode }; sizes are [width, height] in pixels.
-  write(image, renderSize, outputSize) {
-    const exposure = EXPOSURE_SCALE * Math.pow(2, image.exposure);
-    const writer = new StructWriter(32)
-      .u32(...outputSize, ...renderSize)
-      .f32(exposure)
-      .u32(image.viewMode ?? 0, LOOKS[image.look] ?? 0, 0);
+  // `image` holds the scene's image settings plus `viewMode`; outputSize is [width, height].
+  write(image, outputSize) {
+    const scale = image.autoExposure ? 1 : EXPOSURE_SCALE;
+    const writer = new StructWriter(48)
+      .u32(...outputSize, image.viewMode ?? 0, LOOKS[image.look] ?? 0)
+      .f32(scale * Math.pow(2, image.exposure)).u32(image.autoExposure ? 1 : 0)
+      .f32(image.bloom * BLOOM_SCALE, image.warmth, image.vignette, image.grain)
+      .u32(GRAIN_SEED).f32(BLOOM_LEVELS);
     this.device.queue.writeBuffer(this.uniform, 0, writer.buffer);
   }
 
@@ -66,18 +73,18 @@ export class Display {
     pass.end();
   }
 
-  present(image, renderSize) {
+  present(image) {
     const texture = this.context.getCurrentTexture();
-    this.write(image, renderSize, [texture.width, texture.height]);
+    this.write(image, [texture.width, texture.height]);
     const encoder = this.device.createCommandEncoder({ label: 'present' });
     this.encodeDraw(encoder, this.pipelines.screen, this.groups.screen, texture.createView());
     this.device.queue.submit([encoder.finish()]);
   }
 
-  // Renders the image at its rendered size into a texture and returns a PNG blob.
+  // Renders the image at `size` into a texture and returns a PNG blob.
   async capture(image, size) {
     const [width, height] = size;
-    this.write(image, size, size);
+    this.write(image, size);
     const device = this.device;
     const texture = device.createTexture({
       size: [width, height],

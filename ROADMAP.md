@@ -3,8 +3,8 @@
 Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
 previous Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 in progress. W4.S1–S3 are complete; W4.S4 (sky, atmosphere
-and light) is next.
+**Status:** Wave 4 in progress. W4.S1–S4 are complete; W4.S5 (volumetric
+clouds) is next.
 
 ## North star
 
@@ -246,10 +246,31 @@ Original plan, for reference:
 
 ### W4.S4: Sky, atmosphere and light
 
-The spike already has the Hillaire LUTs, height fog with terrain-shadowed
-in-scattering, and AgX.
+**Done.** `web/render/post.js` runs four post stages on the GPU:
 
-Tasks:
+- **Resolve** turns the accumulated sums into averages plus denoise guides.
+- **Denoise** runs four edge-aware à-trous passes (albedo, normal, distance and
+  variance-scaled luminance stops), blended away as samples accumulate.
+- **Bloom** is six levels deep.
+- **Meter** measures a centre-weighted mean for auto-exposure.
+
+The display adds exposure compensation, warmth, vignette, grain and five looks:
+AgX natural and rich, ACES cinematic, soft, and black & white. Path decisions use
+an 8-dimensional R-sequence. Water reflections take their haze from the
+aerial-perspective LUT. The presets are retuned, and H1 and H3 now show depth
+layering with lit shadows. The sun disk already had limb darkening.
+
+Changed from the plan:
+
+- Sky importance sampling was dropped. Cosine bounces plus the denoiser already
+  converge cleanly, and the sun is sampled directly.
+- The moon moves to the night-and-weather work.
+- Artistic sky tint moves to the Wave 5 studio controls.
+
+Writing denoise guides costs about 8–25% more per sample. In exchange, a
+16-sample denoised view looks like a raw 128-sample one.
+
+Original plan, for reference:
 
 - **Sampling and noise (moved from W4.S3).**
   - an edge-aware à-trous viewport denoiser (albedo, normal and depth guides)

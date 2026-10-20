@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0-dev.4 — wave 4 slice 4 (local development)
+
+- A post pipeline on the GPU:
+  - an edge-aware à-trous denoiser guided by first-hit albedo, normal and distance,
+    which fades out as samples accumulate
+  - six-level bloom, so the sun and bright haze glow
+  - centre-weighted auto-exposure that eases between frames
+- Image controls: auto exposure, exposure compensation, warmth, glow, vignette,
+  grain, and Rich, Natural, Cinematic (ACES), Soft and Black & white looks.
+- Path decisions use an 8-dimensional R-sequence for less noise per sample.
+- Water reflections take their haze from the aerial-perspective LUT.
+- Presets retuned for metered exposure. The golden-hour and dawn foregrounds are no
+  longer murky.
+
 ## 0.4.0-dev.3 — wave 4 slice 3 (local development)
 
 - The app is now a full-window, progressively path-traced view with a compact

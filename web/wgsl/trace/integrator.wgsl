@@ -27,6 +27,15 @@
 @group(0) @binding(11) var aerialTransmittance: texture_3d<f32>;
 @group(0) @binding(12) var skySampler: sampler;
 @group(0) @binding(13) var<storage, read_write> accumulation: array<vec4f>;
+// Two vec4 per pixel, summed like the radiance: (first-hit albedo, luminance squared) and
+// (first-hit normal, first-hit distance). The denoiser reads them as edge-stopping guides.
+@group(0) @binding(14) var<storage, read_write> guides: array<vec4f>;
+
+const SKY_DEPTH: f32 = 300000.0;
+
+var<private> firstAlbedo: vec3f;
+var<private> firstNormal: vec3f;
+var<private> firstDepth: f32;
 
 const VIEW_IMAGE: u32 = 0u;
 const VIEW_ALBEDO: u32 = 1u;
@@ -70,6 +79,9 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
                 if (frame.viewMode != VIEW_IMAGE) {
                     return vec3f(0.1, 0.25, 0.45);
                 }
+                firstAlbedo = vec3f(1.0);
+                firstNormal = vec3f(0.0, 1.0, 0.0);
+                firstDepth = water;
                 let aerial = aerialPerspective(rayDirection, water);
                 let fog = fogScatter(rayOrigin, rayDirection, water);
                 let surface = shadeWater(rayOrigin + rayDirection * water, rayDirection, water);
@@ -78,6 +90,9 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
         }
         if (hit.field == FIELD_NONE) {
             if (bounce == 0u) {
+                firstAlbedo = vec3f(1.0);
+                firstNormal = -rayDirection;
+                firstDepth = SKY_DEPTH;
                 let sky = skyRadiance(rayDirection) + sunDisk(rayDirection);
                 let fog = fogScatter(rayOrigin, rayDirection, MAX_DISTANCE);
                 radiance += sky * fog.transmittance + fog.inscatter;
@@ -89,6 +104,9 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
         let position = rayOrigin + rayDirection * hit.t;
         let point = shadePoint(position, hit.field, hit.t);
         if (bounce == 0u) {
+            firstAlbedo = point.albedo;
+            firstNormal = point.normal;
+            firstDepth = hit.t;
             if (frame.viewMode != VIEW_IMAGE) {
                 return debugColour(point);
             }
@@ -106,7 +124,7 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
             break;
         }
         rayOrigin = surfaceOffset(point, hit.t);
-        rayDirection = cosineHemisphere(point.normal, random2());
+        rayDirection = cosineHemisphere(point.normal, sample2());
         throughput *= point.albedo;
     }
     return radiance;
@@ -118,6 +136,9 @@ fn render(@builtin(global_invocation_id) id: vec3u) {
         return;
     }
     seedRandom(id.xy, frame.sampleIndex, frame.seed);
+    firstAlbedo = vec3f(1.0);
+    firstNormal = vec3f(0.0, 1.0, 0.0);
+    firstDepth = SKY_DEPTH;
     let pixel = vec2f(id.xy) + pixelJitter(id.xy, frame.sampleIndex);
     let resolution = vec2f(f32(frame.width), f32(frame.height));
     let ndc = vec2f(pixel.x / resolution.x * 2.0 - 1.0, 1.0 - pixel.y / resolution.y * 2.0);
@@ -126,9 +147,16 @@ fn render(@builtin(global_invocation_id) id: vec3u) {
         radiance = vec3f(0.0);
     }
     let index = id.y * frame.width + id.x;
+    let luminance = dot(radiance, vec3f(0.2126, 0.7152, 0.0722));
+    let albedoGuide = vec4f(firstAlbedo, luminance * luminance);
+    let normalGuide = vec4f(firstNormal, firstDepth);
     if (frame.sampleIndex == 0u) {
         accumulation[index] = vec4f(radiance, 1.0);
+        guides[index * 2u] = albedoGuide;
+        guides[index * 2u + 1u] = normalGuide;
     } else {
         accumulation[index] += vec4f(radiance, 1.0);
+        guides[index * 2u] += albedoGuide;
+        guides[index * 2u + 1u] += normalGuide;
     }
 }

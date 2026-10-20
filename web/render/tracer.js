@@ -21,6 +21,7 @@ export class Tracer {
     this.fieldsBuffer = uniformBuffer(device, 'fields', 64);
     this.capacity = 0;
     this.accumulation = null;
+    this.guides = null;
     this.width = 1;
     this.height = 1;
     this.group = null;
@@ -32,8 +33,10 @@ export class Tracer {
       return false;
     }
     this.accumulation?.destroy();
+    this.guides?.destroy();
     this.capacity = pixels;
     this.accumulation = storageBuffer(this.device, 'accumulation', pixels * 16);
+    this.guides = storageBuffer(this.device, 'denoise guides', pixels * 32);
     this.createGroup();
     return true;
   }
@@ -73,6 +76,7 @@ export class Tracer {
       sky.aerialTransmittance.createView(),
       sky.sampler,
       this.accumulation,
+      this.guides,
     ], 'tracer');
   }
 

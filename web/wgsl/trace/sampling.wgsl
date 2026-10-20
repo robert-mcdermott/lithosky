@@ -5,9 +5,36 @@
 #include "common/hash.wgsl"
 
 var<private> randomState: vec4u;
+var<private> pixelKey: vec2u;
+var<private> sampleNumber: u32;
+var<private> dimension: u32;
+
+// R_8 sequence (Roberts, "The Unreasonable Effectiveness of Quasirandom Sequences", 2018):
+// component j of point n is frac(n * alpha_j), alpha_j = phi_8^-(j+1), in 0.32 fixed point.
+// Each path decision takes the next pair of components, so the decisions stay jointly
+// well spread instead of being shifted copies of one sequence.
+const SEQUENCE_ALPHAS = array<u32, 8>(
+    3958238938u, 3647910312u, 3361911662u, 3098335500u,
+    2855423889u, 2631556713u, 2425240877u, 2235100342u,
+);
 
 fn seedRandom(pixel: vec2u, sampleIndex: u32, seed: u32) {
     randomState = vec4u(pixel, sampleIndex, seed * 0x01000193u);
+    pixelKey = pixel;
+    sampleNumber = sampleIndex;
+    dimension = 0u;
+}
+
+// The next two quasirandom numbers for this path, with a per-pixel random rotation so
+// neighbouring pixels decorrelate. After four pairs it falls back to white noise.
+fn sample2() -> vec2f {
+    if (dimension >= 8u) {
+        return random2();
+    }
+    let rotation = pcg3d(vec3u(pixelKey, dimension * 0x9E3779B9u + 0x632BE5ABu)).xy;
+    let value = vec2u(sampleNumber * SEQUENCE_ALPHAS[dimension], sampleNumber * SEQUENCE_ALPHAS[dimension + 1u]);
+    dimension += 2u;
+    return unitFloat2(value + rotation);
 }
 
 fn random2() -> vec2f {

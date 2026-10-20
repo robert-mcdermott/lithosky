@@ -74,6 +74,22 @@ export function choice(spec, onChange) {
   };
 }
 
+// spec: { label }. Returns { node, set(checked) }.
+export function toggle(spec, onChange) {
+  const row = element('label', 'control control-toggle');
+  const name = element('span', 'control-name', spec.label);
+  const box = element('input');
+  box.type = 'checkbox';
+  box.addEventListener('change', () => onChange(box.checked));
+  row.append(name, box);
+  return {
+    node: row,
+    set(checked) {
+      box.checked = Boolean(checked);
+    },
+  };
+}
+
 export function button(label, action, className = 'button') {
   const node = element('button', className, label);
   node.type = 'button';

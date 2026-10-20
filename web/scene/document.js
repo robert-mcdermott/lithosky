@@ -64,6 +64,12 @@ function check(value, rule, path) {
       }
       break;
     }
+    case 'boolean': {
+      if (typeof value !== 'boolean') {
+        fail('expected true or false');
+      }
+      break;
+    }
     default:
       fail('unsupported schema rule');
   }
@@ -90,6 +96,19 @@ export function validateScene(value, schema) {
   return structuredClone(value);
 }
 
+// Image settings older scenes may omit, and their defaults.
+export const IMAGE_DEFAULTS = Object.freeze({
+  autoExposure: true,
+  bloom: 0.3,
+  warmth: 0,
+  vignette: 0.25,
+  grain: 0.12,
+});
+
+export function imageSettingsOf(scene) {
+  return { ...IMAGE_DEFAULTS, ...scene.image };
+}
+
 export function terrainSettingsOf(scene) {
   const { seed, relief, drainage, rills, talus } = scene.terrain;
   return terrainSettings({ seed, relief, drainage, rills, talus });
@@ -105,6 +124,6 @@ export function defaultScene() {
     camera: { position: [0, 860, 6000], target: [0, 180, 3800], focalLength: 21 },
     sun: { elevation: 6, azimuth: 314 },
     atmosphere: { haze: 1.6, fog: 0.5 },
-    image: { exposure: 1.8, look: 'punchy' },
+    image: { exposure: 0, look: 'punchy', ...IMAGE_DEFAULTS },
   };
 }

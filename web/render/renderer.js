@@ -5,11 +5,12 @@
 
 import { createDevice } from '../gpu/device.js';
 import { PLACEMENT } from '../terrain/placement.js';
-import { terrainSettingsOf } from '../scene/document.js';
+import { imageSettingsOf, terrainSettingsOf } from '../scene/document.js';
 import { sameTerrain } from '../terrain/settings.js';
 import { Terrain } from '../terrain/terrain.js';
 import { cameraFrame, sunDirection } from './camera.js';
 import { Display } from './display.js';
+import { Post } from './post.js';
 import { SUN_ANGULAR_RADIUS, Sky } from './sky.js';
 import { Tracer } from './tracer.js';
 
@@ -51,13 +52,14 @@ export class Renderer {
     const format = navigator.gpu.getPreferredCanvasFormat();
     context.configure({ device, format, alphaMode: 'opaque' });
     const settings = terrainSettingsOf(scene);
-    const [terrain, tracer, display] = await Promise.all([
+    const [terrain, tracer, display, post] = await Promise.all([
       Terrain.create(device, PLACEMENT, settings),
       Tracer.create(device),
       Display.create(device, context, format),
+      Post.create(device),
     ]);
     const sky = await Sky.create(device, tracer.frameBuffer);
-    return new Renderer({ adapter, device, canvas, terrain, tracer, sky, display }, scene);
+    return new Renderer({ adapter, device, canvas, terrain, tracer, sky, display, post }, scene);
   }
 
   constructor(parts, scene) {
@@ -197,7 +199,7 @@ export class Renderer {
   }
 
   image() {
-    return { ...this.scene.image, viewMode: this.viewMode };
+    return { ...imageSettingsOf(this.scene), viewMode: this.viewMode };
   }
 
   rebuildSky(view) {
@@ -250,7 +252,6 @@ export class Renderer {
       this.tracer.setSize(...size);
       this.resetAccumulation();
     }
-    this.display.bind(this.tracer.accumulation);
     if (this.terrain.busy) {
       for (let i = 0; i < TERRAIN_STAGES_PER_FRAME; i++) {
         this.terrain.step();
@@ -275,7 +276,8 @@ export class Renderer {
       this.tracer.sample(view, this.sampleIndex);
       this.sampleIndex++;
     }
-    this.display.present(this.image(), size);
+    this.display.bind(this.post.run(this.tracer, this.sampleIndex), this.post);
+    this.display.present(this.image());
     this.trackCompletion(size);
   }
 
@@ -311,7 +313,6 @@ export class Renderer {
       const output = this.outputSize();
       const size = sizeForLongEdge(output[0] / output[1], longEdge);
       this.tracer.setSize(...size);
-      this.display.bind(this.tracer.accumulation);
       const view = this.view(size[0] / size[1]);
       this.rebuildSky(view);
       for (let index = 0; index < samples; index++) {
@@ -321,7 +322,10 @@ export class Renderer {
           onProgress((index + 1) / samples);
         }
       }
-      return await this.display.capture(this.image(), size);
+      this.display.bind(this.post.run(this.tracer, samples, { meterBlend: 1 }), this.post);
+      const blob = await this.display.capture(this.image(), size);
+      this.post.release(...size);
+      return blob;
     } finally {
       this.paused = false;
       this.skyDirty = true;
