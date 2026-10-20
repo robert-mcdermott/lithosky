@@ -15,7 +15,7 @@ import (
 func New(assets fs.FS, authority, version string, persistence ...*Persistence) http.Handler {
 	files := http.FileServer(http.FS(assets))
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "DENY")
 		w.Header().Set("Referrer-Policy", "no-referrer")
@@ -51,7 +51,7 @@ func New(assets fs.FS, authority, version string, persistence ...*Persistence) h
 		if r.URL.Path == "/api/info" {
 			w.Header().Set("Content-Type", "application/json")
 			if r.Method == http.MethodGet {
-				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 4 · Slice 6", "network": "local only"})
+				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 5 · Slice 1", "network": "local only"})
 			}
 			return
 		}

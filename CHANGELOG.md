@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.0-dev.1 — wave 5 slice 1 (local development)
+
+- A new studio layout: the image fills the window, with a thin top bar and a rail of
+  seven labs: Scenes, Terrain, Light, Sky, Ground & water, Camera and Image. One drawer
+  opens at a time, with a gallery first, then a few controls; rarely used options are
+  folded under Advanced.
+- Galleries are rendered by the real renderer:
+  - Light (time of day), Sky (clouds), Ground (biomes), Camera (lenses) and Image
+    (looks) show the current view with each choice applied
+  - they render in the background without disturbing the view's refinement
+  - Scenes shows thumbnails rendered through the export path
+- Top bar: the title, undo and redo, a File menu (New scene, Open, Save), a help
+  popover and the Render button. Render picks size and quality, then saves a PNG.
+- Keyboard: 1–7 open labs, Esc closes the drawer, H hides the interface.
+- Restyled controls:
+  - each value sits above a full-width slider, rounded and with units
+  - switches replace checkboxes
+- Exports and thumbnails no longer disturb the view's exposure.
+
 ## 0.4.0-dev.6 — wave 4 slice 6 (local development)
 
 - Terrain materials placed by the landform (erosion and exposure masks):

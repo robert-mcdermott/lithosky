@@ -72,7 +72,7 @@ Before tagging the first public release, record evidence for the actual release 
   dimensions and sample count.
 - Run archive verification and review all license notices. Confirm no private
   research, local recovery files, credentials or unrelated assets are included.
-- Rebuild the product site from real renders (W5.S4), then create the release and tag
+- Rebuild the product site from real renders (W5.S5), then create the release and tag
   as separate authorized actions.
 
 Native Windows/Linux acceptance is still open. Broader hardware testing and signing

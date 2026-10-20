@@ -82,7 +82,7 @@ export class Display {
   }
 
   // Renders the image at `size` into a texture and returns a PNG blob.
-  async capture(image, size) {
+  async capture(image, size, { type = 'image/png', quality } = {}) {
     const [width, height] = size;
     this.write(image, size);
     const device = this.device;
@@ -112,6 +112,6 @@ export class Display {
     texture.destroy();
     const canvas = new OffscreenCanvas(width, height);
     canvas.getContext('2d').putImageData(new ImageData(pixels, width, height), 0, 0);
-    return canvas.convertToBlob({ type: 'image/png' });
+    return canvas.convertToBlob({ type, quality });
   }
 }

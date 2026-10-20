@@ -1,11 +1,11 @@
 # Lithosky roadmap
 
-Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
-previous Wave 4–10 plan, which remains in git history.
+Updated 2026-10-20. The course correction after Wave 3 replaced the previous
+Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 slices are complete (W4.S1–S6). The wave closes when the owner
-confirms the end-of-wave scores and the `wave4` pull request is merged. Wave 5
-(studio and First Light) is next.
+**Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
+Light) is in progress on `wave5`. W5.S1 (layout and labs) is done and waiting for the
+owner's sign-off on the layout screenshots; W5.S2 (tactile controls) is next.
 
 ## North star
 
@@ -124,9 +124,7 @@ The cadence is the same as Waves 1–3:
 | 4 | `wave4` | Visual core | The new renderer replaces the old one: eroded terrain, a progressive viewport, sky, clouds and materials |
 | 5 | `wave5` | Studio and First Light | A viewport-first studio and the first public release, v0.5.0 |
 
-Wave 5 may start once W4.S3 lands, because the studio needs the new viewport.
-At that point, cut `wave5` from `wave4`. Merge `wave4` into `wave5` as the
-later Wave 4 slices land.
+`wave5` was cut from `main` after the Wave 4 merge.
 
 ## Wave 4: Visual core
 
@@ -158,7 +156,7 @@ Also done:
 - `/spike/` serves its directory index, which fixed a failing smoke test.
 - Evidence images are no longer committed; `bench/out/` is git-ignored.
 
-The old site assets stay in place until the W5.S4 site rebuild. The current
+The old site assets stay in place until the W5.S5 site rebuild. The current
 site build verifies their checksums, and deleting them would not shrink git
 history.
 
@@ -416,16 +414,21 @@ scores are in `bench/hero/scores.md`, waiting for the owner.
 
 ## Wave 5: Studio and First Light
 
+Wave 4 made images worth sharing. Wave 5 makes them easy and enjoyable to
+make, then ships v0.5.0.
+
 The design principles for every studio slice:
 
 - **The image is the interface.**
-  - The full-bleed viewport fills at least 75% of the window.
+  - The full-bleed viewport fills the window.
+  - Chrome is a thin top bar and a lab rail, both quiet and dark.
+  - Drawers float over the image and close out of the way.
   - The page never scrolls.
-  - The chrome is dark and quiet.
 - **Labs, not forms.**
-  - Top-level labs: Terrain, Sky & Light, Materials, Water, Camera and Render.
-  - Each lab is a focused drawer: a preset gallery with real rendered
-    thumbnails first, then controls.
+  - Each lab is a focused drawer: a gallery first, then a few controls.
+  - Gallery thumbnails are rendered by the real renderer. Where a choice
+    doesn't change the terrain, the thumbnails show the current view with
+    that choice applied.
   - Advanced options stay folded away.
 - **Tactile controls.**
   - Sliders and scrubbable values with units and sensible ranges, shown
@@ -435,19 +438,71 @@ The design principles for every studio slice:
   - Click to focus, and camera bookmarks as a filmstrip.
 - **Joy.**
   - A Randomize button per lab, seeded and undoable.
-  - A nano-preview and one big Render button.
+  - One big Render button.
   - Region renders by dragging a marquee.
 - **Plain language.** Short labels and no paragraphs inside panels.
   Explanations live in help popovers.
 
+| Slice | Name | Outcome |
+|---|---|---|
+| W5.S1 | Layout and labs | Viewport-first layout, lab rail and drawers, rendered galleries |
+| W5.S2 | Tactile controls | Scrubbable values, sun dial and drag, click to focus, Randomize, in-place render |
+| W5.S3 | Framing, cameras and onboarding | Aspect and framing guides, camera filmstrip, first-run path, help |
+| W5.S4 | Preset pack and visual gaps | Ten or more presets at rubric target; canyon terraces, sky tint, storm clouds |
+| W5.S5 | First Light (v0.5.0) | Site gallery, format freeze, native release checks, packaging |
+
 ### W5.S1: Layout and labs
+
+**Done.** The layout is in `web/index.html` and `web/app.css`, and the labs are in
+`web/ui/`:
+
+- **Chrome.** A top bar (title, undo/redo, File menu, help, Render) and a rail of
+  seven labs, each with one drawer.
+- **Live galleries.** Light, Sky, Ground & water, Camera and Image show the current
+  view with each choice applied. `Renderer.renderVariants` renders them with a second,
+  small tracer, so the view keeps refining. A batch of six takes about 0.5 s (Apple
+  M4, Chrome).
+- **Scenes gallery.** Thumbnails rendered by `bench/thumbnails.mjs`.
+- **Keyboard and controls.** The keyboard shortcuts and restyled controls.
+- **Screenshots.** `bench/ui.mjs` writes the layout screenshots to `bench/out/w5s1/`.
+
+Known gaps:
+
+- The Terrain lab has no gallery. Terrain variants need a rebuild each (about
+  5 s), so they wait for a second terrain instance or the W5.S2 Randomize.
+- After editing presets, rerun `bench/thumbnails.mjs` to refresh the Scenes
+  thumbnails.
+
+Original plan, for reference:
 
 Tasks:
 
-- Replace the scrolling form with the viewport-first layout.
-- Build the lab drawers.
-- Build the preset galleries, with thumbnails rendered by the real renderer.
-- Retire the old `index.html`, `app.js` and `styles.css` panels.
+- **Top bar.**
+  - the scene title
+  - undo and redo
+  - a File menu: New, Open, Save
+  - a quiet status readout and a help popover
+  - the primary Render button
+- **Lab rail with seven labs**, one drawer open at a time:
+  - **Scenes:** the preset gallery
+  - **Terrain:** seed, relief, erosion and heightmap import
+  - **Light:** time-of-day gallery, sun, haze and fog
+  - **Sky:** cloud gallery and cloud controls
+  - **Ground & water:** biome gallery, snow line, tree line, moisture, rock
+    layers and waves
+  - **Camera:** lens gallery and lens
+  - **Image:** look gallery, exposure, warmth, glow, vignette, grain, plus
+    debug views under Advanced
+- **Galleries rendered by the real renderer.**
+  - Light, Sky, Ground, Camera and Image galleries render live, small, from
+    the current view, in the background when a drawer opens.
+  - Scene thumbnails are rendered by `bench/thumbnails.mjs` through the export
+    path and ship with the app.
+- **Keyboard.** `1`–`7` open labs, `Esc` closes the drawer, and `H` hides the
+  interface.
+- **Controls.** Restyle them: label and value above a full-width slider,
+  values rounded with units.
+- **Screenshots.** Layout screenshots from `bench/ui.mjs`.
 
 **Gate:** the owner signs off on layout screenshots at 1440×900 and
 2560×1440.
@@ -456,32 +511,58 @@ Tasks:
 
 Tasks:
 
-- Sliders and scrubbable values with units and rounded display.
-- A time-of-day dial and a draggable sun.
-- Click to focus.
-- Per-lab Randomize.
-- The nano-preview, the big Render button and the region marquee.
+- **Scrubbing.** Drag a value to change it, or click to type.
+- **Sun.**
+  - a time-of-day dial for the Light lab
+  - drag the sun in the view
+- **Focus and Randomize.**
+  - click the terrain to set the orbit pivot
+  - a seeded, undoable Randomize per lab
+- **In-place render.**
+  - Render refines the image in the viewport with a progress ring, then saves.
+  - Drag a marquee to render a region at full quality.
 
 **Gate:** the owner can light and frame a scene without typing a number.
 
-### W5.S3: Objects, cameras and onboarding
+### W5.S3: Framing, cameras and onboarding
 
 Tasks:
 
-- Rebuild the object list and transform tools inside the new layout, reusing
-  the W3 entity and history model.
-- Build the camera bookmark filmstrip.
-- Add a first-run path that starts from a preset.
-- Do a plain-language pass over every label.
+- **Framing.**
+  - the image aspect is part of the scene: 16:9, 3:2, 4:5, 1:1 and 21:9
+  - a framing mat, plus thirds and golden-ratio guides
+  - exports use the scene aspect, not the window's
+- **Cameras.** Camera bookmarks as a filmstrip, with thumbnails.
+- **Onboarding.**
+  - a first-run path that starts from a preset
+  - help popovers
+  - a plain-language pass over every label
+
+Objects (boulders, primitives, imported meshes) need a mesh path in the new
+tracer. They move to the "Rocks and objects" wave after First Light.
 
 **Gate:** three first-time users each get from launch to a shareable image in 5
 minutes or less, without docs.
 
-### W5.S4: First Light (v0.5.0)
+### W5.S4: Preset pack and visual gaps
 
 Tasks:
 
-- Ten or more built-in presets that meet the rubric.
+- **Close the Wave 4 rubric gaps:**
+  - canyon landforms (terraces, mesas and cliff bands) for H4
+  - shadow fill and wall materials for H3
+  - artistic sky tint
+  - true cumulonimbus for storm skies
+- **Presets.** Ten or more built-in presets that meet the rubric, with
+  thumbnails.
+
+**Gate:** no hero-shot score below 4 on H1–H4, and every built-in preset is
+signed off.
+
+### W5.S5: First Light (v0.5.0)
+
+Tasks:
+
 - A site gallery regenerated from real renders.
 - Freeze scene format v1.
 - Close the native Windows/Linux release checks.
@@ -538,4 +619,4 @@ These are re-sequenced by visual impact and become Waves 6 and later:
     and camera bookmarks
 
 The native Windows/Linux release checks from Wave 1 remain open and are
-closed in W5.S4.
+closed in W5.S5.

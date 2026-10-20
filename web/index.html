@@ -12,26 +12,53 @@
 <body>
   <canvas id="view" tabindex="0" aria-label="Landscape view. Drag to orbit, Shift-drag to pan, scroll to zoom, W A S D to move."></canvas>
 
-  <header class="bar">
-    <span class="brand">lithosky</span>
+  <header class="bar chrome">
+    <span class="brand" id="brand">lithosky</span>
     <input id="title" class="title" aria-label="Scene title" maxlength="80" spellcheck="false">
-    <nav class="actions" aria-label="File">
-      <button type="button" id="new-scene">New</button>
-      <button type="button" id="open-scene">Open…</button>
-      <button type="button" id="save-scene">Save</button>
-      <button type="button" id="export-image" class="primary">Export image</button>
-    </nav>
-    <nav class="actions" aria-label="History">
-      <button type="button" id="undo" aria-keyshortcuts="Meta+Z Control+Z">Undo</button>
-      <button type="button" id="redo" aria-keyshortcuts="Meta+Shift+Z Control+Shift+Z">Redo</button>
-    </nav>
     <output id="status" class="status" aria-live="polite">Starting WebGPU…</output>
-    <button type="button" id="toggle-panel" class="panel-toggle" aria-controls="panel" aria-expanded="true">Controls</button>
+    <div class="bar-actions">
+      <span id="history-buttons" class="button-group"></span>
+      <div class="menu">
+        <button type="button" id="file-menu" class="menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="file-items">File</button>
+        <div id="file-items" class="menu-items" role="menu" hidden>
+          <button type="button" role="menuitem" id="new-scene">New scene</button>
+          <button type="button" role="menuitem" id="open-scene">Open…</button>
+          <button type="button" role="menuitem" id="save-scene">Save<kbd>⌘S</kbd></button>
+        </div>
+      </div>
+      <span id="help-button-slot"></span>
+      <button type="button" id="render" class="primary render-button">Render</button>
+    </div>
   </header>
 
-  <aside id="panel" class="panel" aria-label="Scene controls"></aside>
+  <nav id="rail" class="rail chrome" aria-label="Labs"></nav>
 
-  <p class="hint">Drag to orbit · Shift-drag to pan · Scroll to zoom · W A S D to move</p>
+  <aside id="drawer" class="drawer chrome" aria-labelledby="drawer-title" hidden>
+    <header class="drawer-head">
+      <h2 id="drawer-title"></h2>
+      <span id="drawer-close-slot"></span>
+    </header>
+    <div id="drawer-body" class="drawer-body"></div>
+  </aside>
+
+  <section id="help" class="popover help" aria-label="Help" hidden>
+    <h2>Moving around</h2>
+    <dl>
+      <dt>Drag</dt><dd>Orbit</dd>
+      <dt>Shift-drag or right-drag</dt><dd>Pan</dd>
+      <dt>Scroll</dt><dd>Zoom</dd>
+      <dt>W A S D, Q E</dt><dd>Fly</dd>
+    </dl>
+    <h2>Shortcuts</h2>
+    <dl>
+      <dt>1 – 7</dt><dd>Open a lab</dd>
+      <dt>Esc</dt><dd>Close the lab</dd>
+      <dt>H</dt><dd>Hide or show the interface</dd>
+      <dt>⌘Z, ⇧⌘Z</dt><dd>Undo, redo</dd>
+      <dt>⌘S</dt><dd>Save</dd>
+    </dl>
+  </section>
+
   <p id="message" class="message" role="alert" hidden></p>
 
   <section id="recovery" class="recovery" hidden aria-label="Recovered work">
@@ -42,25 +69,27 @@
 
   <dialog id="export-dialog" class="dialog">
     <form method="dialog">
-      <h2>Export image</h2>
-      <label>Size
-        <select id="export-size">
-          <option value="1920">1920 px</option>
-          <option value="2560" selected>2560 px</option>
-          <option value="3840">3840 px (4K)</option>
-        </select>
-      </label>
-      <label>Quality
-        <select id="export-samples">
-          <option value="64">Draft · 64 samples</option>
-          <option value="256" selected>Good · 256 samples</option>
-          <option value="1024">Final · 1024 samples</option>
-        </select>
-      </label>
+      <h2>Render image</h2>
+      <div class="field">
+        <span class="field-name" id="export-size-name">Size</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="export-size-name">
+          <label><input type="radio" name="export-size" value="1920"><span>1920 px</span></label>
+          <label><input type="radio" name="export-size" value="2560" checked><span>2560 px</span></label>
+          <label><input type="radio" name="export-size" value="3840"><span>4K</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-name" id="export-samples-name">Quality</span>
+        <div class="segmented" role="radiogroup" aria-labelledby="export-samples-name">
+          <label><input type="radio" name="export-samples" value="64"><span>Draft</span></label>
+          <label><input type="radio" name="export-samples" value="256" checked><span>Good</span></label>
+          <label><input type="radio" name="export-samples" value="1024"><span>Final</span></label>
+        </div>
+      </div>
       <progress id="export-progress" max="1" value="0" hidden></progress>
       <div class="dialog-actions">
         <button value="cancel" id="export-cancel">Cancel</button>
-        <button type="button" id="export-start" class="primary">Render and save</button>
+        <button type="button" id="export-start" class="primary">Render and save PNG</button>
       </div>
     </form>
   </dialog>

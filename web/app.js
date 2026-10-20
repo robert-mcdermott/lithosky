@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
-// The studio: a full-window progressive render with a compact control panel. Every edit
-// goes through History (undo/redo) and Autosave (crash recovery); the renderer picks up the
-// resulting scene.
+// The studio: a full-window progressive render under a thin top bar and a rail of labs.
+// Every edit goes through History (undo/redo) and Autosave (crash recovery); the renderer
+// picks up the resulting scene, and open galleries re-render their thumbnails from it.
 
 import { advance, distanceToTarget, dolly, orbit, pan, tanHalfFov } from './render/camera.js';
-import { Renderer, VIEW_MODES } from './render/renderer.js';
+import { Renderer } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
 import { SURFACE_DEFAULTS, WATER_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
-import { BIOMES, BIOME_IDS } from './render/biomes.js';
 import { History } from './scene/history.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
-import { button, choice, element, section, slider, toggle } from './ui/controls.js';
+import { element, iconButton, slider } from './ui/controls.js';
+import { icon } from './ui/icons.js';
+import { buildLabs } from './ui/labs.js';
+import { Thumbnails } from './ui/thumbnails.js';
 
 const $ = id => document.getElementById(id);
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const ORBIT_SPEED = 0.004;
 const WHEEL_SPEED = 0.0015;
 const WHEEL_SETTLE_MS = 300;
-
-const degrees = value => `${Math.round(value)}°`;
-const times = value => `${value.toFixed(2)}×`;
-const plain = value => value.toFixed(2);
+// Galleries re-render this long after the last edit or camera move settles.
+const GALLERY_DELAY_MS = 450;
 
 let token = null;
 
@@ -157,15 +157,26 @@ async function start() {
     apply();
   }
 
-  // --- Panel -------------------------------------------------------------------------
+  // --- Labs --------------------------------------------------------------------------
 
-  const panel = $('panel');
+  // Camera drags, wheel zooms, flying and slider drags; galleries wait until they end.
+  let interacting = 0;
+  const startInteraction = () => {
+    interacting++;
+  };
+  const endInteraction = () => {
+    interacting = Math.max(0, interacting - 1);
+    scheduleGallery();
+  };
 
   // live: edits apply while dragging. Otherwise (terrain) they apply on release.
   function sliderFor(spec) {
     let pending = null;
     const handle = slider(spec, {
-      begin: () => history.begin(),
+      begin: () => {
+        history.begin();
+        startInteraction();
+      },
       input: value => {
         if (spec.live) {
           edit(draft => set(draft, spec.path, value), { moving: true });
@@ -180,148 +191,123 @@ async function start() {
         }
         history.end();
         apply();
+        endInteraction();
       },
     });
     bindings.push(scene => handle.set(get(scene, spec.path)));
     return handle.node;
   }
 
-  const presetSection = section('Start from');
-  const presetGrid = element('div', 'presets');
-  for (const preset of presets) {
-    presetGrid.append(button(preset.name, () => replace(validate(preset.scene))));
-  }
-  presetSection.body.append(presetGrid);
-
-  const terrainSection = section('Terrain');
-  const seedLabel = element('span', 'control-name');
-  bindings.push(scene => {
-    seedLabel.textContent = `Seed ${scene.terrain.seed}`;
+  const labs = buildLabs({
+    history,
+    edit,
+    replace,
+    validate,
+    presets,
+    bind: binding => bindings.push(binding),
+    sliderFor,
+    actions: {
+      erodeMore: () => renderer.erodeMore(),
+      importHeightmap: () => $('heightmap-file').click(),
+      proceduralTerrain: () => edit(draft => {
+        delete draft.terrain.heightmap;
+      }),
+      setViewMode: mode => renderer.setViewMode(mode),
+    },
   });
-  const reseed = seed => edit(draft => {
-    draft.terrain.seed = seed;
+
+  const rail = $('rail');
+  const drawer = $('drawer');
+  const railButtons = new Map();
+  labs.forEach((lab, index) => {
+    const item = element('button', 'rail-item');
+    item.type = 'button';
+    item.title = `${lab.title} (${index + 1})`;
+    item.setAttribute('aria-controls', 'drawer');
+    item.setAttribute('aria-expanded', 'false');
+    item.append(icon(lab.icon), element('span', 'rail-label', lab.title.split(' ')[0]));
+    item.addEventListener('click', () => (openLab === lab ? closeLab() : showLab(lab)));
+    rail.append(item);
+    railButtons.set(lab, item);
   });
-  terrainSection.body.append(
-    element('div', 'row'),
-    sliderFor({ path: 'terrain.relief', label: 'Relief', min: 800, max: 6000, step: 50, format: v => `${Math.round(v)} m` }),
-    sliderFor({ path: 'terrain.drainage', label: 'Drainage', min: 0, max: 3, step: 0.05, format: times }),
-    sliderFor({ path: 'terrain.rills', label: 'Gullies', min: 0, max: 3, step: 0.05, format: times }),
-    sliderFor({ path: 'terrain.talus', label: 'Scree', min: 0, max: 3, step: 0.05, format: times }),
-  );
-  const seedRow = terrainSection.body.firstChild;
-  seedRow.append(
-    seedLabel,
-    button('Previous', () => reseed(Math.max(0, history.value.terrain.seed - 1))),
-    button('Next', () => reseed(history.value.terrain.seed + 1)),
-    button('Random', () => reseed(Math.floor(Math.random() * 100000))),
-  );
-  terrainSection.body.append(element('div', 'row'));
-  terrainSection.body.lastChild.append(
-    button('Erode more', () => renderer.erodeMore()),
-    button('Heightmap…', () => $('heightmap-file').click()),
-    button('Procedural', () => edit(draft => {
-      delete draft.terrain.heightmap;
-    })),
-  );
+  $('drawer-close-slot').replaceWith(iconButton('close', 'Close (Esc)', () => closeLab()));
 
-  const groundSection = section('Ground & water');
-  const biome = choice({ label: 'Biome', options: BIOME_IDS.map(id => [id, BIOMES[id].name]) }, value => edit(draft => {
-    draft.surface.biome = value;
-  }));
-  bindings.push(scene => biome.set(scene.surface.biome));
-  const metresLabel = value => `${Math.round(value)} m`;
-  groundSection.body.append(
-    biome.node,
-    sliderFor({ path: 'surface.snowLine', label: 'Snow line', min: 0, max: 9000, step: 25, live: true, format: metresLabel }),
-    sliderFor({ path: 'surface.treeLine', label: 'Tree line', min: 0, max: 9000, step: 25, live: true, format: metresLabel }),
-    sliderFor({ path: 'surface.moisture', label: 'Moisture', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-    sliderFor({ path: 'surface.strata', label: 'Rock layers', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-    sliderFor({ path: 'water.waves', label: 'Waves', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-  );
-
-  const skySection = section('Sun & sky');
-  skySection.body.append(
-    sliderFor({ path: 'sun.elevation', label: 'Sun height', min: -5, max: 70, step: 0.1, live: true, format: degrees }),
-    sliderFor({ path: 'sun.azimuth', label: 'Sun direction', min: 0, max: 360, step: 0.5, live: true, format: degrees }),
-    sliderFor({ path: 'atmosphere.haze', label: 'Haze', min: 0, max: 5, step: 0.05, live: true, format: plain }),
-    sliderFor({ path: 'atmosphere.fog', label: 'Valley fog', min: 0, max: 4, step: 0.05, live: true, format: plain }),
-  );
-
-  const SKIES = {
-    clear: { coverage: 0, cirrus: 0 },
-    fair: { coverage: 0.36, type: 0.5, altitude: 3800, thickness: 1400, density: 0.85, cirrus: 0.15 },
-    mackerel: { coverage: 0.55, type: 0.22, altitude: 5200, thickness: 600, density: 0.8, cirrus: 0.1 },
-    overcast: { coverage: 0.95, type: 0.1, altitude: 2400, thickness: 900, density: 1.2, cirrus: 0 },
-    storm: { coverage: 0.7, type: 0.95, altitude: 1900, thickness: 7000, density: 1.5, cirrus: 0.3 },
-    cirrus: { coverage: 0.08, type: 0.5, altitude: 4200, thickness: 1200, density: 0.9, cirrus: 0.8 },
-  };
-  const cloudSection = section('Clouds');
-  const skyType = choice({
-    label: 'Sky',
-    options: [['', 'Custom'], ['clear', 'Clear'], ['fair', 'Fair weather'], ['mackerel', 'Mackerel sky'],
-      ['overcast', 'Overcast'], ['storm', 'Storm towers'], ['cirrus', 'High cirrus']],
-  }, value => {
-    if (SKIES[value]) {
-      edit(draft => {
-        draft.clouds = { ...draft.clouds, ...SKIES[value] };
-      });
+  let openLab = null;
+  function showLab(lab) {
+    openLab = lab;
+    $('drawer-title').textContent = lab.title;
+    $('drawer-body').replaceChildren(lab.node);
+    drawer.hidden = false;
+    for (const [entry, item] of railButtons) {
+      item.classList.toggle('active', entry === lab);
+      item.setAttribute('aria-expanded', String(entry === lab));
     }
+    showCachedThumbnails();
+    scheduleGallery(0);
+  }
+  function closeLab() {
+    openLab = null;
+    drawer.hidden = true;
+    for (const item of railButtons.values()) {
+      item.classList.remove('active');
+      item.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  // Thumbnails for the open gallery: cached ones show at once, the rest render once the
+  // view is still. A newer scene supersedes a batch that is still rendering.
+  const thumbnails = new Thumbnails(renderer);
+  let galleryTimer = null;
+  let galleryBusy = false;
+  function showCachedThumbnails() {
+    if (!openLab?.variants) {
+      return [];
+    }
+    const variants = openLab.variants(history.value);
+    for (const variant of variants) {
+      openLab.gallery.show(variant.id, thumbnails.get(variant.scene));
+    }
+    return variants;
+  }
+  function scheduleGallery(delay = GALLERY_DELAY_MS) {
+    clearTimeout(galleryTimer);
+    if (openLab?.variants) {
+      galleryTimer = setTimeout(refreshGallery, delay);
+    }
+  }
+  async function refreshGallery() {
+    if (!openLab?.variants) {
+      return;
+    }
+    if (galleryBusy || interacting > 0 || renderer.stats.building) {
+      scheduleGallery();
+      return;
+    }
+    const lab = openLab;
+    const variants = showCachedThumbnails();
+    if (variants.every(variant => thumbnails.get(variant.scene))) {
+      return;
+    }
+    galleryBusy = true;
+    let rendered = false;
+    try {
+      rendered = await thumbnails.render(variants.map(variant => variant.scene));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      galleryBusy = false;
+    }
+    for (const variant of variants) {
+      lab.gallery.show(variant.id, thumbnails.get(variant.scene));
+    }
+    if (!rendered || lab !== openLab || JSON.stringify(lab.variants(history.value)) !== JSON.stringify(variants)) {
+      scheduleGallery();
+    }
+  }
+  bindings.push(() => {
+    showCachedThumbnails();
+    scheduleGallery();
   });
-  bindings.push(scene => {
-    const match = Object.entries(SKIES).find(([, sky]) => Object.entries(sky).every(([key, value]) => scene.clouds[key] === value));
-    skyType.set(match ? match[0] : '');
-  });
-  const metres = value => `${(value / 1000).toFixed(1)} km`;
-  cloudSection.body.append(
-    skyType.node,
-    sliderFor({ path: 'clouds.coverage', label: 'Cover', min: 0, max: 1, step: 0.01, live: true, format: v => `${Math.round(v * 100)}%` }),
-    sliderFor({ path: 'clouds.type', label: 'Layer → towers', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-    sliderFor({ path: 'clouds.altitude', label: 'Cloud base', min: 300, max: 9000, step: 50, live: true, format: metres }),
-    sliderFor({ path: 'clouds.thickness', label: 'Depth', min: 100, max: 10000, step: 50, live: true, format: metres }),
-    sliderFor({ path: 'clouds.density', label: 'Density', min: 0, max: 3, step: 0.05, live: true, format: plain }),
-    sliderFor({ path: 'clouds.cirrus', label: 'Cirrus', min: 0, max: 1, step: 0.01, live: true, format: v => `${Math.round(v * 100)}%` }),
-    element('div', 'row'),
-  );
-  cloudSection.body.lastChild.append(button('New sky', () => edit(draft => {
-    draft.clouds.seed = Math.floor(Math.random() * 100000);
-  })));
-
-  const cameraSection = section('Camera');
-  cameraSection.body.append(
-    sliderFor({ path: 'camera.focalLength', label: 'Lens', min: 14, max: 200, step: 1, live: true, format: v => `${Math.round(v)} mm` }),
-  );
-
-  const imageSection = section('Image');
-  const look = choice({
-    label: 'Look',
-    options: [['punchy', 'Rich'], ['none', 'Natural'], ['cinematic', 'Cinematic'], ['soft', 'Soft'], ['mono', 'Black & white']],
-  }, value => edit(draft => {
-    draft.image.look = value;
-  }));
-  bindings.push(scene => look.set(scene.image.look));
-  const autoExposure = toggle({ label: 'Auto exposure' }, checked => edit(draft => {
-    draft.image.autoExposure = checked;
-  }));
-  bindings.push(scene => autoExposure.set(scene.image.autoExposure));
-  const show = choice({
-    label: 'Show',
-    options: [['image', 'Image'], ['albedo', 'Colour'], ['flow', 'Drainage'], ['sediment', 'Sediment'],
-      ['curvature', 'Curvature'], ['normals', 'Normals']],
-  }, value => renderer.setViewMode(VIEW_MODES[value]));
-  const amount = value => `${Math.round(value * 100)}%`;
-  imageSection.body.append(
-    look.node,
-    autoExposure.node,
-    sliderFor({ path: 'image.exposure', label: 'Exposure', min: -4, max: 4, step: 0.1, live: true, format: v => `${v > 0 ? '+' : ''}${v.toFixed(1)} EV` }),
-    sliderFor({ path: 'image.warmth', label: 'Warmth', min: -1, max: 1, step: 0.02, live: true, format: v => `${v > 0 ? '+' : ''}${Math.round(v * 100)}` }),
-    sliderFor({ path: 'image.bloom', label: 'Glow', min: 0, max: 1, step: 0.01, live: true, format: amount }),
-    sliderFor({ path: 'image.vignette', label: 'Vignette', min: 0, max: 1, step: 0.01, live: true, format: amount }),
-    sliderFor({ path: 'image.grain', label: 'Grain', min: 0, max: 1, step: 0.01, live: true, format: amount }),
-    show.node,
-  );
-
-  panel.append(presetSection.node, terrainSection.node, groundSection.node, skySection.node, cloudSection.node,
-    cameraSection.node, imageSection.node);
 
   // --- Camera navigation -------------------------------------------------------------
 
@@ -338,6 +324,7 @@ async function start() {
     canvas.classList.add('dragging');
     drag = { x: event.clientX, y: event.clientY, panning: event.shiftKey || event.button === 2 };
     history.begin();
+    startInteraction();
   });
   canvas.addEventListener('pointermove', event => {
     if (!drag) {
@@ -361,6 +348,7 @@ async function start() {
       canvas.classList.remove('dragging');
       history.end();
       apply();
+      endInteraction();
     }
   };
   canvas.addEventListener('pointerup', endDrag);
@@ -371,6 +359,7 @@ async function start() {
     event.preventDefault();
     if (wheelTimer === null) {
       history.begin();
+      startInteraction();
     }
     clearTimeout(wheelTimer);
     moveCamera(c => dolly(c, Math.exp(event.deltaY * WHEEL_SPEED)));
@@ -378,6 +367,7 @@ async function start() {
       wheelTimer = null;
       history.end();
       apply();
+      endInteraction();
     }, WHEEL_SETTLE_MS);
   }, { passive: false });
 
@@ -388,6 +378,7 @@ async function start() {
     if (held.size === 0) {
       history.end();
       apply();
+      endInteraction();
       return;
     }
     const seconds = Math.min(0.05, (now - lastFly) / 1000);
@@ -408,6 +399,7 @@ async function start() {
     event.preventDefault();
     if (held.size === 0) {
       history.begin();
+      startInteraction();
       lastFly = performance.now();
       held.add(key);
       requestAnimationFrame(fly);
@@ -423,16 +415,49 @@ async function start() {
   $('title').addEventListener('change', () => edit(draft => {
     draft.title = $('title').value.trim().slice(0, 80) || 'Untitled landscape';
   }));
-  $('undo').addEventListener('click', () => {
+  const undo = iconButton('undo', 'Undo (⌘Z)', () => {
     if (history.undo()) {
       apply();
     }
   });
-  $('redo').addEventListener('click', () => {
+  const redo = iconButton('redo', 'Redo (⇧⌘Z)', () => {
     if (history.redo()) {
       apply();
     }
   });
+  undo.id = 'undo';
+  redo.id = 'redo';
+  $('history-buttons').append(undo, redo);
+  $('brand').prepend(icon('brand'));
+
+  // The File menu and the help popover close on Escape or a click elsewhere.
+  const popups = [
+    { button: $('file-menu'), panel: $('file-items') },
+    { button: iconButton('help', 'Help', () => {}), panel: $('help') },
+  ];
+  $('help-button-slot').replaceWith(popups[1].button);
+  const closePopups = except => {
+    for (const popup of popups) {
+      if (popup !== except) {
+        popup.panel.hidden = true;
+        popup.button.setAttribute('aria-expanded', 'false');
+      }
+    }
+  };
+  for (const popup of popups) {
+    popup.button.addEventListener('click', event => {
+      event.stopPropagation();
+      closePopups(popup);
+      popup.panel.hidden = !popup.panel.hidden;
+      popup.button.setAttribute('aria-expanded', String(!popup.panel.hidden));
+    });
+  }
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.menu-items, .popover')) {
+      closePopups();
+    }
+  });
+  $('file-items').addEventListener('click', () => closePopups());
   $('new-scene').addEventListener('click', () => replace(defaultScene()));
   $('open-scene').addEventListener('click', () => $('scene-file').click());
   $('scene-file').addEventListener('change', async () => {
@@ -490,7 +515,7 @@ async function start() {
 
   const dialog = $('export-dialog');
   let exporting = false;
-  $('export-image').addEventListener('click', () => dialog.showModal());
+  $('render').addEventListener('click', () => dialog.showModal());
   dialog.addEventListener('cancel', event => {
     if (exporting) {
       event.preventDefault();
@@ -508,8 +533,8 @@ async function start() {
     $('export-cancel').disabled = true;
     try {
       const blob = await renderer.capture({
-        longEdge: Number($('export-size').value),
-        samples: Number($('export-samples').value),
+        longEdge: Number(dialog.querySelector('input[name="export-size"]:checked').value),
+        samples: Number(dialog.querySelector('input[name="export-samples"]:checked').value),
         onProgress: value => {
           progress.value = value;
         },
@@ -535,13 +560,37 @@ async function start() {
       $('status').textContent = `Building terrain ${Math.round(stats.progress * 100)}%`;
     } else {
       const rate = (stats.pathsPerSecond / 1e6).toFixed(0);
-      $('status').textContent = `${stats.samples} samples · ${stats.seconds.toFixed(1)} s · ${rate} M paths/s`;
+      $('status').textContent = `${stats.samples} samples · ${stats.seconds.toFixed(1)} s`;
+      $('status').title = `${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
     }
   });
 
+  const typing = target => target instanceof HTMLInputElement || target instanceof HTMLSelectElement
+    || target instanceof HTMLTextAreaElement;
   document.addEventListener('keydown', event => {
     const command = event.metaKey || event.ctrlKey;
-    if (!command || event.target instanceof HTMLInputElement) {
+    if (!command) {
+      if (event.altKey || typing(event.target) || dialog.open) {
+        return;
+      }
+      const key = event.key.toLowerCase();
+      const number = Number(key);
+      if (Number.isInteger(number) && number >= 1 && number <= labs.length) {
+        const lab = labs[number - 1];
+        if (openLab === lab) {
+          closeLab();
+        } else {
+          showLab(lab);
+        }
+      } else if (key === 'escape') {
+        closePopups();
+        closeLab();
+      } else if (key === 'h') {
+        document.body.classList.toggle('chrome-hidden');
+      }
+      return;
+    }
+    if (typing(event.target)) {
       return;
     }
     const key = event.key.toLowerCase();
@@ -554,11 +603,6 @@ async function start() {
       event.preventDefault();
       $('save-scene').click();
     }
-  });
-
-  $('toggle-panel').addEventListener('click', () => {
-    panel.hidden = !panel.hidden;
-    $('toggle-panel').setAttribute('aria-expanded', String(!panel.hidden));
   });
 
   window.addEventListener('beforeunload', () => {
@@ -596,6 +640,13 @@ async function start() {
       return history.value;
     },
     open: scene => replace(validate(scene)),
+    openLab: id => {
+      const lab = labs.find(entry => entry.id === id);
+      if (lab) {
+        showLab(lab);
+      }
+    },
+    closeLab,
     presets,
   };
 }

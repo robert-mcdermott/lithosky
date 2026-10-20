@@ -117,6 +117,11 @@ export class Renderer {
 
   // Applies a scene. Terrain rebuilds only when its settings or heightmap changed.
   setScene(scene, { moving = false } = {}) {
+    if (this.variantBatch) {
+      // Applied when the gallery batch finishes and the view's own scene is back.
+      this.queuedScene = { scene, moving };
+      return;
+    }
     const previous = this.scene;
     this.scene = scene;
     const settings = terrainSettingsOf(scene);
@@ -315,13 +320,15 @@ export class Renderer {
     });
   }
 
-  // Renders `samples` at `longEdge` pixels (the view's aspect) and returns a PNG blob.
-  async capture({ longEdge = 2560, samples = 256, onProgress = () => {} } = {}) {
+  // Renders `samples` at `longEdge` pixels (the view's aspect) and returns an image blob
+  // (PNG unless `type` says otherwise).
+  async capture({ longEdge = 2560, samples = 256, onProgress = () => {}, type = 'image/png', quality } = {}) {
     if (this.terrain.busy) {
       throw new Error('Wait for the terrain to finish building.');
     }
     this.paused = true;
     await this.device.queue.onSubmittedWorkDone();
+    this.post.saveMeter();
     try {
       const output = this.outputSize();
       const size = sizeForLongEdge(output[0] / output[1], longEdge);
@@ -336,15 +343,82 @@ export class Renderer {
         }
       }
       this.display.bind(this.post.run(this.tracer, samples, { meterBlend: 1 }), this.post);
-      const blob = await this.display.capture(this.image(), size);
+      const blob = await this.display.capture(this.image(), size, { type, quality });
       this.post.release(...size);
       return blob;
     } finally {
-      this.paused = false;
-      this.skyDirty = true;
-      this.resetAccumulation();
-      this.tracer.setSize(1, 1);
-      requestAnimationFrame(this.frame);
+      this.resume();
     }
+  }
+
+  // Small JPEG renders of variant scenes for the galleries: the current terrain under other
+  // light, skies, materials, lenses or looks. Returns one blob per scene, or null where a
+  // scene needs different terrain. A second, small tracer does the work, so the view keeps
+  // its accumulated samples; only the shared sky LUTs and cloud settings are put back.
+  async renderVariants(scenes, { width = 288, height = 162, samples = 32 } = {}) {
+    if (this.terrain.busy || this.stats.building || this.lost || this.paused) {
+      return null;
+    }
+    this.paused = true;
+    this.variantBatch = true;
+    await this.device.queue.onSubmittedWorkDone();
+    this.post.saveMeter();
+    if (!this.thumbnailTracer) {
+      this.thumbnailTracer = new Tracer(this.device, this.tracer.pipeline);
+      this.thumbnailTracer.bind(this.terrain, this.sky, this.clouds);
+    }
+    const tracer = this.thumbnailTracer;
+    tracer.setSize(width, height);
+    const current = this.scene;
+    const results = [];
+    try {
+      let traced = null;
+      for (const scene of scenes) {
+        if (!sameTerrain(terrainSettingsOf(scene), this.terrain.settings)) {
+          results.push(null);
+          continue;
+        }
+        // Variants that differ only in image settings share one trace.
+        const key = JSON.stringify({ ...scene, title: null, image: null });
+        if (key !== traced) {
+          traced = key;
+          this.scene = scene;
+          this.clouds.update(scene);
+          tracer.writeSurface(scene);
+          const view = { ...this.view(width / height), viewMode: VIEW_MODES.image };
+          this.rebuildSky(view);
+          for (let index = 0; index < samples; index++) {
+            tracer.sample(view, index);
+          }
+          this.display.bind(this.post.run(tracer, samples, { meterBlend: 1 }), this.post);
+        }
+        const image = { ...imageSettingsOf(scene), viewMode: VIEW_MODES.image };
+        results.push(await this.display.capture(image, [width, height], { type: 'image/jpeg', quality: 0.86 }));
+      }
+    } finally {
+      this.scene = current;
+      this.clouds.update(current);
+      this.rebuildSky(this.view(this.tracer.width / this.tracer.height));
+      this.post.restoreMeter();
+      this.variantBatch = false;
+      this.paused = false;
+      requestAnimationFrame(this.frame);
+      const queued = this.queuedScene;
+      this.queuedScene = null;
+      if (queued) {
+        this.setScene(queued.scene, { moving: queued.moving });
+      }
+    }
+    return results;
+  }
+
+  // Restarts the view after a side render.
+  resume() {
+    this.post.restoreMeter();
+    this.paused = false;
+    this.skyDirty = true;
+    this.resetAccumulation();
+    this.tracer.setSize(1, 1);
+    requestAnimationFrame(this.frame);
   }
 }

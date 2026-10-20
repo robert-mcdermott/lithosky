@@ -46,6 +46,26 @@ Some properties of the tracer and frame loop:
 - **Export.** Export renders the same scene at the chosen size and sample count through
   the same kernels, then reads back once.
 
+## Studio
+
+`web/app.js` wires the scene, history, autosave, navigation, files and export to the
+interface: a top bar, a rail of seven labs and one drawer at a time.
+
+| Module | Role |
+|---|---|
+| `web/ui/labs.js` | The labs: each drawer's gallery, controls and Advanced fold |
+| `web/ui/controls.js` | Sliders (one undo step per drag), switches, choices, folds and picture galleries |
+| `web/ui/thumbnails.js` | Gallery thumbnails cached by scene |
+| `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, lenses and looks |
+| `web/ui/icons.js` | Line icons |
+
+Gallery thumbnails come from the real renderer. `Renderer.renderVariants` traces small
+JPEGs of variant scenes with a second, small tracer, so the view keeps its accumulated
+samples. Only the shared sky LUTs, cloud settings and exposure meter are put back after
+each batch, and edits made during a batch are applied when it finishes. The Scenes
+gallery uses JPEGs in `web/scenes/thumbnails/`, rendered through the export path by
+`bench/thumbnails.mjs`.
+
 ## Scenes
 
 A scene is one small JSON document (format `lithosky`, version 1):

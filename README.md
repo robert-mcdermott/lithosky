@@ -5,8 +5,8 @@ executable serves the app and opens it in a desktop-style browser window. Everyt
 renders on your GPU with WebGPU. There are no accounts, telemetry or remote assets.
 Original code and content are Apache-2.0.
 
-**Status:** Wave 4 (visual core) is complete, pending review and merge; Wave 5 (the
-studio) is next. See the [roadmap](ROADMAP.md).
+**Status:** Wave 4 (visual core) is complete (v0.4.0). Wave 5 (the studio) is in
+progress. See the [roadmap](ROADMAP.md).
 Highlights:
 
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
@@ -19,7 +19,9 @@ Highlights:
   specular light; lakes have wind waves and shoreline foam.
 - **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
 
-The full studio comes in Wave 5. Nothing has been released yet.
+- **Studio.** Seven labs, each a drawer with a rendered gallery and a few controls.
+
+Nothing has been released yet.
 
 ## Build and run
 
@@ -42,28 +44,34 @@ The default app-window mode needs an installed Chromium-family browser with WebG
 
 ## Using it
 
+The image fills the window. Pick a lab from the rail on the left; its drawer opens with a
+gallery first, then a few controls. Galleries show your current view with each choice
+applied, rendered by the real renderer.
+
+| Lab | Gallery | Controls |
+|---|---|---|
+| Scenes | built-in scenes | |
+| Terrain | | seed, relief, drainage, gullies, scree, Erode more; heightmap import under Advanced |
+| Light | time of day | sun height and direction, haze, valley fog |
+| Sky | cloud types | cover, layers to towers, cloud base, depth, density, cirrus, New sky |
+| Ground & water | biomes | snow line, tree line, moisture, rock layers, waves |
+| Camera | lenses | focal length |
+| Image | looks | auto exposure, exposure, warmth, glow, vignette, grain; debug views under Advanced |
+
 | Input | Action |
 |---|---|
 | Drag | Orbit |
 | Shift-drag or right-drag | Pan |
 | Scroll | Zoom |
-| W A S D, Q E | Move |
+| W A S D, Q E | Fly |
+| 1–7 | Open a lab |
+| Esc | Close the lab |
+| H | Hide or show the interface |
 | Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z | Undo, redo |
 | Cmd/Ctrl+S | Save |
 
-The panel holds:
-
-- presets
-- terrain: seed, relief, drainage, gullies, scree, Erode more, heightmap import
-- sun and sky: sun height and direction, haze, valley fog
-- clouds: sky presets, cover, cloud type, base, depth, density, cirrus, New sky
-- ground and water: biome (Alpine, Desert, Volcanic, Arctic, Imagined), snow line,
-  tree line, moisture, rock layers, waves
-- lens
-- image: look, auto exposure, exposure, warmth, glow, vignette, grain, and debug views of
-  the drainage and landform masks
-
-**Export image** renders a PNG at up to 3840 px. **Save** writes a `.lithosky` scene.
+**Render** saves a PNG at up to 3840 px. The **File** menu has New scene, Open and Save
+(a `.lithosky` scene).
 
 ## Development
 
@@ -77,6 +85,14 @@ Benchmark hero shots render through the app's own export path:
 
 ```sh
 node bench/hero.mjs --url http://127.0.0.1:8123 --label <name>
+```
+
+Layout screenshots for studio reviews, and the Scenes gallery thumbnails (rerun it
+after changing `web/scenes/presets.json`, then rebuild):
+
+```sh
+node bench/ui.mjs --url http://127.0.0.1:8123 --label <name> [--lab light]
+node bench/thumbnails.mjs --url http://127.0.0.1:8123
 ```
 
 See [bench/hero/README.md](bench/hero/README.md) for how they are reviewed. The
