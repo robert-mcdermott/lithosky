@@ -10,6 +10,7 @@ const WATER_BODY: vec3f = vec3f(0.006, 0.02, 0.022);
 const LAKE_BED: vec3f = vec3f(0.12, 0.11, 0.09);
 const RIPPLE_SLOPE: f32 = 0.01;
 const REFLECTION_LIMIT: f32 = 6.0;
+const REFLECTION_CLOUD_STEPS: u32 = 20u;
 
 fn waterDistance(origin: vec3f, direction: vec3f) -> f32 {
     if (direction.y >= 0.0 || origin.y <= fields.waterLevel) {
@@ -49,10 +50,12 @@ fn hazeOver(radiance: vec3f, viewDirection: vec3f, waterDepth: f32, span: f32) -
 fn reflectionRadiance(origin: vec3f, direction: vec3f, viewDirection: vec3f, waterDepth: f32) -> vec3f {
     let hit = traceScene(origin, direction, MAX_DISTANCE, BOUNCE_EFFORT);
     if (hit.field == FIELD_NONE) {
-        return limitLuminance(skyRadiance(direction) + sunDisk(direction), REFLECTION_LIMIT);
+        let sky = skyRadiance(direction) + sunDisk(direction);
+        let layer = traceClouds(origin, direction, MAX_DISTANCE, REFLECTION_CLOUD_STEPS);
+        return limitLuminance(sky * layer.transmittance + layer.inscatter, REFLECTION_LIMIT);
     }
     let point = shadePoint(origin + direction * hit.t, hit.field, waterDepth + hit.t);
-    let skyLight = skyRadiance(normalize(point.normal + vec3f(0.0, 1.0, 0.0))) * 0.8;
+    let skyLight = cloudySky(normalize(point.normal + vec3f(0.0, 1.0, 0.0))) * 0.8;
     let lit = directSun(point, waterDepth + hit.t) + point.albedo * skyLight;
     return hazeOver(lit, viewDirection, waterDepth, hit.t);
 }
@@ -69,8 +72,8 @@ fn shadeWater(position: vec3f, direction: vec3f, depth: f32) -> vec3f {
 
     let shadow = traceScene(lifted, frame.sunDirection, SHADOW_DISTANCE, SHADOW_EFFORT);
     let sunVisible = select(0.0, 1.0, shadow.field == FIELD_NONE && shadow.t != TRACE_EXHAUSTED);
-    let sunlight = sunlightAt(position) * max(frame.sunDirection.y, 0.0) * sunVisible;
-    let irradiance = sunlight + skyRadiance(vec3f(0.0, 1.0, 0.0)) * PI * 0.6;
+    let sunlight = sunlightAt(position) * max(frame.sunDirection.y, 0.0) * sunVisible * cloudShadow(position);
+    let irradiance = sunlight + cloudySky(vec3f(0.0, 1.0, 0.0)) * PI * 0.6;
 
     let waterDepth = max(fields.waterLevel - sceneHeight(position.xz), 0.0);
     let cosRefracted = sqrt(max(1.0 - (1.0 - cosine * cosine) / (WATER_ETA * WATER_ETA), 0.04));

@@ -11,10 +11,11 @@ Highlights:
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
   and talus.
 - **Rendering.** The path-traced view fills the window and refines in about a second.
-- **Light.** A physical sky with aerial perspective.
+- **Sky.** A physical sky with aerial perspective, and volumetric clouds that shadow
+  the land.
 - **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
 
-Clouds, landform-driven materials and the full studio come in later slices. Nothing has
+Landform-driven materials and the full studio come in later slices. Nothing has
 been released yet.
 
 ## Build and run
@@ -52,6 +53,7 @@ The panel holds:
 - presets
 - terrain: seed, relief, drainage, gullies, scree, Erode more, heightmap import
 - sun and sky: sun height and direction, haze, valley fog
+- clouds: sky presets, cover, cloud type, base, depth, density, cirrus, New sky
 - lens
 - image: look, auto exposure, exposure, warmth, glow, vignette, grain, and debug views of
   the drainage and landform masks

@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { denoiseMix } from '../web/render/post.js';
-import { IMAGE_DEFAULTS, defaultScene, imageSettingsOf } from '../web/scene/document.js';
+import { CLOUD_DEFAULTS, IMAGE_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf } from '../web/scene/document.js';
 
 test('denoising fades out as samples accumulate', () => {
   assert.ok(denoiseMix(1) > 0.8);
@@ -26,4 +26,15 @@ test('image settings fill in defaults without overriding the scene', () => {
   assert.equal(image.look, 'soft');
   assert.equal(image.bloom, IMAGE_DEFAULTS.bloom);
   assert.equal(image.autoExposure, true);
+});
+
+test('a scene without clouds has a clear sky', () => {
+  const scene = defaultScene();
+  delete scene.clouds;
+  const clouds = cloudSettingsOf(scene);
+  assert.equal(clouds.coverage, 0);
+  assert.equal(clouds.cirrus, 0);
+  assert.deepEqual(clouds, { ...CLOUD_DEFAULTS });
+  scene.clouds = { ...CLOUD_DEFAULTS, coverage: 0.5 };
+  assert.equal(cloudSettingsOf(scene).coverage, 0.5);
 });

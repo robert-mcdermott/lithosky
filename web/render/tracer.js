@@ -48,9 +48,10 @@ export class Tracer {
     this.height = height;
   }
 
-  bind(terrain, sky) {
+  bind(terrain, sky, clouds) {
     this.terrain = terrain;
     this.sky = sky;
+    this.clouds = clouds;
     this.device.queue.writeBuffer(this.fieldsBuffer, 0, terrain.fieldsUniform());
     this.createGroup();
   }
@@ -61,6 +62,7 @@ export class Tracer {
     }
     const terrain = this.terrain;
     const sky = this.sky;
+    const clouds = this.clouds;
     this.group = bindGroup(this.device, this.pipeline, [
       this.frameBuffer,
       sky.uniform,
@@ -77,6 +79,11 @@ export class Tracer {
       sky.sampler,
       this.accumulation,
       this.guides,
+      clouds.uniform,
+      clouds.weatherMap.createView(),
+      clouds.shapeNoise.createView(),
+      clouds.detailNoise.createView(),
+      clouds.sampler,
     ], 'tracer');
   }
 

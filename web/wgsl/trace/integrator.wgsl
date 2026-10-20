@@ -9,6 +9,7 @@
 #include "trace/scene.wgsl"
 #include "trace/sky.wgsl"
 #include "trace/fog.wgsl"
+#include "clouds/clouds.wgsl"
 #include "trace/material.wgsl"
 #include "trace/surface.wgsl"
 #include "trace/water.wgsl"
@@ -30,6 +31,11 @@
 // Two vec4 per pixel, summed like the radiance: (first-hit albedo, luminance squared) and
 // (first-hit normal, first-hit distance). The denoiser reads them as edge-stopping guides.
 @group(0) @binding(14) var<storage, read_write> guides: array<vec4f>;
+@group(0) @binding(15) var<uniform> clouds: Clouds;
+@group(0) @binding(16) var weatherMap: texture_2d<f32>;
+@group(0) @binding(17) var shapeNoise: texture_3d<f32>;
+@group(0) @binding(18) var detailNoise: texture_3d<f32>;
+@group(0) @binding(19) var cloudSampler: sampler;
 
 const SKY_DEPTH: f32 = 300000.0;
 
@@ -67,6 +73,9 @@ fn debugColour(point: SurfacePoint) -> vec3f {
 
 fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
     var radiance = vec3f(0.0);
+    // Clouds between the camera and a terrain hit, composited once the path is done.
+    var frontClouds: CloudSample;
+    frontClouds.transmittance = 1.0;
     var throughput = vec3f(1.0);
     var rayOrigin = origin;
     var rayDirection = direction;
@@ -85,7 +94,8 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
                 let aerial = aerialPerspective(rayDirection, water);
                 let fog = fogScatter(rayOrigin, rayDirection, water);
                 let surface = shadeWater(rayOrigin + rayDirection * water, rayDirection, water);
-                return aerial.luminance + fog.inscatter + aerial.transmittance * fog.transmittance * surface;
+                let lake = aerial.luminance + fog.inscatter + aerial.transmittance * fog.transmittance * surface;
+                return overClouds(lake, rayDirection, traceClouds(rayOrigin, rayDirection, water, CLOUD_VIEW_STEPS));
             }
         }
         if (hit.field == FIELD_NONE) {
@@ -93,11 +103,12 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
                 firstAlbedo = vec3f(1.0);
                 firstNormal = -rayDirection;
                 firstDepth = SKY_DEPTH;
-                let sky = skyRadiance(rayDirection) + sunDisk(rayDirection);
+                let sky = skyRadiance(rayDirection) + sunDisk(rayDirection) + distantGround(rayDirection);
                 let fog = fogScatter(rayOrigin, rayDirection, MAX_DISTANCE);
-                radiance += sky * fog.transmittance + fog.inscatter;
+                let layer = traceClouds(rayOrigin, rayDirection, MAX_DISTANCE, CLOUD_VIEW_STEPS);
+                radiance += overClouds(sky * fog.transmittance + fog.inscatter, rayDirection, layer);
             } else {
-                radiance += limitLuminance(throughput * skyRadiance(rayDirection), INDIRECT_LIMIT);
+                radiance += limitLuminance(throughput * cloudySky(rayDirection), INDIRECT_LIMIT);
             }
             break;
         }
@@ -114,6 +125,7 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
             let fog = fogScatter(rayOrigin, rayDirection, hit.t);
             radiance += aerial.luminance + fog.inscatter;
             throughput *= aerial.transmittance * fog.transmittance;
+            frontClouds = traceClouds(rayOrigin, rayDirection, hit.t, CLOUD_VIEW_STEPS);
         }
         var direct = throughput * directSun(point, hit.t);
         if (bounce > 0u) {
@@ -127,7 +139,7 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
         rayDirection = cosineHemisphere(point.normal, sample2());
         throughput *= point.albedo;
     }
-    return radiance;
+    return overClouds(radiance, direction, frontClouds);
 }
 
 @compute @workgroup_size(8, 8)

@@ -51,7 +51,7 @@ func New(assets fs.FS, authority, version string, persistence ...*Persistence) h
 		if r.URL.Path == "/api/info" {
 			w.Header().Set("Content-Type", "application/json")
 			if r.Method == http.MethodGet {
-				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 4 · Slice 4", "network": "local only"})
+				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 4 · Slice 5", "network": "local only"})
 			}
 			return
 		}

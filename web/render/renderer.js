@@ -9,6 +9,7 @@ import { imageSettingsOf, terrainSettingsOf } from '../scene/document.js';
 import { sameTerrain } from '../terrain/settings.js';
 import { Terrain } from '../terrain/terrain.js';
 import { cameraFrame, sunDirection } from './camera.js';
+import { Clouds } from './clouds.js';
 import { Display } from './display.js';
 import { Post } from './post.js';
 import { SUN_ANGULAR_RADIUS, Sky } from './sky.js';
@@ -52,14 +53,15 @@ export class Renderer {
     const format = navigator.gpu.getPreferredCanvasFormat();
     context.configure({ device, format, alphaMode: 'opaque' });
     const settings = terrainSettingsOf(scene);
-    const [terrain, tracer, display, post] = await Promise.all([
+    const [terrain, tracer, display, post, clouds] = await Promise.all([
       Terrain.create(device, PLACEMENT, settings),
       Tracer.create(device),
       Display.create(device, context, format),
       Post.create(device),
+      Clouds.create(device),
     ]);
     const sky = await Sky.create(device, tracer.frameBuffer);
-    return new Renderer({ adapter, device, canvas, terrain, tracer, sky, display, post }, scene);
+    return new Renderer({ adapter, device, canvas, terrain, tracer, sky, display, post, clouds }, scene);
   }
 
   constructor(parts, scene) {
@@ -72,7 +74,8 @@ export class Renderer {
       this.lost = info.message || 'The GPU device was lost.';
       this.emit();
     });
-    this.tracer.bind(this.terrain, this.sky);
+    this.clouds.update(scene);
+    this.tracer.bind(this.terrain, this.sky, this.clouds);
     this.stats = {
       adapter: this.adapter.info?.description || this.adapter.info?.vendor || 'unknown',
       samples: 0,
@@ -124,13 +127,17 @@ export class Renderer {
       || previous.atmosphere.haze !== scene.atmosphere.haze;
     const cameraChanged = JSON.stringify(previous.camera) !== JSON.stringify(scene.camera);
     const fogChanged = previous.atmosphere.fog !== scene.atmosphere.fog;
+    const cloudsChanged = JSON.stringify(previous.clouds ?? null) !== JSON.stringify(scene.clouds ?? null);
+    if (cloudsChanged) {
+      this.clouds.update(scene);
+    }
     if (skyChanged || cameraChanged) {
       this.skyDirty = true;
     }
     if (moving) {
       this.movingUntil = performance.now() + SETTLE_MS;
     }
-    if (skyChanged || cameraChanged || fogChanged) {
+    if (skyChanged || cameraChanged || fogChanged || cloudsChanged) {
       this.resetAccumulation();
     }
   }

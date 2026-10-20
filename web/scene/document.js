@@ -105,6 +105,21 @@ export const IMAGE_DEFAULTS = Object.freeze({
   grain: 0.12,
 });
 
+// A scene without clouds has a clear sky.
+export const CLOUD_DEFAULTS = Object.freeze({
+  coverage: 0,
+  type: 0.5,
+  altitude: 3200,
+  thickness: 1800,
+  density: 1,
+  cirrus: 0,
+  seed: 1,
+});
+
+export function cloudSettingsOf(scene) {
+  return { ...CLOUD_DEFAULTS, ...scene.clouds };
+}
+
 export function imageSettingsOf(scene) {
   return { ...IMAGE_DEFAULTS, ...scene.image };
 }

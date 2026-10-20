@@ -31,6 +31,28 @@ fn sunDisk(direction: vec3f) -> vec3f {
     return frame.sunIlluminance / solidAngle * limb * transmittance;
 }
 
+const DISTANT_GROUND_ALBEDO: f32 = 0.1;
+
+// Light reflected by the planet's surface beyond the far-field terrain, for rays that pass
+// over the last ridge and still meet the ground before the horizon. The sky-view LUT
+// already holds the air in front of that ground; this adds the ground itself.
+fn distantGround(direction: vec3f) -> vec3f {
+    let origin = vec3f(0.0, cameraRadius(), 0.0);
+    let t = raySphere(origin, direction, atmosphere.bottomRadius);
+    if (t <= 0.0) {
+        return vec3f(0.0);
+    }
+    let ground = origin + direction * t;
+    let up = normalize(ground);
+    let sun = sunTransmittance(ground, frame.sunDirection) * frame.sunIlluminance * max(dot(up, frame.sunDirection), 0.0);
+    let irradiance = sun + skyRadiance(vec3f(0.0, 1.0, 0.0)) * PI * 0.5;
+    // Transmittance from the camera down to the ground, as a ratio of upward lookups.
+    let fromGround = transmittanceAt(atmosphere.bottomRadius, dot(up, -direction));
+    let fromCamera = transmittanceAt(cameraRadius(), -direction.y);
+    let toGround = saturate(fromGround / max(fromCamera, vec3f(1e-6)));
+    return DISTANT_GROUND_ALBEDO * INV_PI * irradiance * toGround;
+}
+
 // Sun illuminance reaching a world point after the atmosphere (terrain shadows not included).
 fn sunlightAt(world: vec3f) -> vec3f {
     let position = planetPosition(world, frame.cameraPosition);

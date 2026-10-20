@@ -61,11 +61,11 @@ fn fogScatter(origin: vec3f, direction: vec3f, depth: f32) -> FogSample {
     let shadow = traceScene(position, frame.sunDirection, FOG_SHADOW_DISTANCE, FOG_SHADOW_EFFORT);
     if (shadow.field == FIELD_NONE) {
         let phase = henyeyGreenstein(dot(direction, frame.sunDirection), FOG_ANISOTROPY);
-        sun = sunlightAt(position) * phase;
+        sun = sunlightAt(position) * phase * cloudShadow(position);
     }
     var ambientDirection = uniformSphere(random2());
     ambientDirection.y = abs(ambientDirection.y);
-    let ambient = skyRadiance(ambientDirection) * 0.7;
+    let ambient = cloudySky(ambientDirection) * 0.7;
     result.inscatter = (1.0 - transmittance) * FOG_ALBEDO * (sun + ambient);
     result.transmittance = transmittance;
     return result;

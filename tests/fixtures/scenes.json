@@ -128,6 +128,56 @@
     }
   },
   {
+    "name": "cloudy sky",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12
+      }
+    }
+  },
+  {
     "name": "heightmap reference",
     "valid": true,
     "scene": {
@@ -1285,6 +1335,256 @@
         "exposure": 1.8,
         "look": "punchy",
         "sharpen": 1
+      }
+    }
+  },
+  {
+    "name": "cloud coverage too high",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 1.2,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12
+      }
+    }
+  },
+  {
+    "name": "cloud base too low",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 100,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12
+      }
+    }
+  },
+  {
+    "name": "fractional cloud seed",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 1.5
+      }
+    }
+  },
+  {
+    "name": "missing cloud field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "seed": 12
+      }
+    }
+  },
+  {
+    "name": "unknown cloud field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12,
+        "rain": 1
       }
     }
   }

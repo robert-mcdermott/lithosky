@@ -217,6 +217,56 @@
           "maximum": 1
         }
       }
+    },
+    "clouds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage",
+        "type",
+        "altitude",
+        "thickness",
+        "density",
+        "cirrus",
+        "seed"
+      ],
+      "properties": {
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "type": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "altitude": {
+          "type": "number",
+          "minimum": 300,
+          "maximum": 9000
+        },
+        "thickness": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 10000
+        },
+        "density": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "cirrus": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      }
     }
   }
 }

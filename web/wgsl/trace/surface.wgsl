@@ -54,7 +54,7 @@ fn directSun(point: SurfacePoint, depth: f32) -> vec3f {
     if (shadow.field != FIELD_NONE || shadow.t == TRACE_EXHAUSTED) {
         return vec3f(0.0);
     }
-    return point.albedo * INV_PI * cosine * sunlightAt(point.position);
+    return point.albedo * INV_PI * cosine * sunlightAt(point.position) * cloudShadow(point.position);
 }
 
 fn limitLuminance(value: vec3f, limit: f32) -> vec3f {

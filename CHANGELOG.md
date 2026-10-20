@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0-dev.5 — wave 4 slice 5 (local development)
+
+- Volumetric clouds in a planet-curved shell:
+  - weather-map coverage, cloud type from flat layers to towers, and height profiles
+  - tileable Perlin-Worley and Worley noise generated on the GPU
+  - lighting from a sun light-march, a two-lobe phase function, multiple-scattering
+    octaves, Beer-powder (fading out sunward, for silver linings), and sky and ground
+    light
+  - a wind-stretched cirrus veil at 9 km
+- Clouds shadow the terrain, water and valley fog, so sun shafts break through gaps.
+  They also show in lake reflections, fade with distance and dim the sky light
+  under cover.
+- Beyond the far-field terrain the planet's ground is shaded, which removes the
+  bright line at the horizon.
+- New Clouds panel: sky presets (Clear, Fair weather, Mackerel sky, Overcast, Storm
+  towers, High cirrus), cover, layer-to-towers, cloud base, depth, density and
+  cirrus, plus New sky.
+- Hero presets have skies; H5 is now a low sun breaking through broken cloud.
+
 ## 0.4.0-dev.4 — wave 4 slice 4 (local development)
 
 - A post pipeline on the GPU:

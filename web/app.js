@@ -6,7 +6,7 @@
 import { advance, distanceToTarget, dolly, orbit, pan, tanHalfFov } from './render/camera.js';
 import { Renderer, VIEW_MODES } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
+import { cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
 import { History } from './scene/history.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
 import { button, choice, element, section, slider, toggle } from './ui/controls.js';
@@ -86,6 +86,7 @@ async function start() {
   const validate = scene => {
     const valid = validateScene(scene, schema);
     valid.image = imageSettingsOf(valid);
+    valid.clouds = cloudSettingsOf(valid);
     return valid;
   };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
@@ -228,6 +229,45 @@ async function start() {
     sliderFor({ path: 'atmosphere.fog', label: 'Valley fog', min: 0, max: 4, step: 0.05, live: true, format: plain }),
   );
 
+  const SKIES = {
+    clear: { coverage: 0, cirrus: 0 },
+    fair: { coverage: 0.36, type: 0.5, altitude: 3800, thickness: 1400, density: 0.85, cirrus: 0.15 },
+    mackerel: { coverage: 0.55, type: 0.22, altitude: 5200, thickness: 600, density: 0.8, cirrus: 0.1 },
+    overcast: { coverage: 0.95, type: 0.1, altitude: 2400, thickness: 900, density: 1.2, cirrus: 0 },
+    storm: { coverage: 0.7, type: 0.95, altitude: 1900, thickness: 7000, density: 1.5, cirrus: 0.3 },
+    cirrus: { coverage: 0.08, type: 0.5, altitude: 4200, thickness: 1200, density: 0.9, cirrus: 0.8 },
+  };
+  const cloudSection = section('Clouds');
+  const skyType = choice({
+    label: 'Sky',
+    options: [['', 'Custom'], ['clear', 'Clear'], ['fair', 'Fair weather'], ['mackerel', 'Mackerel sky'],
+      ['overcast', 'Overcast'], ['storm', 'Storm towers'], ['cirrus', 'High cirrus']],
+  }, value => {
+    if (SKIES[value]) {
+      edit(draft => {
+        draft.clouds = { ...draft.clouds, ...SKIES[value] };
+      });
+    }
+  });
+  bindings.push(scene => {
+    const match = Object.entries(SKIES).find(([, sky]) => Object.entries(sky).every(([key, value]) => scene.clouds[key] === value));
+    skyType.set(match ? match[0] : '');
+  });
+  const metres = value => `${(value / 1000).toFixed(1)} km`;
+  cloudSection.body.append(
+    skyType.node,
+    sliderFor({ path: 'clouds.coverage', label: 'Cover', min: 0, max: 1, step: 0.01, live: true, format: v => `${Math.round(v * 100)}%` }),
+    sliderFor({ path: 'clouds.type', label: 'Layer → towers', min: 0, max: 1, step: 0.01, live: true, format: plain }),
+    sliderFor({ path: 'clouds.altitude', label: 'Cloud base', min: 300, max: 9000, step: 50, live: true, format: metres }),
+    sliderFor({ path: 'clouds.thickness', label: 'Depth', min: 100, max: 10000, step: 50, live: true, format: metres }),
+    sliderFor({ path: 'clouds.density', label: 'Density', min: 0, max: 3, step: 0.05, live: true, format: plain }),
+    sliderFor({ path: 'clouds.cirrus', label: 'Cirrus', min: 0, max: 1, step: 0.01, live: true, format: v => `${Math.round(v * 100)}%` }),
+    element('div', 'row'),
+  );
+  cloudSection.body.lastChild.append(button('New sky', () => edit(draft => {
+    draft.clouds.seed = Math.floor(Math.random() * 100000);
+  })));
+
   const cameraSection = section('Camera');
   cameraSection.body.append(
     sliderFor({ path: 'camera.focalLength', label: 'Lens', min: 14, max: 200, step: 1, live: true, format: v => `${Math.round(v)} mm` }),
@@ -262,7 +302,7 @@ async function start() {
     show.node,
   );
 
-  panel.append(presetSection.node, terrainSection.node, skySection.node, cameraSection.node, imageSection.node);
+  panel.append(presetSection.node, terrainSection.node, skySection.node, cloudSection.node, cameraSection.node, imageSection.node);
 
   // --- Camera navigation -------------------------------------------------------------
 

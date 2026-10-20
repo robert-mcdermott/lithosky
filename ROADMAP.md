@@ -3,8 +3,8 @@
 Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
 previous Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 in progress. W4.S1–S4 are complete; W4.S5 (volumetric
-clouds) is next.
+**Status:** Wave 4 in progress. W4.S1–S5 are complete; W4.S6 (materials from
+landform, and water) is next.
 
 ## North star
 
@@ -300,7 +300,32 @@ Original plan, for reference:
 
 ### W4.S5: Volumetric clouds
 
-Tasks:
+**Done.** The cloud system lives in `web/render/clouds.js` and
+`web/wgsl/clouds/`:
+
+- **Shell.** A planet-curved shell with weather-map coverage and a type that
+  runs from flat layers to towers.
+- **Noise.** Tileable Perlin-Worley shape noise and Worley detail noise,
+  generated on the GPU.
+- **Lighting.** A sun light-march, a two-lobe phase function and
+  multiple-scattering octaves. Beer-powder fades out sunward, so backlit edges
+  glow.
+- **Cirrus.** A wind-stretched veil at 9 km.
+- **Shadows.** Clouds shadow the terrain, water and fog, so light shafts come
+  through the gaps.
+- **Reflections and distance.** Clouds appear in lake reflections and fade with
+  distance through the aerial-perspective LUT.
+- **Sky light.** Cover dims the sky light.
+
+Distant planet ground beyond the far field removes the old horizon line. The
+panel has six sky presets and a New sky button. Clouds add 0–33% per sample
+depending on how much cloudy sky is in frame.
+
+Known gap: the storm preset gives broken, backlit cloud rather than true
+cumulonimbus (anvils and towering columns). Modelling those needs dedicated
+shapes, which belong with the weather work.
+
+Original plan, for reference:
 
 - **Cloud layers.**
   - a weather map for coverage and type
