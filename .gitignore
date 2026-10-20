@@ -8,3 +8,4 @@
 # Default go build outputs
 /lithosky
 /lithosky.exe
+/bench/out/

@@ -2,3 +2,51 @@ Lithosky
 Copyright 2026 Lithosky contributors
 
 Licensed under the Apache License, Version 2.0.
+
+Third-party code adapted in Lithosky:
+
+web/wgsl/display/agx.wgsl
+  AgX tone mapping ported from three.js r170,
+  src/renderers/shaders/ShaderChunk/tonemapping_pars_fragment.glsl.js.
+  Copyright 2010-2024 three.js authors. MIT License:
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+  The 7th-order contrast curve and the "punchy" look come from Google Filament,
+  filament/src/ToneMapper.cpp, Copyright 2021 The Android Open Source Project,
+  Apache License 2.0. Filament adapted them from Benjamin Wrensch's "Minimal AgX
+  implementation" (iolite engine blog); AgX itself is Troy Sobotka's, as used in
+  Blender.
+
+Algorithms implemented from their publications (no code copied):
+  - Sky LUTs: S. Hillaire, "A Scalable and Production Ready Sky and Atmosphere
+    Rendering Technique", EGSR 2020; transmittance parameterisation from
+    E. Bruneton and F. Neyret, "Precomputed Atmospheric Scattering", 2008.
+  - Hashes: M. Jarzynski and M. Olano, "Hash Functions for GPU Rendering",
+    JCGT 9(3), 2020 (pcg2d, pcg3d, pcg4d).
+  - Orthonormal basis: T. Duff et al., "Building an Orthonormal Basis,
+    Revisited", JCGT 6(1), 2017.
+  - Droplet erosion: H. T. Beyer, "Implementation of a method for hydraulic
+    erosion", 2015.
+  - Depression filling: O. Planchon and F. Darboux, "A fast, simple and
+    versatile algorithm to fill the depressions of digital elevation models",
+    Catena 46, 2001.
+  - Stream-power incision: J. Braun and S. D. Willett, "A very efficient O(n),
+    implicit and parallel method to solve the stream power equation governing
+    fluvial incision and landscape evolution", Geomorphology 180-181, 2013.

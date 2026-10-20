@@ -1,5 +1,90 @@
 # Changelog
 
+## 0.4.0-dev.6 — wave 4 slice 6 (local development)
+
+- Terrain materials placed by the landform (erosion and exposure masks):
+  - bedrock in level strata: thick formations of irregular height, each with its own
+    tone, carrying thinner beds
+  - scree on talus slopes
+  - gravel in stream beds
+  - meadow with tussocks, dry patches and rock outcrops on knolls
+  - forest with crowns and clearings below the tree line
+  - sand on shores, and on dry washes in arid biomes (wet biomes grow meadow there)
+  - snow held on gentle, hollow, sheltered and north-facing ground
+- Wet ground darkens and turns glossy. Rock, snow, wet ground and sand each have their
+  own roughness and catch GGX sun highlights.
+- Five biomes: Alpine, Desert, Volcanic, Arctic and Imagined.
+- Lakes have wind-driven waves at several scales and foam along the shore.
+- New Ground & water panel: biome, snow line, tree line, moisture, rock layers and
+  waves.
+- Distant cloud decks run on to the horizon, which removes a thin bright line under
+  overcast skies.
+- Hero presets have biomes. H4 is a banded desert canyon, H5 a choppy arctic shore,
+  and H6 an imagined world.
+- Bounce and reflection rays skip fine material detail. Materials add 6–21% per
+  sample over slice 5.
+
+## 0.4.0-dev.5 — wave 4 slice 5 (local development)
+
+- Volumetric clouds in a planet-curved shell:
+  - weather-map coverage, cloud type from flat layers to towers, and height profiles
+  - tileable Perlin-Worley and Worley noise generated on the GPU
+  - lighting from a sun light-march, a two-lobe phase function, multiple-scattering
+    octaves, Beer-powder (fading out sunward, for silver linings), and sky and ground
+    light
+  - a wind-stretched cirrus veil at 9 km
+- Clouds shadow the terrain, water and valley fog, so sun shafts break through gaps.
+  They also show in lake reflections, fade with distance and dim the sky light
+  under cover.
+- Beyond the far-field terrain the planet's ground is shaded, which removes the
+  bright line at the horizon.
+- New Clouds panel: sky presets (Clear, Fair weather, Mackerel sky, Overcast, Storm
+  towers, High cirrus), cover, layer-to-towers, cloud base, depth, density and
+  cirrus, plus New sky.
+- Hero presets have skies; H5 is now a low sun breaking through broken cloud.
+
+## 0.4.0-dev.4 — wave 4 slice 4 (local development)
+
+- A post pipeline on the GPU:
+  - an edge-aware à-trous denoiser guided by first-hit albedo, normal and distance,
+    which fades out as samples accumulate
+  - six-level bloom, so the sun and bright haze glow
+  - centre-weighted auto-exposure that eases between frames
+- Image controls: auto exposure, exposure compensation, warmth, glow, vignette,
+  grain, and Rich, Natural, Cinematic (ACES), Soft and Black & white looks.
+- Path decisions use an 8-dimensional R-sequence for less noise per sample.
+- Water reflections take their haze from the aerial-perspective LUT.
+- Presets retuned for metered exposure. The golden-hour and dawn foregrounds are no
+  longer murky.
+
+## 0.4.0-dev.3 — wave 4 slice 3 (local development)
+
+- The app is now a full-window, progressively path-traced view with a compact
+  panel. It has presets, terrain, sun and sky, lens and image controls; orbit, pan,
+  zoom and fly navigation; undo/redo; autosave and recovery; Open/Save; and PNG
+  export at up to 3840 px.
+- New renderer in `web/render/`. It uses one persistent WebGPU device and direct
+  heightfield tracing, and renders at half resolution while the camera moves.
+- Scenes reset to a clean version 1 format, defined once in
+  `internal/scene/schema.json` (3.9 KB, down from 272 KB); older scene files no
+  longer open.
+- Rock fracture and strata detail sharpen close slopes, and gullies now come and go
+  across slopes.
+- The legacy renderer, its form-based UI, the old scene versions and the old
+  product site are removed.
+
+## 0.4.0-dev.2 — wave 4 slice 2 (local development)
+
+- GPU stream-power drainage (depression filling, multiple-flow-direction area,
+  semi-implicit incision, talus) carves valley networks on the near tile and the
+  far field. Droplets add gullies and scree, and heightmap import feeds the same
+  pipeline.
+
+## 0.4.0-dev.1 — wave 4 slice 1 (local development)
+
+- A rendering spike proved GPU erosion and direct heightfield path tracing about
+  13x faster than the legacy renderer. Hero-shot benchmark and baseline added.
+
 ## 0.3.0-dev.9 — wave 3 slice 9 (local development)
 
 - Add separate perspective/top/front/side editor views and frame selection, with

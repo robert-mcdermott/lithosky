@@ -51,13 +51,14 @@ func New(assets fs.FS, authority, version string, persistence ...*Persistence) h
 		if r.URL.Path == "/api/info" {
 			w.Header().Set("Content-Type", "application/json")
 			if r.Method == http.MethodGet {
-				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 3 · Slice 1", "network": "local only"})
+				_ = json.NewEncoder(w).Encode(map[string]string{"name": "Lithosky", "version": version, "stage": "Wave 4 · Slice 6", "network": "local only"})
 			}
 			return
 		}
+		// Directory paths serve their index page; directories without one stay 404.
 		name := strings.TrimPrefix(r.URL.Path, "/")
-		if name == "" {
-			name = "index.html"
+		if name == "" || strings.HasSuffix(name, "/") {
+			name += "index.html"
 		}
 		if !fs.ValidPath(name) || path.Clean(name) != name {
 			http.NotFound(w, r)

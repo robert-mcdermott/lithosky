@@ -169,21 +169,21 @@ func TestStandaloneBinary(t *testing.T) {
 	if err := json.Unmarshal(request(p, "GET", "/api/session", "", nil), &session); err != nil {
 		t.Fatal(err)
 	}
-	catalog, _ := embedded.ReadFile("web/scenes/studies.json")
-	var studies []struct {
+	catalog, _ := embedded.ReadFile("web/scenes/presets.json")
+	var presets []struct {
 		Scene json.RawMessage `json:"scene"`
 	}
-	if err := json.Unmarshal(catalog, &studies); err != nil {
+	if err := json.Unmarshal(catalog, &presets); err != nil {
 		t.Fatal(err)
 	}
-	payload, _ := json.Marshal(map[string]any{"expectedRevision": 0, "scene": studies[0].Scene})
+	payload, _ := json.Marshal(map[string]any{"expectedRevision": 0, "scene": presets[0].Scene})
 	request(p, "PUT", "/api/autosave", session.Token, payload)
 	p.stop()
 	p = start([]string{"--no-open"}, nil)
 	if err := json.Unmarshal(request(p, "GET", "/api/session", "", nil), &session); err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Contains(request(p, "GET", "/api/recovery", session.Token, nil), []byte("Alpine quiet")) {
+	if !bytes.Contains(request(p, "GET", "/api/recovery", session.Token, nil), []byte("Alpine lake, golden hour")) {
 		t.Fatal("recovery missing after process restart")
 	}
 	p.stop()

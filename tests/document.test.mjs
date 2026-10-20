@@ -1,52 +1,100 @@
 // SPDX-License-Identifier: Apache-2.0
-import test from 'node:test';
+// Scene documents (version 1), presets and undo history.
+
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { defaultScene, validateScene, parseScene, serializeScene, renderState, MAX_SCENE_BYTES } from '../web/scene/document.js';
-import { createTerrain } from '../web/scene/terrain.js';
+import fs from 'node:fs';
+import test from 'node:test';
+import { defaultScene, terrainSettingsOf, validateScene } from '../web/scene/document.js';
 import { History } from '../web/scene/history.js';
-import { Autosave } from '../web/scene/autosave.js';
-const schema = JSON.parse(readFileSync(new URL('../internal/scene/schema.json', import.meta.url)));
-const validate = value => validateScene(value, schema);
-const fixtures = JSON.parse(readFileSync(new URL('./fixtures/scenes.json', import.meta.url)));
-for (const fixture of fixtures) test('shared schema: ' + fixture.name, () => {
-  if (fixture.valid) assert.deepEqual(parseScene(serializeScene(fixture.scene,schema),schema),fixture.scene);
-  else assert.throws(() => validate(fixture.scene));
+
+const schema = JSON.parse(fs.readFileSync('internal/scene/schema.json', 'utf8'));
+const fixtures = JSON.parse(fs.readFileSync('tests/fixtures/scenes.json', 'utf8'));
+const presets = JSON.parse(fs.readFileSync('web/scenes/presets.json', 'utf8'));
+const validate = scene => validateScene(scene, schema);
+
+test('shared fixtures agree with the Go validator', () => {
+  for (const fixture of fixtures) {
+    if (fixture.valid) {
+      assert.deepEqual(validate(fixture.scene), fixture.scene, fixture.name);
+    } else {
+      assert.throws(() => validate(fixture.scene), Error, fixture.name);
+    }
+  }
 });
-test('reject malformed, oversized, prototype fields and nonfinite numbers', () => {
-  for (const text of ['{', '{} {}', ' '.repeat(MAX_SCENE_BYTES+1)]) assert.throws(() => parseScene(text,schema));
-  const scene=defaultScene(); scene.camera.yaw=Infinity; assert.throws(()=>validate(scene));
-  assert.throws(()=>parseScene(JSON.stringify(defaultScene()).replace('"camera":','"__proto__":{},"camera":'),schema));
+
+test('older and newer versions get a clear message', () => {
+  const scene = { ...defaultScene(), version: 13 };
+  assert.throws(() => validate(scene), /version 1 only/);
 });
-test('complete scene round trip preserves geometry, water and camera', () => {
-  const scene=defaultScene();scene.water.level=2;scene.camera.yaw=1;scene.terrain.seed=87654;
-  const loaded=parseScene(serializeScene(scene,schema),schema);
-  assert.deepEqual(createTerrain(renderState(loaded),16),createTerrain(renderState(scene),16));
-  scene.water.enabled=false;
-  assert.notDeepEqual(createTerrain(renderState(loaded),16),createTerrain(renderState(scene),16));
+
+test('a camera needs a target away from its position', () => {
+  const scene = defaultScene();
+  scene.camera.target = [...scene.camera.position];
+  assert.throws(() => validate(scene), /target must differ/);
 });
-test('history groups drag, branches redo, bounds snapshots, rejects invalid import without touching work', () => {
-  const h=new History(defaultScene(),validate,2);
-  h.begin(); for(let i=0;i<10;i++)h.edit(s=>s.terrain.seed=i); h.end();
-  assert.equal(h.past.length,1);h.undo();assert.equal(h.value.terrain.seed,1847);h.redo();assert.equal(h.value.terrain.seed,9);
-  const before=h.value;assert.throws(()=>h.replace({version:2}));assert.deepEqual(h.value,before);
-  h.undo();h.edit(s=>s.water.level=1);assert.equal(h.canRedo,false);
-  h.edit(s=>s.water.level=2);h.edit(s=>s.water.level=3);assert.equal(h.past.length,2);
-  const copy=h.value;copy.title='mutated';assert.notEqual(h.value.title,copy.title);
+
+test('the default scene and every preset validate', () => {
+  validate(defaultScene());
+  assert.ok(presets.length >= 6);
+  const ids = new Set();
+  for (const preset of presets) {
+    assert.ok(!ids.has(preset.id), `duplicate preset ${preset.id}`);
+    ids.add(preset.id);
+    validate(preset.scene);
+  }
+  for (const hero of ['H1', 'H2', 'H3', 'H4', 'H5', 'H6']) {
+    assert.ok(ids.has(hero), `missing hero preset ${hero}`);
+  }
 });
-test('autosave serializes requests and saves newest pending state', async () => {
-  const calls=[];let release;
-  const saver=new Autosave(async (scene,revision)=>{calls.push([scene.terrain.seed,revision]);if(calls.length===1)await new Promise(r=>release=r);return revision+1},0,()=>{},100000);
-  saver.enqueue(defaultScene());const first=saver.flush();await Promise.resolve();
-  const next=defaultScene();next.terrain.seed=5;saver.enqueue(next);next.terrain.seed=6;saver.enqueue(next);
-  assert.equal(calls.length,1);release();await first;await saver.flush();
-  assert.deepEqual(calls,[[1847,0],[6,1]]);assert.equal(saver.unsaved,false);
+
+test('terrain settings come from the scene terrain', () => {
+  const scene = defaultScene();
+  scene.terrain.drainage = 2;
+  scene.terrain.heightmap = { asset: 'a'.repeat(64), resolution: 512 };
+  const settings = terrainSettingsOf(scene);
+  assert.equal(settings.drainage, 2);
+  assert.equal(settings.seed, scene.terrain.seed);
+  assert.ok(!('heightmap' in settings));
 });
-test('autosave failure retains data and retries uncertain request before new edits', async () => {
-  const calls=[];let fail=true;
-  const saver=new Autosave(async (scene,revision)=>{calls.push([scene.terrain.seed,revision]);if(fail)throw new Error('offline');return revision+1},0,()=>{},100000);
-  saver.enqueue(defaultScene());await saver.flush();assert.equal(saver.unsaved,true);
-  const next=defaultScene();next.terrain.seed=42;saver.enqueue(next);assert.equal(calls.length,1);
-  fail=false;await saver.retry();await saver.flush();
-  assert.deepEqual(calls,[[1847,0],[1847,0],[42,1]]);assert.equal(saver.unsaved,false);
+
+test('a gesture is one undo step and cancel restores the start', () => {
+  const history = new History(defaultScene(), validate);
+  history.begin();
+  for (const elevation of [10, 20, 30]) {
+    history.edit(scene => {
+      scene.sun.elevation = elevation;
+    });
+  }
+  history.end();
+  assert.equal(history.value.sun.elevation, 30);
+  assert.ok(history.undo());
+  assert.equal(history.value.sun.elevation, defaultScene().sun.elevation);
+  assert.ok(history.redo());
+  assert.equal(history.value.sun.elevation, 30);
+
+  history.begin();
+  history.edit(scene => {
+    scene.sun.elevation = 45;
+  });
+  assert.ok(history.cancel());
+  assert.equal(history.value.sun.elevation, 30);
+});
+
+test('invalid edits are rejected and leave the scene unchanged', () => {
+  const history = new History(defaultScene(), validate);
+  assert.throws(() => history.edit(scene => {
+    scene.terrain.relief = 99999;
+  }));
+  assert.equal(history.value.terrain.relief, defaultScene().terrain.relief);
+  assert.equal(history.canUndo, false);
+});
+
+test('history respects its snapshot budget', () => {
+  const history = new History(defaultScene(), validate, 5);
+  for (let seed = 1; seed <= 12; seed++) {
+    history.edit(scene => {
+      scene.terrain.seed = seed;
+    });
+  }
+  assert.equal(history.past.length, 5);
 });

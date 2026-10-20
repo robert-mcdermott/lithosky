@@ -9,7 +9,11 @@ import (
 )
 
 func TestLocalBoundary(t *testing.T) {
-	assets := fstest.MapFS{"index.html": {Data: []byte("Lithosky")}, "app.js": {Data: []byte("export {}")}}
+	assets := fstest.MapFS{
+		"index.html":       {Data: []byte("Lithosky")},
+		"app.js":           {Data: []byte("export {}")},
+		"pages/index.html": {Data: []byte("Pages")},
+	}
 	h := New(assets, "127.0.0.1:8123", "test")
 	for _, tc := range []struct {
 		name, method, target, host, origin, site string
@@ -26,6 +30,8 @@ func TestLocalBoundary(t *testing.T) {
 		{"write", "POST", "/api/info", "127.0.0.1:8123", "", "", 405},
 		{"missing", "GET", "/missing", "127.0.0.1:8123", "", "", 404},
 		{"directory", "GET", "/api/", "127.0.0.1:8123", "", "", 404},
+		{"directory index", "GET", "/pages/", "127.0.0.1:8123", "", "", 200},
+		{"directory without slash", "GET", "/pages", "127.0.0.1:8123", "", "", 404},
 		{"traversal", "GET", "/../go.mod", "127.0.0.1:8123", "", "", 404},
 		{"head", "HEAD", "/api/info", "127.0.0.1:8123", "", "", 200},
 	} {

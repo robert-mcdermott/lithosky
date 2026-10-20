@@ -5,24 +5,271 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "full image settings",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "cinematic",
+        "autoExposure": true,
+        "bloom": 0.4,
+        "warmth": -0.3,
+        "vignette": 0.2,
+        "grain": 0.1
+      }
+    }
+  },
+  {
+    "name": "every look",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "mono"
+      }
+    }
+  },
+  {
+    "name": "cloudy sky",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12
+      }
+    }
+  },
+  {
+    "name": "desert surface and waves",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 9000,
+        "treeLine": 400,
+        "moisture": 0.1,
+        "strata": 0.9
       },
       "water": {
-        "enabled": true,
-        "level": 0.25
+        "waves": 0.5
+      }
+    }
+  },
+  {
+    "name": "heightmap reference",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1,
+        "heightmap": {
+          "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "resolution": 512
+        }
       },
-      "lighting": {
-        "sunElevation": 38
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -32,24 +279,120 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
-        "seed": 4294967295,
-        "elevation": 1,
-        "palette": "natural"
+        "seed": 1847,
+        "relief": 200,
+        "drainage": 3,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": -3.141592653589793,
-        "pitch": 1.2,
-        "distance": 48
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 300
       },
-      "water": {
-        "enabled": false,
-        "level": -3
+      "sun": {
+        "elevation": -10,
+        "azimuth": 360
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": -6,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "unicode title",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Lac d’été — 湖",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "older version",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 13,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -58,25 +401,80 @@
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 9,
-      "title": "Alpine quiet",
+      "version": 2,
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "wrong format",
+    "valid": false,
+    "scene": {
+      "format": "bryce",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -86,75 +484,149 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "unknown root",
+    "name": "missing sun azimuth",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
       },
-      "path": "/tmp/no"
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
     }
   },
   {
-    "name": "unknown nested",
+    "name": "unknown root field",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25,
-        "secret": 1
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "entities": []
+    }
+  },
+  {
+    "name": "unknown nested field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1,
+        "layers": []
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -164,24 +636,38 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1.2,
-        "elevation": 1,
-        "palette": "natural"
+        "seed": 1.5,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -191,24 +677,38 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": -1,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -218,24 +718,38 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 4294967296,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -245,98 +759,161 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": "3200",
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": "23"
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "null",
+    "name": "relief too low",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 100,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": null
-    }
-  },
-  {
-    "name": "array",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 1,
-      "title": "Alpine quiet",
-      "terrain": [],
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "bad boolean",
+    "name": "drainage too high",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 3.5,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": 1,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "sun below range",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": -11,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
@@ -348,6760 +925,902 @@
       "version": 1,
       "title": "",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "long unicode title",
+    "name": "long title",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄🌄",
+      "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "unknown generator",
+    "name": "short position",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v2",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          1
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "pitch outside bounds",
+    "name": "position out of range",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 1.3,
-        "distance": 23
+        "position": [
+          0,
+          1,
+          300000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "distance outside bounds",
+    "name": "unknown look",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 9
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "vivid"
       }
     }
   },
   {
-    "name": "water outside bounds",
+    "name": "bad heightmap resolution",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1,
+        "heightmap": {
+          "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "resolution": 300
+        }
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 5.1
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "light outside bounds",
+    "name": "bad heightmap asset",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1,
+        "heightmap": {
+          "asset": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+          "resolution": 512
+        }
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 0
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
       }
     }
   },
   {
-    "name": "height outside bounds",
+    "name": "null scene",
+    "valid": false,
+    "scene": null
+  },
+  {
+    "name": "array scene",
+    "valid": false,
+    "scene": []
+  },
+  {
+    "name": "bloom too high",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 10,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "lighting": {
-        "sunElevation": 38
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy",
+        "bloom": 1.5
       }
     }
   },
   {
-    "name": "layered v2",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "v2 without layers",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "v2 legacy generator",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "v1 with layers",
+    "name": "warmth too low",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "layers-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "oversized terrain",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 4096,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "fractional resolution",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256.5,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "empty layers",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": []
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "too many layers",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "unknown layer",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "script",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "unknown layer field",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5,
-            "url": "file"
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "invalid octave budget",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 9
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "invalid strength",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 1.01,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "invalid scale",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 0,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "invalid enabled flag",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": 1,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "terrace",
-            "enabled": true,
-            "strength": 0.8,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "sculpted v3",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
+        "position": [
+          0,
+          860,
+          6000
         ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "empty sculpt list",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
+        "target": [
+          0,
+          180,
+          3800
         ],
-        "sculpt": []
+        "focalLength": 21
       },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
       },
-      "lighting": {
-        "sunElevation": 38
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy",
+        "warmth": -2
       }
     }
   },
   {
-    "name": "v3 missing sculpt",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "v2 with sculpt",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 2,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "unknown sculpt tool",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "script",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "oversized brush",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 8.01,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "zero strength",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "flatten height outside bounds",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 65,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "brush coordinate outside bounds",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                32.01,
-                0
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "brush malformed coordinate",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0,
-                0
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "empty stroke",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": []
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "too many dabs",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                0
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "too many strokes",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "unknown sculpt field",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 3,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ],
-            "url": "external"
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "material rules on original terrain v4",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material preset rock",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rock",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material preset snow",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "snow",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material preset sand",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "sand",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material preset ground",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "ground",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material rules on sculpted terrain v4",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
-        ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "materials missing in v4",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "materials forbidden in v1",
+    "name": "auto exposure as text",
     "valid": false,
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Alpine quiet",
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material unknown preset",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "invalid",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material unknown property",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "unknown": 1
-      }
-    }
-  },
-  {
-    "name": "material missing rule",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material bound snowHeight",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 65,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material bound sandHeight",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": -65,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material bound rockSlope",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 91,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material bound blend",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material bound detail",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 1.1,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "material bound detailScale",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 0.1
-      }
-    }
-  },
-  {
-    "name": "material numeric string",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": "0.5",
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "imported v5",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "imported v5 materials",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "heightmap malformed hash",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "../aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap reversed range",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": 9,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap unsupported resolution",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 127,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap negative scale",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": -1
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap missing samples reference",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap unknown path",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10,
-        "path": "/tmp/x"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap wrong version",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 4,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "heightmap flat range",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 5,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": 8,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "v6 atmosphere",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid mode",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "remote",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid sunElevation",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 91,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid sunAzimuth",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 361,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid latitude",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 91,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid longitude",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": 181,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid day",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 366,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid utcMinutes",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1440,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid altitude",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": -1,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid aerosols",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 6,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v6 invalid ozone",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": null
-      }
-    }
-  },
-  {
-    "name": "v6 invalid metresPerUnit",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 0,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere sculpted v3",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
+        "position": [
+          0,
+          860,
+          6000
         ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere empty sculpt list",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
+        "target": [
+          0,
+          180,
+          3800
         ],
-        "sculpt": []
+        "focalLength": 21
       },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
       "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy",
+        "autoExposure": "yes"
       }
     }
   },
   {
-    "name": "atmosphere material rules on original terrain v4",
-    "valid": true,
+    "name": "unknown image field",
+    "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere material preset rock",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rock",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere material preset snow",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "snow",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere material preset sand",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "sand",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere material preset ground",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "ground",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere material rules on sculpted terrain v4",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "warp",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "fbm",
-            "enabled": true,
-            "strength": 0.5,
-            "scale": 1,
-            "octaves": 5
-          },
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
+        "position": [
+          0,
+          860,
+          6000
         ],
-        "sculpt": [
-          {
-            "tool": "raise",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "lower",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "smooth",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          },
-          {
-            "tool": "flatten",
-            "radius": 3,
-            "strength": 0.25,
-            "height": 2,
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                1
-              ]
-            ]
-          }
-        ]
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere imported v5",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere imported v5 materials",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": -2,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "atmosphere heightmap flat range",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": 8,
-        "maximum": 8,
-        "metersPerUnit": 10
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      }
-    }
-  },
-  {
-    "name": "v7 geological atmosphere",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 geological artistic sky",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 rejects geology scale",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 0,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 rejects geology bump",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 1.01,
-          "roughness": 0.7
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 rejects geology roughness",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 rejects geology model",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "unknown",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 requires geology",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1
-      }
-    }
-  },
-  {
-    "name": "v6 rejects future geology fields",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 6,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      },
-      "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
-      }
-    }
-  },
-  {
-    "name": "v7 geological layers",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "layers-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 256,
-        "layers": [
-          {
-            "kind": "ridge",
-            "enabled": true,
-            "strength": 0.7,
-            "scale": 1,
-            "octaves": 5
-          }
+        "target": [
+          0,
+          180,
+          3800
         ],
-        "sculpt": []
+        "focalLength": 21
       },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
       "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
+        "haze": 1.6,
+        "fog": 0.5
       },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy",
+        "sharpen": 1
       }
     }
   },
   {
-    "name": "v7 geological imported terrain",
-    "valid": true,
+    "name": "cloud coverage too high",
+    "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 7,
-      "title": "Alpine quiet",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "heightmap-v1",
-        "seed": 1,
-        "elevation": 1,
-        "palette": "natural",
-        "resolution": 128,
-        "sculpt": [],
-        "asset": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "minimum": 0,
-        "maximum": 8,
-        "metersPerUnit": 1
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
       "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 38,
-        "sunAzimuth": 306.869897645844,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
+        "haze": 1.6,
+        "fog": 0.5
       },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 1.2,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12
       }
     }
   },
   {
-    "name": "v8 area lights",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 missing transport",
+    "name": "cloud base too low",
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38
-      }
-    }
-  },
-  {
-    "name": "v8 too many lights",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            },
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            },
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            },
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            },
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 exposure overflow",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 9,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 unknown light field",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65,
-              "url": "x"
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 zero light width",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 0,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 invalid bounce",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 2.5,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 invalid curve",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "x",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 invalid color",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 8,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 2,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v8 future lighting",
-    "valid": false,
-    "scene": {
-      "format": "lithosky",
-      "version": 9,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": [
-            {
-              "name": "Area light",
-              "enabled": true,
-              "x": -8,
-              "y": 14,
-              "z": 4,
-              "yaw": 0,
-              "pitch": -55,
-              "width": 10,
-              "height": 10,
-              "intensity": 2,
-              "red": 1,
-              "green": 0.85,
-              "blue": 0.65
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-    "name": "v9 current lake scene",
-    "valid": true,
-    "scene": {
-      "format": "lithosky",
-      "version": 9,
-      "title": "Alpine quiet",
-      "terrain": {
-        "generator": "terrain-v1",
-        "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
-      },
-      "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
-      },
-      "water": {
-        "enabled": true,
-        "level": 0.25,
-        "optics": {
-          "model": "lake-v1",
-          "metresPerUnit": 100,
-          "density": 1,
-          "ripples": 0.35,
-          "wavelength": 1,
-          "shore": 0.06
-        }
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2.75,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": []
-        }
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
       "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 39.381955415560675,
-        "sunAzimuth": 233.130102354156,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 100,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12
       }
     }
   },
   {
-    "name": "invalid lake density",
+    "name": "fractional cloud seed",
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 9,
-      "title": "Alpine quiet",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25,
-        "optics": {
-          "model": "lake-v1",
-          "metresPerUnit": 100,
-          "density": 0,
-          "ripples": 0.35,
-          "wavelength": 1,
-          "shore": 0.06
-        }
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2.75,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": []
-        }
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
       "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 39.381955415560675,
-        "sunAzimuth": 233.130102354156,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 1.5
       }
     }
   },
   {
-    "name": "invalid lake wavelength",
+    "name": "missing cloud field",
     "valid": false,
     "scene": {
       "format": "lithosky",
-      "version": 9,
-      "title": "Alpine quiet",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
       "terrain": {
-        "generator": "terrain-v1",
         "seed": 1847,
-        "elevation": 1,
-        "palette": "natural"
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
       },
       "camera": {
-        "yaw": 0.28,
-        "pitch": 0.3,
-        "distance": 23
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
       },
-      "water": {
-        "enabled": true,
-        "level": 0.25,
-        "optics": {
-          "model": "lake-v1",
-          "metresPerUnit": 100,
-          "density": 1,
-          "ripples": 0.35,
-          "wavelength": 9,
-          "shore": 0.06
-        }
-      },
-      "lighting": {
-        "sunElevation": 38,
-        "transport": {
-          "model": "path-v1",
-          "bounces": 3,
-          "exposure": 2.75,
-          "toneMap": "filmic",
-          "sun": 1,
-          "sky": 1,
-          "roughness": 0.65,
-          "ior": 1.5,
-          "lights": []
-        }
-      },
-      "surface": {
-        "preset": "rules",
-        "snowHeight": 5.4,
-        "sandHeight": 0.6,
-        "rockSlope": 39,
-        "blend": 0.6,
-        "detail": 0.25,
-        "detailScale": 1,
-        "geology": {
-          "model": "geology-v1",
-          "scale": 1,
-          "strata": 0.65,
-          "fractures": 0.55,
-          "bump": 0.6,
-          "roughness": 0.7
-        }
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
       },
       "atmosphere": {
-        "model": "earth-single-v1",
-        "mode": "manual",
-        "sunElevation": 39.381955415560675,
-        "sunAzimuth": 233.130102354156,
-        "latitude": 47.6062,
-        "longitude": -122.3321,
-        "year": 2026,
-        "day": 172,
-        "utcMinutes": 1200,
-        "altitude": 0,
-        "metresPerUnit": 100,
-        "aerosols": 1,
-        "ozone": 1
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "seed": 12
+      }
+    }
+  },
+  {
+    "name": "unknown cloud field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "clouds": {
+        "coverage": 0.4,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1500,
+        "density": 1,
+        "cirrus": 0.2,
+        "seed": 12,
+        "rain": 1
+      }
+    }
+  },
+  {
+    "name": "unknown biome",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "surface": {
+        "biome": "jungle",
+        "snowLine": 9000,
+        "treeLine": 400,
+        "moisture": 0.1,
+        "strata": 0.9
+      }
+    }
+  },
+  {
+    "name": "snow line too high",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 12000,
+        "treeLine": 400,
+        "moisture": 0.1,
+        "strata": 0.9
+      }
+    }
+  },
+  {
+    "name": "waves too strong",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "water": {
+        "waves": 2
+      }
+    }
+  },
+  {
+    "name": "water level not editable yet",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "water": {
+        "waves": 0.2,
+        "level": 300
       }
     }
   }

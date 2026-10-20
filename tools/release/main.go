@@ -43,6 +43,9 @@ type buildInfo struct {
 	BinarySHA256 string `json:"binarySHA256"`
 }
 
+// Starter scene file names come from preset IDs.
+var presetID = regexp.MustCompile(`^[A-Za-z0-9-]{1,32}$`)
+
 func main() {
 	verifyDir := flag.String("verify", "", "verify checksums, archive contents and binary hashes in a package directory")
 	version := flag.String("version", "", "package version, e.g. 0.1.0-dev.4")
@@ -208,35 +211,35 @@ func commonFiles() ([]entry, error) {
 		return nil, err
 	}
 	files = append(files, entry{"GO-LICENSE", license, 0644})
-	catalog, err := os.ReadFile("web/scenes/studies.json")
+	catalog, err := os.ReadFile("web/scenes/presets.json")
 	if err != nil {
 		return nil, err
 	}
-	var studies []struct {
+	var presets []struct {
 		ID    string          `json:"id"`
 		Scene json.RawMessage `json:"scene"`
 	}
-	if err := json.Unmarshal(catalog, &studies); err != nil {
+	if err := json.Unmarshal(catalog, &presets); err != nil {
 		return nil, err
 	}
-	if len(studies) != 3 {
-		return nil, errors.New("expected three starter scenes")
+	if len(presets) == 0 {
+		return nil, errors.New("expected starter scenes")
 	}
 	seen := map[string]bool{}
-	for _, s := range studies {
-		if (s.ID != "alpine" && s.ID != "highland" && s.ID != "distant") || seen[s.ID] {
+	for _, preset := range presets {
+		if !presetID.MatchString(preset.ID) || seen[preset.ID] {
 			return nil, errors.New("invalid starter catalog")
 		}
-		seen[s.ID] = true
-		if _, err := scene.Validate(s.Scene); err != nil {
+		seen[preset.ID] = true
+		if _, err := scene.Validate(preset.Scene); err != nil {
 			return nil, err
 		}
 		var b bytes.Buffer
-		if err := json.Indent(&b, s.Scene, "", "  "); err != nil {
+		if err := json.Indent(&b, preset.Scene, "", "  "); err != nil {
 			return nil, err
 		}
 		b.WriteByte('\n')
-		files = append(files, entry{"scenes/" + s.ID + ".lithosky", b.Bytes(), 0644})
+		files = append(files, entry{"scenes/" + preset.ID + ".lithosky", b.Bytes(), 0644})
 	}
 	return files, nil
 }

@@ -173,12 +173,17 @@ func verifyArchive(name string, data []byte) error {
 			return errors.New("missing notice/document: " + name)
 		}
 	}
-	for _, id := range []string{"alpine", "highland", "distant"} {
-		if _, err := scene.Validate(members["scenes/"+id+".lithosky"]); err != nil {
-			return err
+	scenes := 0
+	for name, data := range members {
+		if strings.HasPrefix(name, "scenes/") && strings.HasSuffix(name, ".lithosky") {
+			scenes++
+			if _, err := scene.Validate(data); err != nil {
+				return err
+			}
 		}
 	}
-	if len(members) != 10 {
+	// The binary, five notices/documents and a manifest, plus the starter scenes.
+	if scenes == 0 || len(members) != 7+scenes {
 		return errors.New("unexpected archive contents")
 	}
 	return nil
