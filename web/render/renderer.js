@@ -75,6 +75,7 @@ export class Renderer {
       this.emit();
     });
     this.clouds.update(scene);
+    this.tracer.writeSurface(scene);
     this.tracer.bind(this.terrain, this.sky, this.clouds);
     this.stats = {
       adapter: this.adapter.info?.description || this.adapter.info?.vendor || 'unknown',
@@ -131,13 +132,18 @@ export class Renderer {
     if (cloudsChanged) {
       this.clouds.update(scene);
     }
+    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null]);
+    const surfaceChanged = surfaceOf(previous) !== surfaceOf(scene);
+    if (surfaceChanged) {
+      this.tracer.writeSurface(scene);
+    }
     if (skyChanged || cameraChanged) {
       this.skyDirty = true;
     }
     if (moving) {
       this.movingUntil = performance.now() + SETTLE_MS;
     }
-    if (skyChanged || cameraChanged || fogChanged || cloudsChanged) {
+    if (skyChanged || cameraChanged || fogChanged || cloudsChanged || surfaceChanged) {
       this.resetAccumulation();
     }
   }

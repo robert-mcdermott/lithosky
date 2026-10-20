@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.4.0-dev.6 — wave 4 slice 6 (local development)
+
+- Terrain materials placed by the landform (erosion and exposure masks):
+  - bedrock in level strata: thick formations of irregular height, each with its own
+    tone, carrying thinner beds
+  - scree on talus slopes
+  - gravel in stream beds
+  - meadow with tussocks, dry patches and rock outcrops on knolls
+  - forest with crowns and clearings below the tree line
+  - sand on shores, and on dry washes in arid biomes (wet biomes grow meadow there)
+  - snow held on gentle, hollow, sheltered and north-facing ground
+- Wet ground darkens and turns glossy. Rock, snow, wet ground and sand each have their
+  own roughness and catch GGX sun highlights.
+- Five biomes: Alpine, Desert, Volcanic, Arctic and Imagined.
+- Lakes have wind-driven waves at several scales and foam along the shore.
+- New Ground & water panel: biome, snow line, tree line, moisture, rock layers and
+  waves.
+- Distant cloud decks run on to the horizon, which removes a thin bright line under
+  overcast skies.
+- Hero presets have biomes. H4 is a banded desert canyon, H5 a choppy arctic shore,
+  and H6 an imagined world.
+- Bounce and reflection rays skip fine material detail. Materials add 6–21% per
+  sample over slice 5.
+
 ## 0.4.0-dev.5 — wave 4 slice 5 (local development)
 
 - Volumetric clouds in a planet-curved shell:

@@ -3,8 +3,9 @@
 Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
 previous Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 in progress. W4.S1–S5 are complete; W4.S6 (materials from
-landform, and water) is next.
+**Status:** Wave 4 slices are complete (W4.S1–S6). The wave closes when the owner
+confirms the end-of-wave scores and the `wave4` pull request is merged. Wave 5
+(studio and First Light) is next.
 
 ## North star
 
@@ -349,6 +350,39 @@ Original plan, for reference:
 
 ### W4.S6: Materials from landform, and water
 
+**Done.** Materials live in `web/wgsl/trace/material.wgsl`, with the biome
+palettes in `web/render/biomes.js`:
+
+- **Layers.** The erosion and exposure masks place every layer:
+  - bedrock in level strata (irregular formations carrying thinner beds)
+  - scree on talus
+  - gravel in stream beds
+  - meadow with tussocks, dry patches and outcrops
+  - forest with crowns and clearings
+  - sand on shores and dry washes
+  - snow by altitude, slope, aspect, hollows and shelter
+- **Wetness.** Wet ground darkens and smooths.
+- **Shading.** Lambert plus GGX specular, with roughness per material.
+- **Biomes.** Alpine, Desert, Volcanic, Arctic and Imagined.
+- **Panel.** A Ground & water panel with biome, snow line, tree line,
+  moisture, rock layers and waves.
+- **Water.** Multi-octave, wind-driven wave normals and shoreline foam, on top
+  of the existing depth colour and traced reflections.
+- **Clouds.** A far cloud deck carries the clouds on to the horizon, removing
+  the bright line under overcast skies (seen in H4 since W4.S5).
+
+Fine texture and detail normals apply to camera rays only. Materials add
+6–21% per sample over W4.S5.
+
+Known gaps:
+
+- Material presets with rendered thumbnails moved to the W5.S1 preset
+  galleries. Biomes are the material presets for now.
+- Meadows in shadowed foreground stay soft at 1:1. Real grass needs the
+  vegetation wave.
+
+Original plan, for reference:
+
 The spike's materials are albedo-only, picked from slope, height and the
 masks.
 
@@ -377,7 +411,8 @@ Tasks:
 - Materials score at least 4 on H1 and H4.
 
 **Wave 4 is done** when every slice gate has passed and the `wave4` pull
-request is merged. Tag it v0.4.0. It is not published.
+request is merged. Tag it v0.4.0. It is not published. The draft end-of-wave
+scores are in `bench/hero/scores.md`, waiting for the owner.
 
 ## Wave 5: Studio and First Light
 

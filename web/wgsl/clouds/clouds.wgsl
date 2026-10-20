@@ -242,6 +242,36 @@ fn cirrusLayer(state: ptr<function, CloudSample>, origin: vec3f, direction: vec3
     (*state).transmittance *= exp(-opticalDepth);
 }
 
+// Past the marched range, a broken layer seen edge-on closes up into a continuous deck. Rays
+// that reach the layer out there see that deck, so the clouds run on to the horizon
+// instead of stopping at a band of clear sky.
+fn farDeck(state: ptr<function, CloudSample>, origin: vec3f, direction: vec3f, limit: f32) {
+    if (clouds.coverage <= 0.0 || (*state).transmittance < 0.01) {
+        return;
+    }
+    // Shaded just inside the side of the layer the ray enters: the bases from below, the tops
+    // from above, matching what the marched clouds show nearer in.
+    let bottom = atmosphere.bottomRadius + clouds.baseAltitude;
+    let below = length(origin) < bottom + clouds.thickness * 0.5;
+    let entry = sphereSpan(origin, direction, bottom + clouds.thickness * select(0.85, 0.15, below));
+    let t = select(entry.y, entry.x, entry.x > 0.0);
+    if (t <= CLOUD_FADE_START || t > limit) {
+        return;
+    }
+    let ground = raySphere(origin, direction, atmosphere.bottomRadius);
+    if (ground > 0.0 && ground < t) {
+        return;
+    }
+    // Takes over as the marched clouds fade out.
+    let opacity = (1.0 - exp(-4.0 * clouds.coverage)) * smoothstep(CLOUD_FADE_START, CLOUD_MAX_DISTANCE, t);
+    let position = origin + direction * t;
+    let light = cloudLight(position, 0.5, dot(direction, frame.sunDirection));
+    let gained = (*state).transmittance * opacity;
+    (*state).inscatter += light * gained;
+    (*state).distance += t * gained;
+    (*state).transmittance *= 1.0 - opacity;
+}
+
 // Clouds along a ray from world point `origin` (metres) up to `limit` metres.
 fn traceClouds(origin: vec3f, direction: vec3f, limit: f32, steps: u32) -> CloudSample {
     var result: CloudSample;
@@ -256,6 +286,8 @@ fn traceClouds(origin: vec3f, direction: vec3f, limit: f32, steps: u32) -> Cloud
     let spans = shellSpans(start, direction, limitKm);
     marchSpan(&result, start, direction, spans.first, steps);
     marchSpan(&result, start, direction, spans.second, steps);
+    // An open-sky ray (no terrain within the march) may meet the deck far beyond it.
+    farDeck(&result, start, direction, select(limitKm, 1e5, limitKm >= CLOUD_MAX_DISTANCE));
     cirrusLayer(&result, start, direction, limitKm);
     let gathered = 1.0 - result.transmittance;
     result.distance = select(0.0, result.distance / gathered * 1000.0, gathered > 1e-4);

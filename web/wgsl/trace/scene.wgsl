@@ -126,3 +126,10 @@ fn sampleMasks(world: vec2f) -> vec4f {
     let uv = (position + 0.5) / f32(fields.near.size);
     return textureSampleLevel(masks, skySampler, uv, 0.0);
 }
+
+// Sky openness (r) and wetness (g) from the terrain's exposure masks.
+fn sampleExposure(world: vec2f) -> vec4f {
+    let position = (world - fields.near.origin) / fields.near.spacing;
+    let uv = (position + 0.5) / f32(fields.near.size);
+    return textureSampleLevel(exposureMasks, skySampler, uv, 0.0);
+}

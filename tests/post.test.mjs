@@ -2,9 +2,11 @@
 // Post-processing helpers and image settings.
 
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import test from 'node:test';
 import { denoiseMix } from '../web/render/post.js';
-import { CLOUD_DEFAULTS, IMAGE_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf } from '../web/scene/document.js';
+import { BIOMES, BIOME_IDS, surfaceUniform } from '../web/render/biomes.js';
+import { CLOUD_DEFAULTS, IMAGE_DEFAULTS, SURFACE_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, surfaceSettingsOf } from '../web/scene/document.js';
 
 test('denoising fades out as samples accumulate', () => {
   assert.ok(denoiseMix(1) > 0.8);
@@ -37,4 +39,28 @@ test('a scene without clouds has a clear sky', () => {
   assert.deepEqual(clouds, { ...CLOUD_DEFAULTS });
   scene.clouds = { ...CLOUD_DEFAULTS, coverage: 0.5 };
   assert.equal(cloudSettingsOf(scene).coverage, 0.5);
+});
+
+test('every biome in the schema has a complete palette', () => {
+  const schema = JSON.parse(fs.readFileSync('internal/scene/schema.json', 'utf8'));
+  assert.deepEqual(schema.properties.surface.properties.biome.enum, BIOME_IDS);
+  for (const id of BIOME_IDS) {
+    const biome = BIOMES[id];
+    for (const key of ['rockDark', 'rockLight', 'band', 'scree', 'soilLush', 'soilDry', 'forest', 'sand', 'snow']) {
+      assert.equal(biome[key].length, 3, `${id}.${key}`);
+      assert.ok(biome[key].every(value => value >= 0 && value <= 1), `${id}.${key} is an albedo`);
+    }
+  }
+});
+
+test('the surface uniform carries the scene limits and waves', () => {
+  const scene = defaultScene();
+  scene.surface = { ...SURFACE_DEFAULTS, snowLine: 3000, moisture: 0.8 };
+  scene.water = { waves: 0.6 };
+  const floats = new Float32Array(surfaceUniform(scene));
+  assert.equal(floats.length, 44);
+  assert.equal(floats[36], 3000);
+  assert.ok(Math.abs(floats[38] - 0.8) < 1e-6);
+  assert.ok(Math.abs(floats[39] - 0.6) < 1e-6);
+  assert.equal(surfaceSettingsOf(defaultScene()).biome, 'alpine');
 });

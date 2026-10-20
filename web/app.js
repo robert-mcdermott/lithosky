@@ -6,7 +6,8 @@
 import { advance, distanceToTarget, dolly, orbit, pan, tanHalfFov } from './render/camera.js';
 import { Renderer, VIEW_MODES } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
+import { SURFACE_DEFAULTS, WATER_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
+import { BIOMES, BIOME_IDS } from './render/biomes.js';
 import { History } from './scene/history.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
 import { button, choice, element, section, slider, toggle } from './ui/controls.js';
@@ -87,6 +88,8 @@ async function start() {
     const valid = validateScene(scene, schema);
     valid.image = imageSettingsOf(valid);
     valid.clouds = cloudSettingsOf(valid);
+    valid.surface = { ...SURFACE_DEFAULTS, ...valid.surface };
+    valid.water = { ...WATER_DEFAULTS, ...valid.water };
     return valid;
   };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
@@ -221,6 +224,21 @@ async function start() {
     })),
   );
 
+  const groundSection = section('Ground & water');
+  const biome = choice({ label: 'Biome', options: BIOME_IDS.map(id => [id, BIOMES[id].name]) }, value => edit(draft => {
+    draft.surface.biome = value;
+  }));
+  bindings.push(scene => biome.set(scene.surface.biome));
+  const metresLabel = value => `${Math.round(value)} m`;
+  groundSection.body.append(
+    biome.node,
+    sliderFor({ path: 'surface.snowLine', label: 'Snow line', min: 0, max: 9000, step: 25, live: true, format: metresLabel }),
+    sliderFor({ path: 'surface.treeLine', label: 'Tree line', min: 0, max: 9000, step: 25, live: true, format: metresLabel }),
+    sliderFor({ path: 'surface.moisture', label: 'Moisture', min: 0, max: 1, step: 0.01, live: true, format: plain }),
+    sliderFor({ path: 'surface.strata', label: 'Rock layers', min: 0, max: 1, step: 0.01, live: true, format: plain }),
+    sliderFor({ path: 'water.waves', label: 'Waves', min: 0, max: 1, step: 0.01, live: true, format: plain }),
+  );
+
   const skySection = section('Sun & sky');
   skySection.body.append(
     sliderFor({ path: 'sun.elevation', label: 'Sun height', min: -5, max: 70, step: 0.1, live: true, format: degrees }),
@@ -302,7 +320,8 @@ async function start() {
     show.node,
   );
 
-  panel.append(presetSection.node, terrainSection.node, skySection.node, cloudSection.node, cameraSection.node, imageSection.node);
+  panel.append(presetSection.node, terrainSection.node, groundSection.node, skySection.node, cloudSection.node,
+    cameraSection.node, imageSection.node);
 
   // --- Camera navigation -------------------------------------------------------------
 

@@ -40,3 +40,45 @@ Average: 2.2. Lowest criteria: sky, landform, materials. That ordering matches
 the Wave 4 slice sequence.
 
 Status: baseline recorded. Each later slice is reviewed against it with a side-by-side.
+
+## End of Wave 4 (W4.S6)
+
+Rendered 2026-10-19 with `node bench/hero.mjs --label w4s6` (1920×1080, 256 spp, Apple
+M4, Chrome). Side-by-sides against the baseline are in `bench/out/wave4-before-after/`.
+Claude drafted these scores; **the owner confirms or adjusts them to close Wave 4.**
+
+| Criterion | H1 | H2 | H3 | H4 | H5 | H6 |
+|---|---|---|---|---|---|---|
+| Landform | 4 | 4 | 4 | 3 | 3 | 3 |
+| Sky | 4 | 4 | 4 | 4 | 4 | 3 |
+| Depth/atmosphere | 4 | 4 | 4 | 4 | 4 | 3 |
+| Light and shadow | 4 | 4 | 3 | 4 | 4 | 3 |
+| Materials | 4 | 4 | 3 | 4 | 3 | 3 |
+| Water | 4 | — | 4 | — | 3 | — |
+| Noise and artifacts | 4 | 4 | 4 | 4 | 4 | 4 |
+| Composition | 4 | 4 | 4 | 3 | 4 | 3 |
+
+Notes:
+
+- **Landform:** drainage networks, talus and incised valleys read as erosion. H4 reads
+  as badlands, not a canyon: it needs terraced mesas and cliff bands. H5's ridges are
+  smooth silhouettes.
+- **Sky:** H2's cumulus and H5's broken, backlit cloud work. H5 is still not a true
+  storm (see W4.S5). H6's fair-weather sky is plain for an imagined world.
+- **Depth:** aerial perspective gives true distance on every shot. H6's haze softens
+  its palette.
+- **Light:** low sun rims the ridges in H1, H4 and H5. H3's shadowed walls are a flat
+  brown.
+- **Materials:** strata, scree, gully snow, meadow on the lake fans and wet shores read
+  at 1:1 on H1, H2 and H4. H3's walls are one brown, and H5 is mostly silhouette.
+  Meadow in shadow stays soft until the vegetation wave.
+- **Water:** H1 and H3 have clean reflections with wind texture. H5 has sun glitter,
+  but its waves are uniform.
+- **Noise:** clean at 256 spp, with no fireflies or banding. The thin horizon line in
+  H4 is gone.
+- **Composition:** H4 is half sky above a low horizon. H6 lacks a focal point.
+
+Average: 3.7, up from 2.2. The W4.S6 gate (materials at least 4 on H1 and H4) is met
+in this draft. Below the First Light target (no score below 4 on H1–H4) are H3's light
+and materials and H4's landform and composition. Those carry into the Wave 5 preset
+work.

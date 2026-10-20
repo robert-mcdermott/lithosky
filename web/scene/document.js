@@ -120,6 +120,24 @@ export function cloudSettingsOf(scene) {
   return { ...CLOUD_DEFAULTS, ...scene.clouds };
 }
 
+// Surface (biome) and water settings older scenes may omit.
+export const SURFACE_DEFAULTS = Object.freeze({
+  biome: 'alpine',
+  snowLine: 2100,
+  treeLine: 1250,
+  moisture: 0.5,
+  strata: 0.4,
+});
+
+export const WATER_DEFAULTS = Object.freeze({
+  waves: 0.15,
+});
+
+// Surface settings plus the water's wave strength, as the material shader reads them.
+export function surfaceSettingsOf(scene) {
+  return { ...SURFACE_DEFAULTS, ...scene.surface, ...WATER_DEFAULTS, ...scene.water };
+}
+
 export function imageSettingsOf(scene) {
   return { ...IMAGE_DEFAULTS, ...scene.image };
 }

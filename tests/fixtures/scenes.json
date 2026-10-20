@@ -178,6 +178,57 @@
     }
   },
   {
+    "name": "desert surface and waves",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 9000,
+        "treeLine": 400,
+        "moisture": 0.1,
+        "strata": 0.9
+      },
+      "water": {
+        "waves": 0.5
+      }
+    }
+  },
+  {
     "name": "heightmap reference",
     "valid": true,
     "scene": {
@@ -1585,6 +1636,191 @@
         "cirrus": 0.2,
         "seed": 12,
         "rain": 1
+      }
+    }
+  },
+  {
+    "name": "unknown biome",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "surface": {
+        "biome": "jungle",
+        "snowLine": 9000,
+        "treeLine": 400,
+        "moisture": 0.1,
+        "strata": 0.9
+      }
+    }
+  },
+  {
+    "name": "snow line too high",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 12000,
+        "treeLine": 400,
+        "moisture": 0.1,
+        "strata": 0.9
+      }
+    }
+  },
+  {
+    "name": "waves too strong",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "water": {
+        "waves": 2
+      }
+    }
+  },
+  {
+    "name": "water level not editable yet",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "water": {
+        "waves": 0.2,
+        "level": 300
       }
     }
   }

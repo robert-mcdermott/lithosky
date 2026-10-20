@@ -5,7 +5,8 @@ executable serves the app and opens it in a desktop-style browser window. Everyt
 renders on your GPU with WebGPU. There are no accounts, telemetry or remote assets.
 Original code and content are Apache-2.0.
 
-**Status:** Wave 4 (visual core) is in progress; see the [roadmap](ROADMAP.md).
+**Status:** Wave 4 (visual core) is complete, pending review and merge; Wave 5 (the
+studio) is next. See the [roadmap](ROADMAP.md).
 Highlights:
 
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
@@ -13,10 +14,12 @@ Highlights:
 - **Rendering.** The path-traced view fills the window and refines in about a second.
 - **Sky.** A physical sky with aerial perspective, and volumetric clouds that shadow
   the land.
+- **Ground and water.** Materials placed by the landform: banded strata, scree,
+  meadow, forest, gravel, sand and snow. Five biomes; wet ground and snow catch
+  specular light; lakes have wind waves and shoreline foam.
 - **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
 
-Landform-driven materials and the full studio come in later slices. Nothing has
-been released yet.
+The full studio comes in Wave 5. Nothing has been released yet.
 
 ## Build and run
 
@@ -54,6 +57,8 @@ The panel holds:
 - terrain: seed, relief, drainage, gullies, scree, Erode more, heightmap import
 - sun and sky: sun height and direction, haze, valley fog
 - clouds: sky presets, cover, cloud type, base, depth, density, cirrus, New sky
+- ground and water: biome (Alpine, Desert, Volcanic, Arctic, Imagined), snow line,
+  tree line, moisture, rock layers, waves
 - lens
 - image: look, auto exposure, exposure, warmth, glow, vignette, grain, and debug views of
   the drainage and landform masks

@@ -36,6 +36,8 @@
 @group(0) @binding(17) var shapeNoise: texture_3d<f32>;
 @group(0) @binding(18) var detailNoise: texture_3d<f32>;
 @group(0) @binding(19) var cloudSampler: sampler;
+@group(0) @binding(20) var exposureMasks: texture_2d<f32>;
+@group(0) @binding(21) var<uniform> surface: Surface;
 
 const SKY_DEPTH: f32 = 300000.0;
 
@@ -113,7 +115,7 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
             break;
         }
         let position = rayOrigin + rayDirection * hit.t;
-        let point = shadePoint(position, hit.field, hit.t);
+        let point = shadePoint(position, hit.field, hit.t, bounce == 0u);
         if (bounce == 0u) {
             firstAlbedo = point.albedo;
             firstNormal = point.normal;
@@ -127,7 +129,7 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
             throughput *= aerial.transmittance * fog.transmittance;
             frontClouds = traceClouds(rayOrigin, rayDirection, hit.t, CLOUD_VIEW_STEPS);
         }
-        var direct = throughput * directSun(point, hit.t);
+        var direct = throughput * directSun(point, hit.t, -rayDirection);
         if (bounce > 0u) {
             direct = limitLuminance(direct, INDIRECT_LIMIT);
         }

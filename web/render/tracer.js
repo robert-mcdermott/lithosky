@@ -6,6 +6,7 @@
 
 import { bindGroup, computePipeline, storageBuffer, uniformBuffer } from '../gpu/device.js';
 import { StructWriter } from '../gpu/struct.js';
+import { surfaceUniform } from './biomes.js';
 import { AERIAL_DISTANCE } from './sky.js';
 
 export class Tracer {
@@ -19,6 +20,7 @@ export class Tracer {
     this.pipeline = pipeline;
     this.frameBuffer = uniformBuffer(device, 'frame', 128);
     this.fieldsBuffer = uniformBuffer(device, 'fields', 64);
+    this.surfaceBuffer = uniformBuffer(device, 'surface', 176);
     this.capacity = 0;
     this.accumulation = null;
     this.guides = null;
@@ -46,6 +48,11 @@ export class Tracer {
     this.reserve(width * height);
     this.width = width;
     this.height = height;
+  }
+
+  // Biome palette, snow and tree lines, moisture, strata and water waves for a scene.
+  writeSurface(scene) {
+    this.device.queue.writeBuffer(this.surfaceBuffer, 0, surfaceUniform(scene));
   }
 
   bind(terrain, sky, clouds) {
@@ -84,6 +91,8 @@ export class Tracer {
       clouds.shapeNoise.createView(),
       clouds.detailNoise.createView(),
       clouds.sampler,
+      terrain.exposure.createView(),
+      this.surfaceBuffer,
     ], 'tracer');
   }
 

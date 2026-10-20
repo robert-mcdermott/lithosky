@@ -26,6 +26,7 @@ Everything visual runs in WebGPU on one persistent device:
 | `web/render/tracer.js` | The progressive path tracer: one full-frame sample per dispatch into a GPU accumulation buffer |
 | `web/render/sky.js` | Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and aerial perspective |
 | `web/render/clouds.js` | Cloud noise textures and weather map (generated on the GPU); the cloud march, lighting and shadows are in `web/wgsl/clouds/` |
+| `web/render/biomes.js` | Biome palettes and limits, written to one surface uniform; the landform-driven materials that read it are in `web/wgsl/trace/material.wgsl` |
 | `web/render/post.js` | GPU post passes: resolve, an edge-aware à-trous denoiser guided by first-hit albedo, normal and distance, six-level bloom, and an auto-exposure meter |
 | `web/render/display.js` | Exposure (metered or manual), white balance, looks (AgX, ACES, soft, mono), vignette, grain and sRGB; stretches a smaller render to the canvas; PNG capture |
 | `web/render/camera.js` | Camera basis, orbit, pan, dolly and sun direction |
@@ -37,6 +38,9 @@ Some properties of the tracer and frame loop:
   pyramids skip empty space, then exact bilinear-patch hits.
 - **Lighting.** Sun next-event estimation uses the finite solar disk. Bounces sample the
   sky-view LUT, and haze uses the aerial-perspective LUT at true kilometre distances.
+- **Materials.** Erosion and exposure masks place each layer; surfaces shade with
+  Lambert plus GGX specular, by roughness and wetness. Camera rays get the fine
+  texture and detail normals; bounce and reflection rays use the average material.
 - **Responsive loop.** Frames are queued without CPU waits. While the camera moves the
   image renders at half resolution, then refines.
 - **Export.** Export renders the same scene at the chosen size and sample count through
@@ -51,6 +55,7 @@ A scene is one small JSON document (format `lithosky`, version 1):
 - sun
 - atmosphere
 - image settings
+- optional clouds, surface (biome and limits) and water settings
 
 Its single definition is `internal/scene/schema.json`. The Go server validates every
 file, autosave and project against it, and the browser validates against the same file.

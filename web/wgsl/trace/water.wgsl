@@ -8,7 +8,9 @@ const WATER_ETA: f32 = 1.333;
 const WATER_ABSORPTION: vec3f = vec3f(0.5, 0.13, 0.09);
 const WATER_BODY: vec3f = vec3f(0.006, 0.02, 0.022);
 const LAKE_BED: vec3f = vec3f(0.12, 0.11, 0.09);
-const RIPPLE_SLOPE: f32 = 0.01;
+const RIPPLE_SLOPE: f32 = 0.008;
+const WAVE_SLOPE: f32 = 0.09;
+const FOAM_ALBEDO: f32 = 0.75;
 const REFLECTION_LIMIT: f32 = 6.0;
 const REFLECTION_CLOUD_STEPS: u32 = 20u;
 
@@ -19,17 +21,23 @@ fn waterDistance(origin: vec3f, direction: vec3f) -> f32 {
     return (fields.waterLevel - origin.y) / direction.y;
 }
 
-// Faint wind ripples, stretched across the valley, fading below a pixel.
-fn rippleGradient(world: vec2f, footprint: f32) -> vec2f {
+// Wind waves: octaves from 24 m down to a few centimetres, stretched across the wind, their
+// slope set by the scene's Waves amount. Octaves below a pixel fade out.
+fn waveGradient(world: vec2f, footprint: f32) -> vec2f {
+    let waves = surface.limits.w;
+    let wind = mat2x2f(0.94, 0.34, -0.34, 0.94) * world;
     var gradient = vec2f(0.0);
-    var size = 7.0;
-    var slope = RIPPLE_SLOPE;
-    for (var octave = 0u; octave < 3u; octave++) {
+    var size = mix(7.0, 24.0, waves);
+    var slope = RIPPLE_SLOPE + WAVE_SLOPE * waves;
+    for (var octave = 0u; octave < 6u; octave++) {
         let fade = smoothstep(footprint, 4.0 * footprint, size);
-        let n = gradientNoise(world / size * vec2f(1.0, 2.5), 701u + octave);
+        if (fade <= 0.0) {
+            break;
+        }
+        let n = gradientNoise(wind / size * vec2f(1.0, 2.2), 701u + octave);
         gradient += n.yz * slope * fade;
-        size *= 0.45;
-        slope *= 0.8;
+        size *= 0.48;
+        slope *= 0.78;
     }
     return gradient;
 }
@@ -54,14 +62,14 @@ fn reflectionRadiance(origin: vec3f, direction: vec3f, viewDirection: vec3f, wat
         let layer = traceClouds(origin, direction, MAX_DISTANCE, REFLECTION_CLOUD_STEPS);
         return limitLuminance(sky * layer.transmittance + layer.inscatter, REFLECTION_LIMIT);
     }
-    let point = shadePoint(origin + direction * hit.t, hit.field, waterDepth + hit.t);
+    let point = shadePoint(origin + direction * hit.t, hit.field, waterDepth + hit.t, false);
     let skyLight = cloudySky(normalize(point.normal + vec3f(0.0, 1.0, 0.0))) * 0.8;
-    let lit = directSun(point, waterDepth + hit.t) + point.albedo * skyLight;
+    let lit = directSun(point, waterDepth + hit.t, -direction) + point.albedo * skyLight;
     return hazeOver(lit, viewDirection, waterDepth, hit.t);
 }
 
 fn shadeWater(position: vec3f, direction: vec3f, depth: f32) -> vec3f {
-    let ripple = rippleGradient(position.xz, pixelFootprint(depth));
+    let ripple = waveGradient(position.xz, pixelFootprint(depth));
     let normal = normalize(vec3f(-ripple.x, 1.0, -ripple.y));
     let cosine = clamp(-dot(direction, normal), 0.0, 1.0);
     let fresnel = WATER_F0 + (1.0 - WATER_F0) * pow(1.0 - cosine, 5.0);
@@ -81,5 +89,10 @@ fn shadeWater(position: vec3f, direction: vec3f, depth: f32) -> vec3f {
     let throughWater = exp(-WATER_ABSORPTION * path);
     let bed = LAKE_BED * INV_PI * irradiance * throughWater;
     let body = WATER_BODY * irradiance * (vec3f(1.0) - throughWater);
-    return fresnel * mirror + (1.0 - fresnel) * (bed + body);
+    let water = fresnel * mirror + (1.0 - fresnel) * (bed + body);
+    // Foam where waves break on the shallows, in broken lines along the shore.
+    let breakers = gradientNoise(position.xz / 6.0, 911u).x * 0.5 + 0.5;
+    let shallows = 1.0 - smoothstep(0.1, 1.2 + 2.0 * surface.limits.w, waterDepth);
+    let foam = shallows * smoothstep(0.35, 0.75, breakers) * saturate(surface.limits.w * 2.5 + 0.15);
+    return mix(water, FOAM_ALBEDO * INV_PI * irradiance, foam);
 }
