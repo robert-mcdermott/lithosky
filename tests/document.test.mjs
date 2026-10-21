@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
-import { defaultScene, terrainSettingsOf, validateScene } from '../web/scene/document.js';
+import { ASPECTS, aspectOf, defaultScene, terrainSettingsOf, validateScene } from '../web/scene/document.js';
 import { History } from '../web/scene/history.js';
 
 const schema = JSON.parse(fs.readFileSync('internal/scene/schema.json', 'utf8'));
@@ -97,4 +97,18 @@ test('history respects its snapshot budget', () => {
     });
   }
   assert.equal(history.past.length, 5);
+});
+
+test('the image shape defaults to 16:9 and every shape the schema allows has an aspect', () => {
+  assert.equal(aspectOf(defaultScene()), 16 / 9);
+  assert.equal(aspectOf({ ...defaultScene(), image: { exposure: 0, look: 'none', aspect: '4:5' } }), 0.8);
+  assert.deepEqual(Object.keys(ASPECTS).sort(), [...schema.properties.image.properties.aspect.enum].sort());
+});
+
+test('a saved view needs a target away from its position', () => {
+  const scene = defaultScene();
+  scene.cameras = [{ name: 'Lake', position: [0, 860, 6000], target: [0, 180, 3800], focalLength: 21 }];
+  validate(scene);
+  scene.cameras.push({ name: 'Broken', position: [1, 2, 3], target: [1, 2, 3], focalLength: 35 });
+  assert.throws(() => validate(scene), /cameras\[1\]: the target must differ/);
 });

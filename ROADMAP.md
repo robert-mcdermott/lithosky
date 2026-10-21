@@ -4,8 +4,9 @@ Updated 2026-10-20. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
-Light) is in progress on `wave5`. W5.S1 (layout and labs) and W5.S2 (tactile controls)
-are done; W5.S3 (framing, cameras and onboarding) is next.
+Light) is in progress on `wave5`. W5.S1–S3 are done. W5.S3's gate (first-time users
+reach a shareable image in 5 minutes) needs the owner's user tests. W5.S4 (preset pack
+and visual gaps) is next.
 
 ## North star
 
@@ -210,7 +211,7 @@ and browser share. The legacy renderer, its UI, old scene versions, the old site
 and `web/spike/` are removed. Exports render H1–H6 at 1920 × 1080 in 3–6 s at 96
 samples. Rock fracture and strata detail sharpen close slopes. The viewport
 denoiser, sky importance sampling and blue-noise sampling moved to W4.S4. The W3
-primitives return with the object tools in W5.S3.
+primitives return with the "Rocks and objects" wave after First Light.
 
 Original plan, for reference:
 
@@ -556,6 +557,26 @@ Tasks:
 **Gate:** the owner can light and frame a scene without typing a number.
 
 ### W5.S3: Framing, cameras and onboarding
+
+**Done.**
+
+- **Framing.**
+  - `image.aspect` (16:9, 3:2, 4:5, 1:1, 21:9) sets the frame the view shows and
+    the shape every render saves
+  - a narrower frame slides clear of the drawer
+  - thirds and golden-ratio guides overlay it
+- **Saved views.** `cameras` holds up to 24 saved views, shown in the Camera lab as
+  a rendered filmstrip. Clicking one flies there. Views can be renamed and
+  removed.
+- **Onboarding.**
+  - a welcome card with the scenes on first run, then a tip at the labs
+  - a line of help per lab and a hover hint per control
+  - a plain-language pass over the labels
+
+Not done here: the gate itself. Three first-time users each getting to a
+shareable image in 5 minutes needs the owner to run the sessions.
+
+Original plan, for reference:
 
 Tasks:
 

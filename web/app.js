@@ -6,11 +6,11 @@
 import { advance, distanceToTarget, dolly, lookAt, orbit, pan, sunAngles, tanHalfFov, viewHeading, viewRay } from './render/camera.js';
 import { Renderer } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { SURFACE_DEFAULTS, WATER_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
+import { SURFACE_DEFAULTS, WATER_DEFAULTS, aspectOf, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
 import { History } from './scene/history.js';
 import { RANDOMIZERS, randomize } from './scene/randomize.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
-import { element, iconButton, slider } from './ui/controls.js';
+import { element, gallery, iconButton, slider } from './ui/controls.js';
 import { icon } from './ui/icons.js';
 import { buildLabs } from './ui/labs.js';
 import { SUN_LIMITS } from './ui/sundome.js';
@@ -23,8 +23,29 @@ const WHEEL_SPEED = 0.0015;
 const WHEEL_SETTLE_MS = 300;
 // Galleries re-render this long after the last edit or camera move settles.
 const GALLERY_DELAY_MS = 450;
-// A double-click turns the view to the clicked point over this long.
+// A double-click turns the view to the clicked point over this long; a saved view flies
+// into place over a little longer.
 const FOCUS_MS = 280;
+const FLY_MS = 520;
+const GUIDE_MODES = ['none', 'thirds', 'golden'];
+
+// Viewer preferences that aren't part of the scene. Storage can be unavailable; the studio
+// works without it.
+function remembered(key, fallback) {
+  try {
+    return localStorage.getItem(`lithosky.${key}`) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function remember(key, value) {
+  try {
+    localStorage.setItem(`lithosky.${key}`, value);
+  } catch {
+    // Preferences are a convenience only.
+  }
+}
 
 let token = null;
 
@@ -98,6 +119,40 @@ async function start() {
   };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
   const canvas = $('view');
+
+  // The view takes the scene's image shape, as large as fits below the top bar; the rest of
+  // the window is a dark mat. Guides and region boxes follow the frame.
+  let framedAspect = null;
+  function layoutFrame() {
+    const aspect = aspectOf(history.value);
+    framedAspect = aspect;
+    const top = document.querySelector('.bar').getBoundingClientRect().bottom + 10;
+    const narrow = window.innerWidth <= 760;
+    const bottom = narrow ? 84 : 0;
+    const roomWidth = window.innerWidth;
+    const roomHeight = Math.max(100, window.innerHeight - top - bottom);
+    const width = Math.min(roomWidth, roomHeight * aspect);
+    const height = width / aspect;
+    // A frame narrower than the window slides right, just enough to clear the rail and an
+    // open drawer, when there's room; its size never changes, so the render carries on.
+    let clear = 0;
+    if (!narrow && !document.body.classList.contains('chrome-hidden')) {
+      const drawerBox = $('drawer').hidden ? null : $('drawer').getBoundingClientRect();
+      clear = (drawerBox ?? $('rail').getBoundingClientRect()).right + 10;
+    }
+    const left = Math.max((roomWidth - width) / 2, Math.min(clear, roomWidth - width));
+    const box = [left, top + (roomHeight - height) / 2, width, height].map(Math.round);
+    for (const node of [canvas, $('guides')]) {
+      node.style.left = `${box[0]}px`;
+      node.style.top = `${box[1]}px`;
+      node.style.width = `${box[2]}px`;
+      node.style.height = `${box[3]}px`;
+    }
+    document.body.classList.toggle('matted', width < roomWidth - 1 || height < roomHeight - 1);
+  }
+  layoutFrame();
+  window.addEventListener('resize', layoutFrame);
+
   const renderer = await Renderer.create(canvas, history.value);
   renderer.start();
 
@@ -134,6 +189,9 @@ async function start() {
 
   function apply({ moving = false, save = true } = {}) {
     const scene = history.value;
+    if (aspectOf(scene) !== framedAspect) {
+      layoutFrame();
+    }
     renderer.setScene(scene, { moving });
     for (const bind of bindings) {
       bind(scene);
@@ -220,6 +278,46 @@ async function start() {
 
   const aspect = () => canvas.clientWidth / Math.max(1, canvas.clientHeight);
 
+  // Framing guides over the view: none, rule of thirds or golden ratio (G cycles them).
+  let guideMode = GUIDE_MODES.includes(remembered('guides', 'none')) ? remembered('guides', 'none') : 'none';
+  function setGuides(mode) {
+    guideMode = mode;
+    $('guides').dataset.mode = mode;
+    remember('guides', mode);
+    for (const bind of bindings) {
+      bind(history.value);
+    }
+  }
+  $('guides').dataset.mode = guideMode;
+
+  // Moves the camera smoothly to `view` (position, target, focal length) as one undo step.
+  function flyTo(view, duration) {
+    const start = history.value.camera;
+    const end = { position: [...view.position], target: [...view.target], focalLength: view.focalLength };
+    history.begin();
+    startInteraction();
+    const began = performance.now();
+    const blend = (a, b, t) => a + (b - a) * t;
+    const step = now => {
+      const t = Math.min(1, (now - began) / duration);
+      const eased = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
+      moveCamera(() => ({
+        position: start.position.map((value, i) => blend(value, end.position[i], eased)),
+        target: start.target.map((value, i) => blend(value, end.target[i], eased)),
+        focalLength: Math.round(blend(start.focalLength, end.focalLength, eased) * 10) / 10,
+      }));
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        moveCamera(() => end);
+        history.end();
+        apply();
+        endInteraction();
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
   // Placing the sun: the next drag in the view moves the sun to wherever it points.
   let placingSun = false;
   function setPlacingSun(on) {
@@ -243,6 +341,9 @@ async function start() {
     actions: {
       placeSun: () => setPlacingSun(!placingSun),
       placingSun: () => placingSun,
+      flyTo: view => flyTo(view, FLY_MS),
+      guides: () => guideMode,
+      setGuides,
       erodeMore: () => renderer.erodeMore(),
       importHeightmap: () => $('heightmap-file').click(),
       proceduralTerrain: () => edit(draft => {
@@ -290,10 +391,13 @@ async function start() {
     }
     showCachedThumbnails();
     scheduleGallery(0);
+    $('tip').hidden = true;
+    layoutFrame();
   }
   function closeLab() {
     openLab = null;
     drawer.hidden = true;
+    layoutFrame();
     for (const item of railButtons.values()) {
       item.classList.remove('active');
       item.setAttribute('aria-expanded', 'false');
@@ -311,7 +415,7 @@ async function start() {
     }
     const variants = openLab.variants(history.value);
     for (const variant of variants) {
-      openLab.gallery.show(variant.id, thumbnails.get(variant.scene));
+      (variant.gallery ?? openLab.gallery).show(variant.id, thumbnails.get(variant.scene));
     }
     return variants;
   }
@@ -344,9 +448,10 @@ async function start() {
       galleryBusy = false;
     }
     for (const variant of variants) {
-      lab.gallery.show(variant.id, thumbnails.get(variant.scene));
+      (variant.gallery ?? lab.gallery).show(variant.id, thumbnails.get(variant.scene));
     }
-    if (!rendered || lab !== openLab || JSON.stringify(lab.variants(history.value)) !== JSON.stringify(variants)) {
+    const key = list => JSON.stringify(list.map(variant => [variant.id, variant.scene]));
+    if (!rendered || lab !== openLab || key(lab.variants(history.value)) !== key(variants)) {
       scheduleGallery();
     }
   }
@@ -436,7 +541,7 @@ async function start() {
   // resolution over the view until the scene or camera changes.
   let regionMode = false;
   let marquee = null;
-  const regionButton = iconButton('region', 'Render a region (R)', () => setRegionMode(!regionMode));
+  const regionButton = iconButton('region', 'Preview an area at full quality (R)', () => setRegionMode(!regionMode));
   $('region-button-slot').replaceWith(regionButton);
   function setRegionMode(on) {
     regionMode = on;
@@ -455,8 +560,9 @@ async function start() {
     $('marquee').hidden = false;
   }
   function placeBox(node, [x0, y0, x1, y1]) {
-    node.style.left = `${x0}px`;
-    node.style.top = `${y0}px`;
+    const frame = canvas.getBoundingClientRect();
+    node.style.left = `${frame.left + x0}px`;
+    node.style.top = `${frame.top + y0}px`;
     node.style.width = `${x1 - x0}px`;
     node.style.height = `${y1 - y0}px`;
   }
@@ -504,25 +610,9 @@ async function start() {
     }
     const start = history.value.camera;
     const end = lookAt(start, point);
-    if (end === start) {
-      return;
+    if (end !== start) {
+      flyTo(end, FOCUS_MS);
     }
-    history.begin();
-    startInteraction();
-    const began = performance.now();
-    const step = now => {
-      const t = Math.min(1, (now - began) / FOCUS_MS);
-      const eased = 1 - (1 - t) ** 3;
-      moveCamera(camera => ({ ...camera, target: start.target.map((value, i) => value + (end.target[i] - value) * eased) }));
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else {
-        history.end();
-        apply();
-        endInteraction();
-      }
-    };
-    requestAnimationFrame(step);
   });
 
   let wheelTimer = null;
@@ -760,8 +850,8 @@ async function start() {
       $('status').textContent = `Building terrain ${Math.round(stats.progress * 100)}%`;
     } else {
       const rate = (stats.pathsPerSecond / 1e6).toFixed(0);
-      $('status').textContent = `${stats.samples} samples · ${stats.seconds.toFixed(1)} s`;
-      $('status').title = `${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
+      $('status').textContent = `${stats.samples} passes · ${stats.seconds.toFixed(1)} s`;
+      $('status').title = `Each pass adds one sample per pixel. ${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
     }
   });
 
@@ -776,6 +866,12 @@ async function start() {
       if (rendering) {
         if (event.key === 'Escape') {
           rendering.abort();
+        }
+        return;
+      }
+      if (!welcome.hidden) {
+        if (event.key === 'Escape') {
+          closeWelcome();
         }
         return;
       }
@@ -801,8 +897,11 @@ async function start() {
         }
       } else if (key === 'r') {
         setRegionMode(!regionMode);
+      } else if (key === 'g') {
+        setGuides(GUIDE_MODES[(GUIDE_MODES.indexOf(guideMode) + 1) % GUIDE_MODES.length]);
       } else if (key === 'h') {
         document.body.classList.toggle('chrome-hidden');
+        layoutFrame();
       }
       return;
     }
@@ -825,11 +924,69 @@ async function start() {
     void autosave.flush();
   });
 
+  // --- Onboarding --------------------------------------------------------------------
+
+  // First run (no saved work yet): a welcome card with the scenes to start from, then one
+  // tip pointing at the labs. Help can bring the welcome back.
+  const welcome = $('welcome');
+  let welcomeScenes = null;
+  let firstRun = false;
+  function showWelcome() {
+    closePopups();
+    closeLab();
+    if (!welcomeScenes) {
+      welcomeScenes = gallery(presets.map(preset => ({
+        id: preset.id,
+        label: preset.name,
+        image: `scenes/thumbnails/${preset.id}.jpg`,
+      })), id => {
+        replace(validate(presets.find(preset => preset.id === id).scene));
+        closeWelcome();
+      });
+      welcomeScenes.node.classList.add('three');
+      $('welcome-scenes').append(welcomeScenes.node);
+    }
+    welcome.hidden = false;
+    welcome.querySelector('.tile-pick')?.focus();
+  }
+  function closeWelcome({ tip = true } = {}) {
+    if (welcome.hidden) {
+      return;
+    }
+    welcome.hidden = true;
+    canvas.focus();
+    if (tip && firstRun) {
+      firstRun = false;
+      $('tip').hidden = false;
+    }
+  }
+  const closeTip = () => {
+    $('tip').hidden = true;
+  };
+  $('welcome-close').addEventListener('click', () => closeWelcome());
+  $('show-welcome').addEventListener('click', showWelcome);
+  $('tip-close').addEventListener('click', closeTip);
+  welcome.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      closeWelcome();
+    }
+  });
+
+  // The drawer's ? shows a line about the open lab.
+  $('drawer-help-slot').replaceWith(iconButton('help', 'About this lab', () => {
+    drawer.classList.toggle('show-help');
+  }));
+
   apply({ save: false });
 
   try {
     const { records } = await (await api('/api/recovery')).json();
     const latest = records?.[0];
+    if (!latest) {
+      firstRun = true;
+      showWelcome();
+    }
     if (latest) {
       $('recovery-time').textContent = new Date(latest.modified).toLocaleString();
       $('recovery').hidden = false;
@@ -855,7 +1012,14 @@ async function start() {
     get scene() {
       return history.value;
     },
-    open: scene => replace(validate(scene)),
+    open: scene => {
+      closeWelcome({ tip: false });
+      replace(validate(scene));
+    },
+    dismissWelcome: () => {
+      closeWelcome({ tip: false });
+      closeTip();
+    },
     openLab: id => {
       const lab = labs.find(entry => entry.id === id);
       if (lab) {
@@ -863,6 +1027,7 @@ async function start() {
       }
     },
     closeLab,
+    setGuides,
     presets,
   };
 }

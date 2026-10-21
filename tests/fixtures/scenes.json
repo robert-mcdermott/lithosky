@@ -320,7 +320,7 @@
     "scene": {
       "format": "lithosky",
       "version": 1,
-      "title": "Lac d’été — 湖",
+      "title": "Lac d\u2019\u00e9t\u00e9 \u2014 \u6e56",
       "terrain": {
         "seed": 1847,
         "relief": 3200,
@@ -1822,6 +1822,669 @@
         "waves": 0.2,
         "level": 300
       }
+    }
+  },
+  {
+    "name": "portrait aspect",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy",
+        "aspect": "4:5"
+      }
+    }
+  },
+  {
+    "name": "unknown aspect",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy",
+        "aspect": "5:4"
+      }
+    }
+  },
+  {
+    "name": "saved camera views",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "cameras": [
+        {
+          "name": "Lake",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "Peaks",
+          "position": [
+            5200,
+            3600,
+            9800
+          ],
+          "target": [
+            0,
+            1500,
+            0
+          ],
+          "focalLength": 50
+        }
+      ]
+    }
+  },
+  {
+    "name": "unnamed camera view",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "cameras": [
+        {
+          "name": "",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        }
+      ]
+    }
+  },
+  {
+    "name": "camera view with extra field",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "cameras": [
+        {
+          "name": "A",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21,
+          "aspect": "1:1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "too many camera views",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      },
+      "cameras": [
+        {
+          "name": "V0",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V1",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V2",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V3",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V4",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V5",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V6",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V7",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V8",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V9",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V10",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V11",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V12",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V13",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V14",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V15",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V16",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V17",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V18",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V19",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V20",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V21",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V22",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V23",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        },
+        {
+          "name": "V24",
+          "position": [
+            0,
+            860,
+            6000
+          ],
+          "target": [
+            0,
+            180,
+            3800
+          ],
+          "focalLength": 21
+        }
+      ]
     }
   }
 ]

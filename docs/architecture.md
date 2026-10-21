@@ -49,7 +49,11 @@ Some properties of the tracer and frame loop:
 ## Studio
 
 `web/app.js` wires the scene, history, autosave, navigation, files and export to the
-interface: a top bar, a rail of seven labs and one drawer at a time.
+interface: a top bar, a rail of seven labs and one drawer at a time. The canvas takes the
+scene's image shape (`image.aspect`), as large as fits below the top bar. A narrower frame
+slides clear of the rail and an open drawer without changing size, so the render carries
+on. Framing guides are an SVG overlay on the same box. A first run (no recovery records)
+opens a welcome card with the scenes.
 
 | Module | Role |
 |---|---|
@@ -88,6 +92,7 @@ A scene is one small JSON document (format `lithosky`, version 1):
 - atmosphere
 - image settings
 - optional clouds, surface (biome and limits) and water settings
+- optional saved camera views (`cameras`, up to 24)
 
 Its single definition is `internal/scene/schema.json`. The Go server validates every
 file, autosave and project against it, and the browser validates against the same file.

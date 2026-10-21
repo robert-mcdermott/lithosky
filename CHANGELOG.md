@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.5.0-dev.3 — wave 5 slice 3 (local development)
+
+- Framing:
+  - the image shape is part of the scene: 16:9, 3:2, 4:5 (portrait), 1:1 or 21:9
+  - the view shows that frame, as large as fits, on a dark mat
+  - a narrower frame slides clear of the open drawer
+  - renders save in the scene's shape, not the window's
+- Framing guides (rule of thirds or golden ratio), from the Camera lab or the G key.
+- Saved views:
+  - the Camera lab keeps a strip of camera bookmarks, each rendered as a thumbnail
+  - clicking a view flies the camera there
+  - double-click a name to rename it; × removes it
+  - views are saved with the scene (up to 24)
+- First run:
+  - a welcome card offers the built-in scenes and the three steps (pick, shape,
+    render)
+  - a tip then points at the labs
+  - Help can show the welcome again
+- Each lab's ? explains it in a line, and every control has a hover hint.
+- Plain-language labels, for example:
+  - Mountain height, River carving, Loose rock
+  - Cloud shape (flat, heaped, towering), High wisps
+  - Brightness, Dark corners, Film grain, Zoom
+- The status shows passes instead of samples.
+
 ## 0.5.0-dev.2 — wave 5 slice 2 (local development)
 
 - Values are tactile:

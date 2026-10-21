@@ -44,8 +44,10 @@ The default app-window mode needs an installed Chromium-family browser with WebG
 
 ## Using it
 
-The image fills the window. Pick a lab from the rail on the left; its drawer opens with a
-gallery first, then a few controls. Galleries show your current view with each choice
+The view shows the picture exactly as it will be saved, in the scene's image shape
+(16:9, 3:2, 4:5, 1:1 or 21:9, set in the Camera lab). The first time you start Lithosky, a
+welcome card offers the built-in scenes to start from. Pick a lab from the rail on the
+left; its drawer opens with a gallery first, then a few controls. Galleries show your current view with each choice
 applied, rendered by the real renderer. The dice in a drawer's header randomizes that lab
 (undoable). Drag any value sideways to adjust it, or click it to type a number.
 
@@ -56,7 +58,7 @@ applied, rendered by the real renderer. The dice in a drawer's header randomizes
 | Light | time of day | a sky dome to drag the sun around, sun height and direction, haze, valley fog |
 | Sky | cloud types | cover, layers to towers, cloud base, depth, density, cirrus, New sky |
 | Ground & water | biomes | snow line, tree line, moisture, rock layers, waves |
-| Camera | lenses | focal length |
+| Camera | lenses, saved views | zoom, image shape, framing guides (thirds, golden ratio), Save this view |
 | Image | looks | auto exposure, exposure, warmth, glow, vignette, grain; debug views under Advanced |
 
 | Input | Action |
@@ -67,7 +69,8 @@ applied, rendered by the real renderer. The dice in a drawer's header randomizes
 | W A S D, Q E | Fly |
 | Double-click | Orbit around the point under the pointer |
 | Option/Alt-drag | Place the sun where you point |
-| R, then drag | Render a region at full quality |
+| R, then drag | Preview an area at full quality |
+| G | Cycle framing guides |
 | 1–7 | Open a lab |
 | Esc | Close the lab |
 | H | Hide or show the interface |
@@ -75,7 +78,7 @@ applied, rendered by the real renderer. The dice in a drawer's header randomizes
 | Cmd/Ctrl+S | Save |
 
 **Render** refines the image in place, with a progress ring and Cancel, then saves a PNG
-at up to 3840 px. The **File** menu has New scene, Open and Save (a `.lithosky` scene).
+in the scene's image shape, up to 3840 px on the long edge. The **File** menu has New scene, Open and Save (a `.lithosky` scene).
 
 ## Development
 

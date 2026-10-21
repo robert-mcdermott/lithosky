@@ -88,16 +88,18 @@ export function validateScene(value, schema) {
   if (heightmap && !HASH.test(heightmap.asset)) {
     throw new Error('scene.terrain.heightmap.asset: invalid asset reference');
   }
-  const [px, py, pz] = value.camera.position;
-  const [tx, ty, tz] = value.camera.target;
-  if (Math.hypot(tx - px, ty - py, tz - pz) < 1) {
-    throw new Error('scene.camera: the target must differ from the position');
+  const views = [['scene.camera', value.camera], ...(value.cameras ?? []).map((view, i) => [`scene.cameras[${i}]`, view])];
+  for (const [where, { position, target }] of views) {
+    if (Math.hypot(target[0] - position[0], target[1] - position[1], target[2] - position[2]) < 1) {
+      throw new Error(`${where}: the target must differ from the position`);
+    }
   }
   return structuredClone(value);
 }
 
 // Image settings older scenes may omit, and their defaults.
 export const IMAGE_DEFAULTS = Object.freeze({
+  aspect: '16:9',
   autoExposure: true,
   bloom: 0.3,
   warmth: 0,
@@ -140,6 +142,13 @@ export function surfaceSettingsOf(scene) {
 
 export function imageSettingsOf(scene) {
   return { ...IMAGE_DEFAULTS, ...scene.image };
+}
+
+// Image shapes, as width over height. The view and every export use the scene's.
+export const ASPECTS = Object.freeze({ '16:9': 16 / 9, '3:2': 3 / 2, '4:5': 4 / 5, '1:1': 1, '21:9': 21 / 9 });
+
+export function aspectOf(scene) {
+  return ASPECTS[imageSettingsOf(scene).aspect] ?? ASPECTS['16:9'];
 }
 
 export function terrainSettingsOf(scene) {

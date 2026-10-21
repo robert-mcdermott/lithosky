@@ -3,10 +3,11 @@
 //
 //   go build -o bin/lithosky . && ./bin/lithosky --window=browser --no-open --port 8123
 //   node bench/ui.mjs --url http://127.0.0.1:8123 [--label w5s1] [--sizes 1440x900,2560x1440]
-//                     [--lab sky] [--settle 6]
+//                     [--lab sky] [--aspect 4:5] [--guides thirds] [--welcome] [--settle 6]
 //
-// Opens the studio at each size, optionally opens a lab, lets the view refine for --settle
-// seconds and writes <label>/<width>x<height>[-<lab>].png under bench/out/ (git-ignored).
+// Opens the studio at each size, optionally sets the image shape and guides and opens a lab,
+// lets the view refine for --settle seconds and writes <label>/<width>x<height>[-<name>].png
+// under bench/out/ (git-ignored). The first-run welcome is dismissed unless --welcome.
 // Needs Playwright and Chrome.
 
 import { execSync } from 'node:child_process';
@@ -33,6 +34,10 @@ function option(name, fallback) {
 const base = option('url', 'http://127.0.0.1:8123');
 const label = option('label', 'ui');
 const lab = option('lab', '');
+const aspect = option('aspect', '');
+const guides = option('guides', '');
+const welcome = process.argv.includes('--welcome');
+const suffix = [lab, aspect.replace(':', 'x'), guides, welcome ? 'welcome' : ''].filter(Boolean).join('-');
 const settle = Number(option('settle', 6));
 const sizes = option('sizes', '1440x900,2560x1440')
   .split(',')
@@ -49,11 +54,24 @@ try {
     await page.goto(`${base}/`);
     await page.waitForFunction(() => window.lithosky?.renderer, null, { timeout: 60000 });
     await page.waitForFunction(() => !window.lithosky.renderer.stats.building, null, { timeout: 120000, polling: 250 });
+    if (!welcome) {
+      await page.evaluate(() => window.lithosky.dismissWelcome?.());
+    }
+    if (aspect) {
+      await page.evaluate(shape => {
+        const scene = structuredClone(window.lithosky.scene);
+        scene.image.aspect = shape;
+        window.lithosky.open(scene);
+      }, aspect);
+    }
+    if (guides) {
+      await page.evaluate(mode => window.lithosky.setGuides?.(mode), guides);
+    }
     if (lab) {
       await page.evaluate(id => window.lithosky.openLab?.(id), lab);
     }
     await page.waitForTimeout(settle * 1000);
-    const file = path.join(outDir, `${width}x${height}${lab ? `-${lab}` : ''}.png`);
+    const file = path.join(outDir, `${width}x${height}${suffix ? `-${suffix}` : ''}.png`);
     await page.screenshot({ path: file });
     console.log(`wrote ${file}`);
     await page.close();

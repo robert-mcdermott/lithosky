@@ -5,7 +5,7 @@
 
 import { createDevice } from '../gpu/device.js';
 import { PLACEMENT } from '../terrain/placement.js';
-import { imageSettingsOf, terrainSettingsOf } from '../scene/document.js';
+import { aspectOf, imageSettingsOf, terrainSettingsOf } from '../scene/document.js';
 import { sameTerrain } from '../terrain/settings.js';
 import { Terrain } from '../terrain/terrain.js';
 import { cameraFrame, sunDirection, viewRay } from './camera.js';
@@ -382,7 +382,7 @@ export class Renderer {
     });
   }
 
-  // Renders `samples` at `longEdge` pixels (the view's aspect) and returns an image blob
+  // Renders `samples` at `longEdge` pixels (the scene's image shape) and returns an image blob
   // (PNG unless `type` says otherwise). A tracer of its own does the work, so the view keeps
   // its samples. With `preview`, the render refines in the viewport as it goes. Aborting
   // `signal` stops it between batches.
@@ -397,8 +397,7 @@ export class Renderer {
     this.sideRender = true;
     await this.device.queue.onSubmittedWorkDone();
     this.post.saveMeter();
-    const output = this.outputSize();
-    const size = sizeForLongEdge(output[0] / output[1], longEdge);
+    const size = sizeForLongEdge(aspectOf(this.scene), longEdge);
     const tracer = new Tracer(this.device, this.tracer.pipeline);
     tracer.bind(this.terrain, this.sky, this.clouds);
     tracer.writeSurface(this.scene);

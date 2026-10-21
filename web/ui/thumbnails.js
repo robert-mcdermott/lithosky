@@ -2,7 +2,16 @@
 // Gallery thumbnails: small renders of variant scenes by the real renderer, cached by scene
 // so a gallery reopens instantly until the view or the scene changes.
 
+import { aspectOf } from '../scene/document.js';
+
 const CACHE_LIMIT = 120;
+// Thumbnails fit this box (twice a gallery tile) in the scene's image shape.
+const BOX = [288, 162];
+
+function fitBox(aspect) {
+  const width = Math.min(BOX[0], Math.round(BOX[1] * aspect));
+  return { width, height: Math.round(width / aspect) };
+}
 
 export class Thumbnails {
   constructor(renderer) {
@@ -10,8 +19,9 @@ export class Thumbnails {
     this.cache = new Map();
   }
 
+  // Title and saved views don't change the picture.
   key(scene) {
-    return JSON.stringify({ ...scene, title: null });
+    return JSON.stringify({ ...scene, title: null, cameras: null });
   }
 
   get(scene) {
@@ -25,7 +35,7 @@ export class Thumbnails {
     if (missing.length === 0) {
       return true;
     }
-    const blobs = await this.renderer.renderVariants(missing);
+    const blobs = await this.renderer.renderVariants(missing, fitBox(aspectOf(missing[0])));
     if (!blobs) {
       return false;
     }

@@ -37,9 +37,11 @@ body {
   color: var(--ink);
 }
 
+/* The view is placed by the app: the scene's image shape, centred below the top bar. */
 #view {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   display: block;
@@ -50,6 +52,40 @@ body {
 
 #view.dragging {
   cursor: grabbing;
+}
+
+/* Around a frame that doesn't fill the window, a quiet mat with a hairline edge. */
+.matted #view {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+.guides {
+  position: fixed;
+  pointer-events: none;
+}
+
+#view,
+.guides {
+  transition: left 0.2s ease;
+}
+
+.guides g {
+  display: none;
+}
+
+.guides[data-mode="thirds"] .guide-thirds,
+.guides[data-mode="golden"] .guide-golden {
+  display: inline;
+}
+
+.guides line {
+  stroke: rgba(255, 255, 255, 0.42);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.chrome-hidden .guides {
+  display: none;
 }
 
 #view.placing-sun,
@@ -393,14 +429,24 @@ kbd {
   gap: 0.75rem 0.6rem;
 }
 
+.gallery.three {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem 0.45rem;
+}
+
 .tile {
+  position: relative;
   display: grid;
   gap: 0.35rem;
   min-width: 0;
+}
+
+.tile-pick {
+  display: block;
   padding: 0;
   border: none;
+  border-radius: 8px;
   background: none;
-  text-align: left;
 }
 
 .tile-image {
@@ -417,7 +463,7 @@ kbd {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: opacity 0.25s ease, filter 0.15s ease;
 }
 
@@ -444,7 +490,7 @@ kbd {
   }
 }
 
-.tile:hover img {
+.tile-pick:hover img {
   filter: brightness(1.12);
 }
 
@@ -456,12 +502,92 @@ kbd {
   text-overflow: ellipsis;
 }
 
+.three .tile-label {
+  font-size: 11px;
+}
+
 .tile.selected .tile-image {
   box-shadow: 0 0 0 2px var(--accent);
 }
 
 .tile.selected .tile-label {
   color: var(--ink);
+}
+
+.tile-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--glass-strong);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.tile-remove .icon {
+  width: 12px;
+  height: 12px;
+}
+
+.tile:hover .tile-remove,
+.tile-remove:focus-visible {
+  opacity: 1;
+}
+
+.tile-field {
+  width: 100%;
+  padding: 0.05rem 0.25rem;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: #1a1d21;
+  font-size: 12px;
+  outline: none;
+}
+
+.empty {
+  margin: 0;
+  color: var(--faint);
+  font-size: 12px;
+}
+
+.lab-help {
+  display: none;
+  margin: 0 0 0.9rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.show-help .lab-help {
+  display: block;
+}
+
+.segmented-control {
+  gap: 0.45rem;
+}
+
+.segment {
+  flex: 1;
+  padding: 0.38rem 0;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.segment:hover {
+  color: var(--ink);
+}
+
+.segment[aria-checked="true"] {
+  background: var(--control-hover);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--edge-strong);
 }
 
 /* Controls */
@@ -912,6 +1038,137 @@ kbd {
 
 .segmented input:focus-visible + span {
   outline: 2px solid var(--accent);
+}
+
+/* First run */
+
+.welcome {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(4, 5, 7, 0.55);
+  backdrop-filter: blur(3px);
+}
+
+.welcome[hidden] {
+  display: none;
+}
+
+.welcome-card {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 1.6rem 1.7rem 1.3rem;
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  background: var(--glass-strong);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+}
+
+.welcome h1 {
+  margin: 0 0 0.3rem;
+  font-size: 22px;
+  font-weight: 650;
+}
+
+.welcome-card > p {
+  margin: 0 0 1.1rem;
+  color: var(--muted);
+}
+
+.welcome .gallery.three {
+  gap: 0.9rem 0.75rem;
+}
+
+.welcome .tile-label {
+  font-size: 12.5px;
+}
+
+.welcome-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+  margin: 1.3rem 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--edge);
+  color: var(--muted);
+  font-size: 12.5px;
+  list-style: none;
+  counter-reset: step;
+}
+
+.welcome-steps li {
+  counter-increment: step;
+}
+
+.welcome-steps li::before {
+  content: counter(step);
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.welcome-steps strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.welcome-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.1rem;
+}
+
+.tip {
+  position: fixed;
+  top: calc(var(--chrome-top) + 6px);
+  left: calc(var(--gap) * 2 + var(--rail-width) + 6px);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  max-width: 330px;
+  padding: 0.7rem 0.75rem 0.7rem 0.95rem;
+  border: 1px solid rgba(232, 173, 95, 0.45);
+  border-radius: 12px;
+  background: var(--glass-strong);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.tip[hidden] {
+  display: none;
+}
+
+.tip::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  border-left: 1px solid rgba(232, 173, 95, 0.45);
+  border-bottom: 1px solid rgba(232, 173, 95, 0.45);
+  background: var(--glass-strong);
+  transform: rotate(45deg);
+}
+
+.tip p {
+  margin: 0;
+  font-size: 12.5px;
+}
+
+.help-intro {
+  margin: 0 0 0.6rem;
+  color: var(--muted);
 }
 
 /* Rendering */

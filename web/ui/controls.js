@@ -31,6 +31,9 @@ export function slider(spec, { begin, input, end }) {
   const row = element('div', spec.compact ? 'control slider compact' : 'control slider');
   const head = element('span', 'control-head');
   const name = element('span', 'control-name', spec.label);
+  if (spec.hint) {
+    name.title = spec.hint;
+  }
   const value = element('span', 'control-value scrub');
   value.tabIndex = 0;
   value.setAttribute('role', 'button');
@@ -241,14 +244,21 @@ export function fold(title) {
 }
 
 // A grid of picture tiles. items: [{ id, label, image? }]. Returns { node, select(id),
-// show(id, url) }; tiles without an image show a quiet loading shimmer until `show`.
-export function gallery(items, onPick) {
+// show(id, url), setItems(items) }; tiles without an image show a quiet loading shimmer
+// until `show`. With `options.remove(id)` each tile gets a remove button, and with
+// `options.rename(id, name)` double-clicking a label renames it.
+export function gallery(items, onPick, options = {}) {
   const node = element('div', 'gallery');
-  const tiles = new Map();
-  for (const item of items) {
-    const tile = element('button', 'tile');
-    tile.type = 'button';
-    tile.setAttribute('aria-pressed', 'false');
+  let tiles = new Map();
+  let selected = null;
+
+  function build(item, previous) {
+    // A div with a button inside, so the remove button isn't nested in a button.
+    const tile = element('div', 'tile');
+    const pick = element('button', 'tile-pick');
+    pick.type = 'button';
+    pick.setAttribute('aria-pressed', 'false');
+    pick.setAttribute('aria-label', item.label);
     const frame = element('span', 'tile-image loading');
     const image = element('img');
     image.alt = '';
@@ -256,26 +266,112 @@ export function gallery(items, onPick) {
     image.decoding = 'async';
     image.addEventListener('load', () => frame.classList.remove('loading'));
     frame.append(image);
-    tile.append(frame, element('span', 'tile-label', item.label));
-    tile.addEventListener('click', () => onPick(item.id));
-    node.append(tile);
-    tiles.set(item.id, { tile, image });
-    if (item.image) {
-      image.src = item.image;
+    const label = element('span', 'tile-label', item.label);
+    pick.append(frame);
+    pick.addEventListener('click', () => onPick(item.id));
+    tile.append(pick, label);
+    if (options.remove) {
+      const remove = iconButton('close', `Remove ${item.label}`, () => options.remove(item.id));
+      remove.classList.add('tile-remove');
+      tile.append(remove);
     }
+    if (options.rename) {
+      label.title = 'Double-click to rename';
+      label.addEventListener('dblclick', () => {
+        const field = element('input', 'tile-field');
+        field.value = item.label;
+        field.maxLength = 40;
+        let done = false;
+        const close = accept => {
+          if (done) {
+            return;
+          }
+          done = true;
+          field.replaceWith(label);
+          const name = field.value.trim();
+          if (accept && name && name !== item.label) {
+            options.rename(item.id, name);
+          }
+        };
+        field.addEventListener('keydown', event => {
+          if (event.key === 'Enter') {
+            close(true);
+          } else if (event.key === 'Escape') {
+            event.stopPropagation();
+            close(false);
+          }
+        });
+        field.addEventListener('blur', () => close(true));
+        label.replaceWith(field);
+        field.focus();
+        field.select();
+      });
+    }
+    const source = item.image ?? previous?.image.getAttribute('src');
+    if (source) {
+      image.src = source;
+    }
+    return { tile, pick, image };
   }
-  return {
+
+  function setItems(list) {
+    const next = new Map();
+    for (const item of list) {
+      next.set(item.id, build(item, tiles.get(item.id)));
+    }
+    tiles = next;
+    node.replaceChildren(...[...tiles.values()].map(entry => entry.tile));
+    view.select(selected);
+  }
+
+  const view = {
     node,
     select(id) {
-      for (const [key, { tile }] of tiles) {
+      selected = id;
+      for (const [key, { tile, pick }] of tiles) {
         tile.classList.toggle('selected', key === id);
-        tile.setAttribute('aria-pressed', String(key === id));
+        pick.setAttribute('aria-pressed', String(key === id));
       }
     },
     show(id, url) {
       const entry = tiles.get(id);
       if (entry && url && entry.image.getAttribute('src') !== url) {
         entry.image.src = url;
+      }
+    },
+    setItems,
+  };
+  setItems(items);
+  return view;
+}
+
+// A row of mutually exclusive choices. spec: { label, options: [[value, text, title?]] }.
+// Returns { node, set(value) }.
+export function segmented(spec, onChange) {
+  const row = element('div', 'control segmented-control');
+  const name = element('span', 'control-name', spec.label);
+  const group = element('div', 'segmented');
+  group.setAttribute('role', 'radiogroup');
+  group.setAttribute('aria-label', spec.label);
+  const buttons = new Map();
+  for (const [value, text, title] of spec.options) {
+    const option = element('button', 'segment', text);
+    option.type = 'button';
+    option.setAttribute('role', 'radio');
+    option.setAttribute('aria-checked', 'false');
+    if (title) {
+      option.title = title;
+    }
+    option.addEventListener('click', () => onChange(value));
+    group.append(option);
+    buttons.set(value, option);
+  }
+  row.append(name, group);
+  return {
+    node: row,
+    set(value) {
+      for (const [key, option] of buttons) {
+        option.setAttribute('aria-checked', String(key === value));
       }
     },
   };
