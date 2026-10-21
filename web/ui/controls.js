@@ -16,23 +16,48 @@ export function element(tag, className, text) {
   return node;
 }
 
-// spec: { label, min, max, step, format(value) }. Returns { node, set(value) }.
-// The name and rounded value sit above a full-width track.
+// Reads a typed number, ignoring units, thousands separators and a typographic minus.
+export function parseNumber(text) {
+  return Number.parseFloat(String(text).replace(/\u2212/g, '-').replace(/[^0-9.+-]/g, ''));
+}
+
+// Width of a full-range scrub, in pixels; Shift scrubs ten times finer.
+const SCRUB_PIXELS = 240;
+
+// spec: { label, min, max, step, format(value), parse?(text) }. Returns { node, set(value) }.
+// The name and rounded value sit above a full-width track. Dragging the value scrubs it;
+// clicking it turns it into a field for typing a number.
 export function slider(spec, { begin, input, end }) {
-  const row = element('label', 'control slider');
+  const row = element('div', spec.compact ? 'control slider compact' : 'control slider');
   const head = element('span', 'control-head');
   const name = element('span', 'control-name', spec.label);
-  const value = element('output', 'control-value');
+  const value = element('span', 'control-value scrub');
+  value.tabIndex = 0;
+  value.setAttribute('role', 'button');
+  value.title = 'Drag to adjust, click to type';
   const range = element('input');
   range.type = 'range';
   range.min = spec.min;
   range.max = spec.max;
   range.step = spec.step;
+  range.setAttribute('aria-label', spec.label);
   let active = false;
   const show = () => {
     const number = Number(range.value);
     value.textContent = spec.format(number);
     range.style.setProperty('--fill', `${((number - spec.min) / (spec.max - spec.min)) * 100}%`);
+  };
+  const fit = number => {
+    const stepped = spec.min + Math.round((number - spec.min) / spec.step) * spec.step;
+    return Math.min(spec.max, Math.max(spec.min, Number(stepped.toFixed(6))));
+  };
+  // A whole change as one gesture (one undo step).
+  const commit = number => {
+    begin();
+    range.value = fit(number);
+    show();
+    input(Number(range.value));
+    end();
   };
   range.addEventListener('input', () => {
     if (!active) {
@@ -48,6 +73,90 @@ export function slider(spec, { begin, input, end }) {
       end();
     }
   });
+
+  let scrub = null;
+  value.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    value.setPointerCapture(event.pointerId);
+    scrub = { x: event.clientX, start: Number(range.value), moved: false };
+  });
+  value.addEventListener('pointermove', event => {
+    if (!scrub) {
+      return;
+    }
+    const dx = event.clientX - scrub.x;
+    if (!scrub.moved) {
+      if (Math.abs(dx) < 3) {
+        return;
+      }
+      scrub.moved = true;
+      active = true;
+      value.classList.add('scrubbing');
+      begin();
+    }
+    const perPixel = (spec.max - spec.min) / SCRUB_PIXELS * (event.shiftKey ? 0.1 : 1);
+    range.value = fit(scrub.start + dx * perPixel);
+    show();
+    input(Number(range.value));
+  });
+  const finishScrub = typeIt => {
+    if (!scrub) {
+      return;
+    }
+    const moved = scrub.moved;
+    scrub = null;
+    value.classList.remove('scrubbing');
+    if (moved) {
+      active = false;
+      end();
+    } else if (typeIt) {
+      startTyping();
+    }
+  };
+  value.addEventListener('pointerup', () => finishScrub(true));
+  value.addEventListener('pointercancel', () => finishScrub(false));
+  value.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      startTyping();
+    }
+  });
+
+  function startTyping() {
+    const field = element('input', 'control-field');
+    field.type = 'text';
+    field.inputMode = 'decimal';
+    field.value = value.textContent;
+    field.setAttribute('aria-label', spec.label);
+    let done = false;
+    const close = accept => {
+      if (done) {
+        return;
+      }
+      done = true;
+      const number = (spec.parse ?? parseNumber)(field.value);
+      field.replaceWith(value);
+      if (accept && Number.isFinite(number)) {
+        commit(number);
+      }
+      value.focus();
+    };
+    field.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        close(true);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        close(false);
+      }
+    });
+    field.addEventListener('blur', () => close(true));
+    value.replaceWith(field);
+    field.focus();
+    field.select();
+  }
+
   head.append(name, value);
   row.append(head, range);
   return {

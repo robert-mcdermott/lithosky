@@ -4,8 +4,8 @@ Updated 2026-10-20. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
-Light) is in progress on `wave5`. W5.S1 (layout and labs) is done and waiting for the
-owner's sign-off on the layout screenshots; W5.S2 (tactile controls) is next.
+Light) is in progress on `wave5`. W5.S1 (layout and labs) and W5.S2 (tactile controls)
+are done; W5.S3 (framing, cameras and onboarding) is next.
 
 ## North star
 
@@ -446,7 +446,7 @@ The design principles for every studio slice:
 | Slice | Name | Outcome |
 |---|---|---|
 | W5.S1 | Layout and labs | Viewport-first layout, lab rail and drawers, rendered galleries |
-| W5.S2 | Tactile controls | Scrubbable values, sun dial and drag, click to focus, Randomize, in-place render |
+| W5.S2 | Tactile controls | Scrubbable values, sun dome and drag, click to focus, Randomize, in-place and region renders |
 | W5.S3 | Framing, cameras and onboarding | Aspect and framing guides, camera filmstrip, first-run path, help |
 | W5.S4 | Preset pack and visual gaps | Ten or more presets at rubric target; canyon terraces, sky tint, storm clouds |
 | W5.S5 | First Light (v0.5.0) | Site gallery, format freeze, native release checks, packaging |
@@ -469,7 +469,7 @@ The design principles for every studio slice:
 Known gaps:
 
 - The Terrain lab has no gallery. Terrain variants need a rebuild each (about
-  5 s), so they wait for a second terrain instance or the W5.S2 Randomize.
+  5 s); the Terrain lab's Randomize (W5.S2) covers exploring for now.
 - After editing presets, rerun `bench/thumbnails.mjs` to refresh the Scenes
   thumbnails.
 
@@ -508,6 +508,37 @@ Tasks:
 2560×1440.
 
 ### W5.S2: Tactile controls and direct manipulation
+
+**Done.**
+
+- **Scrub and type.** Values scrub when dragged (Shift for fine) and turn into a
+  field when clicked. Each lab's units parse typed values.
+- **Sun.** The Light lab has a sky dome (`web/ui/sundome.js`): drag the sun, and a
+  wedge shows the view. Option/Alt-drag in the view, or the target button, puts the
+  sun where you point.
+- **Focus.** Double-click focus reads the tracer's first-hit distance
+  (`Renderer.pick`).
+- **Randomize.** Per lab, in `web/scene/randomize.js`: seeded, undoable, and
+  limited to the lab's own settings.
+- **In-place render.** Render refines in the viewport with a progress ring, time
+  left and Cancel. Exports use their own tracer, so the view keeps its samples.
+- **Region renders.** R plus a drag renders a box at full resolution through a
+  frame `window`, drawn over the view with its exposure.
+
+Changes from the plan:
+
+- The time-of-day dial became the sky dome plus the Light lab's time-of-day
+  gallery. The dome sets both sun angles directly and shows the light relative
+  to the view, which a time dial can't.
+
+Known gaps:
+
+- Renders aren't bit-identical between runs: two exports of the same scene differ
+  slightly in fine terrain detail (PSNR about 38 dB). The likely cause is the
+  order of atomic adds in the GPU droplet erosion, which predates this slice.
+  Exact repeatability belongs with the W5.S5 format freeze.
+
+Original plan, for reference:
 
 Tasks:
 

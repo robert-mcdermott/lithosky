@@ -70,9 +70,9 @@ export class Post {
     });
   }
 
-  // Textures and bind groups for one render size, rebuilt if the tracer's buffers changed.
+  // Textures and bind groups for one tracer at one size, rebuilt if its buffers changed.
   resources(width, height, tracer) {
-    const key = `${width}x${height}`;
+    const key = `${tracer.id}:${width}x${height}`;
     const cached = this.cache.get(key);
     if (cached && cached.accumulation === tracer.accumulation) {
       return cached;
@@ -102,8 +102,8 @@ export class Post {
     this.device.queue.submit([encoder.finish()]);
   }
 
-  release(width, height) {
-    const key = `${width}x${height}`;
+  release(width, height, tracer) {
+    const key = `${tracer.id}:${width}x${height}`;
     this.cache.get(key)?.destroy();
     this.cache.delete(key);
   }

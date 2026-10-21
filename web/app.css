@@ -52,6 +52,11 @@ body {
   cursor: grabbing;
 }
 
+#view.placing-sun,
+#view.drawing-region {
+  cursor: crosshair;
+}
+
 button,
 select,
 input {
@@ -342,6 +347,11 @@ kbd {
   padding: 0.7rem 0.6rem 0.35rem 1.05rem;
 }
 
+.drawer-actions {
+  display: inline-flex;
+  gap: 0.1rem;
+}
+
 .drawer-head h2 {
   margin: 0;
   font-size: 15px;
@@ -474,6 +484,131 @@ kbd {
 .control-value {
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+
+/* Values scrub sideways when dragged and turn into a field when clicked. */
+.scrub {
+  margin: -0.1rem -0.3rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 5px;
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.scrub:hover {
+  background: var(--control-hover);
+}
+
+.scrub.scrubbing {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.control-field {
+  width: 7rem;
+  margin: -0.15rem -0.3rem;
+  padding: 0.1rem 0.3rem;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  background: #1a1d21;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  outline: none;
+}
+
+.slider.compact input[type="range"] {
+  display: none;
+}
+
+.slider.compact .control-head {
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.slider.compact .control-value {
+  align-self: flex-start;
+  font-size: 15px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.place-sun[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* The sun dome */
+
+.sun-dome {
+  display: flex;
+  justify-content: center;
+}
+
+.sun-dome svg {
+  width: min(100%, 184px);
+  height: auto;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+
+.sun-dome svg.dragging {
+  cursor: grabbing;
+}
+
+.sun-dome svg:focus-visible .dome-horizon {
+  stroke: var(--accent);
+}
+
+.dome-sky {
+  fill: rgba(120, 160, 210, 0.08);
+}
+
+.dome-ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-dasharray: 2 4;
+}
+
+.dome-horizon {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+}
+
+.dome-view {
+  fill: rgba(236, 232, 223, 0.09);
+  stroke: rgba(236, 232, 223, 0.18);
+}
+
+.dome-label {
+  fill: var(--faint);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.dome-ray {
+  stroke: rgba(232, 173, 95, 0.35);
+  stroke-dasharray: 3 3;
+}
+
+.dome-sun {
+  fill: var(--accent);
+  stroke: #fff3dd;
+  stroke-width: 1.5;
+}
+
+.dome-glow {
+  fill: rgba(232, 173, 95, 0.22);
+}
+
+.below .dome-sun {
+  fill: #8a6a45;
 }
 
 .slider input[type="range"] {
@@ -733,27 +868,6 @@ kbd {
   background: var(--accent);
 }
 
-.dialog {
-  width: 24rem;
-  padding: 1.2rem 1.3rem 1.1rem;
-  border: 1px solid var(--edge);
-  border-radius: 14px;
-  background: var(--glass-strong);
-  color: var(--ink);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
-}
-
-.dialog::backdrop {
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-}
-
-.dialog h2 {
-  margin: 0 0 1rem;
-  font-size: 16px;
-  font-weight: 620;
-}
-
 .field {
   display: grid;
   gap: 0.4rem;
@@ -800,26 +914,145 @@ kbd {
   outline: 2px solid var(--accent);
 }
 
-.dialog progress {
+/* Rendering */
+
+.render-options {
+  width: 290px;
+  padding: 0.9rem 1rem 1rem;
+}
+
+.render-options .field:first-child {
+  margin-top: 0;
+}
+
+.wide {
   width: 100%;
-  margin-bottom: 0.9rem;
-  accent-color: var(--accent);
+  padding: 0.55rem 0;
 }
 
-.dialog-actions {
+.render-progress {
+  position: fixed;
+  top: var(--chrome-top);
+  left: 50%;
+  z-index: 20;
+  transform: translateX(-50%);
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
-
-.dialog-actions button {
-  padding: 0.5rem 0.95rem;
-}
-
-.dialog-actions button:not(.primary) {
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0.5rem 0.45rem 0.6rem;
   border: 1px solid var(--edge);
-  border-radius: 8px;
+  border-radius: 999px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+.render-progress[hidden] {
+  display: none;
+}
+
+.ring {
+  width: 26px;
+  height: 26px;
+  transform: rotate(-90deg);
+}
+
+.ring-track,
+.ring-fill {
+  fill: none;
+  stroke-width: 3;
+}
+
+.ring-track {
+  stroke: rgba(255, 255, 255, 0.12);
+}
+
+.ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.2s linear;
+}
+
+.render-progress.finished .ring-fill {
+  stroke: #8fcf8a;
+}
+
+.render-progress button {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
   background: var(--control);
+}
+
+/* While a render runs the image is the only thing that matters. */
+.rendering .rail,
+.rendering .drawer,
+.rendering .bar-actions,
+.rendering .title {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.rendering #view {
+  pointer-events: none;
+}
+
+/* Region renders */
+
+.marquee,
+.region-frame {
+  position: fixed;
+  pointer-events: none;
+}
+
+.marquee[hidden],
+.region-frame[hidden] {
+  display: none;
+}
+
+.marquee {
+  border: 1px dashed var(--accent);
+  background: rgba(232, 173, 95, 0.08);
+}
+
+.region-frame {
+  border: 1px solid rgba(232, 173, 95, 0.7);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.region-label {
+  position: absolute;
+  left: -1px;
+  bottom: calc(100% + 4px);
+  padding: 0.12rem 0.45rem;
+  border-radius: 5px;
+  background: var(--glass-strong);
+  color: var(--muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.region-frame .icon-button {
+  position: absolute;
+  right: -1px;
+  bottom: calc(100% + 2px);
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: var(--glass-strong);
+  pointer-events: auto;
+}
+
+.region-frame .icon-button .icon {
+  width: 13px;
+  height: 13px;
+}
+
+.icon-button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 /* Narrow windows: the rail runs along the bottom and the drawer becomes a sheet. */

@@ -22,7 +22,8 @@ struct SurfacePoint {
 const SURFACE_F0: f32 = 0.04;
 
 fn pixelFootprint(depth: f32) -> f32 {
-    return depth * 2.0 * frame.tanHalfFov / f32(frame.height);
+    // A region render's pixels cover only its window of the view.
+    return depth * 2.0 * frame.tanHalfFov * frame.window.w / f32(frame.height);
 }
 
 // `primary` marks camera-ray hits, which get the full material and detail normals.

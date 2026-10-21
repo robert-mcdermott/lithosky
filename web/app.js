@@ -3,15 +3,17 @@
 // Every edit goes through History (undo/redo) and Autosave (crash recovery); the renderer
 // picks up the resulting scene, and open galleries re-render their thumbnails from it.
 
-import { advance, distanceToTarget, dolly, orbit, pan, tanHalfFov } from './render/camera.js';
+import { advance, distanceToTarget, dolly, lookAt, orbit, pan, sunAngles, tanHalfFov, viewHeading, viewRay } from './render/camera.js';
 import { Renderer } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
 import { SURFACE_DEFAULTS, WATER_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
 import { History } from './scene/history.js';
+import { RANDOMIZERS, randomize } from './scene/randomize.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
 import { element, iconButton, slider } from './ui/controls.js';
 import { icon } from './ui/icons.js';
 import { buildLabs } from './ui/labs.js';
+import { SUN_LIMITS } from './ui/sundome.js';
 import { Thumbnails } from './ui/thumbnails.js';
 
 const $ = id => document.getElementById(id);
@@ -21,6 +23,8 @@ const WHEEL_SPEED = 0.0015;
 const WHEEL_SETTLE_MS = 300;
 // Galleries re-render this long after the last edit or camera move settles.
 const GALLERY_DELAY_MS = 450;
+// A double-click turns the view to the clicked point over this long.
+const FOCUS_MS = 280;
 
 let token = null;
 
@@ -198,6 +202,34 @@ async function start() {
     return handle.node;
   }
 
+  // A drag that edits the scene live and lands as one undo step.
+  function gesture(change) {
+    return {
+      begin: () => {
+        history.begin();
+        startInteraction();
+      },
+      input: value => edit(draft => change(draft, value), { moving: true }),
+      end: () => {
+        history.end();
+        apply();
+        endInteraction();
+      },
+    };
+  }
+
+  const aspect = () => canvas.clientWidth / Math.max(1, canvas.clientHeight);
+
+  // Placing the sun: the next drag in the view moves the sun to wherever it points.
+  let placingSun = false;
+  function setPlacingSun(on) {
+    placingSun = on;
+    canvas.classList.toggle('placing-sun', on);
+    for (const bind of bindings) {
+      bind(history.value);
+    }
+  }
+
   const labs = buildLabs({
     history,
     edit,
@@ -206,7 +238,11 @@ async function start() {
     presets,
     bind: binding => bindings.push(binding),
     sliderFor,
+    gesture,
+    viewHeading: camera => viewHeading(camera, aspect()),
     actions: {
+      placeSun: () => setPlacingSun(!placingSun),
+      placingSun: () => placingSun,
       erodeMore: () => renderer.erodeMore(),
       importHeightmap: () => $('heightmap-file').click(),
       proceduralTerrain: () => edit(draft => {
@@ -231,11 +267,21 @@ async function start() {
     railButtons.set(lab, item);
   });
   $('drawer-close-slot').replaceWith(iconButton('close', 'Close (Esc)', () => closeLab()));
+  const randomizeButton = iconButton('dice', 'Randomize', () => {
+    const id = openLab?.id;
+    if (RANDOMIZERS[id]) {
+      const seed = Math.floor(Math.random() * 2 ** 32);
+      edit(draft => Object.assign(draft, randomize(id, draft, seed)));
+    }
+  });
+  $('drawer-randomize-slot').replaceWith(randomizeButton);
 
   let openLab = null;
   function showLab(lab) {
     openLab = lab;
     $('drawer-title').textContent = lab.title;
+    randomizeButton.hidden = !RANDOMIZERS[lab.id];
+    randomizeButton.title = `Randomize ${lab.title.toLowerCase()}`;
     $('drawer-body').replaceChildren(lab.node);
     drawer.hidden = false;
     for (const [entry, item] of railButtons) {
@@ -311,7 +357,6 @@ async function start() {
 
   // --- Camera navigation -------------------------------------------------------------
 
-  const aspect = () => canvas.clientWidth / Math.max(1, canvas.clientHeight);
   const moveCamera = change => edit(draft => {
     draft.camera = change(draft.camera);
   }, { moving: true });
@@ -321,12 +366,35 @@ async function start() {
   canvas.addEventListener('pointerdown', event => {
     canvas.focus();
     canvas.setPointerCapture(event.pointerId);
+    if (regionMode) {
+      startMarquee(event);
+      return;
+    }
     canvas.classList.add('dragging');
-    drag = { x: event.clientX, y: event.clientY, panning: event.shiftKey || event.button === 2 };
+    drag = { x: event.clientX, y: event.clientY, panning: event.shiftKey || event.button === 2, sun: placingSun || event.altKey };
     history.begin();
     startInteraction();
+    if (drag.sun) {
+      moveSun(event);
+    }
   });
+
+  // The sun goes where the pointer looks.
+  function moveSun(event) {
+    const box = canvas.getBoundingClientRect();
+    const ndcX = ((event.clientX - box.left) / box.width) * 2 - 1;
+    const ndcY = 1 - ((event.clientY - box.top) / box.height) * 2;
+    const { elevation, azimuth } = sunAngles(viewRay(history.value.camera, aspect(), ndcX, ndcY));
+    edit(draft => {
+      draft.sun.elevation = Math.round(Math.min(SUN_LIMITS.max, Math.max(SUN_LIMITS.min, elevation)) * 10) / 10;
+      draft.sun.azimuth = Math.round(azimuth * 2) / 2;
+    }, { moving: true });
+  }
   canvas.addEventListener('pointermove', event => {
+    if (marquee) {
+      moveMarquee(event);
+      return;
+    }
     if (!drag) {
       return;
     }
@@ -334,7 +402,9 @@ async function start() {
     const dy = event.clientY - drag.y;
     drag.x = event.clientX;
     drag.y = event.clientY;
-    if (drag.panning) {
+    if (drag.sun) {
+      moveSun(event);
+    } else if (drag.panning) {
       const camera = history.value.camera;
       const metresPerPixel = 2 * distanceToTarget(camera) * tanHalfFov(camera.focalLength, aspect()) / canvas.clientHeight;
       moveCamera(c => pan(c, -dx * metresPerPixel, dy * metresPerPixel, aspect()));
@@ -343,16 +413,117 @@ async function start() {
     }
   });
   const endDrag = () => {
+    if (marquee) {
+      finishMarquee();
+      return;
+    }
     if (drag) {
+      const placed = drag.sun && placingSun;
       drag = null;
       canvas.classList.remove('dragging');
       history.end();
       apply();
       endInteraction();
+      if (placed) {
+        setPlacingSun(false);
+      }
     }
   };
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
+
+  // Region renders: R (or the Region button), then drag a box. The box renders at full
+  // resolution over the view until the scene or camera changes.
+  let regionMode = false;
+  let marquee = null;
+  const regionButton = iconButton('region', 'Render a region (R)', () => setRegionMode(!regionMode));
+  $('region-button-slot').replaceWith(regionButton);
+  function setRegionMode(on) {
+    regionMode = on;
+    canvas.classList.toggle('drawing-region', on);
+    regionButton.setAttribute('aria-pressed', String(on));
+  }
+  const pointIn = event => {
+    const box = canvas.getBoundingClientRect();
+    return [Math.min(box.width, Math.max(0, event.clientX - box.left)), Math.min(box.height, Math.max(0, event.clientY - box.top))];
+  };
+  function startMarquee(event) {
+    const start = pointIn(event);
+    marquee = { start, end: start };
+    renderer.setRegion(null);
+    moveMarquee(event);
+    $('marquee').hidden = false;
+  }
+  function placeBox(node, [x0, y0, x1, y1]) {
+    node.style.left = `${x0}px`;
+    node.style.top = `${y0}px`;
+    node.style.width = `${x1 - x0}px`;
+    node.style.height = `${y1 - y0}px`;
+  }
+  const marqueeBox = () => [
+    Math.min(marquee.start[0], marquee.end[0]), Math.min(marquee.start[1], marquee.end[1]),
+    Math.max(marquee.start[0], marquee.end[0]), Math.max(marquee.start[1], marquee.end[1]),
+  ];
+  function moveMarquee(event) {
+    marquee.end = pointIn(event);
+    placeBox($('marquee'), marqueeBox());
+  }
+  function finishMarquee() {
+    const box = marqueeBox();
+    marquee = null;
+    $('marquee').hidden = true;
+    setRegionMode(false);
+    if (box[2] - box[0] < 16 || box[3] - box[1] < 16) {
+      return;
+    }
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    regionBox = box;
+    renderer.setRegion([box[0] / width, box[1] / height, box[2] / width, box[3] / height]);
+  }
+  let regionBox = null;
+  $('region-clear-slot').replaceWith(iconButton('close', 'Clear region (Esc)', () => renderer.setRegion(null)));
+  renderer.subscribe(stats => {
+    const frame = $('region-frame');
+    if (!stats.region || !regionBox) {
+      frame.hidden = true;
+      return;
+    }
+    frame.hidden = false;
+    placeBox(frame, regionBox);
+    const { samples, target } = stats.region;
+    $('region-label').textContent = samples >= target ? 'Full quality' : `${samples} / ${target}`;
+  });
+
+  // Double-click: orbit around the point under the pointer from now on.
+  canvas.addEventListener('dblclick', async event => {
+    const box = canvas.getBoundingClientRect();
+    const point = await renderer.pick((event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height);
+    if (!point) {
+      return;
+    }
+    const start = history.value.camera;
+    const end = lookAt(start, point);
+    if (end === start) {
+      return;
+    }
+    history.begin();
+    startInteraction();
+    const began = performance.now();
+    const step = now => {
+      const t = Math.min(1, (now - began) / FOCUS_MS);
+      const eased = 1 - (1 - t) ** 3;
+      moveCamera(camera => ({ ...camera, target: start.target.map((value, i) => value + (end.target[i] - value) * eased) }));
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        history.end();
+        apply();
+        endInteraction();
+      }
+    };
+    requestAnimationFrame(step);
+  });
 
   let wheelTimer = null;
   canvas.addEventListener('wheel', event => {
@@ -434,6 +605,7 @@ async function start() {
   const popups = [
     { button: $('file-menu'), panel: $('file-items') },
     { button: iconButton('help', 'Help', () => {}), panel: $('help') },
+    { button: $('render'), panel: $('render-options') },
   ];
   $('help-button-slot').replaceWith(popups[1].button);
   const closePopups = except => {
@@ -453,7 +625,7 @@ async function start() {
     });
   }
   document.addEventListener('click', event => {
-    if (!event.target.closest('.menu-items, .popover')) {
+    if (!event.target.closest('.menu-items, .popover, .render-progress')) {
       closePopups();
     }
   });
@@ -511,45 +683,73 @@ async function start() {
     }
   });
 
-  // --- Export ------------------------------------------------------------------------
+  // --- Render ------------------------------------------------------------------------
 
-  const dialog = $('export-dialog');
-  let exporting = false;
-  $('render').addEventListener('click', () => dialog.showModal());
-  dialog.addEventListener('cancel', event => {
-    if (exporting) {
-      event.preventDefault();
+  // Render refines the final image in the viewport, with a progress ring and Cancel, then
+  // saves it. Edits wait until it finishes.
+  const RING = 2 * Math.PI * 15;
+  let rendering = null;
+  const progressText = $('render-text');
+  const ring = $('render-ring');
+  ring.style.strokeDasharray = `${RING}`;
+  let progressTimer = null;
+  function showProgress(text, fraction, finished = false) {
+    clearTimeout(progressTimer);
+    $('render-progress').hidden = false;
+    $('render-progress').classList.toggle('finished', finished);
+    $('render-cancel').hidden = finished;
+    progressText.textContent = text;
+    ring.style.strokeDashoffset = `${RING * (1 - fraction)}`;
+    if (finished) {
+      progressTimer = setTimeout(() => {
+        $('render-progress').hidden = true;
+      }, 3500);
     }
-  });
-  $('export-start').addEventListener('click', async () => {
-    if (exporting) {
+  }
+  async function startRender() {
+    if (rendering) {
       return;
     }
-    exporting = true;
-    const progress = $('export-progress');
-    progress.hidden = false;
-    progress.value = 0;
-    $('export-start').disabled = true;
-    $('export-cancel').disabled = true;
+    closePopups();
+    const options = $('render-options');
+    const longEdge = Number(options.querySelector('input[name="export-size"]:checked').value);
+    const samples = Number(options.querySelector('input[name="export-samples"]:checked').value);
+    rendering = new AbortController();
+    document.body.classList.add('rendering');
+    const began = performance.now();
+    showProgress('Starting…', 0);
     try {
+      while (renderer.paused) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
       const blob = await renderer.capture({
-        longEdge: Number(dialog.querySelector('input[name="export-size"]:checked').value),
-        samples: Number(dialog.querySelector('input[name="export-samples"]:checked').value),
-        onProgress: value => {
-          progress.value = value;
+        longEdge,
+        samples,
+        preview: true,
+        signal: rendering.signal,
+        onProgress: fraction => {
+          const seconds = (performance.now() - began) / 1000;
+          const left = fraction > 0.02 ? Math.max(0, Math.round(seconds / fraction * (1 - fraction))) : null;
+          showProgress(`Rendering ${Math.round(fraction * 100)}%${left === null ? '' : ` · ${left} s left`}`, fraction);
         },
       });
-      download(blob, fileName(history.value.title, 'png'));
-      dialog.close();
+      const name = fileName(history.value.title, 'png');
+      download(blob, name);
+      showProgress(`Saved ${name}`, 1, true);
     } catch (error) {
-      showMessage(error);
+      if (error?.name === 'AbortError') {
+        showProgress('Render cancelled', 0, true);
+      } else {
+        $('render-progress').hidden = true;
+        showMessage(error);
+      }
     } finally {
-      exporting = false;
-      progress.hidden = true;
-      $('export-start').disabled = false;
-      $('export-cancel').disabled = false;
+      rendering = null;
+      document.body.classList.remove('rendering');
     }
-  });
+  }
+  $('render-start').addEventListener('click', startRender);
+  $('render-cancel').addEventListener('click', () => rendering?.abort());
 
   // --- Status, shortcuts and recovery ------------------------------------------------
 
@@ -570,7 +770,13 @@ async function start() {
   document.addEventListener('keydown', event => {
     const command = event.metaKey || event.ctrlKey;
     if (!command) {
-      if (event.altKey || typing(event.target) || dialog.open) {
+      if (event.altKey || typing(event.target)) {
+        return;
+      }
+      if (rendering) {
+        if (event.key === 'Escape') {
+          rendering.abort();
+        }
         return;
       }
       const key = event.key.toLowerCase();
@@ -584,13 +790,23 @@ async function start() {
         }
       } else if (key === 'escape') {
         closePopups();
-        closeLab();
+        if (placingSun) {
+          setPlacingSun(false);
+        } else if (regionMode) {
+          setRegionMode(false);
+        } else if (renderer.region) {
+          renderer.setRegion(null);
+        } else {
+          closeLab();
+        }
+      } else if (key === 'r') {
+        setRegionMode(!regionMode);
       } else if (key === 'h') {
         document.body.classList.toggle('chrome-hidden');
       }
       return;
     }
-    if (typing(event.target)) {
+    if (typing(event.target) || rendering) {
       return;
     }
     const key = event.key.toLowerCase();

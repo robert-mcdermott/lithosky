@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.5.0-dev.2 — wave 5 slice 2 (local development)
+
+- Values are tactile:
+  - drag any value sideways to change it (Shift for fine)
+  - click a value to type a number; units are understood, so "60" in a percentage
+    means 60%
+- Light lab:
+  - a sky dome: drag the sun around the compass and toward the zenith
+  - a wedge on the dome shows which way the camera looks
+  - Option/Alt-drag in the view, or the target button, puts the sun where you point
+- Double-click the terrain to orbit around that point. The view turns to it smoothly.
+- Every lab except Scenes has a Randomize button. It's seeded, undoable, and changes
+  only that lab's settings, within ranges that tend to make good pictures.
+- Render happens in place:
+  - the image refines in the viewport, with a progress ring, time left and Cancel
+  - the PNG then saves
+  - the view keeps its own refinement, because exports use a tracer of their own
+- Region renders: press R (or the Region button) and drag a box. The box renders at
+  full output resolution, up to 1024 samples, over the view until anything changes.
+
 ## 0.5.0-dev.1 — wave 5 slice 1 (local development)
 
 - A new studio layout: the image fills the window, with a thin top bar and a rail of

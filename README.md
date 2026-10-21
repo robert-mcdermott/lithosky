@@ -46,13 +46,14 @@ The default app-window mode needs an installed Chromium-family browser with WebG
 
 The image fills the window. Pick a lab from the rail on the left; its drawer opens with a
 gallery first, then a few controls. Galleries show your current view with each choice
-applied, rendered by the real renderer.
+applied, rendered by the real renderer. The dice in a drawer's header randomizes that lab
+(undoable). Drag any value sideways to adjust it, or click it to type a number.
 
 | Lab | Gallery | Controls |
 |---|---|---|
 | Scenes | built-in scenes | |
 | Terrain | | seed, relief, drainage, gullies, scree, Erode more; heightmap import under Advanced |
-| Light | time of day | sun height and direction, haze, valley fog |
+| Light | time of day | a sky dome to drag the sun around, sun height and direction, haze, valley fog |
 | Sky | cloud types | cover, layers to towers, cloud base, depth, density, cirrus, New sky |
 | Ground & water | biomes | snow line, tree line, moisture, rock layers, waves |
 | Camera | lenses | focal length |
@@ -64,14 +65,17 @@ applied, rendered by the real renderer.
 | Shift-drag or right-drag | Pan |
 | Scroll | Zoom |
 | W A S D, Q E | Fly |
+| Double-click | Orbit around the point under the pointer |
+| Option/Alt-drag | Place the sun where you point |
+| R, then drag | Render a region at full quality |
 | 1–7 | Open a lab |
 | Esc | Close the lab |
 | H | Hide or show the interface |
 | Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z | Undo, redo |
 | Cmd/Ctrl+S | Save |
 
-**Render** saves a PNG at up to 3840 px. The **File** menu has New scene, Open and Save
-(a `.lithosky` scene).
+**Render** refines the image in place, with a progress ring and Cancel, then saves a PNG
+at up to 3840 px. The **File** menu has New scene, Open and Save (a `.lithosky` scene).
 
 ## Development
 

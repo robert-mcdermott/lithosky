@@ -56,6 +56,8 @@ interface: a top bar, a rail of seven labs and one drawer at a time.
 | `web/ui/labs.js` | The labs: each drawer's gallery, controls and Advanced fold |
 | `web/ui/controls.js` | Sliders (one undo step per drag), switches, choices, folds and picture galleries |
 | `web/ui/thumbnails.js` | Gallery thumbnails cached by scene |
+| `web/ui/sundome.js` | The sky dome in the Light lab: drag the sun; the wedge shows the view |
+| `web/scene/randomize.js` | Seeded, per-lab Randomize, limited to each lab's settings |
 | `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, lenses and looks |
 | `web/ui/icons.js` | Line icons |
 
@@ -65,6 +67,16 @@ samples. Only the shared sky LUTs, cloud settings and exposure meter are put bac
 each batch, and edits made during a batch are applied when it finishes. The Scenes
 gallery uses JPEGs in `web/scenes/thumbnails/`, rendered through the export path by
 `bench/thumbnails.mjs`.
+
+Other side renders work the same way:
+
+- **Export.** `Renderer.capture` uses a tracer of its own (freed afterwards). With
+  `preview` it presents each batch in the viewport, and an `AbortSignal` cancels it.
+- **Region renders.** `Renderer.setRegion` renders a box at full output resolution with
+  another tracer, through a `window` in the frame uniform (the part of the view the image
+  covers). It's drawn over the view with the view's exposure, until anything changes.
+- **Picking.** `Renderer.pick` reads the first-hit distance the tracer keeps for the
+  denoiser, for double-click focus.
 
 ## Scenes
 
