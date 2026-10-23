@@ -23,6 +23,8 @@ const kilometres = unit(v => `${(v / 1000).toFixed(1)} km`, text => {
 const signed = unit(v => `${v > 0 ? '+' : ''}${Math.round(v * 100)}`, text => parseNumber(text) / 100);
 const exposure = unit(v => `${v > 0 ? '+' : ''}${v.toFixed(1)} EV`);
 const millimetres = unit(v => `${Math.round(v)} mm`);
+const skyColour = unit(v => `${v < -0.3 ? 'Deep blue' : v < 0.25 ? 'Earth' : v < 0.7 ? 'Pale' : 'Golden'} · ${Math.round(v * 100)}`,
+  text => parseNumber(text) / 100);
 const cloudShape = unit(v => `${v < 0.3 ? 'Flat' : v < 0.65 ? 'Heaped' : 'Towering'} · ${Math.round(v * 100)}`,
   text => parseNumber(text) / 100);
 
@@ -132,12 +134,20 @@ export function buildLabs(studio) {
   const erode = button('Erode more', studio.actions.erodeMore);
   erode.title = 'Run more erosion on this landscape';
   erodeRow.append(erode);
+  const landform = segmented({
+    label: 'Landform',
+    options: [['alpine', 'Alpine', 'Ranges carved by rivers and glaciers'], ['canyon', 'Canyon', 'A plateau of layered rock cut into canyons, mesas and buttes']],
+  }, value => edit(draft => {
+    draft.terrain.landform = value;
+  }));
+  bind(scene => landform.set(scene.terrain.landform ?? 'alpine'));
   const terrain = lab({
     id: 'terrain',
     title: 'Terrain',
     icon: 'terrain',
     help: 'The shape of the land. Changes here rebuild the terrain, which takes a few seconds.',
   },
+    landform.node,
     seedRow,
     sliderFor({ path: 'terrain.relief', label: 'Mountain height', hint: 'How far the peaks rise above the valleys', min: 800, max: 6000, step: 50, ...metres }),
     sliderFor({ path: 'terrain.drainage', label: 'River carving', hint: 'How deeply rivers cut the valleys', min: 0, max: 3, step: 0.05, ...times }),
@@ -175,6 +185,7 @@ export function buildLabs(studio) {
     sunValues,
     sliderFor({ path: 'atmosphere.haze', label: 'Haze', hint: 'Moisture and dust in the air; more haze softens distant ridges', min: 0, max: 5, step: 0.05, live: true, ...plain }),
     sliderFor({ path: 'atmosphere.fog', label: 'Valley fog', hint: 'Low mist that settles in the valleys', min: 0, max: 4, step: 0.05, live: true, ...plain }),
+    sliderFor({ path: 'atmosphere.tint', label: 'Sky colour', hint: 'The colour of the air, from deep blue through Earth to golden; the haze over distant land follows it', min: -1, max: 1, step: 0.01, live: true, ...skyColour }),
   );
 
   // --- Sky -------------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 import { advance, distanceToTarget, dolly, lookAt, orbit, pan, sunAngles, tanHalfFov, viewHeading, viewRay } from './render/camera.js';
 import { Renderer } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { SURFACE_DEFAULTS, WATER_DEFAULTS, aspectOf, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
+import { ATMOSPHERE_DEFAULTS, SURFACE_DEFAULTS, WATER_DEFAULTS, aspectOf, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
 import { History } from './scene/history.js';
 import { RANDOMIZERS, randomize } from './scene/randomize.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
@@ -115,6 +115,7 @@ async function start() {
     valid.clouds = cloudSettingsOf(valid);
     valid.surface = { ...SURFACE_DEFAULTS, ...valid.surface };
     valid.water = { ...WATER_DEFAULTS, ...valid.water };
+    valid.atmosphere = { ...ATMOSPHERE_DEFAULTS, ...valid.atmosphere };
     return valid;
   };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
@@ -943,7 +944,7 @@ async function start() {
         replace(validate(presets.find(preset => preset.id === id).scene));
         closeWelcome();
       });
-      welcomeScenes.node.classList.add('three');
+      welcomeScenes.node.classList.add('four');
       $('welcome-scenes').append(welcomeScenes.node);
     }
     welcome.hidden = false;

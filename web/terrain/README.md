@@ -5,7 +5,7 @@ mask textures come out. Everything runs in WebGPU compute, and the CPU only queu
 
 | File | Role |
 |---|---|
-| `settings.js` | Validated parameters: seed, relief, and drainage, rill and talus strength |
+| `settings.js` | Validated parameters: landform, seed, relief, and drainage, rill and talus strength |
 | `terrain.js` | Builds the textures as a staged job |
 | `heightmap.js` | Imports 16-bit PNG or `.heightmap` heightmaps through the local server |
 | `../wgsl/terrain/*.wgsl` | Generator, drainage, droplets, thermal, masks and pyramids |
@@ -34,13 +34,26 @@ mask textures come out. Everything runs in WebGPU compute, and the CPU only queu
    deposits.
 6. **Resolve.** Heights are resolved, then the masks and min/max pyramid are rebuilt.
 
-The procedural generator combines several shapes:
+The procedural generator has two landforms (`landform` in the settings).
+
+**Alpine** combines several shapes:
 
 - ridged multifractal ranges
 - derivative-damped fBm
 - domain warp
 - fine slope-aligned gully detail
 - a glacial trough with a lake basin placed along the camera's view
+
+**Canyon** builds canyon country:
+
+- a high plateau broken into mesas, buttes and benches
+- a main gorge with a narrow river along the view
+- distant mountain ranges beyond about 26 km
+- formations from `strata.wgsl` (shared with the materials) step every slope into
+  cliffs (hard rock) and ledges (soft rock)
+
+Canyon erosion uses steeper slope limits (72° near, 62° far, 78° for loose rock), so
+cliffs survive.
 
 ## Outputs
 

@@ -57,6 +57,16 @@ const FAR_DRAINAGE = {
   talusSlope: Math.tan(35 * Math.PI / 180),
 };
 
+// Landforms the generator knows, by the id the shaders use.
+const LANDFORM_IDS = Object.freeze({ alpine: 0, canyon: 1 });
+
+// Canyon walls stand far steeper than alpine talus slopes, so their cliffs survive erosion.
+const CANYON_SLOPES = {
+  nearTalus: Math.tan(72 * Math.PI / 180),
+  farTalus: Math.tan(62 * Math.PI / 180),
+  rock: Math.tan(78 * Math.PI / 180),
+};
+
 // Iterations queued per frame while a build runs.
 const DRAINAGE_ITERATIONS_PER_STEP = 30;
 const FILL_SWEEPS_PER_STEP = 128;
@@ -252,9 +262,9 @@ export class Terrain {
     this.exposure = storageTexture(device, 'exposure masks', nearSize, 'rgba16float');
     this.farHeight = storageTexture(device, 'far height', farSize, 'r32float');
     this.farPyramid = storageTexture(device, 'far pyramid', farSize, 'rg32float', { mipLevelCount: FAR_LEVELS });
-    this.nearShape = uniformBuffer(device, 'near shape', 48);
-    this.farShape = uniformBuffer(device, 'far shape', 48);
-    this.farCoarseShape = uniformBuffer(device, 'far coarse shape', 48);
+    this.nearShape = uniformBuffer(device, 'near shape', 64);
+    this.farShape = uniformBuffer(device, 'far shape', 64);
+    this.farCoarseShape = uniformBuffer(device, 'far coarse shape', 64);
     this.nearGrid = gridBuffer(device, 'near grid', this.near);
     this.farGrid = gridBuffer(device, 'far grid', this.far);
     this.sourceParams = uniformBuffer(device, 'source params', 16);
@@ -384,11 +394,12 @@ export class Terrain {
 
   writeShape(buffer, seed, finestWavelength) {
     const placement = this.placement;
-    const shape = new StructWriter(48)
+    const shape = new StructWriter(64)
       .u32(seed)
       .f32(finestWavelength, this.settings.relief, SHAPE.valleyWidth)
       .f32(...placement.valleyOrigin, ...placement.valleyDirection, ...placement.cameraXZ)
-      .f32(SHAPE.valleyFloor, SHAPE.valleyLength);
+      .f32(SHAPE.valleyFloor, SHAPE.valleyLength)
+      .u32(LANDFORM_IDS[this.settings.landform] ?? 0, 0, 0, 0);
     this.device.queue.writeBuffer(buffer, 0, shape.buffer);
   }
 
@@ -405,7 +416,8 @@ export class Terrain {
   writeThermal() {
     const thermal = new StructWriter(32)
       .u32(NEAR_SIZE)
-      .f32(this.near.spacing, THERMAL.rate * this.settings.talus, THERMAL.screeTangent, THERMAL.rockTangent)
+      .f32(this.near.spacing, THERMAL.rate * this.settings.talus, THERMAL.screeTangent,
+        this.settings.landform === 'canyon' ? CANYON_SLOPES.rock : THERMAL.rockTangent)
       .f32(THERMAL.looseDepth, 0, 0);
     this.device.queue.writeBuffer(this.thermalParams, 0, thermal.buffer);
   }
@@ -482,6 +494,15 @@ export class Terrain {
     return stages;
   }
 
+  // Drainage settings for the near tile or the far field, with the landform's slope limit.
+  drainageSettings(far) {
+    const base = far ? FAR_DRAINAGE : NEAR_DRAINAGE;
+    if (this.settings.landform !== 'canyon') {
+      return base;
+    }
+    return { ...base, talusSlope: far ? CANYON_SLOPES.farTalus : CANYON_SLOPES.nearTalus };
+  }
+
   drainageStages(solver, settings, strength) {
     const stages = [() => {
       solver.writeParams(settings, strength, this.settings.talus);
@@ -513,7 +534,7 @@ export class Terrain {
         encoder.copyBufferToBuffer(far.height, 0, far.pristine, 0, far.height.size);
         this.device.queue.submit([encoder.finish()]);
       },
-      ...this.drainageStages(far, FAR_DRAINAGE, settings.drainage),
+      ...this.drainageStages(far, this.drainageSettings(true), settings.drainage),
       () => {
         this.submit('far field', pass => {
           const size = far.grid.size;
@@ -596,7 +617,7 @@ export class Terrain {
     return [
       ...this.farStages(),
       this.nearGenerateStage(),
-      ...this.drainageStages(this.nearSolver, NEAR_DRAINAGE, settings.drainage),
+      ...this.drainageStages(this.nearSolver, this.drainageSettings(false), settings.drainage),
       ...this.nearFinishStages(settings.rills),
     ];
   }
@@ -606,7 +627,7 @@ export class Terrain {
   nearErosionJob(amount) {
     const near = this.nearSolver;
     const iterations = Math.round(NEAR_DRAINAGE.iterations * amount);
-    const stages = [() => near.writeParams(NEAR_DRAINAGE, Math.max(this.settings.drainage, 0.25), this.settings.talus)];
+    const stages = [() => near.writeParams(this.drainageSettings(false), Math.max(this.settings.drainage, 0.25), this.settings.talus)];
     stages.push(...this.chunked(iterations, DRAINAGE_ITERATIONS_PER_STEP, count => () => {
       this.submit('drainage', pass => near.encodeIterations(pass, count));
     }));
@@ -619,7 +640,12 @@ export class Terrain {
     writeGrid(writer, this.near);
     writeGrid(writer, this.far);
     writer.u32(NEAR_LEVELS, FAR_LEVELS, 768, 384);
-    writer.f32(WATER_LEVEL, 0, 0, 0);
+    writer.f32(WATER_LEVEL, this.horizonHeight(), 0, 0);
     return writer.buffer;
+  }
+
+  // The typical ground height beyond the far field: canyon country is a high plateau.
+  horizonHeight() {
+    return this.settings.landform === 'canyon' ? SHAPE.valleyFloor + this.settings.relief * 0.55 : 0;
   }
 }

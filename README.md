@@ -10,10 +10,12 @@ progress. See the [roadmap](ROADMAP.md).
 Highlights:
 
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
-  and talus.
+  and talus. Two landforms: alpine ranges, or canyon country with mesas and stepped,
+  layered walls.
 - **Rendering.** The path-traced view fills the window and refines in about a second.
-- **Sky.** A physical sky with aerial perspective, and volumetric clouds that shadow
-  the land.
+- **Sky.** A physical sky with aerial perspective and an adjustable air colour.
+  Volumetric clouds, from fair-weather heaps to storm towers with anvils, shadow the
+  land.
 - **Ground and water.** Materials placed by the landform: banded strata, scree,
   meadow, forest, gravel, sand and snow. Five biomes; wet ground and snow catch
   specular light; lakes have wind waves and shoreline foam.
@@ -53,13 +55,13 @@ applied, rendered by the real renderer. The dice in a drawer's header randomizes
 
 | Lab | Gallery | Controls |
 |---|---|---|
-| Scenes | built-in scenes | |
-| Terrain | | seed, relief, drainage, gullies, scree, Erode more; heightmap import under Advanced |
-| Light | time of day | a sky dome to drag the sun around, sun height and direction, haze, valley fog |
-| Sky | cloud types | cover, layers to towers, cloud base, depth, density, cirrus, New sky |
+| Scenes | 13 built-in scenes | |
+| Terrain | | landform (alpine or canyon), variation, mountain height, river carving, gullies, loose rock, Erode more; heightmap import under Advanced |
+| Light | time of day | a sky dome to drag the sun around, sun height and direction, haze, valley fog, sky colour |
+| Sky | cloud types | cover, cloud shape (flat to towering), cloud base, thickness, density, high wisps, New clouds |
 | Ground & water | biomes | snow line, tree line, moisture, rock layers, waves |
 | Camera | lenses, saved views | zoom, image shape, framing guides (thirds, golden ratio), Save this view |
-| Image | looks | auto exposure, exposure, warmth, glow, vignette, grain; debug views under Advanced |
+| Image | looks | auto brightness, brightness, warmth, glow, dark corners, film grain; debug views under Advanced |
 
 | Input | Action |
 |---|---|

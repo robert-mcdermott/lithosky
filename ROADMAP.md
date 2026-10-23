@@ -4,9 +4,12 @@ Updated 2026-10-20. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
-Light) is in progress on `wave5`. W5.S1–S3 are done. W5.S3's gate (first-time users
-reach a shareable image in 5 minutes) needs the owner's user tests. W5.S4 (preset pack
-and visual gaps) is next.
+Light) is in progress on `wave5`. W5.S1–S4 are done. Two gates wait for the owner:
+
+- W5.S3's first-time user tests
+- W5.S4's preset sign-off and scores
+
+W5.S5 (First Light) is next.
 
 ## North star
 
@@ -597,6 +600,35 @@ tracer. They move to the "Rocks and objects" wave after First Light.
 minutes or less, without docs.
 
 ### W5.S4: Preset pack and visual gaps
+
+**Done.**
+
+- **Canyon landform.** `landform: canyon` builds a plateau with mesas, buttes and
+  benches, a river gorge, and distant ranges. Its formations
+  (`web/wgsl/terrain/strata.wgsl`) step slopes into cliffs and ledges. The rock
+  materials colour the same formations, and steeper erosion limits keep the
+  cliffs.
+- **Storm clouds.** Towering cloud forms separate cells, whose towers narrow,
+  billow and grow downwind anvils. Low cover leaves lone thunderheads.
+- **Sky colour.** `atmosphere.tint` changes the Rayleigh exponent, so the sky and
+  the haze shift together.
+- **Fixes.**
+  - Fog and clouds on sky rays stop at the distant ground, which raises to the
+    landform's level.
+  - Forest grows on steeper wet slopes.
+  - Rock bands fade on level ground.
+- **Presets.** Thirteen scenes with new thumbnails. H3, H4 and H5 were retuned,
+  and six scenes are new.
+
+Known gaps:
+
+- **H3's walls** are still mostly bare rock (materials scored 3 in the draft).
+  Real forest needs the vegetation wave.
+- **Storm anvils** show best from afar; nearby cells read as big cumulus.
+- **H6** is unchanged.
+- **Timings this slice are unreliable**, because other work loaded the machine.
+
+Original plan, for reference:
 
 Tasks:
 

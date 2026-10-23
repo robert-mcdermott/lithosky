@@ -56,7 +56,8 @@ fn cloudRemap(value: f32, low: f32, high: f32, newLow: f32, newHigh: f32) -> f32
 fn heightProfile(h: f32, cloudType: f32) -> f32 {
     let stratus = smoothstep(0.0, 0.08, h) * (1.0 - smoothstep(0.18, 0.35, h));
     let cumulus = smoothstep(0.0, 0.12, h) * (1.0 - smoothstep(0.4, 0.9, h));
-    let towers = smoothstep(0.0, 0.08, h) * (1.0 - smoothstep(0.82, 1.0, h));
+    // Storm towers fill the column and end in a flat anvil top.
+    let towers = smoothstep(0.0, 0.06, h) * (1.0 - smoothstep(0.93, 1.0, h));
     if (cloudType < 0.5) {
         return mix(stratus, cumulus, cloudType * 2.0);
     }
@@ -69,6 +70,45 @@ fn cloudWorld(position: vec3f) -> vec3f {
     return vec3f(frame.cameraPosition.x * 0.001 + position.x, altitude, frame.cameraPosition.z * 0.001 + position.z);
 }
 
+// Weather coverage `km` kilometres away from a world point, for storm cells and anvils.
+fn weatherAt(xz: vec2f) -> f32 {
+    return textureSampleLevel(weatherMap, cloudSampler, xz / clouds.weatherExtent + 0.5, 0.0).r;
+}
+
+// How towering the sky is: 0 for layers and heaps, 1 for storm towers.
+fn towering() -> f32 {
+    return smoothstep(0.7, 0.95, clouds.cloudType);
+}
+
+// Storm cells: towering cloud gathers into a few big cells rather than a broken field.
+// Each tower is widest at its base, narrows as it climbs, and near the top spreads
+// downwind into a flat anvil.
+const ANVIL_FROM: f32 = 0.7;
+const ANVIL_DRIFT_KM: f32 = 14.0;
+const ANVIL_SPREAD_KM: f32 = 5.0;
+
+// `warp` (km) bends the cell outline with height, so towers bulge and lean instead of
+// standing as straight columns; the soft edge lets the shape noise carve billows.
+fn stormCoverage(world: vec3f, h: f32, warp: vec2f) -> f32 {
+    // Low cover keeps only the strongest cells, so a few thunderheads stand alone.
+    let threshold = 0.74 - 0.45 * clouds.coverage;
+    let narrowing = 0.05 * smoothstep(0.1, 0.6, h) * (1.0 - smoothstep(ANVIL_FROM, 0.8, h));
+    let weather = weatherAt(world.xz + warp);
+    var storm = smoothstep(threshold + narrowing - 0.14, threshold + narrowing + 0.12, weather);
+    let anvil = smoothstep(ANVIL_FROM, 0.86, h);
+    if (anvil > 0.0) {
+        // The anvil comes from the cell upwind, spread out sideways.
+        let angle = clouds.seedOffset.x * 0.0126;
+        let wind = vec2f(cos(angle), sin(angle));
+        let source = world.xz - wind * ANVIL_DRIFT_KM * anvil;
+        let side = vec2f(-wind.y, wind.x) * ANVIL_SPREAD_KM * anvil;
+        let spread = max(max(weatherAt(source), weatherAt(source + side)), max(weatherAt(source - side), weatherAt(source - wind * ANVIL_SPREAD_KM)));
+        // Only real towers grow anvils.
+        storm = max(storm, smoothstep(threshold + 0.04, threshold + 0.16, spread) * anvil);
+    }
+    return storm;
+}
+
 // Cloud density (0..1) at a planet-frame point. `detailed` adds the edge erosion.
 fn cloudDensity(position: vec3f, detailed: bool) -> f32 {
     let world = cloudWorld(position);
@@ -78,13 +118,18 @@ fn cloudDensity(position: vec3f, detailed: bool) -> f32 {
     }
     let uv = world.xz / clouds.weatherExtent + 0.5;
     let weather = textureSampleLevel(weatherMap, cloudSampler, uv, 0.0);
-    let coverage = saturate(clouds.coverage * (0.35 + 1.3 * weather.r));
+    var coverage = saturate(clouds.coverage * (0.35 + 1.3 * weather.r));
+    let shapePoint = vec3f(world.x + clouds.seedOffset.x, world.y, world.z + clouds.seedOffset.y);
+    let shape = textureSampleLevel(shapeNoise, cloudSampler, shapePoint / clouds.shapeScale, 0.0);
+    let storms = towering();
+    if (storms > 0.0) {
+        let warp = (shape.gb - 0.5) * clouds.shapeScale * 0.5;
+        coverage = mix(coverage, stormCoverage(world, h, warp), storms);
+    }
     if (coverage <= 0.01) {
         return 0.0;
     }
     let cloudType = saturate(clouds.cloudType + (weather.g - 0.5) * 0.35);
-    let shapePoint = vec3f(world.x + clouds.seedOffset.x, world.y, world.z + clouds.seedOffset.y);
-    let shape = textureSampleLevel(shapeNoise, cloudSampler, shapePoint / clouds.shapeScale, 0.0);
     let lowFrequency = shape.g * 0.625 + shape.b * 0.25 + shape.a * 0.125;
     let base = cloudRemap(shape.r, lowFrequency - 1.0, 1.0, 0.0, 1.0) * heightProfile(h, cloudType);
     let shaped = saturate(cloudRemap(base, 1.0 - coverage, 1.0, 0.0, 1.0)) * coverage;
@@ -94,7 +139,9 @@ fn cloudDensity(position: vec3f, detailed: bool) -> f32 {
     let detail = textureSampleLevel(detailNoise, cloudSampler, shapePoint / clouds.detailScale, 0.0);
     let highFrequency = detail.r * 0.625 + detail.g * 0.25 + detail.b * 0.125;
     let erosion = mix(highFrequency, 1.0 - highFrequency, saturate(h * 4.0));
-    return saturate(cloudRemap(shaped, erosion * 0.35, 1.0, 0.0, 1.0));
+    // Anvils are smooth, sheared ice cloud; towers keep their cauliflower edges.
+    let edges = 1.0 - 0.6 * storms * smoothstep(ANVIL_FROM, 0.86, h);
+    return saturate(cloudRemap(shaped, erosion * 0.35 * edges, 1.0, 0.0, 1.0));
 }
 
 // Up to two [near, far] spans (km) where the ray lies inside the cloud shell.
@@ -262,8 +309,10 @@ fn farDeck(state: ptr<function, CloudSample>, origin: vec3f, direction: vec3f, l
     if (ground > 0.0 && ground < t) {
         return;
     }
-    // Takes over as the marched clouds fade out.
-    let opacity = (1.0 - exp(-4.0 * clouds.coverage)) * smoothstep(CLOUD_FADE_START, CLOUD_MAX_DISTANCE, t);
+    // Takes over as the marched clouds fade out. Storm cells stand apart, so they barely
+    // close up into a deck.
+    let opacity = (1.0 - exp(-4.0 * clouds.coverage)) * smoothstep(CLOUD_FADE_START, CLOUD_MAX_DISTANCE, t)
+        * (1.0 - 0.75 * towering());
     let position = origin + direction * t;
     let light = cloudLight(position, 0.5, dot(direction, frame.sunDirection));
     let gained = (*state).transmittance * opacity;

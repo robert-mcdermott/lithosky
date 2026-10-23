@@ -21,7 +21,7 @@ Everything visual runs in WebGPU on one persistent device:
 
 | Module | Role |
 |---|---|
-| `web/terrain/` | Generates and erodes the terrain on the GPU (see its README) |
+| `web/terrain/` | Generates and erodes the terrain on the GPU (see its README); `web/wgsl/terrain/strata.wgsl` holds the rock formations the canyon landform and the materials share |
 | `web/render/renderer.js` | The frame loop: terrain build stages, sky LUTs, tracing and display |
 | `web/render/tracer.js` | The progressive path tracer: one full-frame sample per dispatch into a GPU accumulation buffer |
 | `web/render/sky.js` | Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and aerial perspective |

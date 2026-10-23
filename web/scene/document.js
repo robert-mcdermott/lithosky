@@ -144,6 +144,9 @@ export function imageSettingsOf(scene) {
   return { ...IMAGE_DEFAULTS, ...scene.image };
 }
 
+// Atmosphere settings older scenes may omit: the sky's colour (0 is Earth's).
+export const ATMOSPHERE_DEFAULTS = Object.freeze({ tint: 0 });
+
 // Image shapes, as width over height. The view and every export use the scene's.
 export const ASPECTS = Object.freeze({ '16:9': 16 / 9, '3:2': 3 / 2, '4:5': 4 / 5, '1:1': 1, '21:9': 21 / 9 });
 
@@ -152,8 +155,8 @@ export function aspectOf(scene) {
 }
 
 export function terrainSettingsOf(scene) {
-  const { seed, relief, drainage, rills, talus } = scene.terrain;
-  return terrainSettings({ seed, relief, drainage, rills, talus });
+  const { landform = 'alpine', seed, relief, drainage, rills, talus } = scene.terrain;
+  return terrainSettings({ landform, seed, relief, drainage, rills, talus });
 }
 
 // A lake in a glacial trough at golden hour: the default new scene.

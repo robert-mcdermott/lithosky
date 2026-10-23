@@ -2486,5 +2486,173 @@
         }
       ]
     }
+  },
+  {
+    "name": "canyon landform",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1,
+        "landform": "canyon"
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "unknown landform",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1,
+        "landform": "glacier"
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "golden sky colour",
+    "valid": true,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5,
+        "tint": 0.9
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
+  },
+  {
+    "name": "sky colour out of range",
+    "valid": false,
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Alpine lake, golden hour",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          860,
+          6000
+        ],
+        "target": [
+          0,
+          180,
+          3800
+        ],
+        "focalLength": 21
+      },
+      "sun": {
+        "elevation": 6,
+        "azimuth": 314
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5,
+        "tint": 1.5
+      },
+      "image": {
+        "exposure": 1.8,
+        "look": "punchy"
+      }
+    }
   }
 ]

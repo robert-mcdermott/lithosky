@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.5.0-dev.4 — wave 5 slice 4 (local development)
+
+- Canyon country, a second landform (Terrain lab → Landform):
+  - a high plateau broken into mesas, buttes and benches
+  - a main gorge with a river along the view
+  - stepped walls: each rock formation stands as a cliff or weathers back into a
+    ledge
+  - distant mountain ranges on the horizon
+  - rock colour bands follow the same formations, so each cliff keeps its tone
+  - erosion keeps canyon cliffs steep
+- Storm clouds: towering cloud gathers into separate cells. Towers billow and narrow
+  as they climb, and grow smooth, flat anvils that drift downwind. Low cover leaves
+  a few lone thunderheads.
+- Sky colour (Light lab): changes how the air scatters light, from deep blue
+  through Earth to golden, and the haze over distant land follows.
+- Fog and clouds on open-sky rays stop at the distant ground, which removes a hazy
+  band at the horizon.
+- Forest clings to steeper slopes in wet climates. Level ground no longer shows rock
+  bands.
+- Thirteen built-in scenes, with new thumbnails:
+  - new: Canyon at dawn, Thunderhead, Red planet, Winter fjord, Forest lake and Mesas
+  - H4 is now a true canyon
+  - H3 has cool shadows and a dawn-lit wall
+  - H5 has backlit storm towers
+- `bench/hero.mjs --only` renders any preset by id (or `all`).
+
 ## 0.5.0-dev.3 — wave 5 slice 3 (local development)
 
 - Framing:

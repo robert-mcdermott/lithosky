@@ -136,6 +136,7 @@ export class Renderer {
       this.rebuildTerrain(settings);
     }
     const skyChanged = previous.sun.elevation !== scene.sun.elevation
+      || (previous.atmosphere.tint ?? 0) !== (scene.atmosphere.tint ?? 0)
       || previous.sun.azimuth !== scene.sun.azimuth
       || previous.atmosphere.haze !== scene.atmosphere.haze;
     const cameraChanged = JSON.stringify(previous.camera) !== JSON.stringify(scene.camera);
@@ -144,7 +145,8 @@ export class Renderer {
     if (cloudsChanged) {
       this.clouds.update(scene);
     }
-    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null]);
+    // The surface uniform also carries the formation thickness, which follows the terrain.
+    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null, s.terrain.landform ?? null, s.terrain.relief]);
     const surfaceChanged = surfaceOf(previous) !== surfaceOf(scene);
     if (surfaceChanged) {
       this.tracer.writeSurface(scene);
@@ -162,6 +164,9 @@ export class Renderer {
 
   rebuildTerrain(settings = this.terrain.settings) {
     this.terrain.generate(settings);
+    for (const tracer of [this.tracer, this.thumbnailTracer, this.regionParts?.tracer]) {
+      tracer?.writeFields();
+    }
     this.buildStart = performance.now();
     this.stats.building = true;
     this.stats.terrainSeconds = null;
@@ -282,7 +287,7 @@ export class Renderer {
   rebuildSky(view) {
     this.tracer.writeFrame(view, 0);
     const altitudeKm = view.camera.position[1] / 1000;
-    this.sky.write(view.sunDirection, SUN_ILLUMINANCE, this.scene.atmosphere.haze, altitudeKm);
+    this.sky.write(view.sunDirection, SUN_ILLUMINANCE, this.scene.atmosphere.haze, altitudeKm, this.scene.atmosphere.tint ?? 0);
     this.sky.rebuild();
   }
 

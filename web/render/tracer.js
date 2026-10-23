@@ -72,8 +72,13 @@ export class Tracer {
     this.terrain = terrain;
     this.sky = sky;
     this.clouds = clouds;
-    this.device.queue.writeBuffer(this.fieldsBuffer, 0, terrain.fieldsUniform());
+    this.writeFields();
     this.createGroup();
+  }
+
+  // Grids, water level and horizon height; rewritten when the terrain is rebuilt.
+  writeFields() {
+    this.device.queue.writeBuffer(this.fieldsBuffer, 0, this.terrain.fieldsUniform());
   }
 
   createGroup() {
