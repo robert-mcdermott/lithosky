@@ -4,12 +4,14 @@ Updated 2026-10-20. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
-Light) is in progress on `wave5`. W5.S1–S4 are done. Two gates wait for the owner:
+Light) has all its slices built (W5.S1–S5), and 0.5.0 is ready to release. Before
+tagging, the owner signs off:
 
 - W5.S3's first-time user tests
-- W5.S4's preset sign-off and scores
+- W5.S4's presets and scores
+- the release checks in `docs/releases.md`
 
-W5.S5 (First Light) is next.
+Wave 6 (vegetation) comes next.
 
 ## North star
 
@@ -160,9 +162,7 @@ Also done:
 - `/spike/` serves its directory index, which fixed a failing smoke test.
 - Evidence images are no longer committed; `bench/out/` is git-ignored.
 
-The old site assets stay in place until the W5.S5 site rebuild. The current
-site build verifies their checksums, and deleting them would not shrink git
-history.
+The old site was removed in W4.S3; W5.S5 builds a new one from real renders.
 
 **Gate:** baseline images and timings exist, and the owner agrees to the
 rubric. Scores go in [bench/hero/scores.md](bench/hero/scores.md).
@@ -540,7 +540,7 @@ Known gaps:
 - Renders aren't bit-identical between runs: two exports of the same scene differ
   slightly in fine terrain detail (PSNR about 38 dB). The likely cause is the
   order of atomic adds in the GPU droplet erosion, which predates this slice.
-  Exact repeatability belongs with the W5.S5 format freeze.
+  Exact repeatability was attempted in W5.S5 and moved after First Light.
 
 Original plan, for reference:
 
@@ -645,12 +645,54 @@ signed off.
 
 ### W5.S5: First Light (v0.5.0)
 
+**Done.**
+
+- **Format v1 frozen.** `tests/fixtures/v1/` holds every built-in scene, a minimal
+  scene and the frozen schema. Go and JS tests open the corpus, and
+  `tests/format.test.mjs` fails if the schema removes or narrows anything.
+- **Site.** `site/` is a static product page with a gallery of 12 scenes and a hero
+  image rendered by `bench/gallery.mjs`, plus a studio screenshot. The manual
+  **Publish site** workflow deploys it to Pages.
+- **Release checks.**
+  - All six archives build and verify locally.
+  - CI's native smoke is green on macOS, Windows and Linux for every Wave 5 slice
+    (the latest is run 39903802028).
+  - `docs/releases.md` lists the owner's real-browser checks and the publishing steps.
+- **Release.** Version 0.5.0, a changelog entry, release notes
+  (`docs/release-notes/0.5.0.md`) and a new packaged README.
+
+Not done here: anything that needs Windows or Linux hardware, a real browser on those
+systems, or publishing. Those are the owner's steps in `docs/releases.md`.
+
+The rubric target is not met in the draft scores: H3's materials score 3, against a
+target of no score below 4 on H1–H4 (see W5.S4). The owner decides whether to release
+with that or wait for vegetation.
+
+Original plan, for reference:
+
 Tasks:
 
-- A site gallery regenerated from real renders.
-- Freeze scene format v1.
-- Close the native Windows/Linux release checks.
-- Release notes and packaging.
+- **Freeze scene format v1.**
+  - Write down the compatibility promise.
+  - Keep a corpus of v1 scenes (every built-in scene plus a minimal one) that
+    every future build must open, in Go and JavaScript.
+  - Add a test that the schema only grows: no removed fields, narrowed ranges or
+    dropped choices.
+- **Site.** A static product page in `site/` with a gallery rendered by the real
+  renderer through `bench/gallery.mjs`. A manual Pages workflow publishes it only
+  when the owner runs it.
+- **Release checks.**
+  - Build and verify all six archives locally.
+  - Record the green native CI smoke on macOS, Windows and Linux.
+  - Keep a checklist for the owner's real-browser checks on each OS.
+- **Release.** Version 0.5.0, a changelog entry, release notes, and a rewrite of
+  the packaged README for the new studio. Tagging and publishing remain the
+  owner's actions.
+
+Repeatable renders are not part of this release. Making droplet erosion
+order-independent (each batch reading a snapshot) piled droplets into the same
+cells and broke the terrain, so it needs per-cell limits and retuning. That work
+is listed after First Light.
 
 **Gate:** the definition of done below, plus the First Light rubric target.
 
@@ -676,6 +718,9 @@ These are re-sequenced by visual impact and become Waves 6 and later:
 7. **Animation.** Keyframes, camera paths and frame sequences.
 8. **Imagined worlds.** SDF arches, overhangs and floating landforms, and
    planetary vistas.
+
+Also queued: repeatable terrain builds, meaning order-independent droplet
+erosion with per-cell limits, so a saved scene always renders the same pixels.
 
 ## Definition of done (every slice)
 

@@ -1,0 +1,61 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Imagined world",
+  "terrain": {
+    "seed": 4242,
+    "relief": 6000,
+    "drainage": 1.5,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      8500,
+      3400,
+      8500
+    ],
+    "target": [
+      0,
+      2200,
+      0
+    ],
+    "focalLength": 21
+  },
+  "sun": {
+    "elevation": 22,
+    "azimuth": 150
+  },
+  "atmosphere": {
+    "haze": 1.4,
+    "fog": 0.8
+  },
+  "image": {
+    "exposure": 0.3,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.3,
+    "warmth": 0.0,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.35,
+    "type": 0.6,
+    "altitude": 6800,
+    "thickness": 2600,
+    "density": 1.0,
+    "cirrus": 0.3,
+    "seed": 17
+  },
+  "surface": {
+    "biome": "alien",
+    "snowLine": 3400,
+    "treeLine": 1800,
+    "moisture": 0.6,
+    "strata": 0.7
+  },
+  "water": {
+    "waves": 0.15
+  }
+}

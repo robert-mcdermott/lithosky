@@ -5,8 +5,8 @@ executable serves the app and opens it in a desktop-style browser window. Everyt
 renders on your GPU with WebGPU. There are no accounts, telemetry or remote assets.
 Original code and content are Apache-2.0.
 
-**Status:** Wave 4 (visual core) is complete (v0.4.0). Wave 5 (the studio) is in
-progress. See the [roadmap](ROADMAP.md).
+**Status:** First Light (v0.5.0), the first public release, closes Wave 5 (the studio).
+See the [release notes](docs/release-notes/0.5.0.md) and the [roadmap](ROADMAP.md).
 Highlights:
 
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
@@ -23,7 +23,7 @@ Highlights:
 
 - **Studio.** Seven labs, each a drawer with a rendered gallery and a few controls.
 
-Nothing has been released yet.
+The product page is in `site/`.
 
 ## Build and run
 
@@ -102,6 +102,12 @@ after changing `web/scenes/presets.json`, then rebuild):
 ```sh
 node bench/ui.mjs --url http://127.0.0.1:8123 --label <name> [--lab light]
 node bench/thumbnails.mjs --url http://127.0.0.1:8123
+```
+
+The product site's gallery (`site/gallery/`) renders the same way:
+
+```sh
+node bench/gallery.mjs --url http://127.0.0.1:8123
 ```
 
 See [bench/hero/README.md](bench/hero/README.md) for how they are reviewed. The

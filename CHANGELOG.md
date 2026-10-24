@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.0 — First Light
+
+The first public release. It gathers Wave 4 (the visual core) and Wave 5 (the studio).
+The development entries below record each slice. See
+[the release notes](docs/release-notes/0.5.0.md).
+
+- Scene format version 1 is frozen. `tests/fixtures/v1/` holds every built-in scene and
+  a minimal one, and every future build must open them. A test fails if the schema
+  removes or narrows anything.
+- New product site in `site/`, with a gallery rendered by the app through
+  `bench/gallery.mjs`. A manual **Publish site** workflow puts it on GitHub Pages.
+- The packaged README describes the new studio.
+- The release packaging workflow defaults to 0.5.0.
+
 ## 0.5.0-dev.4 — wave 5 slice 4 (local development)
 
 - Canyon country, a second landform (Terrain lab → Landform):

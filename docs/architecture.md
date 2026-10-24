@@ -97,6 +97,14 @@ A scene is one small JSON document (format `lithosky`, version 1):
 Its single definition is `internal/scene/schema.json`. The Go server validates every
 file, autosave and project against it, and the browser validates against the same file.
 
+**Version 1 is frozen as of 0.5.0 (First Light).**
+- Every future build opens every v1 file. `tests/fixtures/v1/` holds a corpus that
+  never changes: every built-in scene, a minimal scene and the frozen schema.
+- The schema may only grow: new optional fields, wider ranges and more choices.
+  `tests/format.test.mjs` fails on removed fields, new required fields, narrowed
+  ranges or dropped choices.
+- A change that can't follow those rules needs format version 2 and a migration.
+
 | Feature | Where | How |
 |---|---|---|
 | Undo/redo | `web/scene/history.js` | Snapshots whole scenes; a drag or slider gesture is one step |
