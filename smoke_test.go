@@ -60,6 +60,16 @@ func TestStandaloneBinary(t *testing.T) {
 	if data, err := exec.CommandContext(ctx, exe, "--version").CombinedOutput(); err != nil || !strings.Contains(string(data), version) {
 		t.Fatalf("version: %v: %s", err, data)
 	}
+	// Releases are single files, so the executable carries its licence notices.
+	data, err := exec.CommandContext(ctx, exe, "--licenses").CombinedOutput()
+	if err != nil {
+		t.Fatalf("licenses: %v: %s", err, data)
+	}
+	for _, want := range []string{"Apache License", "Version 2.0", "Lithosky", "The Go Authors"} {
+		if !strings.Contains(string(data), want) {
+			t.Fatalf("licenses: missing %q", want)
+		}
+	}
 	dataDir := filepath.Join(dir, "recovery")
 	type process struct {
 		url    string

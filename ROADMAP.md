@@ -1,17 +1,11 @@
 # Lithosky roadmap
 
-Updated 2026-10-20. The course correction after Wave 3 replaced the previous
+Updated 2026-10-24. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
-Light) has all its slices built (W5.S1–S5), and 0.5.0 is ready to release. Before
-tagging, the owner signs off:
-
-- W5.S3's first-time user tests
-- W5.S4's presets and scores
-- the release checks in `docs/releases.md`
-
-Wave 6 (vegetation) comes next.
+**Status:** Waves 4 and 5 are merged and tagged (v0.4.0 and v0.5.0, First Light).
+Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1 (distribution)
+is done; W6.S2 (forests) is next.
 
 ## North star
 
@@ -129,6 +123,7 @@ The cadence is the same as Waves 1–3:
 |---|---|---|---|
 | 4 | `wave4` | Visual core | The new renderer replaces the old one: eroded terrain, a progressive viewport, sky, clouds and materials |
 | 5 | `wave5` | Studio and First Light | A viewport-first studio and the first public release, v0.5.0 |
+| 6 | `wave6` | Vegetation and distribution | Forests, shrubs and grass placed by the land; one-line installers and checksummed executable releases; v0.6.0 |
 
 `wave5` was cut from `main` after the Wave 4 merge.
 
@@ -696,27 +691,163 @@ is listed after First Light.
 
 **Gate:** the definition of done below, plus the First Light rubric target.
 
-## After First Light
+## Wave 6: Vegetation and distribution
 
-These are re-sequenced by visual impact and become Waves 6 and later:
+Landscapes without vegetation hit a ceiling quickly; H3's bare walls are the clearest
+case in the rubric. Wave 6 grows forests, shrubs and grass from the same masks that
+place the materials. It also makes Lithosky easy to install and update, following
+the pattern proven in cytoweave and proteoscope.
 
-1. **Vegetation and scattering.** Procedural trees, shrubs and grass with
-   instancing, mask-driven scatter and a paint brush. Landscapes without
-   vegetation hit a ceiling quickly, so this comes first.
-2. **Rocks and objects.** Procedural boulders, glTF import, a mesh BVH and
+| Slice | Name | Outcome |
+|---|---|---|
+| W6.S1 | Distribution | Executable releases with `SHA256SUMS`, tag-driven draft releases, one-line installers, and a site that deploys |
+| W6.S2 | Forests | Instanced procedural trees traced in the renderer, placed by landform and biome |
+| W6.S3 | Shrubs, grass and ground cover | Near-field grass and shrubs, meadow detail, distance blending |
+| W6.S4 | Vegetation lab and painting | Density, species and size controls, and a brush to paint or clear vegetation |
+| W6.S5 | Release v0.6.0 | Hero rescoring (H3 to target), presets and gallery with vegetation, shipped through the new pipeline |
+
+### W6.S1: Distribution
+
+**Done.**
+
+- **Release format.** `tools/release` builds six executables and `SHA256SUMS`, and
+  verifies them: checksums, Mach-O/ELF/PE format and CPU, notices, version, and
+  that this computer's executable runs.
+- **Licences.** `lithosky --licenses` prints the embedded notices.
+- **Installers.** `install.sh` and `install.ps1` are adapted from the proteoscope
+  installers. `--from`/`-From` installs from local files.
+- **Workflows.**
+  - Release: a tag push produces a draft release.
+  - CI: the installers are tested on all three OSes, including a tampered file
+    being refused.
+  - Publish site: deploys on changes to `site/`.
+- **Docs.** `docs/INSTALLING.md`, a rewritten `docs/releases.md`, and the README
+  and site Download sections.
+
+`install.sh` was tested here on macOS. It installs and reinstalls, refuses a tampered
+binary and a manifest without its entry, and strips the quarantine flag. `install.ps1`
+can only be exercised by CI on Windows (there's no PowerShell on the development
+Mac).
+
+Still the owner's steps:
+
+- switch Pages on once
+- the gate's tagged release candidate through both installers on each OS
+
+**Why the site didn't deploy.** The Publish site run (40122465338) failed in
+`actions/configure-pages`. GitHub returned Not Found because the repository has no
+Pages site configured. The workflow's `GITHUB_TOKEN` can't create one: Pages has to
+be switched on once, with GitHub Actions as the source, in Settings → Pages or
+through the API.
+
+Tasks:
+
+- **Release format.** Six raw executables (`lithosky-darwin-arm64`,
+  `lithosky-darwin-amd64`, `lithosky-linux-amd64`, `lithosky-linux-arm64`,
+  `lithosky-windows-amd64.exe`, `lithosky-windows-arm64.exe`) plus a `SHA256SUMS`
+  manifest, replacing the tar.gz/zip archives. `tools/release` builds and verifies
+  that layout locally.
+- **Licence notices in the binary.** `lithosky --licenses` prints LICENSE, NOTICE
+  and the Go licence, because the archives that carried them go away.
+- **Tag-driven releases.** Pushing `vX.Y.Z` runs a Release workflow that:
+  - checks the tag, `main.go` and the `CHANGELOG.md` section agree
+  - runs the tests, cross-compiles and writes `SHA256SUMS`
+  - creates a **draft** release with that version's changelog section
+
+  The owner reviews the draft and publishes it.
+- **Installers.**
+  - `install.sh` for macOS and Linux, run as `curl … | sh`.
+  - `install.ps1` for Windows, run as `irm … | iex`.
+  - Each downloads the binary and `SHA256SUMS`, verifies the checksum, runs the
+    binary's `--version` check, then installs it atomically. That's
+    `~/.local/bin/lithosky` with no sudo, or a per-user folder on Windows with a
+    PATH update.
+  - Each accepts `--version` and `--install-dir` (or the matching environment
+    variables).
+- **Installer CI.** CI installs the latest published release with the current
+  scripts, on macOS, Linux and Windows (Windows PowerShell and PowerShell 7).
+- **Docs.** `docs/INSTALLING.md` covers release files, one-line installs, checking
+  by hand, upgrading, uninstalling and building from source. The README and the
+  site's Download section show the one-line installs.
+- **Site.** Publish site deploys on pushes to `main` that touch `site/`, as well as
+  by hand, once Pages is switched on.
+
+**Gate:**
+
+- A tagged release candidate installs and launches through both installers on
+  macOS, Linux and Windows.
+- A tampered binary or manifest is refused.
+- The site is live.
+
+### W6.S2: Forests
+
+Tasks:
+
+- **Trees as instances.** Procedural conifer and broadleaf shapes (cones,
+  ellipsoids and trunks) on a jittered grid, so the tracer finds the trees near a
+  ray by stepping cell by cell rather than storing geometry.
+- **Placement.** The masks that place forest today decide where trees stand:
+  tree line, slope, moisture, drainage, snow and biome. Clearings and edges stay
+  natural.
+- **Light.** Trees cast and receive shadows, show in water, fade into the canopy
+  texture with distance, and keep the materials' forest colour far away.
+
+**Gate:** H1 and H3 read as forested up close at 1:1, and H3's materials score at
+least 4.
+
+### W6.S3: Shrubs, grass and ground cover
+
+Tasks:
+
+- Grass and shrubs near the camera (procedural blades and clumps or shells),
+  blending into the meadow material with distance.
+- Wind-combed meadows, and scrub for desert and arctic biomes.
+
+**Gate:** 1:1 foreground crops of meadows read as grass, not noise.
+
+### W6.S4: Vegetation lab and painting
+
+Tasks:
+
+- A Vegetation lab:
+  - a species gallery per biome, rendered from the current view
+  - density, tree size and mix
+  - Randomize
+- A brush that paints or clears vegetation in the view, stored in the scene as
+  an asset. This is additive in format v1, like heightmaps.
+
+**Gate:** the owner can clear a meadow or plant a forest edge without leaving the
+view.
+
+### W6.S5: Release v0.6.0
+
+Tasks:
+
+- Rescore the hero shots with vegetation; H1–H4 reach the First Light target.
+- Refresh the presets, thumbnails and site gallery.
+- Release through the new pipeline: tag, review the draft release, publish, and
+  check both installers.
+
+**Gate:** the definition of done below, plus no hero score below 4 on H1–H4.
+
+## After Wave 6
+
+These are re-sequenced by visual impact and become Waves 7 and later:
+
+1. **Rocks and objects.** Procedural boulders, glTF import, a mesh BVH and
    CSG primitives.
-3. **Oceans and coastlines.** A spectral ocean, foam, beaches and coastal
+2. **Oceans and coastlines.** A spectral ocean, foam, beaches and coastal
    geology.
-4. **Night and weather.** Stars, the Milky Way, moonlight and twilight, plus
+3. **Night and weather.** Stars, the Milky Way, moonlight and twilight, plus
    rain, snow and mist.
-5. **Production output.**
+4. **Production output.**
    - tiled 4K/8K, EXR with AOVs and a denoiser (audited before adoption)
    - a render queue
    - panorama and sky export
-6. **Automation.** A command API, an MCP server and a Python client. This can
+5. **Automation.** A command API, an MCP server and a Python client. This can
    come earlier, because the Go server already exists.
-7. **Animation.** Keyframes, camera paths and frame sequences.
-8. **Imagined worlds.** SDF arches, overhangs and floating landforms, and
+6. **Animation.** Keyframes, camera paths and frame sequences.
+7. **Imagined worlds.** SDF arches, overhangs and floating landforms, and
    planetary vistas.
 
 Also queued: repeatable terrain builds, meaning order-independent droplet

@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.6.0-dev.1 — wave 6 slice 1 (local development)
+
+- Releases are now six standalone executables (`lithosky-OS-ARCH`, with `.exe` on
+  Windows) and a `SHA256SUMS` manifest. They replace the tar.gz/zip archives.
+  `tools/release` builds and verifies that layout. The verifier checks each
+  executable's format and CPU, notices, version and checksum, and refuses
+  unlisted, missing or altered files.
+- `lithosky --licenses` prints LICENSE, NOTICE and the Go runtime's licence
+  (`third_party/GO-LICENSE`), which every executable now carries.
+- One-line installers:
+  - `install.sh` (`curl … | sh`) for macOS and Linux
+  - `install.ps1` (`irm … | iex`) for Windows
+
+  They verify the checksum and the executable's version before an atomic install
+  for the current user, with no admin rights needed. `--from`/`-From` installs from
+  downloaded files and clears the browser download flag after checking.
+- Pushing a `v*` tag runs the new **Release** workflow:
+  - it checks the tag against `main.go` and the changelog, then tests, builds and
+    verifies
+  - it creates a draft release with the executables, `SHA256SUMS`, the notes and
+    install instructions
+- CI tests both installers on macOS, Linux and Windows (including a tampered file
+  being refused), and installs the latest published release once one has
+  standalone executables.
+- **Publish site** deploys when `site/` changes on `main`. It failed before because
+  Pages was never switched on for the repository; `docs/releases.md` has the
+  one-time command.
+- New `docs/INSTALLING.md`. The README and the site's Download section show the
+  one-line installs. The archive README (`docs/distribution.md`) is gone.
+
 ## 0.5.0 — First Light
 
 The first public release. It gathers Wave 4 (the visual core) and Wave 5 (the studio).

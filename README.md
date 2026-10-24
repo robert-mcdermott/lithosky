@@ -25,7 +25,26 @@ Highlights:
 
 The product page is in `site/`.
 
-## Build and run
+## Install
+
+macOS and Linux:
+
+```sh
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/robert-mcdermott/lithosky/main/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/robert-mcdermott/lithosky/main/install.ps1 | iex
+```
+
+Each installer downloads the executable for your computer, checks it against the
+release's `SHA256SUMS` and its own version, and installs it for your user, with no admin
+rights needed. Then run `lithosky`. [Installing](docs/INSTALLING.md) covers versions,
+other folders, offline installs, checking by hand, upgrading and uninstalling.
+
+## Build and run from source
 
 Go 1.26 or newer is required to build. There are no third-party Go modules, JavaScript
 packages or build steps.
@@ -43,6 +62,7 @@ go build -trimpath -o bin/lithosky .
 | `--data-dir /path` | Moves the recovery snapshots |
 
 The default app-window mode needs an installed Chromium-family browser with WebGPU.
+`lithosky --licenses` prints the licences of Lithosky and the Go runtime built into it.
 
 ## Using it
 

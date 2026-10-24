@@ -33,7 +33,7 @@
       <p>Lithosky is a free landscape studio that runs on your computer. Eroded mountains,
         canyon country, luminous skies and real clouds, path traced on your GPU.</p>
       <div class="actions">
-        <a class="primary" href="https://github.com/robert-mcdermott/lithosky/releases">Download v0.5.0</a>
+        <a class="primary" href="#download">Install Lithosky</a>
         <a class="secondary" href="#gallery">See the gallery</a>
       </div>
     </div>
@@ -118,15 +118,26 @@
 
   <section id="download" class="section download">
     <h2>Download</h2>
-    <p>Lithosky 0.5.0 runs on macOS, Windows and Linux (Intel and ARM). It needs a recent
+    <p>Lithosky runs on macOS, Windows and Linux (Intel and ARM). It needs a recent
       Chromium-family browser (Chrome, Edge, Brave or Chromium) with WebGPU and graphics
       acceleration; the browser draws the window.</p>
+    <div class="install">
+      <h3>macOS and Linux</h3>
+      <pre><code>curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/robert-mcdermott/lithosky/main/install.sh | sh</code></pre>
+      <h3>Windows (PowerShell)</h3>
+      <pre><code>irm https://raw.githubusercontent.com/robert-mcdermott/lithosky/main/install.ps1 | iex</code></pre>
+    </div>
+    <p>The installer fetches the program for your computer, checks it against the release's
+      published checksums, and installs it for you alone, with no admin rights needed.
+      Then run <code>lithosky</code>.</p>
     <div class="actions">
-      <a class="primary" href="https://github.com/robert-mcdermott/lithosky/releases">Get Lithosky</a>
+      <a class="primary" href="https://github.com/robert-mcdermott/lithosky/blob/main/docs/INSTALLING.md">Installation guide</a>
+      <a class="secondary" href="https://github.com/robert-mcdermott/lithosky/releases">All releases</a>
       <a class="secondary" href="https://github.com/robert-mcdermott/lithosky">Source code</a>
     </div>
-    <p class="note">Packages aren't signed yet, so your system may ask you to approve the app
-      the first time. Lithosky is free and open source under the Apache 2.0 licence.</p>
+    <p class="note">Lithosky is free and open source under the Apache 2.0 licence. Programs
+      aren't signed with an Apple or Microsoft certificate yet; the installers check every
+      download against its published checksum instead.</p>
   </section>
 
   <footer class="foot">

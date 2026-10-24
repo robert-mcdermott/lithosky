@@ -25,7 +25,7 @@ import (
 //go:embed web
 var embedded embed.FS
 
-var version = "0.5.0"
+var version = "0.6.0-dev.1"
 
 func main() {
 	if err := run(); err != nil {
@@ -41,9 +41,14 @@ func run() error {
 	window := flag.String("window", "app", "window mode: app or browser")
 	browser := flag.String("browser", "", "path to a compatible browser executable for app mode")
 	showVersion := flag.Bool("version", false, "print the version and exit")
+	showLicenses := flag.Bool("licenses", false, "print the licences of Lithosky and the software built into it, and exit")
 	flag.Parse()
 	if *showVersion {
 		fmt.Println("Lithosky", version)
+		return nil
+	}
+	if *showLicenses {
+		printLicenses(os.Stdout)
 		return nil
 	}
 	if flag.NArg() != 0 || *port < 0 || *port > 65535 || (*window != "app" && *window != "browser") {

@@ -1,11 +1,11 @@
-name: Package development or release candidate
+name: Package a development build
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: Package version (no v prefix)
+        description: Version to build (no v prefix), such as 0.6.0-dev.1
         required: true
-        default: 0.5.0
+        default: 0.6.0-dev.1
 permissions:
   contents: read
 jobs:
@@ -45,11 +45,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Build archives with notices and checksums
+      - name: Build the executables and SHA256SUMS
         env:
           LITHOSKY_PACKAGE_VERSION: ${{ inputs.version }}
-        run: go run ./tools/release --version "$LITHOSKY_PACKAGE_VERSION" --out dist/releases
-      - run: go run ./tools/release --verify dist/releases
+        run: |
+          go run ./tools/release --version "$LITHOSKY_PACKAGE_VERSION" --out dist/releases
+          go run ./tools/release --verify dist/releases --version "$LITHOSKY_PACKAGE_VERSION"
       - uses: actions/upload-artifact@v4
         with:
           name: lithosky-packages

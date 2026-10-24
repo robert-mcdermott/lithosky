@@ -21,3 +21,83 @@ jobs:
       - run: go vet ./...
       - run: npm test
       - run: go build -trimpath -o dist/ .
+
+  installers:
+    name: Installers (${{ matrix.os }})
+    # Builds this commit's executable and installs it with this commit's installers, then
+    # checks a tampered copy is refused. Once a published release has standalone
+    # executables, the latest one is installed too.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Build this computer's release file
+        shell: bash
+        run: go run ./tools/release --version "0.0.0-ci.${{ github.run_number }}" --targets current --out "$RUNNER_TEMP/release"
+      - name: install.sh from local files
+        if: runner.os != 'Windows'
+        run: |
+          sh -n install.sh
+          sh install.sh --from "$RUNNER_TEMP/release" --install-dir "$RUNNER_TEMP/bin"
+          "$RUNNER_TEMP/bin/lithosky" --version
+          "$RUNNER_TEMP/bin/lithosky" --licenses > /dev/null
+          # A second run replaces the installed copy.
+          LITHOSKY_FROM="$RUNNER_TEMP/release" LITHOSKY_INSTALL_DIR="$RUNNER_TEMP/bin" sh install.sh
+          cp -R "$RUNNER_TEMP/release" "$RUNNER_TEMP/tampered"
+          for file in "$RUNNER_TEMP"/tampered/lithosky-*; do printf x >> "$file"; done
+          if sh install.sh --from "$RUNNER_TEMP/tampered" --install-dir "$RUNNER_TEMP/refused"; then
+            echo "A tampered executable was installed."
+            exit 1
+          fi
+          test ! -e "$RUNNER_TEMP/refused/lithosky"
+      - name: install.ps1 from local files (Windows PowerShell)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          powershell -ExecutionPolicy Bypass -File .\install.ps1 -From "$env:RUNNER_TEMP\release" -InstallDir "$env:RUNNER_TEMP\bin" -NoPathUpdate
+          if ($LASTEXITCODE -ne 0) { throw "install.ps1 failed with exit code $LASTEXITCODE" }
+          & "$env:RUNNER_TEMP\bin\lithosky.exe" --version
+          Copy-Item -Recurse -LiteralPath "$env:RUNNER_TEMP\release" -Destination "$env:RUNNER_TEMP\tampered"
+          Get-ChildItem "$env:RUNNER_TEMP\tampered\lithosky-*" | ForEach-Object { Add-Content -LiteralPath $_.FullName -Value 'x' -NoNewline }
+          powershell -ExecutionPolicy Bypass -File .\install.ps1 -From "$env:RUNNER_TEMP\tampered" -InstallDir "$env:RUNNER_TEMP\refused" -NoPathUpdate
+          if ($LASTEXITCODE -eq 0 -or (Test-Path "$env:RUNNER_TEMP\refused\lithosky.exe")) { throw 'A tampered executable was installed.' }
+          $global:LASTEXITCODE = 0
+      - name: install.ps1 piped into Invoke-Expression (PowerShell 7)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          LITHOSKY_NO_PATH_UPDATE: '1'
+        run: |
+          $env:LITHOSKY_INSTALL_DIR = "$env:RUNNER_TEMP\bin7"
+          $env:LITHOSKY_FROM = "$env:RUNNER_TEMP\release"
+          Get-Content -Raw .\install.ps1 | Invoke-Expression
+          & "$env:RUNNER_TEMP\bin7\lithosky.exe" --version
+      - name: The latest published release (install.sh)
+        if: runner.os != 'Windows'
+        run: |
+          if ! curl -fsIL "https://github.com/${{ github.repository }}/releases/latest/download/lithosky-linux-amd64" > /dev/null; then
+            echo "No published release has standalone executables yet; skipped."
+            exit 0
+          fi
+          sh install.sh --install-dir "$RUNNER_TEMP/latest"
+          "$RUNNER_TEMP/latest/lithosky" --version
+      - name: The latest published release (install.ps1)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          try {
+            Invoke-WebRequest -Method Head -UseBasicParsing "https://github.com/${{ github.repository }}/releases/latest/download/lithosky-windows-amd64.exe" | Out-Null
+          } catch {
+            Write-Host 'No published release has standalone executables yet; skipped.'
+            exit 0
+          }
+          $env:LITHOSKY_NO_PATH_UPDATE = '1'
+          & .\install.ps1 -InstallDir "$env:RUNNER_TEMP\latest"
+          & "$env:RUNNER_TEMP\latest\lithosky.exe" --version
