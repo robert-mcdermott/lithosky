@@ -82,3 +82,44 @@ Average: 3.7, up from 2.2. The W4.S6 gate (materials at least 4 on H1 and H4) is
 in this draft. Below the First Light target (no score below 4 on H1–H4) are H3's light
 and materials and H4's landform and composition. Those carry into the Wave 5 preset
 work.
+
+## W5.S4: preset pack and visual gaps
+
+Rendered 2026-10-22 with `node bench/hero.mjs --label w5s4` (1920×1080, 256 spp, Apple
+M4, Chrome). The side-by-side against the end of Wave 4 is in `bench/out/w5s4/compare/`.
+Claude drafted these scores; **the owner confirms or adjusts them and signs off the
+presets.**
+
+| Criterion | H1 | H2 | H3 | H4 | H5 | H6 |
+|---|---|---|---|---|---|---|
+| Landform | 4 | 4 | 4 | 5 | 3 | 3 |
+| Sky | 4 | 4 | 4 | 4 | 4 | 3 |
+| Depth/atmosphere | 4 | 4 | 4 | 4 | 4 | 3 |
+| Light and shadow | 4 | 4 | 4 | 4 | 5 | 3 |
+| Materials | 4 | 4 | 3 | 4 | 3 | 3 |
+| Water | 4 | — | 4 | 4 | 4 | — |
+| Noise and artifacts | 4 | 4 | 4 | 4 | 4 | 4 |
+| Composition | 4 | 4 | 4 | 4 | 4 | 3 |
+
+Notes:
+
+- **H4** is now canyon country: stepped mesa walls framing a winding river, rims lit by
+  the low sun, and a skyline of distant ranges. Benches show small ledges.
+- **H5:** backlit storm towers and a dark cloud base overhead, with sun shafts.
+- **H3:** cool blue shadows, a dawn-lit east wall and lit peaks. The walls are still
+  mostly bare rock.
+- **H6** is unchanged. It could use the new sky colour, or become the red planet.
+
+New presets (drafts for the owner's sign-off):
+
+| Preset | Draft |
+|---|---|
+| Canyon at dawn | Strong: lit mesa rims and a gorge. A little busy |
+| Thunderhead | A towering cell with a small anvil, golden light. The land is dark |
+| Red planet | A butterscotch sky over red, folded strata. Reads as another world |
+| Winter fjord | Snow to the water, a lit peak, clean reflections |
+| Forest lake, morning | Pleasant, but cool and fairly flat |
+| Mesas | A layered mesa wall in afternoon light, strong banding |
+
+Average H1–H6: 3.8, up from 3.7. Below the First Light target (no score below 4 on
+H1–H4): H3 materials.

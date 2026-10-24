@@ -66,7 +66,7 @@ fn generateNear(@builtin(global_invocation_id) id: vec3u) {
     if (source.mode == SOURCE_HEIGHTMAP) {
         height = heightmapAt(id.xy);
     } else {
-        height = alpineHeight(gridWorld(id.xy, grid), shape);
+        height = terrainHeight(gridWorld(id.xy, grid), shape);
     }
     let index = gridIndex(id.xy, grid.size);
     baseHeight[index] = height;
@@ -78,7 +78,7 @@ fn generateCoarse(@builtin(global_invocation_id) id: vec3u) {
     if (id.x >= grid.size || id.y >= grid.size) {
         return;
     }
-    baseHeight[gridIndex(id.xy, grid.size)] = alpineHeight(gridWorld(id.xy, grid), shape);
+    baseHeight[gridIndex(id.xy, grid.size)] = terrainHeight(gridWorld(id.xy, grid), shape);
 }
 
 @compute @workgroup_size(8, 8)
@@ -87,6 +87,6 @@ fn generateFar(@builtin(global_invocation_id) id: vec3u) {
         return;
     }
     let world = gridWorld(id.xy, grid);
-    let height = alpineHeight(world, shape) + carvingAt(world);
+    let height = terrainHeight(world, shape) + carvingAt(world);
     textureStore(farHeight, id.xy, vec4f(height, 0.0, 0.0, 0.0));
 }

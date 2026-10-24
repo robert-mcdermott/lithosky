@@ -1,0 +1,62 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Forest lake, morning",
+  "terrain": {
+    "seed": 2210,
+    "relief": 2600,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      420,
+      6200
+    ],
+    "target": [
+      0,
+      520,
+      2000
+    ],
+    "focalLength": 24
+  },
+  "sun": {
+    "elevation": 12,
+    "azimuth": 95
+  },
+  "atmosphere": {
+    "haze": 0.9,
+    "fog": 0.3,
+    "tint": 0
+  },
+  "image": {
+    "exposure": 0.0,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.35,
+    "warmth": 0.04,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.36,
+    "type": 0.5,
+    "altitude": 3800,
+    "thickness": 1400,
+    "density": 0.85,
+    "cirrus": 0.15,
+    "seed": 23
+  },
+  "surface": {
+    "biome": "alpine",
+    "snowLine": 2500,
+    "treeLine": 1700,
+    "moisture": 0.9,
+    "strata": 0.3
+  },
+  "water": {
+    "waves": 0.06
+  }
+}

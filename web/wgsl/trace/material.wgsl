@@ -12,6 +12,7 @@
 // Including modules declare `surface`, `fields`, `masks`, `exposureMasks` and `skySampler`.
 
 #include "terrain/noise.wgsl"
+#include "terrain/strata.wgsl"
 
 struct Surface {
     rockDark: vec4f,
@@ -25,7 +26,8 @@ struct Surface {
     snow: vec4f,
     // snow line (m), tree line (m), moisture (0..1), water waves (0..1)
     limits: vec4f,
-    spare: vec4f,
+    // x: formation thickness (m), matching the canyon landform's ledges
+    strata: vec4f,
 }
 
 struct Landform {
@@ -114,16 +116,19 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool) 
 
     // Bedrock: level strata, gently warped and tilted. Thick formations of irregular height,
     // each with its own tone, carry thinner beds; boundaries stay continuous across a face.
-    let banding = surface.rockDark.w;
-    let layerHeight = 34.0 + 18.0 * fbm(world.xz / 900.0, 2u, 433u);
-    let warp = fbm(world.xz / 700.0, 2u, 437u) * 60.0 + world.x * 0.012;
-    let phase = (world.y + warp) / layerHeight + grain * 0.08;
+    // The same formations the canyon landform steps into ledges (strata.wgsl), so each
+    // cliff band keeps one tone; hard, cliff-forming formations are lighter.
+    // Bands show on rock faces; level ground is covered in rubble and dust.
+    let banding = surface.rockDark.w * smoothstep(0.05, 0.3, land.slope);
+    let phase = strataPhase(world.xz, world.y, surface.strata.x) + grain * 0.08;
     let formation = bedTone(phase, 433u);
+    let hardness = formationHardness(floor(phase));
     let beds = bedTone(phase * 3.3 + 0.37, 457u);
     let tone = saturate(0.5 + variation * 1.5 + fleck * 0.25);
     var rock = mix(surface.rockDark.rgb, surface.rockLight.rgb, tone);
     rock = mix(rock, surface.band.rgb, smoothstep(0.4, 0.8, formation) * banding * 0.75);
     rock *= mix(1.0, 0.72 + 0.56 * formation, banding * 0.7);
+    rock *= mix(1.0, 0.86 + 0.28 * hardness, banding);
     rock *= 1.0 + (beds - 0.5) * 0.3 * banding;
     rock *= 1.0 - 0.35 * smoothstep(0.25, 0.6, land.flow);
 
@@ -148,7 +153,8 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool) 
     let forestHeight = 1.0 - smoothstep(treeLine - 200.0, treeLine + 150.0, land.height + variation * 350.0);
     let clearings = smoothstep(-0.15, 0.05, patches + (crowns - 0.5) * 0.15 + (moisture - 0.5) * 0.3);
     let forestCover = clearings * (1.0 - smoothstep(0.35, 0.6, land.flow)) * surface.forest.w;
-    let forestSlope = 1.0 - smoothstep(0.2, 0.32, steep);
+    // In wet climates trees cling to steeper slopes.
+    let forestSlope = 1.0 - smoothstep(0.2 + 0.1 * moisture, 0.32 + 0.1 * moisture, steep);
     let forestWeight = forestSlope * forestHeight * forestCover * (1.0 - screeWeight * 0.7);
     let gravelWeight = smoothstep(0.72, 0.95, land.flow) * (1.0 - smoothstep(0.04, 0.12, land.slope)) * 0.8;
     let shore = 1.0 - smoothstep(0.5, 4.0, land.height - fields.waterLevel + grain * 2.0);

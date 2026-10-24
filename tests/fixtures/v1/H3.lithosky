@@ -1,0 +1,61 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Misty valley at dawn",
+  "terrain": {
+    "seed": 3307,
+    "relief": 2600,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      620,
+      7200
+    ],
+    "target": [
+      0,
+      320,
+      0
+    ],
+    "focalLength": 40
+  },
+  "sun": {
+    "elevation": 4,
+    "azimuth": 80
+  },
+  "atmosphere": {
+    "haze": 1.8,
+    "fog": 1.3
+  },
+  "image": {
+    "exposure": -0.2,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.4,
+    "warmth": 0.02,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.0,
+    "type": 0.5,
+    "altitude": 4000,
+    "thickness": 1200,
+    "density": 1.0,
+    "cirrus": 0.35,
+    "seed": 5
+  },
+  "surface": {
+    "biome": "alpine",
+    "snowLine": 1900,
+    "treeLine": 1350,
+    "moisture": 0.85,
+    "strata": 0.3
+  },
+  "water": {
+    "waves": 0.02
+  }
+}

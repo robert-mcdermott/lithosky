@@ -15,7 +15,8 @@ struct Fields {
     nearSteps: u32,
     farSteps: u32,
     waterLevel: f32,
-    padding0: f32,
+    // Height (m) of the planet's ground beyond the far field: the landform's typical level.
+    horizonHeight: f32,
     padding1: f32,
     padding2: f32,
 }

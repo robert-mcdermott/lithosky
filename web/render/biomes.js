@@ -81,7 +81,17 @@ export const BIOMES = Object.freeze({
 
 export const BIOME_IDS = Object.keys(BIOMES);
 
-// Writes the surface uniform (11 vec4) for a scene: palette, limits and water waves.
+// Rock formations are this thick by default; canyon country steps into CANYON_FORMATIONS
+// ledges over its relief (as in terrain/generator.wgsl), and the bands follow them.
+const STRATA_THICKNESS = 34;
+const CANYON_FORMATIONS = 12;
+
+function strataThickness(terrain) {
+  return terrain?.landform === 'canyon' ? terrain.relief / CANYON_FORMATIONS : STRATA_THICKNESS;
+}
+
+// Writes the surface uniform (11 vec4) for a scene: palette, limits, water waves and the
+// thickness of rock formations.
 export function surfaceUniform(scene) {
   const settings = surfaceSettingsOf(scene);
   const biome = BIOMES[settings.biome] ?? BIOMES.alpine;
@@ -96,6 +106,6 @@ export function surfaceUniform(scene) {
     .f32(...biome.sand, 0)
     .f32(...biome.snow, biome.snowAmount)
     .f32(settings.snowLine, settings.treeLine, settings.moisture, settings.waves)
-    .f32(0, 0, 0, 0)
+    .f32(strataThickness(scene.terrain), 0, 0, 0)
     .buffer;
 }

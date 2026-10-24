@@ -66,3 +66,12 @@ test('every shader include in web/wgsl resolves to a file', async () => {
     await assert.doesNotReject(expandIncludes(shader, read), `includes of ${shader}`);
   }
 });
+
+test('landforms are named, validated and part of what needs a rebuild', () => {
+  assert.equal(terrainSettings().landform, 'alpine');
+  const canyon = terrainSettings({ landform: 'canyon' });
+  assert.equal(canyon.landform, 'canyon');
+  assert.throws(() => terrainSettings({ landform: 'glacier' }), /Unknown landform/);
+  assert.ok(!sameTerrain(terrainSettings(), canyon));
+  assert.ok(sameTerrain(canyon, terrainSettings({ landform: 'canyon' })));
+});

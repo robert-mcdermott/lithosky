@@ -1,0 +1,63 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Mesas",
+  "terrain": {
+    "seed": 444,
+    "relief": 900,
+    "drainage": 1.5,
+    "rills": 1.2,
+    "talus": 1,
+    "landform": "canyon"
+  },
+  "camera": {
+    "position": [
+      3000,
+      1100,
+      2500
+    ],
+    "target": [
+      0,
+      500,
+      -3000
+    ],
+    "focalLength": 28
+  },
+  "sun": {
+    "elevation": 10,
+    "azimuth": 260
+  },
+  "atmosphere": {
+    "haze": 0.9,
+    "fog": 0,
+    "tint": 0.1
+  },
+  "image": {
+    "exposure": 0.0,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.35,
+    "warmth": 0.06,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.25,
+    "type": 0.55,
+    "altitude": 3600,
+    "thickness": 1500,
+    "density": 0.85,
+    "cirrus": 0.2,
+    "seed": 41
+  },
+  "surface": {
+    "biome": "desert",
+    "snowLine": 9000,
+    "treeLine": 1000,
+    "moisture": 0.1,
+    "strata": 0.9
+  },
+  "water": {
+    "waves": 0.1
+  }
+}

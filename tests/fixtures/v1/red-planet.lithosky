@@ -1,0 +1,62 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Red planet",
+  "terrain": {
+    "seed": 6111,
+    "relief": 5200,
+    "drainage": 1.4,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      7000,
+      3600,
+      9000
+    ],
+    "target": [
+      0,
+      1800,
+      0
+    ],
+    "focalLength": 24
+  },
+  "sun": {
+    "elevation": 10,
+    "azimuth": 250
+  },
+  "atmosphere": {
+    "haze": 2.2,
+    "fog": 0.6,
+    "tint": 1.0
+  },
+  "image": {
+    "exposure": 0.0,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.35,
+    "warmth": 0.0,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0,
+    "type": 0.5,
+    "altitude": 4800,
+    "thickness": 1600,
+    "density": 0.9,
+    "cirrus": 0.3,
+    "seed": 61
+  },
+  "surface": {
+    "biome": "desert",
+    "snowLine": 9000,
+    "treeLine": 1600,
+    "moisture": 0.6,
+    "strata": 0.6
+  },
+  "water": {
+    "waves": 0.1
+  }
+}

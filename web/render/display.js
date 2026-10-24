@@ -34,7 +34,7 @@ export class Display {
     this.device = device;
     this.context = context;
     this.pipelines = pipelines;
-    this.uniform = uniformBuffer(device, 'display', 48);
+    this.uniform = uniformBuffer(device, 'display', 64);
     this.resources = null;
     this.groups = null;
   }
@@ -53,20 +53,27 @@ export class Display {
   }
 
   // `image` holds the scene's image settings plus `viewMode`; outputSize is [width, height].
-  write(image, outputSize) {
+  // `region` places the image within the output (output UV x0, y0, x1, y1).
+  write(image, outputSize, region = [0, 0, 1, 1]) {
     const scale = image.autoExposure ? 1 : EXPOSURE_SCALE;
-    const writer = new StructWriter(48)
+    const writer = new StructWriter(64)
       .u32(...outputSize, image.viewMode ?? 0, LOOKS[image.look] ?? 0)
       .f32(scale * Math.pow(2, image.exposure)).u32(image.autoExposure ? 1 : 0)
       .f32(image.bloom * BLOOM_SCALE, image.warmth, image.vignette, image.grain)
-      .u32(GRAIN_SEED).f32(BLOOM_LEVELS);
+      .u32(GRAIN_SEED).f32(BLOOM_LEVELS)
+      .f32(...region);
     this.device.queue.writeBuffer(this.uniform, 0, writer.buffer);
   }
 
-  encodeDraw(encoder, pipeline, group, view) {
+  // `area` ([x, y, width, height] in pixels) draws into part of the target, over what's there.
+  encodeDraw(encoder, pipeline, group, view, area = null) {
     const pass = encoder.beginRenderPass({
-      colorAttachments: [{ view, loadOp: 'clear', storeOp: 'store', clearValue: [0, 0, 0, 1] }],
+      colorAttachments: [{ view, loadOp: area ? 'load' : 'clear', storeOp: 'store', clearValue: [0, 0, 0, 1] }],
     });
+    if (area) {
+      pass.setViewport(...area, 0, 1);
+      pass.setScissorRect(...area);
+    }
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, group);
     pass.draw(3);
@@ -81,8 +88,23 @@ export class Display {
     this.device.queue.submit([encoder.finish()]);
   }
 
+  // Draws the image over part of the view: `region` in canvas UV (x0, y0, x1, y1).
+  presentRegion(image, region) {
+    const texture = this.context.getCurrentTexture();
+    const width = texture.width;
+    const height = texture.height;
+    const x = Math.max(0, Math.floor(region[0] * width));
+    const y = Math.max(0, Math.floor(region[1] * height));
+    const area = [x, y, Math.max(1, Math.min(width, Math.ceil(region[2] * width)) - x),
+      Math.max(1, Math.min(height, Math.ceil(region[3] * height)) - y)];
+    this.write(image, [width, height], region);
+    const encoder = this.device.createCommandEncoder({ label: 'present region' });
+    this.encodeDraw(encoder, this.pipelines.screen, this.groups.screen, texture.createView(), area);
+    this.device.queue.submit([encoder.finish()]);
+  }
+
   // Renders the image at `size` into a texture and returns a PNG blob.
-  async capture(image, size) {
+  async capture(image, size, { type = 'image/png', quality } = {}) {
     const [width, height] = size;
     this.write(image, size);
     const device = this.device;
@@ -112,6 +134,6 @@ export class Display {
     texture.destroy();
     const canvas = new OffscreenCanvas(width, height);
     canvas.getContext('2d').putImageData(new ImageData(pixels, width, height), 0, 0);
-    return canvas.convertToBlob({ type: 'image/png' });
+    return canvas.convertToBlob({ type, quality });
   }
 }

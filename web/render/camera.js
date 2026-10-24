@@ -103,3 +103,35 @@ export function sunDirection(elevationDegrees, azimuthDegrees) {
     -Math.cos(azimuth) * Math.cos(elevation),
   ];
 }
+
+// The unit ray through a view position (ndcX, ndcY in -1..1, +y up), matching the tracer.
+export function viewRay(camera, aspect, ndcX, ndcY) {
+  const frame = cameraFrame(camera, aspect);
+  const direction = add(add(frame.forward, scale(frame.right, ndcX * frame.tanHalfFov * aspect)),
+    scale(frame.up, ndcY * frame.tanHalfFov));
+  return normalize(direction);
+}
+
+// Sun elevation and azimuth (degrees, azimuth clockwise from north) toward a direction.
+export function sunAngles(direction) {
+  const [x, y, z] = normalize(direction);
+  const azimuth = (Math.atan2(x, -z) / RADIANS + 360) % 360;
+  return { elevation: Math.asin(Math.max(-1, Math.min(1, y))) / RADIANS, azimuth };
+}
+
+// Compass heading of the view (degrees clockwise from north) and its horizontal field of view.
+export function viewHeading(camera, aspect) {
+  const frame = cameraFrame(camera, aspect);
+  return {
+    heading: (Math.atan2(frame.forward[0], -frame.forward[2]) / RADIANS + 360) % 360,
+    fieldOfView: 2 * Math.atan(frame.tanHalfFov * aspect) / RADIANS,
+  };
+}
+
+// Keeps the eye where it is and turns it to look at `point`.
+export function lookAt(camera, point) {
+  if (length(subtract(point, camera.position)) < MIN_DISTANCE) {
+    return camera;
+  }
+  return { ...camera, target: [...point] };
+}

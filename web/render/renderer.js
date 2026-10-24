@@ -5,10 +5,10 @@
 
 import { createDevice } from '../gpu/device.js';
 import { PLACEMENT } from '../terrain/placement.js';
-import { imageSettingsOf, terrainSettingsOf } from '../scene/document.js';
+import { aspectOf, imageSettingsOf, terrainSettingsOf } from '../scene/document.js';
 import { sameTerrain } from '../terrain/settings.js';
 import { Terrain } from '../terrain/terrain.js';
-import { cameraFrame, sunDirection } from './camera.js';
+import { cameraFrame, sunDirection, viewRay } from './camera.js';
 import { Clouds } from './clouds.js';
 import { Display } from './display.js';
 import { Post } from './post.js';
@@ -23,6 +23,13 @@ const VIEW_LONG_EDGE = 1920;
 const MOVING_SCALE = 0.5;
 const SETTLE_MS = 180;
 const EXPORT_BATCH = 8;
+// A region renders at full output resolution up to this many samples, a few per frame.
+const REGION_SAMPLES = 1024;
+const REGION_SAMPLES_PER_FRAME = 2;
+const REGION_MAX_PIXELS = 4_000_000;
+
+// First-hit distance the tracer stores for rays that reach the sky.
+const SKY_DEPTH = 300000;
 
 const FOG_HEIGHT = 250;
 const FOG_FALLOFF = 1 / 180;
@@ -117,6 +124,11 @@ export class Renderer {
 
   // Applies a scene. Terrain rebuilds only when its settings or heightmap changed.
   setScene(scene, { moving = false } = {}) {
+    if (this.sideRender) {
+      // Applied when the export or gallery batch finishes and the view's scene is back.
+      this.queuedScene = { scene, moving };
+      return;
+    }
     const previous = this.scene;
     this.scene = scene;
     const settings = terrainSettingsOf(scene);
@@ -124,6 +136,7 @@ export class Renderer {
       this.rebuildTerrain(settings);
     }
     const skyChanged = previous.sun.elevation !== scene.sun.elevation
+      || (previous.atmosphere.tint ?? 0) !== (scene.atmosphere.tint ?? 0)
       || previous.sun.azimuth !== scene.sun.azimuth
       || previous.atmosphere.haze !== scene.atmosphere.haze;
     const cameraChanged = JSON.stringify(previous.camera) !== JSON.stringify(scene.camera);
@@ -132,7 +145,8 @@ export class Renderer {
     if (cloudsChanged) {
       this.clouds.update(scene);
     }
-    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null]);
+    // The surface uniform also carries the formation thickness, which follows the terrain.
+    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null, s.terrain.landform ?? null, s.terrain.relief]);
     const surfaceChanged = surfaceOf(previous) !== surfaceOf(scene);
     if (surfaceChanged) {
       this.tracer.writeSurface(scene);
@@ -150,6 +164,9 @@ export class Renderer {
 
   rebuildTerrain(settings = this.terrain.settings) {
     this.terrain.generate(settings);
+    for (const tracer of [this.tracer, this.thumbnailTracer, this.regionParts?.tracer]) {
+      tracer?.writeFields();
+    }
     this.buildStart = performance.now();
     this.stats.building = true;
     this.stats.terrainSeconds = null;
@@ -186,6 +203,58 @@ export class Renderer {
     this.samplesPerFrame = 1;
     this.resetTime = performance.now();
     this.stats.samples = 0;
+    // Any change to the image retires a region render.
+    if (this.region) {
+      this.region = null;
+      this.stats.region = null;
+    }
+  }
+
+  // Renders part of the view at full output resolution and shows it over the view, until
+  // the scene, camera or window changes. `rect` is in canvas UV (x0, y0, x1, y1); null
+  // removes it.
+  setRegion(rect) {
+    if (!rect) {
+      this.region = null;
+      this.stats.region = null;
+      this.emit();
+      return;
+    }
+    if (!this.regionParts) {
+      const tracer = new Tracer(this.device, this.tracer.pipeline);
+      tracer.bind(this.terrain, this.sky, this.clouds);
+      this.regionParts = { tracer, display: new Display(this.device, this.display.context, this.display.pipelines) };
+    }
+    const output = this.outputSize();
+    const width = (rect[2] - rect[0]) * output[0];
+    const height = (rect[3] - rect[1]) * output[1];
+    const fit = Math.min(1, Math.sqrt(REGION_MAX_PIXELS / Math.max(1, width * height)));
+    this.regionParts.tracer.writeSurface(this.scene);
+    this.region = { rect, size: [Math.max(1, Math.round(width * fit)), Math.max(1, Math.round(height * fit))], samples: 0, shown: -1 };
+    this.stats.region = { samples: 0, target: REGION_SAMPLES };
+    this.emit();
+  }
+
+  // A few more region samples, then the region drawn over the view (which was just drawn).
+  renderRegion(aspect) {
+    const region = this.region;
+    const { tracer, display } = this.regionParts;
+    if (tracer.width !== region.size[0] || tracer.height !== region.size[1]) {
+      tracer.setSize(...region.size);
+    }
+    const [x0, y0, x1, y1] = region.rect;
+    const view = { ...this.view(aspect), window: [x0 + x1 - 1, 1 - (y0 + y1), x1 - x0, y1 - y0] };
+    for (let i = 0; i < REGION_SAMPLES_PER_FRAME && region.samples < REGION_SAMPLES; i++) {
+      tracer.sample(view, region.samples);
+      region.samples++;
+    }
+    if (region.shown !== region.samples) {
+      // The view's metered exposure, so the region matches what's around it.
+      display.bind(this.post.run(tracer, region.samples, { meterBlend: 0 }), this.post);
+      region.shown = region.samples;
+    }
+    display.presentRegion(this.image(), region.rect);
+    this.stats.region.samples = region.samples;
   }
 
   outputSize() {
@@ -218,7 +287,7 @@ export class Renderer {
   rebuildSky(view) {
     this.tracer.writeFrame(view, 0);
     const altitudeKm = view.camera.position[1] / 1000;
-    this.sky.write(view.sunDirection, SUN_ILLUMINANCE, this.scene.atmosphere.haze, altitudeKm);
+    this.sky.write(view.sunDirection, SUN_ILLUMINANCE, this.scene.atmosphere.haze, altitudeKm, this.scene.atmosphere.tint ?? 0);
     this.sky.rebuild();
   }
 
@@ -291,6 +360,9 @@ export class Renderer {
     }
     this.display.bind(this.post.run(this.tracer, this.sampleIndex), this.post);
     this.display.present(this.image());
+    if (this.region && !this.terrain.busy) {
+      this.renderRegion(size[0] / size[1]);
+    }
     this.trackCompletion(size);
   }
 
@@ -315,36 +387,146 @@ export class Renderer {
     });
   }
 
-  // Renders `samples` at `longEdge` pixels (the view's aspect) and returns a PNG blob.
-  async capture({ longEdge = 2560, samples = 256, onProgress = () => {} } = {}) {
-    if (this.terrain.busy) {
+  // Renders `samples` at `longEdge` pixels (the scene's image shape) and returns an image blob
+  // (PNG unless `type` says otherwise). A tracer of its own does the work, so the view keeps
+  // its samples. With `preview`, the render refines in the viewport as it goes. Aborting
+  // `signal` stops it between batches.
+  async capture({ longEdge = 2560, samples = 256, onProgress = () => {}, type = 'image/png', quality, preview = false, signal } = {}) {
+    if (this.terrain.busy || this.stats.building) {
       throw new Error('Wait for the terrain to finish building.');
     }
+    if (this.paused) {
+      throw new Error('Another render is in progress.');
+    }
     this.paused = true;
+    this.sideRender = true;
     await this.device.queue.onSubmittedWorkDone();
+    this.post.saveMeter();
+    const size = sizeForLongEdge(aspectOf(this.scene), longEdge);
+    const tracer = new Tracer(this.device, this.tracer.pipeline);
+    tracer.bind(this.terrain, this.sky, this.clouds);
+    tracer.writeSurface(this.scene);
+    tracer.setSize(...size);
     try {
-      const output = this.outputSize();
-      const size = sizeForLongEdge(output[0] / output[1], longEdge);
-      this.tracer.setSize(...size);
       const view = this.view(size[0] / size[1]);
       this.rebuildSky(view);
       for (let index = 0; index < samples; index++) {
-        this.tracer.sample(view, index);
+        tracer.sample(view, index);
         if ((index + 1) % EXPORT_BATCH === 0 || index + 1 === samples) {
+          if (preview) {
+            this.display.bind(this.post.run(tracer, index + 1, { meterBlend: 1 }), this.post);
+            this.display.present(this.image());
+          }
           await this.device.queue.onSubmittedWorkDone();
+          signal?.throwIfAborted();
           onProgress((index + 1) / samples);
         }
       }
-      this.display.bind(this.post.run(this.tracer, samples, { meterBlend: 1 }), this.post);
-      const blob = await this.display.capture(this.image(), size);
-      this.post.release(...size);
-      return blob;
+      this.display.bind(this.post.run(tracer, samples, { meterBlend: 1 }), this.post);
+      return await this.display.capture(this.image(), size, { type, quality });
     } finally {
-      this.paused = false;
-      this.skyDirty = true;
-      this.resetAccumulation();
-      this.tracer.setSize(1, 1);
-      requestAnimationFrame(this.frame);
+      this.post.release(...size, tracer);
+      tracer.release();
+      this.finishSideRender();
     }
+  }
+
+  // Puts the view's sky and exposure back after an export or gallery batch, restarts the
+  // frame loop and applies any edit made meanwhile.
+  finishSideRender() {
+    this.post.restoreMeter();
+    this.rebuildSky(this.view(this.tracer.width / this.tracer.height));
+    this.sideRender = false;
+    this.paused = false;
+    requestAnimationFrame(this.frame);
+    const queued = this.queuedScene;
+    this.queuedScene = null;
+    if (queued) {
+      this.setScene(queued.scene, { moving: queued.moving });
+    }
+  }
+
+  // The terrain point under a view position (u, v in 0..1 across the canvas), from the
+  // first-hit distance the tracer keeps for the denoiser. Null over the sky.
+  async pick(u, v) {
+    const tracer = this.tracer;
+    if (!tracer.accumulation || this.sampleIndex === 0 || this.paused) {
+      return null;
+    }
+    const x = Math.min(tracer.width - 1, Math.max(0, Math.floor(u * tracer.width)));
+    const y = Math.min(tracer.height - 1, Math.max(0, Math.floor(v * tracer.height)));
+    const index = y * tracer.width + x;
+    const readback = this.device.createBuffer({ size: 32, usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ });
+    const encoder = this.device.createCommandEncoder({ label: 'pick' });
+    encoder.copyBufferToBuffer(tracer.accumulation, index * 16, readback, 0, 16);
+    encoder.copyBufferToBuffer(tracer.guides, (index * 2 + 1) * 16, readback, 16, 16);
+    this.device.queue.submit([encoder.finish()]);
+    await readback.mapAsync(GPUMapMode.READ);
+    const values = new Float32Array(readback.getMappedRange().slice(0));
+    readback.unmap();
+    readback.destroy();
+    const samples = values[3];
+    const depth = values[7] / Math.max(samples, 1);
+    // Edges that mix terrain and sky average to a long distance; treat them as sky.
+    if (samples <= 0 || !(depth < SKY_DEPTH * 0.5)) {
+      return null;
+    }
+    const aspect = tracer.width / tracer.height;
+    const ndcX = ((x + 0.5) / tracer.width) * 2 - 1;
+    const ndcY = 1 - ((y + 0.5) / tracer.height) * 2;
+    const direction = viewRay(this.scene.camera, aspect, ndcX, ndcY);
+    return this.scene.camera.position.map((value, i) => value + direction[i] * depth);
+  }
+
+  // Small JPEG renders of variant scenes for the galleries: the current terrain under other
+  // light, skies, materials, lenses or looks. Returns one blob per scene, or null where a
+  // scene needs different terrain. A second, small tracer does the work, so the view keeps
+  // its accumulated samples; only the shared sky LUTs and cloud settings are put back.
+  async renderVariants(scenes, { width = 288, height = 162, samples = 32 } = {}) {
+    if (this.terrain.busy || this.stats.building || this.lost || this.paused) {
+      return null;
+    }
+    this.paused = true;
+    this.sideRender = true;
+    await this.device.queue.onSubmittedWorkDone();
+    this.post.saveMeter();
+    if (!this.thumbnailTracer) {
+      this.thumbnailTracer = new Tracer(this.device, this.tracer.pipeline);
+      this.thumbnailTracer.bind(this.terrain, this.sky, this.clouds);
+    }
+    const tracer = this.thumbnailTracer;
+    tracer.setSize(width, height);
+    const current = this.scene;
+    const results = [];
+    try {
+      let traced = null;
+      for (const scene of scenes) {
+        if (!sameTerrain(terrainSettingsOf(scene), this.terrain.settings)) {
+          results.push(null);
+          continue;
+        }
+        // Variants that differ only in image settings share one trace.
+        const key = JSON.stringify({ ...scene, title: null, image: null });
+        if (key !== traced) {
+          traced = key;
+          this.scene = scene;
+          this.clouds.update(scene);
+          tracer.writeSurface(scene);
+          const view = { ...this.view(width / height), viewMode: VIEW_MODES.image };
+          this.rebuildSky(view);
+          for (let index = 0; index < samples; index++) {
+            tracer.sample(view, index);
+          }
+          this.display.bind(this.post.run(tracer, samples, { meterBlend: 1 }), this.post);
+        }
+        const image = { ...imageSettingsOf(scene), viewMode: VIEW_MODES.image };
+        results.push(await this.display.capture(image, [width, height], { type: 'image/jpeg', quality: 0.86 }));
+      }
+    } finally {
+      this.scene = current;
+      this.clouds.update(current);
+      this.finishSideRender();
+    }
+    return results;
   }
 }

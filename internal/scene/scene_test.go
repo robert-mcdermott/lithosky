@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -101,5 +102,25 @@ func TestAssetInfo(t *testing.T) {
 	}
 	if id, n := AssetInfo(withMap); id != asset || n != 1024 {
 		t.Fatalf("AssetInfo = %q, %d", id, n)
+	}
+}
+
+// Scene format v1 is frozen: every file in tests/fixtures/v1 must keep validating.
+func TestFrozenV1Corpus(t *testing.T) {
+	names, err := filepath.Glob("../../tests/fixtures/v1/*.lithosky")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(names) < 14 {
+		t.Fatalf("expected the frozen corpus, found %d files", len(names))
+	}
+	for _, name := range names {
+		data, err := os.ReadFile(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Validate(data); err != nil {
+			t.Errorf("%s: %v", name, err)
+		}
 	}
 }

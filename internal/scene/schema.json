@@ -42,6 +42,13 @@
         "talus"
       ],
       "properties": {
+        "landform": {
+          "type": "string",
+          "enum": [
+            "alpine",
+            "canyon"
+          ]
+        },
         "seed": {
           "type": "integer",
           "minimum": 0,
@@ -167,6 +174,11 @@
           "type": "number",
           "minimum": 0,
           "maximum": 4
+        },
+        "tint": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
         }
       }
     },
@@ -215,6 +227,16 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1
+        },
+        "aspect": {
+          "type": "string",
+          "enum": [
+            "16:9",
+            "3:2",
+            "4:5",
+            "1:1",
+            "21:9"
+          ]
         }
       }
     },
@@ -322,6 +344,53 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1
+        }
+      }
+    },
+    "cameras": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 24,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "position",
+          "target",
+          "focalLength"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "position": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -250000,
+              "maximum": 250000
+            }
+          },
+          "target": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -250000,
+              "maximum": 250000
+            }
+          },
+          "focalLength": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 300
+          }
         }
       }
     }

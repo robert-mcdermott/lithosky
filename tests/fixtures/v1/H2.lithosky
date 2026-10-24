@@ -1,0 +1,61 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Snow peaks",
+  "terrain": {
+    "seed": 5521,
+    "relief": 4200,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      5200,
+      3600,
+      9800
+    ],
+    "target": [
+      0,
+      1600,
+      -1500
+    ],
+    "focalLength": 35
+  },
+  "sun": {
+    "elevation": 32,
+    "azimuth": 200
+  },
+  "atmosphere": {
+    "haze": 0.8,
+    "fog": 0
+  },
+  "image": {
+    "exposure": 0.7,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.25,
+    "warmth": 0.0,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.36,
+    "type": 0.55,
+    "altitude": 5400,
+    "thickness": 1400,
+    "density": 0.85,
+    "cirrus": 0.15,
+    "seed": 23
+  },
+  "surface": {
+    "biome": "alpine",
+    "snowLine": 1800,
+    "treeLine": 1300,
+    "moisture": 0.5,
+    "strata": 0.35
+  },
+  "water": {
+    "waves": 0.2
+  }
+}

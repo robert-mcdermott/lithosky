@@ -21,7 +21,7 @@ Everything visual runs in WebGPU on one persistent device:
 
 | Module | Role |
 |---|---|
-| `web/terrain/` | Generates and erodes the terrain on the GPU (see its README) |
+| `web/terrain/` | Generates and erodes the terrain on the GPU (see its README); `web/wgsl/terrain/strata.wgsl` holds the rock formations the canyon landform and the materials share |
 | `web/render/renderer.js` | The frame loop: terrain build stages, sky LUTs, tracing and display |
 | `web/render/tracer.js` | The progressive path tracer: one full-frame sample per dispatch into a GPU accumulation buffer |
 | `web/render/sky.js` | Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and aerial perspective |
@@ -46,6 +46,42 @@ Some properties of the tracer and frame loop:
 - **Export.** Export renders the same scene at the chosen size and sample count through
   the same kernels, then reads back once.
 
+## Studio
+
+`web/app.js` wires the scene, history, autosave, navigation, files and export to the
+interface: a top bar, a rail of seven labs and one drawer at a time. The canvas takes the
+scene's image shape (`image.aspect`), as large as fits below the top bar. A narrower frame
+slides clear of the rail and an open drawer without changing size, so the render carries
+on. Framing guides are an SVG overlay on the same box. A first run (no recovery records)
+opens a welcome card with the scenes.
+
+| Module | Role |
+|---|---|
+| `web/ui/labs.js` | The labs: each drawer's gallery, controls and Advanced fold |
+| `web/ui/controls.js` | Sliders (one undo step per drag), switches, choices, folds and picture galleries |
+| `web/ui/thumbnails.js` | Gallery thumbnails cached by scene |
+| `web/ui/sundome.js` | The sky dome in the Light lab: drag the sun; the wedge shows the view |
+| `web/scene/randomize.js` | Seeded, per-lab Randomize, limited to each lab's settings |
+| `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, lenses and looks |
+| `web/ui/icons.js` | Line icons |
+
+Gallery thumbnails come from the real renderer. `Renderer.renderVariants` traces small
+JPEGs of variant scenes with a second, small tracer, so the view keeps its accumulated
+samples. Only the shared sky LUTs, cloud settings and exposure meter are put back after
+each batch, and edits made during a batch are applied when it finishes. The Scenes
+gallery uses JPEGs in `web/scenes/thumbnails/`, rendered through the export path by
+`bench/thumbnails.mjs`.
+
+Other side renders work the same way:
+
+- **Export.** `Renderer.capture` uses a tracer of its own (freed afterwards). With
+  `preview` it presents each batch in the viewport, and an `AbortSignal` cancels it.
+- **Region renders.** `Renderer.setRegion` renders a box at full output resolution with
+  another tracer, through a `window` in the frame uniform (the part of the view the image
+  covers). It's drawn over the view with the view's exposure, until anything changes.
+- **Picking.** `Renderer.pick` reads the first-hit distance the tracer keeps for the
+  denoiser, for double-click focus.
+
 ## Scenes
 
 A scene is one small JSON document (format `lithosky`, version 1):
@@ -56,9 +92,18 @@ A scene is one small JSON document (format `lithosky`, version 1):
 - atmosphere
 - image settings
 - optional clouds, surface (biome and limits) and water settings
+- optional saved camera views (`cameras`, up to 24)
 
 Its single definition is `internal/scene/schema.json`. The Go server validates every
 file, autosave and project against it, and the browser validates against the same file.
+
+**Version 1 is frozen as of 0.5.0 (First Light).**
+- Every future build opens every v1 file. `tests/fixtures/v1/` holds a corpus that
+  never changes: every built-in scene, a minimal scene and the frozen schema.
+- The schema may only grow: new optional fields, wider ranges and more choices.
+  `tests/format.test.mjs` fails on removed fields, new required fields, narrowed
+  ranges or dropped choices.
+- A change that can't follow those rules needs format version 2 and a migration.
 
 | Feature | Where | How |
 |---|---|---|

@@ -157,19 +157,19 @@
         "focalLength": 40
       },
       "sun": {
-        "elevation": 2,
+        "elevation": 4,
         "azimuth": 80
       },
       "atmosphere": {
-        "haze": 2.0,
-        "fog": 1.6
+        "haze": 1.8,
+        "fog": 1.3
       },
       "image": {
         "exposure": -0.2,
         "look": "punchy",
         "autoExposure": true,
         "bloom": 0.4,
-        "warmth": 0.18,
+        "warmth": 0.02,
         "vignette": 0.25,
         "grain": 0.1
       },
@@ -184,7 +184,7 @@
       },
       "surface": {
         "biome": "alpine",
-        "snowLine": 2300,
+        "snowLine": 1900,
         "treeLine": 1350,
         "moisture": 0.85,
         "strata": 0.3
@@ -202,6 +202,7 @@
       "version": 1,
       "title": "Canyon at sunset",
       "terrain": {
+        "landform": "canyon",
         "seed": 7741,
         "relief": 1800,
         "drainage": 2.5,
@@ -210,16 +211,16 @@
       },
       "camera": {
         "position": [
-          -3200,
-          1700,
-          2400
+          500,
+          2500,
+          6400
         ],
         "target": [
+          -300,
           800,
-          1500,
-          -2200
+          -1200
         ],
-        "focalLength": 28
+        "focalLength": 24
       },
       "sun": {
         "elevation": 4,
@@ -304,7 +305,7 @@
         "grain": 0.1
       },
       "clouds": {
-        "coverage": 0.3,
+        "coverage": 0.45,
         "type": 1.0,
         "altitude": 1700,
         "thickness": 7500,
@@ -386,6 +387,404 @@
       },
       "water": {
         "waves": 0.15
+      }
+    }
+  },
+  {
+    "id": "canyon-dawn",
+    "name": "Canyon at dawn",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Canyon at dawn",
+      "terrain": {
+        "seed": 902,
+        "relief": 1600,
+        "drainage": 2.2,
+        "rills": 1.3,
+        "talus": 1,
+        "landform": "canyon"
+      },
+      "camera": {
+        "position": [
+          2200,
+          2300,
+          3000
+        ],
+        "target": [
+          -600,
+          700,
+          -800
+        ],
+        "focalLength": 24
+      },
+      "sun": {
+        "elevation": 3,
+        "azimuth": 95
+      },
+      "atmosphere": {
+        "haze": 1.2,
+        "fog": 1.0,
+        "tint": 0
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "punchy",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": 0.08,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0.08,
+        "type": 0.5,
+        "altitude": 4200,
+        "thickness": 1200,
+        "density": 0.9,
+        "cirrus": 0.6,
+        "seed": 19
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 9000,
+        "treeLine": 1200,
+        "moisture": 0.15,
+        "strata": 0.9
+      },
+      "water": {
+        "waves": 0.05
+      }
+    }
+  },
+  {
+    "id": "thunderhead",
+    "name": "Thunderhead",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Thunderhead",
+      "terrain": {
+        "seed": 1203,
+        "relief": 1500,
+        "drainage": 1.2,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          900,
+          7000
+        ],
+        "target": [
+          0,
+          1500,
+          -10000
+        ],
+        "focalLength": 35
+      },
+      "sun": {
+        "elevation": 7,
+        "azimuth": 215
+      },
+      "atmosphere": {
+        "haze": 1.0,
+        "fog": 0.2,
+        "tint": 0
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "cinematic",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": 0.1,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0.2,
+        "type": 1.0,
+        "altitude": 1800,
+        "thickness": 9000,
+        "density": 1.4,
+        "cirrus": 0.15,
+        "seed": 9
+      },
+      "surface": {
+        "biome": "alpine",
+        "snowLine": 3200,
+        "treeLine": 1400,
+        "moisture": 0.55,
+        "strata": 0.4
+      },
+      "water": {
+        "waves": 0.2
+      }
+    }
+  },
+  {
+    "id": "red-planet",
+    "name": "Red planet",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Red planet",
+      "terrain": {
+        "seed": 6111,
+        "relief": 5200,
+        "drainage": 1.4,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          7000,
+          3600,
+          9000
+        ],
+        "target": [
+          0,
+          1800,
+          0
+        ],
+        "focalLength": 24
+      },
+      "sun": {
+        "elevation": 10,
+        "azimuth": 250
+      },
+      "atmosphere": {
+        "haze": 2.2,
+        "fog": 0.6,
+        "tint": 1.0
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "punchy",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": 0.0,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0,
+        "type": 0.5,
+        "altitude": 4800,
+        "thickness": 1600,
+        "density": 0.9,
+        "cirrus": 0.3,
+        "seed": 61
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 9000,
+        "treeLine": 1600,
+        "moisture": 0.6,
+        "strata": 0.6
+      },
+      "water": {
+        "waves": 0.1
+      }
+    }
+  },
+  {
+    "id": "winter-fjord",
+    "name": "Winter fjord",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Winter fjord",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3000,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          520,
+          6800
+        ],
+        "target": [
+          0,
+          300,
+          2000
+        ],
+        "focalLength": 24
+      },
+      "sun": {
+        "elevation": 5,
+        "azimuth": 200
+      },
+      "atmosphere": {
+        "haze": 1.0,
+        "fog": 0.6,
+        "tint": -0.15
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "none",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": -0.08,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0.1,
+        "type": 0.5,
+        "altitude": 4200,
+        "thickness": 1200,
+        "density": 0.9,
+        "cirrus": 0.5,
+        "seed": 13
+      },
+      "surface": {
+        "biome": "arctic",
+        "snowLine": 350,
+        "treeLine": 0,
+        "moisture": 0.5,
+        "strata": 0.3
+      },
+      "water": {
+        "waves": 0.04
+      }
+    }
+  },
+  {
+    "id": "forest-lake",
+    "name": "Forest lake, morning",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Forest lake, morning",
+      "terrain": {
+        "seed": 2210,
+        "relief": 2600,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          0,
+          420,
+          6200
+        ],
+        "target": [
+          0,
+          520,
+          2000
+        ],
+        "focalLength": 24
+      },
+      "sun": {
+        "elevation": 12,
+        "azimuth": 95
+      },
+      "atmosphere": {
+        "haze": 0.9,
+        "fog": 0.3,
+        "tint": 0
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "punchy",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": 0.04,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0.36,
+        "type": 0.5,
+        "altitude": 3800,
+        "thickness": 1400,
+        "density": 0.85,
+        "cirrus": 0.15,
+        "seed": 23
+      },
+      "surface": {
+        "biome": "alpine",
+        "snowLine": 2500,
+        "treeLine": 1700,
+        "moisture": 0.9,
+        "strata": 0.3
+      },
+      "water": {
+        "waves": 0.06
+      }
+    }
+  },
+  {
+    "id": "desert-mesas",
+    "name": "Mesas",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Mesas",
+      "terrain": {
+        "seed": 444,
+        "relief": 900,
+        "drainage": 1.5,
+        "rills": 1.2,
+        "talus": 1,
+        "landform": "canyon"
+      },
+      "camera": {
+        "position": [
+          3000,
+          1100,
+          2500
+        ],
+        "target": [
+          0,
+          500,
+          -3000
+        ],
+        "focalLength": 28
+      },
+      "sun": {
+        "elevation": 10,
+        "azimuth": 260
+      },
+      "atmosphere": {
+        "haze": 0.9,
+        "fog": 0,
+        "tint": 0.1
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "punchy",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": 0.06,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0.25,
+        "type": 0.55,
+        "altitude": 3600,
+        "thickness": 1500,
+        "density": 0.85,
+        "cirrus": 0.2,
+        "seed": 41
+      },
+      "surface": {
+        "biome": "desert",
+        "snowLine": 9000,
+        "treeLine": 1000,
+        "moisture": 0.1,
+        "strata": 0.9
+      },
+      "water": {
+        "waves": 0.1
       }
     }
   },

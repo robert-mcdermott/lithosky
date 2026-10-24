@@ -106,8 +106,10 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
                 firstNormal = -rayDirection;
                 firstDepth = SKY_DEPTH;
                 let sky = skyRadiance(rayDirection) + sunDisk(rayDirection) + distantGround(rayDirection);
-                let fog = fogScatter(rayOrigin, rayDirection, MAX_DISTANCE);
-                let layer = traceClouds(rayOrigin, rayDirection, MAX_DISTANCE, CLOUD_VIEW_STEPS);
+                // Fog and clouds stop where the ray meets the ground beyond the far field.
+                let reach = min(MAX_DISTANCE, distantGroundDistance(rayDirection));
+                let fog = fogScatter(rayOrigin, rayDirection, reach);
+                let layer = traceClouds(rayOrigin, rayDirection, reach, CLOUD_VIEW_STEPS);
                 radiance += overClouds(sky * fog.transmittance + fog.inscatter, rayDirection, layer);
             } else {
                 radiance += limitLuminance(throughput * cloudySky(rayDirection), INDIRECT_LIMIT);

@@ -20,6 +20,9 @@ struct Display {
     grain: f32,
     grainSeed: u32,
     bloomLevels: f32,
+    // Where the image sits in the output, in output UV (x0, y0, x1, y1): the whole output,
+    // or a region rendered over the view.
+    region: vec4f,
 }
 
 @group(0) @binding(0) var<uniform> display: Display;
@@ -93,7 +96,8 @@ fn grainNoise(pixel: vec2u) -> f32 {
 @fragment
 fn present(@builtin(position) position: vec4f) -> @location(0) vec4f {
     let outputSize = vec2f(f32(display.outputWidth), f32(display.outputHeight));
-    let uv = position.xy / outputSize;
+    let screen = position.xy / outputSize;
+    let uv = (screen - display.region.xy) / (display.region.zw - display.region.xy);
     var color = textureSampleLevel(hdr, imageSampler, uv, 0.0).rgb;
     if (display.viewMode != 0u) {
         return vec4f(srgbEncode(saturate(color)), 1.0);
@@ -106,7 +110,7 @@ fn present(@builtin(position) position: vec4f) -> @location(0) vec4f {
     }
     color = whiteBalance(color * exposure, display.warmth);
     var shown = toneMap(color, display.look);
-    let fromCentre = (uv - 0.5) * vec2f(outputSize.x / outputSize.y, 1.0);
+    let fromCentre = (screen - 0.5) * vec2f(outputSize.x / outputSize.y, 1.0);
     let edge = length(fromCentre) / length(vec2f(outputSize.x / outputSize.y, 1.0) * 0.5);
     shown *= 1.0 - display.vignette * 0.55 * smoothstep(0.3, 1.0, edge);
     var encoded = srgbEncode(saturate(shown));

@@ -1,11 +1,17 @@
 # Lithosky roadmap
 
-Updated 2026-10-19. This is a course correction after Wave 3. It replaces the
-previous Wave 4–10 plan, which remains in git history.
+Updated 2026-10-20. The course correction after Wave 3 replaced the previous
+Wave 4–10 plan, which remains in git history.
 
-**Status:** Wave 4 slices are complete (W4.S1–S6). The wave closes when the owner
-confirms the end-of-wave scores and the `wave4` pull request is merged. Wave 5
-(studio and First Light) is next.
+**Status:** Wave 4 is complete and merged (v0.4.0). Wave 5 (studio and First
+Light) has all its slices built (W5.S1–S5), and 0.5.0 is ready to release. Before
+tagging, the owner signs off:
+
+- W5.S3's first-time user tests
+- W5.S4's presets and scores
+- the release checks in `docs/releases.md`
+
+Wave 6 (vegetation) comes next.
 
 ## North star
 
@@ -124,9 +130,7 @@ The cadence is the same as Waves 1–3:
 | 4 | `wave4` | Visual core | The new renderer replaces the old one: eroded terrain, a progressive viewport, sky, clouds and materials |
 | 5 | `wave5` | Studio and First Light | A viewport-first studio and the first public release, v0.5.0 |
 
-Wave 5 may start once W4.S3 lands, because the studio needs the new viewport.
-At that point, cut `wave5` from `wave4`. Merge `wave4` into `wave5` as the
-later Wave 4 slices land.
+`wave5` was cut from `main` after the Wave 4 merge.
 
 ## Wave 4: Visual core
 
@@ -158,9 +162,7 @@ Also done:
 - `/spike/` serves its directory index, which fixed a failing smoke test.
 - Evidence images are no longer committed; `bench/out/` is git-ignored.
 
-The old site assets stay in place until the W5.S4 site rebuild. The current
-site build verifies their checksums, and deleting them would not shrink git
-history.
+The old site was removed in W4.S3; W5.S5 builds a new one from real renders.
 
 **Gate:** baseline images and timings exist, and the owner agrees to the
 rubric. Scores go in [bench/hero/scores.md](bench/hero/scores.md).
@@ -212,7 +214,7 @@ and browser share. The legacy renderer, its UI, old scene versions, the old site
 and `web/spike/` are removed. Exports render H1–H6 at 1920 × 1080 in 3–6 s at 96
 samples. Rock fracture and strata detail sharpen close slopes. The viewport
 denoiser, sky importance sampling and blue-noise sampling moved to W4.S4. The W3
-primitives return with the object tools in W5.S3.
+primitives return with the "Rocks and objects" wave after First Light.
 
 Original plan, for reference:
 
@@ -416,16 +418,21 @@ scores are in `bench/hero/scores.md`, waiting for the owner.
 
 ## Wave 5: Studio and First Light
 
+Wave 4 made images worth sharing. Wave 5 makes them easy and enjoyable to
+make, then ships v0.5.0.
+
 The design principles for every studio slice:
 
 - **The image is the interface.**
-  - The full-bleed viewport fills at least 75% of the window.
+  - The full-bleed viewport fills the window.
+  - Chrome is a thin top bar and a lab rail, both quiet and dark.
+  - Drawers float over the image and close out of the way.
   - The page never scrolls.
-  - The chrome is dark and quiet.
 - **Labs, not forms.**
-  - Top-level labs: Terrain, Sky & Light, Materials, Water, Camera and Render.
-  - Each lab is a focused drawer: a preset gallery with real rendered
-    thumbnails first, then controls.
+  - Each lab is a focused drawer: a gallery first, then a few controls.
+  - Gallery thumbnails are rendered by the real renderer. Where a choice
+    doesn't change the terrain, the thumbnails show the current view with
+    that choice applied.
   - Advanced options stay folded away.
 - **Tactile controls.**
   - Sliders and scrubbable values with units and sensible ranges, shown
@@ -435,57 +442,257 @@ The design principles for every studio slice:
   - Click to focus, and camera bookmarks as a filmstrip.
 - **Joy.**
   - A Randomize button per lab, seeded and undoable.
-  - A nano-preview and one big Render button.
+  - One big Render button.
   - Region renders by dragging a marquee.
 - **Plain language.** Short labels and no paragraphs inside panels.
   Explanations live in help popovers.
 
+| Slice | Name | Outcome |
+|---|---|---|
+| W5.S1 | Layout and labs | Viewport-first layout, lab rail and drawers, rendered galleries |
+| W5.S2 | Tactile controls | Scrubbable values, sun dome and drag, click to focus, Randomize, in-place and region renders |
+| W5.S3 | Framing, cameras and onboarding | Aspect and framing guides, camera filmstrip, first-run path, help |
+| W5.S4 | Preset pack and visual gaps | Ten or more presets at rubric target; canyon terraces, sky tint, storm clouds |
+| W5.S5 | First Light (v0.5.0) | Site gallery, format freeze, native release checks, packaging |
+
 ### W5.S1: Layout and labs
+
+**Done.** The layout is in `web/index.html` and `web/app.css`, and the labs are in
+`web/ui/`:
+
+- **Chrome.** A top bar (title, undo/redo, File menu, help, Render) and a rail of
+  seven labs, each with one drawer.
+- **Live galleries.** Light, Sky, Ground & water, Camera and Image show the current
+  view with each choice applied. `Renderer.renderVariants` renders them with a second,
+  small tracer, so the view keeps refining. A batch of six takes about 0.5 s (Apple
+  M4, Chrome).
+- **Scenes gallery.** Thumbnails rendered by `bench/thumbnails.mjs`.
+- **Keyboard and controls.** The keyboard shortcuts and restyled controls.
+- **Screenshots.** `bench/ui.mjs` writes the layout screenshots to `bench/out/w5s1/`.
+
+Known gaps:
+
+- The Terrain lab has no gallery. Terrain variants need a rebuild each (about
+  5 s); the Terrain lab's Randomize (W5.S2) covers exploring for now.
+- After editing presets, rerun `bench/thumbnails.mjs` to refresh the Scenes
+  thumbnails.
+
+Original plan, for reference:
 
 Tasks:
 
-- Replace the scrolling form with the viewport-first layout.
-- Build the lab drawers.
-- Build the preset galleries, with thumbnails rendered by the real renderer.
-- Retire the old `index.html`, `app.js` and `styles.css` panels.
+- **Top bar.**
+  - the scene title
+  - undo and redo
+  - a File menu: New, Open, Save
+  - a quiet status readout and a help popover
+  - the primary Render button
+- **Lab rail with seven labs**, one drawer open at a time:
+  - **Scenes:** the preset gallery
+  - **Terrain:** seed, relief, erosion and heightmap import
+  - **Light:** time-of-day gallery, sun, haze and fog
+  - **Sky:** cloud gallery and cloud controls
+  - **Ground & water:** biome gallery, snow line, tree line, moisture, rock
+    layers and waves
+  - **Camera:** lens gallery and lens
+  - **Image:** look gallery, exposure, warmth, glow, vignette, grain, plus
+    debug views under Advanced
+- **Galleries rendered by the real renderer.**
+  - Light, Sky, Ground, Camera and Image galleries render live, small, from
+    the current view, in the background when a drawer opens.
+  - Scene thumbnails are rendered by `bench/thumbnails.mjs` through the export
+    path and ship with the app.
+- **Keyboard.** `1`–`7` open labs, `Esc` closes the drawer, and `H` hides the
+  interface.
+- **Controls.** Restyle them: label and value above a full-width slider,
+  values rounded with units.
+- **Screenshots.** Layout screenshots from `bench/ui.mjs`.
 
 **Gate:** the owner signs off on layout screenshots at 1440×900 and
 2560×1440.
 
 ### W5.S2: Tactile controls and direct manipulation
 
+**Done.**
+
+- **Scrub and type.** Values scrub when dragged (Shift for fine) and turn into a
+  field when clicked. Each lab's units parse typed values.
+- **Sun.** The Light lab has a sky dome (`web/ui/sundome.js`): drag the sun, and a
+  wedge shows the view. Option/Alt-drag in the view, or the target button, puts the
+  sun where you point.
+- **Focus.** Double-click focus reads the tracer's first-hit distance
+  (`Renderer.pick`).
+- **Randomize.** Per lab, in `web/scene/randomize.js`: seeded, undoable, and
+  limited to the lab's own settings.
+- **In-place render.** Render refines in the viewport with a progress ring, time
+  left and Cancel. Exports use their own tracer, so the view keeps its samples.
+- **Region renders.** R plus a drag renders a box at full resolution through a
+  frame `window`, drawn over the view with its exposure.
+
+Changes from the plan:
+
+- The time-of-day dial became the sky dome plus the Light lab's time-of-day
+  gallery. The dome sets both sun angles directly and shows the light relative
+  to the view, which a time dial can't.
+
+Known gaps:
+
+- Renders aren't bit-identical between runs: two exports of the same scene differ
+  slightly in fine terrain detail (PSNR about 38 dB). The likely cause is the
+  order of atomic adds in the GPU droplet erosion, which predates this slice.
+  Exact repeatability was attempted in W5.S5 and moved after First Light.
+
+Original plan, for reference:
+
 Tasks:
 
-- Sliders and scrubbable values with units and rounded display.
-- A time-of-day dial and a draggable sun.
-- Click to focus.
-- Per-lab Randomize.
-- The nano-preview, the big Render button and the region marquee.
+- **Scrubbing.** Drag a value to change it, or click to type.
+- **Sun.**
+  - a time-of-day dial for the Light lab
+  - drag the sun in the view
+- **Focus and Randomize.**
+  - click the terrain to set the orbit pivot
+  - a seeded, undoable Randomize per lab
+- **In-place render.**
+  - Render refines the image in the viewport with a progress ring, then saves.
+  - Drag a marquee to render a region at full quality.
 
 **Gate:** the owner can light and frame a scene without typing a number.
 
-### W5.S3: Objects, cameras and onboarding
+### W5.S3: Framing, cameras and onboarding
+
+**Done.**
+
+- **Framing.**
+  - `image.aspect` (16:9, 3:2, 4:5, 1:1, 21:9) sets the frame the view shows and
+    the shape every render saves
+  - a narrower frame slides clear of the drawer
+  - thirds and golden-ratio guides overlay it
+- **Saved views.** `cameras` holds up to 24 saved views, shown in the Camera lab as
+  a rendered filmstrip. Clicking one flies there. Views can be renamed and
+  removed.
+- **Onboarding.**
+  - a welcome card with the scenes on first run, then a tip at the labs
+  - a line of help per lab and a hover hint per control
+  - a plain-language pass over the labels
+
+Not done here: the gate itself. Three first-time users each getting to a
+shareable image in 5 minutes needs the owner to run the sessions.
+
+Original plan, for reference:
 
 Tasks:
 
-- Rebuild the object list and transform tools inside the new layout, reusing
-  the W3 entity and history model.
-- Build the camera bookmark filmstrip.
-- Add a first-run path that starts from a preset.
-- Do a plain-language pass over every label.
+- **Framing.**
+  - the image aspect is part of the scene: 16:9, 3:2, 4:5, 1:1 and 21:9
+  - a framing mat, plus thirds and golden-ratio guides
+  - exports use the scene aspect, not the window's
+- **Cameras.** Camera bookmarks as a filmstrip, with thumbnails.
+- **Onboarding.**
+  - a first-run path that starts from a preset
+  - help popovers
+  - a plain-language pass over every label
+
+Objects (boulders, primitives, imported meshes) need a mesh path in the new
+tracer. They move to the "Rocks and objects" wave after First Light.
 
 **Gate:** three first-time users each get from launch to a shareable image in 5
 minutes or less, without docs.
 
-### W5.S4: First Light (v0.5.0)
+### W5.S4: Preset pack and visual gaps
+
+**Done.**
+
+- **Canyon landform.** `landform: canyon` builds a plateau with mesas, buttes and
+  benches, a river gorge, and distant ranges. Its formations
+  (`web/wgsl/terrain/strata.wgsl`) step slopes into cliffs and ledges. The rock
+  materials colour the same formations, and steeper erosion limits keep the
+  cliffs.
+- **Storm clouds.** Towering cloud forms separate cells, whose towers narrow,
+  billow and grow downwind anvils. Low cover leaves lone thunderheads.
+- **Sky colour.** `atmosphere.tint` changes the Rayleigh exponent, so the sky and
+  the haze shift together.
+- **Fixes.**
+  - Fog and clouds on sky rays stop at the distant ground, which raises to the
+    landform's level.
+  - Forest grows on steeper wet slopes.
+  - Rock bands fade on level ground.
+- **Presets.** Thirteen scenes with new thumbnails. H3, H4 and H5 were retuned,
+  and six scenes are new.
+
+Known gaps:
+
+- **H3's walls** are still mostly bare rock (materials scored 3 in the draft).
+  Real forest needs the vegetation wave.
+- **Storm anvils** show best from afar; nearby cells read as big cumulus.
+- **H6** is unchanged.
+- **Timings this slice are unreliable**, because other work loaded the machine.
+
+Original plan, for reference:
 
 Tasks:
 
-- Ten or more built-in presets that meet the rubric.
-- A site gallery regenerated from real renders.
-- Freeze scene format v1.
-- Close the native Windows/Linux release checks.
-- Release notes and packaging.
+- **Close the Wave 4 rubric gaps:**
+  - canyon landforms (terraces, mesas and cliff bands) for H4
+  - shadow fill and wall materials for H3
+  - artistic sky tint
+  - true cumulonimbus for storm skies
+- **Presets.** Ten or more built-in presets that meet the rubric, with
+  thumbnails.
+
+**Gate:** no hero-shot score below 4 on H1–H4, and every built-in preset is
+signed off.
+
+### W5.S5: First Light (v0.5.0)
+
+**Done.**
+
+- **Format v1 frozen.** `tests/fixtures/v1/` holds every built-in scene, a minimal
+  scene and the frozen schema. Go and JS tests open the corpus, and
+  `tests/format.test.mjs` fails if the schema removes or narrows anything.
+- **Site.** `site/` is a static product page with a gallery of 12 scenes and a hero
+  image rendered by `bench/gallery.mjs`, plus a studio screenshot. The manual
+  **Publish site** workflow deploys it to Pages.
+- **Release checks.**
+  - All six archives build and verify locally.
+  - CI's native smoke is green on macOS, Windows and Linux for every Wave 5 slice
+    (the latest is run 39903802028).
+  - `docs/releases.md` lists the owner's real-browser checks and the publishing steps.
+- **Release.** Version 0.5.0, a changelog entry, release notes
+  (`docs/release-notes/0.5.0.md`) and a new packaged README.
+
+Not done here: anything that needs Windows or Linux hardware, a real browser on those
+systems, or publishing. Those are the owner's steps in `docs/releases.md`.
+
+The rubric target is not met in the draft scores: H3's materials score 3, against a
+target of no score below 4 on H1–H4 (see W5.S4). The owner decides whether to release
+with that or wait for vegetation.
+
+Original plan, for reference:
+
+Tasks:
+
+- **Freeze scene format v1.**
+  - Write down the compatibility promise.
+  - Keep a corpus of v1 scenes (every built-in scene plus a minimal one) that
+    every future build must open, in Go and JavaScript.
+  - Add a test that the schema only grows: no removed fields, narrowed ranges or
+    dropped choices.
+- **Site.** A static product page in `site/` with a gallery rendered by the real
+  renderer through `bench/gallery.mjs`. A manual Pages workflow publishes it only
+  when the owner runs it.
+- **Release checks.**
+  - Build and verify all six archives locally.
+  - Record the green native CI smoke on macOS, Windows and Linux.
+  - Keep a checklist for the owner's real-browser checks on each OS.
+- **Release.** Version 0.5.0, a changelog entry, release notes, and a rewrite of
+  the packaged README for the new studio. Tagging and publishing remain the
+  owner's actions.
+
+Repeatable renders are not part of this release. Making droplet erosion
+order-independent (each batch reading a snapshot) piled droplets into the same
+cells and broke the terrain, so it needs per-cell limits and retuning. That work
+is listed after First Light.
 
 **Gate:** the definition of done below, plus the First Light rubric target.
 
@@ -511,6 +718,9 @@ These are re-sequenced by visual impact and become Waves 6 and later:
 7. **Animation.** Keyframes, camera paths and frame sequences.
 8. **Imagined worlds.** SDF arches, overhangs and floating landforms, and
    planetary vistas.
+
+Also queued: repeatable terrain builds, meaning order-independent droplet
+erosion with per-cell limits, so a saved scene always renders the same pixels.
 
 ## Definition of done (every slice)
 
@@ -538,4 +748,4 @@ These are re-sequenced by visual impact and become Waves 6 and later:
     and camera bookmarks
 
 The native Windows/Linux release checks from Wave 1 remain open and are
-closed in W5.S4.
+closed in W5.S5.

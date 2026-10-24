@@ -70,9 +70,9 @@ export class Post {
     });
   }
 
-  // Textures and bind groups for one render size, rebuilt if the tracer's buffers changed.
+  // Textures and bind groups for one tracer at one size, rebuilt if its buffers changed.
   resources(width, height, tracer) {
-    const key = `${width}x${height}`;
+    const key = `${tracer.id}:${width}x${height}`;
     const cached = this.cache.get(key);
     if (cached && cached.accumulation === tracer.accumulation) {
       return cached;
@@ -83,8 +83,27 @@ export class Post {
     return built;
   }
 
-  release(width, height) {
-    const key = `${width}x${height}`;
+  // Keeps the viewport's metered exposure across a side render (an export or thumbnails),
+  // so the view doesn't ease back from the side render's exposure.
+  saveMeter() {
+    this.savedExposure ??= storageBuffer(this.device, 'saved exposure meter', 16);
+    this.copyMeter(this.exposure, this.savedExposure);
+  }
+
+  restoreMeter() {
+    if (this.savedExposure) {
+      this.copyMeter(this.savedExposure, this.exposure);
+    }
+  }
+
+  copyMeter(source, target) {
+    const encoder = this.device.createCommandEncoder({ label: 'copy exposure meter' });
+    encoder.copyBufferToBuffer(source, 0, target, 0, 16);
+    this.device.queue.submit([encoder.finish()]);
+  }
+
+  release(width, height, tracer) {
+    const key = `${tracer.id}:${width}x${height}`;
     this.cache.get(key)?.destroy();
     this.cache.delete(key);
   }
