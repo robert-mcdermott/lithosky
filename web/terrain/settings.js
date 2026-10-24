@@ -2,7 +2,11 @@
 // Terrain parameters: what the user (or a scene) controls. Everything the GPU pipeline
 // needs is derived from these plus a placement, so the same settings give the same terrain.
 
+// The landforms the generator can make.
+export const LANDFORMS = Object.freeze(['alpine', 'canyon']);
+
 export const TERRAIN_DEFAULTS = Object.freeze({
+  landform: 'alpine',
   seed: 1847,
   // Peak relief of the procedural generator, in metres.
   relief: 3200,
@@ -25,6 +29,13 @@ const LIMITS = {
 export function terrainSettings(overrides = {}) {
   const settings = { ...TERRAIN_DEFAULTS };
   for (const [key, value] of Object.entries(overrides)) {
+    if (key === 'landform') {
+      if (!LANDFORMS.includes(value)) {
+        throw new TypeError(`Unknown landform "${value}".`);
+      }
+      settings.landform = value;
+      continue;
+    }
     if (!(key in LIMITS)) {
       throw new TypeError(`Unknown terrain setting "${key}".`);
     }
@@ -45,5 +56,5 @@ export function terrainSettings(overrides = {}) {
 
 // Whether two settings objects need a full regeneration (rather than identical output).
 export function sameTerrain(a, b) {
-  return Object.keys(LIMITS).every(key => a[key] === b[key]);
+  return a.landform === b.landform && Object.keys(LIMITS).every(key => a[key] === b[key]);
 }

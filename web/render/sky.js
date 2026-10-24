@@ -26,6 +26,18 @@ const EARTH = {
 
 export const SUN_ANGULAR_RADIUS = 0.004675;
 
+// Rayleigh scattering per channel. Earth's air scatters as wavelength^-4; `tint` changes
+// that exponent (8.5 at -1, 4 at 0, -0.5 at 1) at the same strength in green, so the sky's
+// colour shifts while its brightness holds.
+// Wavelengths (nm) the red, green and blue channels stand for.
+const WAVELENGTHS = [680, 550, 440];
+
+export function rayleighFor(tint) {
+  const exponent = 4 - 4.5 * tint;
+  const green = EARTH.rayleighScattering[1];
+  return WAVELENGTHS.map(wavelength => green * (550 / wavelength) ** exponent);
+}
+
 export class Sky {
   static async create(device, frameBuffer) {
     const [transmittance, multiScatter, skyView, aerial] = await Promise.all([
@@ -72,10 +84,12 @@ export class Sky {
     };
   }
 
-  // `haze` scales aerosols; 1 is a clear standard atmosphere.
-  write(sunDirection, sunIlluminance, haze, cameraAltitudeKm) {
+  // `haze` scales aerosols; 1 is a clear standard atmosphere. `tint` (-1..1) changes the
+  // air's colour: 0 is Earth's blue; lower is a deeper blue, higher pales the sky and then
+  // turns it golden, as an imagined world's might be.
+  write(sunDirection, sunIlluminance, haze, cameraAltitudeKm, tint = 0) {
     const writer = new StructWriter(96)
-      .f32(...EARTH.rayleighScattering, EARTH.rayleighScaleHeight)
+      .f32(...rayleighFor(tint), EARTH.rayleighScaleHeight)
       .f32(EARTH.mieScattering * haze, EARTH.mieAbsorption * haze, EARTH.mieScaleHeight, EARTH.mieAnisotropy)
       .f32(...EARTH.ozoneAbsorption, EARTH.ozoneCentre)
       .f32(EARTH.bottomRadius, EARTH.topRadius, EARTH.groundAlbedo, EARTH.ozoneHalfWidth)

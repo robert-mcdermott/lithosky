@@ -1,26 +1,51 @@
 // SPDX-License-Identifier: Apache-2.0
-// The studio: a full-window progressive render with a compact control panel. Every edit
-// goes through History (undo/redo) and Autosave (crash recovery); the renderer picks up the
-// resulting scene.
+// The studio: a full-window progressive render under a thin top bar and a rail of labs.
+// Every edit goes through History (undo/redo) and Autosave (crash recovery); the renderer
+// picks up the resulting scene, and open galleries re-render their thumbnails from it.
 
-import { advance, distanceToTarget, dolly, orbit, pan, tanHalfFov } from './render/camera.js';
-import { Renderer, VIEW_MODES } from './render/renderer.js';
+import { advance, distanceToTarget, dolly, lookAt, orbit, pan, sunAngles, tanHalfFov, viewHeading, viewRay } from './render/camera.js';
+import { Renderer } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { SURFACE_DEFAULTS, WATER_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
-import { BIOMES, BIOME_IDS } from './render/biomes.js';
+import { ATMOSPHERE_DEFAULTS, SURFACE_DEFAULTS, WATER_DEFAULTS, aspectOf, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
 import { History } from './scene/history.js';
+import { RANDOMIZERS, randomize } from './scene/randomize.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
-import { button, choice, element, section, slider, toggle } from './ui/controls.js';
+import { element, gallery, iconButton, slider } from './ui/controls.js';
+import { icon } from './ui/icons.js';
+import { buildLabs } from './ui/labs.js';
+import { SUN_LIMITS } from './ui/sundome.js';
+import { Thumbnails } from './ui/thumbnails.js';
 
 const $ = id => document.getElementById(id);
 const MAX_FILE_BYTES = 20 * 1024 * 1024;
 const ORBIT_SPEED = 0.004;
 const WHEEL_SPEED = 0.0015;
 const WHEEL_SETTLE_MS = 300;
+// Galleries re-render this long after the last edit or camera move settles.
+const GALLERY_DELAY_MS = 450;
+// A double-click turns the view to the clicked point over this long; a saved view flies
+// into place over a little longer.
+const FOCUS_MS = 280;
+const FLY_MS = 520;
+const GUIDE_MODES = ['none', 'thirds', 'golden'];
 
-const degrees = value => `${Math.round(value)}°`;
-const times = value => `${value.toFixed(2)}×`;
-const plain = value => value.toFixed(2);
+// Viewer preferences that aren't part of the scene. Storage can be unavailable; the studio
+// works without it.
+function remembered(key, fallback) {
+  try {
+    return localStorage.getItem(`lithosky.${key}`) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function remember(key, value) {
+  try {
+    localStorage.setItem(`lithosky.${key}`, value);
+  } catch {
+    // Preferences are a convenience only.
+  }
+}
 
 let token = null;
 
@@ -90,10 +115,45 @@ async function start() {
     valid.clouds = cloudSettingsOf(valid);
     valid.surface = { ...SURFACE_DEFAULTS, ...valid.surface };
     valid.water = { ...WATER_DEFAULTS, ...valid.water };
+    valid.atmosphere = { ...ATMOSPHERE_DEFAULTS, ...valid.atmosphere };
     return valid;
   };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
   const canvas = $('view');
+
+  // The view takes the scene's image shape, as large as fits below the top bar; the rest of
+  // the window is a dark mat. Guides and region boxes follow the frame.
+  let framedAspect = null;
+  function layoutFrame() {
+    const aspect = aspectOf(history.value);
+    framedAspect = aspect;
+    const top = document.querySelector('.bar').getBoundingClientRect().bottom + 10;
+    const narrow = window.innerWidth <= 760;
+    const bottom = narrow ? 84 : 0;
+    const roomWidth = window.innerWidth;
+    const roomHeight = Math.max(100, window.innerHeight - top - bottom);
+    const width = Math.min(roomWidth, roomHeight * aspect);
+    const height = width / aspect;
+    // A frame narrower than the window slides right, just enough to clear the rail and an
+    // open drawer, when there's room; its size never changes, so the render carries on.
+    let clear = 0;
+    if (!narrow && !document.body.classList.contains('chrome-hidden')) {
+      const drawerBox = $('drawer').hidden ? null : $('drawer').getBoundingClientRect();
+      clear = (drawerBox ?? $('rail').getBoundingClientRect()).right + 10;
+    }
+    const left = Math.max((roomWidth - width) / 2, Math.min(clear, roomWidth - width));
+    const box = [left, top + (roomHeight - height) / 2, width, height].map(Math.round);
+    for (const node of [canvas, $('guides')]) {
+      node.style.left = `${box[0]}px`;
+      node.style.top = `${box[1]}px`;
+      node.style.width = `${box[2]}px`;
+      node.style.height = `${box[3]}px`;
+    }
+    document.body.classList.toggle('matted', width < roomWidth - 1 || height < roomHeight - 1);
+  }
+  layoutFrame();
+  window.addEventListener('resize', layoutFrame);
+
   const renderer = await Renderer.create(canvas, history.value);
   renderer.start();
 
@@ -130,6 +190,9 @@ async function start() {
 
   function apply({ moving = false, save = true } = {}) {
     const scene = history.value;
+    if (aspectOf(scene) !== framedAspect) {
+      layoutFrame();
+    }
     renderer.setScene(scene, { moving });
     for (const bind of bindings) {
       bind(scene);
@@ -157,15 +220,26 @@ async function start() {
     apply();
   }
 
-  // --- Panel -------------------------------------------------------------------------
+  // --- Labs --------------------------------------------------------------------------
 
-  const panel = $('panel');
+  // Camera drags, wheel zooms, flying and slider drags; galleries wait until they end.
+  let interacting = 0;
+  const startInteraction = () => {
+    interacting++;
+  };
+  const endInteraction = () => {
+    interacting = Math.max(0, interacting - 1);
+    scheduleGallery();
+  };
 
   // live: edits apply while dragging. Otherwise (terrain) they apply on release.
   function sliderFor(spec) {
     let pending = null;
     const handle = slider(spec, {
-      begin: () => history.begin(),
+      begin: () => {
+        history.begin();
+        startInteraction();
+      },
       input: value => {
         if (spec.live) {
           edit(draft => set(draft, spec.path, value), { moving: true });
@@ -180,152 +254,215 @@ async function start() {
         }
         history.end();
         apply();
+        endInteraction();
       },
     });
     bindings.push(scene => handle.set(get(scene, spec.path)));
     return handle.node;
   }
 
-  const presetSection = section('Start from');
-  const presetGrid = element('div', 'presets');
-  for (const preset of presets) {
-    presetGrid.append(button(preset.name, () => replace(validate(preset.scene))));
+  // A drag that edits the scene live and lands as one undo step.
+  function gesture(change) {
+    return {
+      begin: () => {
+        history.begin();
+        startInteraction();
+      },
+      input: value => edit(draft => change(draft, value), { moving: true }),
+      end: () => {
+        history.end();
+        apply();
+        endInteraction();
+      },
+    };
   }
-  presetSection.body.append(presetGrid);
 
-  const terrainSection = section('Terrain');
-  const seedLabel = element('span', 'control-name');
-  bindings.push(scene => {
-    seedLabel.textContent = `Seed ${scene.terrain.seed}`;
+  const aspect = () => canvas.clientWidth / Math.max(1, canvas.clientHeight);
+
+  // Framing guides over the view: none, rule of thirds or golden ratio (G cycles them).
+  let guideMode = GUIDE_MODES.includes(remembered('guides', 'none')) ? remembered('guides', 'none') : 'none';
+  function setGuides(mode) {
+    guideMode = mode;
+    $('guides').dataset.mode = mode;
+    remember('guides', mode);
+    for (const bind of bindings) {
+      bind(history.value);
+    }
+  }
+  $('guides').dataset.mode = guideMode;
+
+  // Moves the camera smoothly to `view` (position, target, focal length) as one undo step.
+  function flyTo(view, duration) {
+    const start = history.value.camera;
+    const end = { position: [...view.position], target: [...view.target], focalLength: view.focalLength };
+    history.begin();
+    startInteraction();
+    const began = performance.now();
+    const blend = (a, b, t) => a + (b - a) * t;
+    const step = now => {
+      const t = Math.min(1, (now - began) / duration);
+      const eased = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
+      moveCamera(() => ({
+        position: start.position.map((value, i) => blend(value, end.position[i], eased)),
+        target: start.target.map((value, i) => blend(value, end.target[i], eased)),
+        focalLength: Math.round(blend(start.focalLength, end.focalLength, eased) * 10) / 10,
+      }));
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        moveCamera(() => end);
+        history.end();
+        apply();
+        endInteraction();
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Placing the sun: the next drag in the view moves the sun to wherever it points.
+  let placingSun = false;
+  function setPlacingSun(on) {
+    placingSun = on;
+    canvas.classList.toggle('placing-sun', on);
+    for (const bind of bindings) {
+      bind(history.value);
+    }
+  }
+
+  const labs = buildLabs({
+    history,
+    edit,
+    replace,
+    validate,
+    presets,
+    bind: binding => bindings.push(binding),
+    sliderFor,
+    gesture,
+    viewHeading: camera => viewHeading(camera, aspect()),
+    actions: {
+      placeSun: () => setPlacingSun(!placingSun),
+      placingSun: () => placingSun,
+      flyTo: view => flyTo(view, FLY_MS),
+      guides: () => guideMode,
+      setGuides,
+      erodeMore: () => renderer.erodeMore(),
+      importHeightmap: () => $('heightmap-file').click(),
+      proceduralTerrain: () => edit(draft => {
+        delete draft.terrain.heightmap;
+      }),
+      setViewMode: mode => renderer.setViewMode(mode),
+    },
   });
-  const reseed = seed => edit(draft => {
-    draft.terrain.seed = seed;
+
+  const rail = $('rail');
+  const drawer = $('drawer');
+  const railButtons = new Map();
+  labs.forEach((lab, index) => {
+    const item = element('button', 'rail-item');
+    item.type = 'button';
+    item.title = `${lab.title} (${index + 1})`;
+    item.setAttribute('aria-controls', 'drawer');
+    item.setAttribute('aria-expanded', 'false');
+    item.append(icon(lab.icon), element('span', 'rail-label', lab.title.split(' ')[0]));
+    item.addEventListener('click', () => (openLab === lab ? closeLab() : showLab(lab)));
+    rail.append(item);
+    railButtons.set(lab, item);
   });
-  terrainSection.body.append(
-    element('div', 'row'),
-    sliderFor({ path: 'terrain.relief', label: 'Relief', min: 800, max: 6000, step: 50, format: v => `${Math.round(v)} m` }),
-    sliderFor({ path: 'terrain.drainage', label: 'Drainage', min: 0, max: 3, step: 0.05, format: times }),
-    sliderFor({ path: 'terrain.rills', label: 'Gullies', min: 0, max: 3, step: 0.05, format: times }),
-    sliderFor({ path: 'terrain.talus', label: 'Scree', min: 0, max: 3, step: 0.05, format: times }),
-  );
-  const seedRow = terrainSection.body.firstChild;
-  seedRow.append(
-    seedLabel,
-    button('Previous', () => reseed(Math.max(0, history.value.terrain.seed - 1))),
-    button('Next', () => reseed(history.value.terrain.seed + 1)),
-    button('Random', () => reseed(Math.floor(Math.random() * 100000))),
-  );
-  terrainSection.body.append(element('div', 'row'));
-  terrainSection.body.lastChild.append(
-    button('Erode more', () => renderer.erodeMore()),
-    button('Heightmap…', () => $('heightmap-file').click()),
-    button('Procedural', () => edit(draft => {
-      delete draft.terrain.heightmap;
-    })),
-  );
-
-  const groundSection = section('Ground & water');
-  const biome = choice({ label: 'Biome', options: BIOME_IDS.map(id => [id, BIOMES[id].name]) }, value => edit(draft => {
-    draft.surface.biome = value;
-  }));
-  bindings.push(scene => biome.set(scene.surface.biome));
-  const metresLabel = value => `${Math.round(value)} m`;
-  groundSection.body.append(
-    biome.node,
-    sliderFor({ path: 'surface.snowLine', label: 'Snow line', min: 0, max: 9000, step: 25, live: true, format: metresLabel }),
-    sliderFor({ path: 'surface.treeLine', label: 'Tree line', min: 0, max: 9000, step: 25, live: true, format: metresLabel }),
-    sliderFor({ path: 'surface.moisture', label: 'Moisture', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-    sliderFor({ path: 'surface.strata', label: 'Rock layers', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-    sliderFor({ path: 'water.waves', label: 'Waves', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-  );
-
-  const skySection = section('Sun & sky');
-  skySection.body.append(
-    sliderFor({ path: 'sun.elevation', label: 'Sun height', min: -5, max: 70, step: 0.1, live: true, format: degrees }),
-    sliderFor({ path: 'sun.azimuth', label: 'Sun direction', min: 0, max: 360, step: 0.5, live: true, format: degrees }),
-    sliderFor({ path: 'atmosphere.haze', label: 'Haze', min: 0, max: 5, step: 0.05, live: true, format: plain }),
-    sliderFor({ path: 'atmosphere.fog', label: 'Valley fog', min: 0, max: 4, step: 0.05, live: true, format: plain }),
-  );
-
-  const SKIES = {
-    clear: { coverage: 0, cirrus: 0 },
-    fair: { coverage: 0.36, type: 0.5, altitude: 3800, thickness: 1400, density: 0.85, cirrus: 0.15 },
-    mackerel: { coverage: 0.55, type: 0.22, altitude: 5200, thickness: 600, density: 0.8, cirrus: 0.1 },
-    overcast: { coverage: 0.95, type: 0.1, altitude: 2400, thickness: 900, density: 1.2, cirrus: 0 },
-    storm: { coverage: 0.7, type: 0.95, altitude: 1900, thickness: 7000, density: 1.5, cirrus: 0.3 },
-    cirrus: { coverage: 0.08, type: 0.5, altitude: 4200, thickness: 1200, density: 0.9, cirrus: 0.8 },
-  };
-  const cloudSection = section('Clouds');
-  const skyType = choice({
-    label: 'Sky',
-    options: [['', 'Custom'], ['clear', 'Clear'], ['fair', 'Fair weather'], ['mackerel', 'Mackerel sky'],
-      ['overcast', 'Overcast'], ['storm', 'Storm towers'], ['cirrus', 'High cirrus']],
-  }, value => {
-    if (SKIES[value]) {
-      edit(draft => {
-        draft.clouds = { ...draft.clouds, ...SKIES[value] };
-      });
+  $('drawer-close-slot').replaceWith(iconButton('close', 'Close (Esc)', () => closeLab()));
+  const randomizeButton = iconButton('dice', 'Randomize', () => {
+    const id = openLab?.id;
+    if (RANDOMIZERS[id]) {
+      const seed = Math.floor(Math.random() * 2 ** 32);
+      edit(draft => Object.assign(draft, randomize(id, draft, seed)));
     }
   });
-  bindings.push(scene => {
-    const match = Object.entries(SKIES).find(([, sky]) => Object.entries(sky).every(([key, value]) => scene.clouds[key] === value));
-    skyType.set(match ? match[0] : '');
+  $('drawer-randomize-slot').replaceWith(randomizeButton);
+
+  let openLab = null;
+  function showLab(lab) {
+    openLab = lab;
+    $('drawer-title').textContent = lab.title;
+    randomizeButton.hidden = !RANDOMIZERS[lab.id];
+    randomizeButton.title = `Randomize ${lab.title.toLowerCase()}`;
+    $('drawer-body').replaceChildren(lab.node);
+    drawer.hidden = false;
+    for (const [entry, item] of railButtons) {
+      item.classList.toggle('active', entry === lab);
+      item.setAttribute('aria-expanded', String(entry === lab));
+    }
+    showCachedThumbnails();
+    scheduleGallery(0);
+    $('tip').hidden = true;
+    layoutFrame();
+  }
+  function closeLab() {
+    openLab = null;
+    drawer.hidden = true;
+    layoutFrame();
+    for (const item of railButtons.values()) {
+      item.classList.remove('active');
+      item.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  // Thumbnails for the open gallery: cached ones show at once, the rest render once the
+  // view is still. A newer scene supersedes a batch that is still rendering.
+  const thumbnails = new Thumbnails(renderer);
+  let galleryTimer = null;
+  let galleryBusy = false;
+  function showCachedThumbnails() {
+    if (!openLab?.variants) {
+      return [];
+    }
+    const variants = openLab.variants(history.value);
+    for (const variant of variants) {
+      (variant.gallery ?? openLab.gallery).show(variant.id, thumbnails.get(variant.scene));
+    }
+    return variants;
+  }
+  function scheduleGallery(delay = GALLERY_DELAY_MS) {
+    clearTimeout(galleryTimer);
+    if (openLab?.variants) {
+      galleryTimer = setTimeout(refreshGallery, delay);
+    }
+  }
+  async function refreshGallery() {
+    if (!openLab?.variants) {
+      return;
+    }
+    if (galleryBusy || interacting > 0 || renderer.stats.building) {
+      scheduleGallery();
+      return;
+    }
+    const lab = openLab;
+    const variants = showCachedThumbnails();
+    if (variants.every(variant => thumbnails.get(variant.scene))) {
+      return;
+    }
+    galleryBusy = true;
+    let rendered = false;
+    try {
+      rendered = await thumbnails.render(variants.map(variant => variant.scene));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      galleryBusy = false;
+    }
+    for (const variant of variants) {
+      (variant.gallery ?? lab.gallery).show(variant.id, thumbnails.get(variant.scene));
+    }
+    const key = list => JSON.stringify(list.map(variant => [variant.id, variant.scene]));
+    if (!rendered || lab !== openLab || key(lab.variants(history.value)) !== key(variants)) {
+      scheduleGallery();
+    }
+  }
+  bindings.push(() => {
+    showCachedThumbnails();
+    scheduleGallery();
   });
-  const metres = value => `${(value / 1000).toFixed(1)} km`;
-  cloudSection.body.append(
-    skyType.node,
-    sliderFor({ path: 'clouds.coverage', label: 'Cover', min: 0, max: 1, step: 0.01, live: true, format: v => `${Math.round(v * 100)}%` }),
-    sliderFor({ path: 'clouds.type', label: 'Layer → towers', min: 0, max: 1, step: 0.01, live: true, format: plain }),
-    sliderFor({ path: 'clouds.altitude', label: 'Cloud base', min: 300, max: 9000, step: 50, live: true, format: metres }),
-    sliderFor({ path: 'clouds.thickness', label: 'Depth', min: 100, max: 10000, step: 50, live: true, format: metres }),
-    sliderFor({ path: 'clouds.density', label: 'Density', min: 0, max: 3, step: 0.05, live: true, format: plain }),
-    sliderFor({ path: 'clouds.cirrus', label: 'Cirrus', min: 0, max: 1, step: 0.01, live: true, format: v => `${Math.round(v * 100)}%` }),
-    element('div', 'row'),
-  );
-  cloudSection.body.lastChild.append(button('New sky', () => edit(draft => {
-    draft.clouds.seed = Math.floor(Math.random() * 100000);
-  })));
-
-  const cameraSection = section('Camera');
-  cameraSection.body.append(
-    sliderFor({ path: 'camera.focalLength', label: 'Lens', min: 14, max: 200, step: 1, live: true, format: v => `${Math.round(v)} mm` }),
-  );
-
-  const imageSection = section('Image');
-  const look = choice({
-    label: 'Look',
-    options: [['punchy', 'Rich'], ['none', 'Natural'], ['cinematic', 'Cinematic'], ['soft', 'Soft'], ['mono', 'Black & white']],
-  }, value => edit(draft => {
-    draft.image.look = value;
-  }));
-  bindings.push(scene => look.set(scene.image.look));
-  const autoExposure = toggle({ label: 'Auto exposure' }, checked => edit(draft => {
-    draft.image.autoExposure = checked;
-  }));
-  bindings.push(scene => autoExposure.set(scene.image.autoExposure));
-  const show = choice({
-    label: 'Show',
-    options: [['image', 'Image'], ['albedo', 'Colour'], ['flow', 'Drainage'], ['sediment', 'Sediment'],
-      ['curvature', 'Curvature'], ['normals', 'Normals']],
-  }, value => renderer.setViewMode(VIEW_MODES[value]));
-  const amount = value => `${Math.round(value * 100)}%`;
-  imageSection.body.append(
-    look.node,
-    autoExposure.node,
-    sliderFor({ path: 'image.exposure', label: 'Exposure', min: -4, max: 4, step: 0.1, live: true, format: v => `${v > 0 ? '+' : ''}${v.toFixed(1)} EV` }),
-    sliderFor({ path: 'image.warmth', label: 'Warmth', min: -1, max: 1, step: 0.02, live: true, format: v => `${v > 0 ? '+' : ''}${Math.round(v * 100)}` }),
-    sliderFor({ path: 'image.bloom', label: 'Glow', min: 0, max: 1, step: 0.01, live: true, format: amount }),
-    sliderFor({ path: 'image.vignette', label: 'Vignette', min: 0, max: 1, step: 0.01, live: true, format: amount }),
-    sliderFor({ path: 'image.grain', label: 'Grain', min: 0, max: 1, step: 0.01, live: true, format: amount }),
-    show.node,
-  );
-
-  panel.append(presetSection.node, terrainSection.node, groundSection.node, skySection.node, cloudSection.node,
-    cameraSection.node, imageSection.node);
 
   // --- Camera navigation -------------------------------------------------------------
 
-  const aspect = () => canvas.clientWidth / Math.max(1, canvas.clientHeight);
   const moveCamera = change => edit(draft => {
     draft.camera = change(draft.camera);
   }, { moving: true });
@@ -335,11 +472,35 @@ async function start() {
   canvas.addEventListener('pointerdown', event => {
     canvas.focus();
     canvas.setPointerCapture(event.pointerId);
+    if (regionMode) {
+      startMarquee(event);
+      return;
+    }
     canvas.classList.add('dragging');
-    drag = { x: event.clientX, y: event.clientY, panning: event.shiftKey || event.button === 2 };
+    drag = { x: event.clientX, y: event.clientY, panning: event.shiftKey || event.button === 2, sun: placingSun || event.altKey };
     history.begin();
+    startInteraction();
+    if (drag.sun) {
+      moveSun(event);
+    }
   });
+
+  // The sun goes where the pointer looks.
+  function moveSun(event) {
+    const box = canvas.getBoundingClientRect();
+    const ndcX = ((event.clientX - box.left) / box.width) * 2 - 1;
+    const ndcY = 1 - ((event.clientY - box.top) / box.height) * 2;
+    const { elevation, azimuth } = sunAngles(viewRay(history.value.camera, aspect(), ndcX, ndcY));
+    edit(draft => {
+      draft.sun.elevation = Math.round(Math.min(SUN_LIMITS.max, Math.max(SUN_LIMITS.min, elevation)) * 10) / 10;
+      draft.sun.azimuth = Math.round(azimuth * 2) / 2;
+    }, { moving: true });
+  }
   canvas.addEventListener('pointermove', event => {
+    if (marquee) {
+      moveMarquee(event);
+      return;
+    }
     if (!drag) {
       return;
     }
@@ -347,7 +508,9 @@ async function start() {
     const dy = event.clientY - drag.y;
     drag.x = event.clientX;
     drag.y = event.clientY;
-    if (drag.panning) {
+    if (drag.sun) {
+      moveSun(event);
+    } else if (drag.panning) {
       const camera = history.value.camera;
       const metresPerPixel = 2 * distanceToTarget(camera) * tanHalfFov(camera.focalLength, aspect()) / canvas.clientHeight;
       moveCamera(c => pan(c, -dx * metresPerPixel, dy * metresPerPixel, aspect()));
@@ -356,21 +519,109 @@ async function start() {
     }
   });
   const endDrag = () => {
+    if (marquee) {
+      finishMarquee();
+      return;
+    }
     if (drag) {
+      const placed = drag.sun && placingSun;
       drag = null;
       canvas.classList.remove('dragging');
       history.end();
       apply();
+      endInteraction();
+      if (placed) {
+        setPlacingSun(false);
+      }
     }
   };
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
+
+  // Region renders: R (or the Region button), then drag a box. The box renders at full
+  // resolution over the view until the scene or camera changes.
+  let regionMode = false;
+  let marquee = null;
+  const regionButton = iconButton('region', 'Preview an area at full quality (R)', () => setRegionMode(!regionMode));
+  $('region-button-slot').replaceWith(regionButton);
+  function setRegionMode(on) {
+    regionMode = on;
+    canvas.classList.toggle('drawing-region', on);
+    regionButton.setAttribute('aria-pressed', String(on));
+  }
+  const pointIn = event => {
+    const box = canvas.getBoundingClientRect();
+    return [Math.min(box.width, Math.max(0, event.clientX - box.left)), Math.min(box.height, Math.max(0, event.clientY - box.top))];
+  };
+  function startMarquee(event) {
+    const start = pointIn(event);
+    marquee = { start, end: start };
+    renderer.setRegion(null);
+    moveMarquee(event);
+    $('marquee').hidden = false;
+  }
+  function placeBox(node, [x0, y0, x1, y1]) {
+    const frame = canvas.getBoundingClientRect();
+    node.style.left = `${frame.left + x0}px`;
+    node.style.top = `${frame.top + y0}px`;
+    node.style.width = `${x1 - x0}px`;
+    node.style.height = `${y1 - y0}px`;
+  }
+  const marqueeBox = () => [
+    Math.min(marquee.start[0], marquee.end[0]), Math.min(marquee.start[1], marquee.end[1]),
+    Math.max(marquee.start[0], marquee.end[0]), Math.max(marquee.start[1], marquee.end[1]),
+  ];
+  function moveMarquee(event) {
+    marquee.end = pointIn(event);
+    placeBox($('marquee'), marqueeBox());
+  }
+  function finishMarquee() {
+    const box = marqueeBox();
+    marquee = null;
+    $('marquee').hidden = true;
+    setRegionMode(false);
+    if (box[2] - box[0] < 16 || box[3] - box[1] < 16) {
+      return;
+    }
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    regionBox = box;
+    renderer.setRegion([box[0] / width, box[1] / height, box[2] / width, box[3] / height]);
+  }
+  let regionBox = null;
+  $('region-clear-slot').replaceWith(iconButton('close', 'Clear region (Esc)', () => renderer.setRegion(null)));
+  renderer.subscribe(stats => {
+    const frame = $('region-frame');
+    if (!stats.region || !regionBox) {
+      frame.hidden = true;
+      return;
+    }
+    frame.hidden = false;
+    placeBox(frame, regionBox);
+    const { samples, target } = stats.region;
+    $('region-label').textContent = samples >= target ? 'Full quality' : `${samples} / ${target}`;
+  });
+
+  // Double-click: orbit around the point under the pointer from now on.
+  canvas.addEventListener('dblclick', async event => {
+    const box = canvas.getBoundingClientRect();
+    const point = await renderer.pick((event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height);
+    if (!point) {
+      return;
+    }
+    const start = history.value.camera;
+    const end = lookAt(start, point);
+    if (end !== start) {
+      flyTo(end, FOCUS_MS);
+    }
+  });
 
   let wheelTimer = null;
   canvas.addEventListener('wheel', event => {
     event.preventDefault();
     if (wheelTimer === null) {
       history.begin();
+      startInteraction();
     }
     clearTimeout(wheelTimer);
     moveCamera(c => dolly(c, Math.exp(event.deltaY * WHEEL_SPEED)));
@@ -378,6 +629,7 @@ async function start() {
       wheelTimer = null;
       history.end();
       apply();
+      endInteraction();
     }, WHEEL_SETTLE_MS);
   }, { passive: false });
 
@@ -388,6 +640,7 @@ async function start() {
     if (held.size === 0) {
       history.end();
       apply();
+      endInteraction();
       return;
     }
     const seconds = Math.min(0.05, (now - lastFly) / 1000);
@@ -408,6 +661,7 @@ async function start() {
     event.preventDefault();
     if (held.size === 0) {
       history.begin();
+      startInteraction();
       lastFly = performance.now();
       held.add(key);
       requestAnimationFrame(fly);
@@ -423,16 +677,50 @@ async function start() {
   $('title').addEventListener('change', () => edit(draft => {
     draft.title = $('title').value.trim().slice(0, 80) || 'Untitled landscape';
   }));
-  $('undo').addEventListener('click', () => {
+  const undo = iconButton('undo', 'Undo (⌘Z)', () => {
     if (history.undo()) {
       apply();
     }
   });
-  $('redo').addEventListener('click', () => {
+  const redo = iconButton('redo', 'Redo (⇧⌘Z)', () => {
     if (history.redo()) {
       apply();
     }
   });
+  undo.id = 'undo';
+  redo.id = 'redo';
+  $('history-buttons').append(undo, redo);
+  $('brand').prepend(icon('brand'));
+
+  // The File menu and the help popover close on Escape or a click elsewhere.
+  const popups = [
+    { button: $('file-menu'), panel: $('file-items') },
+    { button: iconButton('help', 'Help', () => {}), panel: $('help') },
+    { button: $('render'), panel: $('render-options') },
+  ];
+  $('help-button-slot').replaceWith(popups[1].button);
+  const closePopups = except => {
+    for (const popup of popups) {
+      if (popup !== except) {
+        popup.panel.hidden = true;
+        popup.button.setAttribute('aria-expanded', 'false');
+      }
+    }
+  };
+  for (const popup of popups) {
+    popup.button.addEventListener('click', event => {
+      event.stopPropagation();
+      closePopups(popup);
+      popup.panel.hidden = !popup.panel.hidden;
+      popup.button.setAttribute('aria-expanded', String(!popup.panel.hidden));
+    });
+  }
+  document.addEventListener('click', event => {
+    if (!event.target.closest('.menu-items, .popover, .render-progress')) {
+      closePopups();
+    }
+  });
+  $('file-items').addEventListener('click', () => closePopups());
   $('new-scene').addEventListener('click', () => replace(defaultScene()));
   $('open-scene').addEventListener('click', () => $('scene-file').click());
   $('scene-file').addEventListener('change', async () => {
@@ -486,45 +774,73 @@ async function start() {
     }
   });
 
-  // --- Export ------------------------------------------------------------------------
+  // --- Render ------------------------------------------------------------------------
 
-  const dialog = $('export-dialog');
-  let exporting = false;
-  $('export-image').addEventListener('click', () => dialog.showModal());
-  dialog.addEventListener('cancel', event => {
-    if (exporting) {
-      event.preventDefault();
+  // Render refines the final image in the viewport, with a progress ring and Cancel, then
+  // saves it. Edits wait until it finishes.
+  const RING = 2 * Math.PI * 15;
+  let rendering = null;
+  const progressText = $('render-text');
+  const ring = $('render-ring');
+  ring.style.strokeDasharray = `${RING}`;
+  let progressTimer = null;
+  function showProgress(text, fraction, finished = false) {
+    clearTimeout(progressTimer);
+    $('render-progress').hidden = false;
+    $('render-progress').classList.toggle('finished', finished);
+    $('render-cancel').hidden = finished;
+    progressText.textContent = text;
+    ring.style.strokeDashoffset = `${RING * (1 - fraction)}`;
+    if (finished) {
+      progressTimer = setTimeout(() => {
+        $('render-progress').hidden = true;
+      }, 3500);
     }
-  });
-  $('export-start').addEventListener('click', async () => {
-    if (exporting) {
+  }
+  async function startRender() {
+    if (rendering) {
       return;
     }
-    exporting = true;
-    const progress = $('export-progress');
-    progress.hidden = false;
-    progress.value = 0;
-    $('export-start').disabled = true;
-    $('export-cancel').disabled = true;
+    closePopups();
+    const options = $('render-options');
+    const longEdge = Number(options.querySelector('input[name="export-size"]:checked').value);
+    const samples = Number(options.querySelector('input[name="export-samples"]:checked').value);
+    rendering = new AbortController();
+    document.body.classList.add('rendering');
+    const began = performance.now();
+    showProgress('Starting…', 0);
     try {
+      while (renderer.paused) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
       const blob = await renderer.capture({
-        longEdge: Number($('export-size').value),
-        samples: Number($('export-samples').value),
-        onProgress: value => {
-          progress.value = value;
+        longEdge,
+        samples,
+        preview: true,
+        signal: rendering.signal,
+        onProgress: fraction => {
+          const seconds = (performance.now() - began) / 1000;
+          const left = fraction > 0.02 ? Math.max(0, Math.round(seconds / fraction * (1 - fraction))) : null;
+          showProgress(`Rendering ${Math.round(fraction * 100)}%${left === null ? '' : ` · ${left} s left`}`, fraction);
         },
       });
-      download(blob, fileName(history.value.title, 'png'));
-      dialog.close();
+      const name = fileName(history.value.title, 'png');
+      download(blob, name);
+      showProgress(`Saved ${name}`, 1, true);
     } catch (error) {
-      showMessage(error);
+      if (error?.name === 'AbortError') {
+        showProgress('Render cancelled', 0, true);
+      } else {
+        $('render-progress').hidden = true;
+        showMessage(error);
+      }
     } finally {
-      exporting = false;
-      progress.hidden = true;
-      $('export-start').disabled = false;
-      $('export-cancel').disabled = false;
+      rendering = null;
+      document.body.classList.remove('rendering');
     }
-  });
+  }
+  $('render-start').addEventListener('click', startRender);
+  $('render-cancel').addEventListener('click', () => rendering?.abort());
 
   // --- Status, shortcuts and recovery ------------------------------------------------
 
@@ -535,13 +851,62 @@ async function start() {
       $('status').textContent = `Building terrain ${Math.round(stats.progress * 100)}%`;
     } else {
       const rate = (stats.pathsPerSecond / 1e6).toFixed(0);
-      $('status').textContent = `${stats.samples} samples · ${stats.seconds.toFixed(1)} s · ${rate} M paths/s`;
+      $('status').textContent = `${stats.samples} passes · ${stats.seconds.toFixed(1)} s`;
+      $('status').title = `Each pass adds one sample per pixel. ${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
     }
   });
 
+  const typing = target => target instanceof HTMLInputElement || target instanceof HTMLSelectElement
+    || target instanceof HTMLTextAreaElement;
   document.addEventListener('keydown', event => {
     const command = event.metaKey || event.ctrlKey;
-    if (!command || event.target instanceof HTMLInputElement) {
+    if (!command) {
+      if (event.altKey || typing(event.target)) {
+        return;
+      }
+      if (rendering) {
+        if (event.key === 'Escape') {
+          rendering.abort();
+        }
+        return;
+      }
+      if (!welcome.hidden) {
+        if (event.key === 'Escape') {
+          closeWelcome();
+        }
+        return;
+      }
+      const key = event.key.toLowerCase();
+      const number = Number(key);
+      if (Number.isInteger(number) && number >= 1 && number <= labs.length) {
+        const lab = labs[number - 1];
+        if (openLab === lab) {
+          closeLab();
+        } else {
+          showLab(lab);
+        }
+      } else if (key === 'escape') {
+        closePopups();
+        if (placingSun) {
+          setPlacingSun(false);
+        } else if (regionMode) {
+          setRegionMode(false);
+        } else if (renderer.region) {
+          renderer.setRegion(null);
+        } else {
+          closeLab();
+        }
+      } else if (key === 'r') {
+        setRegionMode(!regionMode);
+      } else if (key === 'g') {
+        setGuides(GUIDE_MODES[(GUIDE_MODES.indexOf(guideMode) + 1) % GUIDE_MODES.length]);
+      } else if (key === 'h') {
+        document.body.classList.toggle('chrome-hidden');
+        layoutFrame();
+      }
+      return;
+    }
+    if (typing(event.target) || rendering) {
       return;
     }
     const key = event.key.toLowerCase();
@@ -556,20 +921,73 @@ async function start() {
     }
   });
 
-  $('toggle-panel').addEventListener('click', () => {
-    panel.hidden = !panel.hidden;
-    $('toggle-panel').setAttribute('aria-expanded', String(!panel.hidden));
-  });
-
   window.addEventListener('beforeunload', () => {
     void autosave.flush();
   });
+
+  // --- Onboarding --------------------------------------------------------------------
+
+  // First run (no saved work yet): a welcome card with the scenes to start from, then one
+  // tip pointing at the labs. Help can bring the welcome back.
+  const welcome = $('welcome');
+  let welcomeScenes = null;
+  let firstRun = false;
+  function showWelcome() {
+    closePopups();
+    closeLab();
+    if (!welcomeScenes) {
+      welcomeScenes = gallery(presets.map(preset => ({
+        id: preset.id,
+        label: preset.name,
+        image: `scenes/thumbnails/${preset.id}.jpg`,
+      })), id => {
+        replace(validate(presets.find(preset => preset.id === id).scene));
+        closeWelcome();
+      });
+      welcomeScenes.node.classList.add('four');
+      $('welcome-scenes').append(welcomeScenes.node);
+    }
+    welcome.hidden = false;
+    welcome.querySelector('.tile-pick')?.focus();
+  }
+  function closeWelcome({ tip = true } = {}) {
+    if (welcome.hidden) {
+      return;
+    }
+    welcome.hidden = true;
+    canvas.focus();
+    if (tip && firstRun) {
+      firstRun = false;
+      $('tip').hidden = false;
+    }
+  }
+  const closeTip = () => {
+    $('tip').hidden = true;
+  };
+  $('welcome-close').addEventListener('click', () => closeWelcome());
+  $('show-welcome').addEventListener('click', showWelcome);
+  $('tip-close').addEventListener('click', closeTip);
+  welcome.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      event.stopPropagation();
+      closeWelcome();
+    }
+  });
+
+  // The drawer's ? shows a line about the open lab.
+  $('drawer-help-slot').replaceWith(iconButton('help', 'About this lab', () => {
+    drawer.classList.toggle('show-help');
+  }));
 
   apply({ save: false });
 
   try {
     const { records } = await (await api('/api/recovery')).json();
     const latest = records?.[0];
+    if (!latest) {
+      firstRun = true;
+      showWelcome();
+    }
     if (latest) {
       $('recovery-time').textContent = new Date(latest.modified).toLocaleString();
       $('recovery').hidden = false;
@@ -595,7 +1013,22 @@ async function start() {
     get scene() {
       return history.value;
     },
-    open: scene => replace(validate(scene)),
+    open: scene => {
+      closeWelcome({ tip: false });
+      replace(validate(scene));
+    },
+    dismissWelcome: () => {
+      closeWelcome({ tip: false });
+      closeTip();
+    },
+    openLab: id => {
+      const lab = labs.find(entry => entry.id === id);
+      if (lab) {
+        showLab(lab);
+      }
+    },
+    closeLab,
+    setGuides,
     presets,
   };
 }

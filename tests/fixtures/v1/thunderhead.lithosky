@@ -1,0 +1,62 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Thunderhead",
+  "terrain": {
+    "seed": 1203,
+    "relief": 1500,
+    "drainage": 1.2,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      900,
+      7000
+    ],
+    "target": [
+      0,
+      1500,
+      -10000
+    ],
+    "focalLength": 35
+  },
+  "sun": {
+    "elevation": 7,
+    "azimuth": 215
+  },
+  "atmosphere": {
+    "haze": 1.0,
+    "fog": 0.2,
+    "tint": 0
+  },
+  "image": {
+    "exposure": 0.0,
+    "look": "cinematic",
+    "autoExposure": true,
+    "bloom": 0.35,
+    "warmth": 0.1,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.2,
+    "type": 1.0,
+    "altitude": 1800,
+    "thickness": 9000,
+    "density": 1.4,
+    "cirrus": 0.15,
+    "seed": 9
+  },
+  "surface": {
+    "biome": "alpine",
+    "snowLine": 3200,
+    "treeLine": 1400,
+    "moisture": 0.55,
+    "strata": 0.4
+  },
+  "water": {
+    "waves": 0.2
+  }
+}

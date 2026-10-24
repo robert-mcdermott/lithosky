@@ -9,6 +9,8 @@ import { StructWriter } from '../gpu/struct.js';
 import { surfaceUniform } from './biomes.js';
 import { AERIAL_DISTANCE } from './sky.js';
 
+let tracers = 0;
+
 export class Tracer {
   static async create(device) {
     const pipeline = await computePipeline(device, 'trace/integrator.wgsl', 'render');
@@ -16,9 +18,10 @@ export class Tracer {
   }
 
   constructor(device, pipeline) {
+    this.id = ++tracers;
     this.device = device;
     this.pipeline = pipeline;
-    this.frameBuffer = uniformBuffer(device, 'frame', 128);
+    this.frameBuffer = uniformBuffer(device, 'frame', 144);
     this.fieldsBuffer = uniformBuffer(device, 'fields', 64);
     this.surfaceBuffer = uniformBuffer(device, 'surface', 176);
     this.capacity = 0;
@@ -43,6 +46,16 @@ export class Tracer {
     return true;
   }
 
+  // Frees the image buffers (an export's tracer, once it's done).
+  release() {
+    this.accumulation?.destroy();
+    this.guides?.destroy();
+    this.accumulation = null;
+    this.guides = null;
+    this.capacity = 0;
+    this.group = null;
+  }
+
   // The image size the next samples render at.
   setSize(width, height) {
     this.reserve(width * height);
@@ -59,8 +72,13 @@ export class Tracer {
     this.terrain = terrain;
     this.sky = sky;
     this.clouds = clouds;
-    this.device.queue.writeBuffer(this.fieldsBuffer, 0, terrain.fieldsUniform());
+    this.writeFields();
     this.createGroup();
+  }
+
+  // Grids, water level and horizon height; rewritten when the terrain is rebuilt.
+  writeFields() {
+    this.device.queue.writeBuffer(this.fieldsBuffer, 0, this.terrain.fieldsUniform());
   }
 
   createGroup() {
@@ -96,10 +114,11 @@ export class Tracer {
     ], 'tracer');
   }
 
-  // `view` carries the camera, sun and fog; `sampleIndex` 0 restarts the accumulation.
+  // `view` carries the camera, sun and fog, and optionally the `window` of the view this
+  // image covers; `sampleIndex` 0 restarts the accumulation.
   writeFrame(view, sampleIndex) {
     const camera = view.camera;
-    const writer = new StructWriter(128)
+    const writer = new StructWriter(144)
       .f32(...camera.position, camera.tanHalfFov)
       .f32(...camera.right, camera.aspect)
       .f32(...camera.up, AERIAL_DISTANCE)
@@ -107,7 +126,8 @@ export class Tracer {
       .f32(...view.sunDirection, Math.cos(view.sunRadius))
       .f32(...view.sunIlluminance, view.fogDensity)
       .f32(view.fogHeight, view.fogFalloff).u32(this.width, this.height)
-      .u32(view.viewMode, view.bounces, view.seed).f32(view.sunRadius);
+      .u32(view.viewMode, view.bounces, view.seed).f32(view.sunRadius)
+      .f32(...(view.window ?? [0, 0, 1, 1]));
     this.device.queue.writeBuffer(this.frameBuffer, 0, writer.buffer);
   }
 

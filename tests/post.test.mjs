@@ -64,3 +64,14 @@ test('the surface uniform carries the scene limits and waves', () => {
   assert.ok(Math.abs(floats[39] - 0.6) < 1e-6);
   assert.equal(surfaceSettingsOf(defaultScene()).biome, 'alpine');
 });
+
+test('sky colour 0 is Earth\'s Rayleigh scattering, and the tint shifts it between blue and gold', async () => {
+  const { rayleighFor } = await import('../web/render/sky.js');
+  const earth = rayleighFor(0);
+  assert.ok(Math.abs(earth[0] - 5.802e-3) < 2e-5 && Math.abs(earth[1] - 13.558e-3) < 1e-9 && Math.abs(earth[2] - 33.1e-3) < 5e-5);
+  const deep = rayleighFor(-1);
+  const golden = rayleighFor(1);
+  assert.equal(deep[1], earth[1], 'green stays put');
+  assert.ok(deep[2] / deep[0] > earth[2] / earth[0], 'lower tints are bluer');
+  assert.ok(golden[0] > golden[2], 'the highest tint scatters red more than blue');
+});

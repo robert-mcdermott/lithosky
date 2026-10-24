@@ -1,0 +1,61 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Overview",
+  "terrain": {
+    "seed": 1847,
+    "relief": 3200,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      9620,
+      12210
+    ],
+    "target": [
+      0,
+      900,
+      0
+    ],
+    "focalLength": 21
+  },
+  "sun": {
+    "elevation": 39.4,
+    "azimuth": 249
+  },
+  "atmosphere": {
+    "haze": 1.6,
+    "fog": 0.3
+  },
+  "image": {
+    "exposure": 0.3,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.25,
+    "warmth": 0.0,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.3,
+    "type": 0.5,
+    "altitude": 4200,
+    "thickness": 1800,
+    "density": 1.0,
+    "cirrus": 0.1,
+    "seed": 3
+  },
+  "surface": {
+    "biome": "alpine",
+    "snowLine": 2100,
+    "treeLine": 1250,
+    "moisture": 0.5,
+    "strata": 0.4
+  },
+  "water": {
+    "waves": 0.15
+  }
+}

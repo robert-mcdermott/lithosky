@@ -1,0 +1,61 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Alpine lake, golden hour",
+  "terrain": {
+    "seed": 1847,
+    "relief": 3200,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      860,
+      6000
+    ],
+    "target": [
+      0,
+      180,
+      3800
+    ],
+    "focalLength": 21
+  },
+  "sun": {
+    "elevation": 6,
+    "azimuth": 314
+  },
+  "atmosphere": {
+    "haze": 1.6,
+    "fog": 0.5
+  },
+  "image": {
+    "exposure": 0.0,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.35,
+    "warmth": 0.15,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.22,
+    "type": 0.45,
+    "altitude": 4200,
+    "thickness": 1500,
+    "density": 0.9,
+    "cirrus": 0.6,
+    "seed": 11
+  },
+  "surface": {
+    "biome": "alpine",
+    "snowLine": 2100,
+    "treeLine": 1250,
+    "moisture": 0.6,
+    "strata": 0.4
+  },
+  "water": {
+    "waves": 0.08
+  }
+}

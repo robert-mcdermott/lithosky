@@ -1,0 +1,61 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Stormy shore",
+  "terrain": {
+    "seed": 6203,
+    "relief": 2200,
+    "drainage": 1,
+    "rills": 1,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      0,
+      330,
+      6600
+    ],
+    "target": [
+      0,
+      1500,
+      0
+    ],
+    "focalLength": 22
+  },
+  "sun": {
+    "elevation": 8,
+    "azimuth": 340
+  },
+  "atmosphere": {
+    "haze": 4,
+    "fog": 1.5
+  },
+  "image": {
+    "exposure": 0.2,
+    "look": "cinematic",
+    "autoExposure": true,
+    "bloom": 0.3,
+    "warmth": -0.12,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.45,
+    "type": 1.0,
+    "altitude": 1700,
+    "thickness": 7500,
+    "density": 1.3,
+    "cirrus": 0.0,
+    "seed": 7
+  },
+  "surface": {
+    "biome": "arctic",
+    "snowLine": 1700,
+    "treeLine": 0,
+    "moisture": 0.7,
+    "strata": 0.3
+  },
+  "water": {
+    "waves": 0.65
+  }
+}

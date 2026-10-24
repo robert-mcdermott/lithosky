@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
-  advance, cameraFrame, distanceToTarget, dolly, look, orbit, orbitAngles, pan, sunDirection, tanHalfFov,
+  advance, cameraFrame, distanceToTarget, dolly, look, lookAt, orbit, orbitAngles, pan, sunAngles, sunDirection,
+  tanHalfFov, viewHeading, viewRay,
 } from '../web/render/camera.js';
 
 const camera = { position: [0, 860, 6000], target: [0, 180, 3800], focalLength: 21 };
@@ -67,4 +68,39 @@ test('sun azimuth runs clockwise from north', () => {
   assert.ok(nearVector(sunDirection(0, 0), [0, 0, -1]));
   assert.ok(nearVector(sunDirection(0, 90), [1, 0, 0]));
   assert.ok(nearVector(sunDirection(90, 123), [0, 1, 0], 1e-6));
+});
+
+test('sun angles invert the sun direction', () => {
+  for (const [elevation, azimuth] of [[6, 314], [45, 90], [-3, 180], [70, 0.5]]) {
+    const angles = sunAngles(sunDirection(elevation, azimuth));
+    assert.ok(near(angles.elevation, elevation, 1e-9), `elevation ${elevation}`);
+    assert.ok(near(angles.azimuth, azimuth, 1e-9), `azimuth ${azimuth}`);
+  }
+});
+
+test('the view ray through the centre is the forward axis, and corners span the field of view', () => {
+  const aspect = 16 / 9;
+  const frame = cameraFrame(camera, aspect);
+  assert.ok(nearVector(viewRay(camera, aspect, 0, 0), frame.forward));
+  const corner = viewRay(camera, aspect, 1, 1);
+  const along = corner.map((value, i) => value / (corner[0] * frame.forward[0] + corner[1] * frame.forward[1] + corner[2] * frame.forward[2]));
+  const right = along[0] * frame.right[0] + along[1] * frame.right[1] + along[2] * frame.right[2];
+  const up = along[0] * frame.up[0] + along[1] * frame.up[1] + along[2] * frame.up[2];
+  assert.ok(near(right, frame.tanHalfFov * aspect, 1e-9));
+  assert.ok(near(up, frame.tanHalfFov, 1e-9));
+});
+
+test('the view heading follows the camera and its field of view follows the lens', () => {
+  const north = viewHeading(camera, 16 / 9);
+  assert.ok(near(north.heading, 0, 1e-9) || near(north.heading, 360, 1e-9), 'the preset camera looks north');
+  const east = viewHeading({ position: [0, 100, 0], target: [1000, 100, 0], focalLength: 36 }, 1);
+  assert.ok(near(east.heading, 90, 1e-9));
+  assert.ok(near(east.fieldOfView, 53.13010235415598, 1e-9), '36 mm on a square frame is about 53°');
+});
+
+test('look at turns the eye toward a point without moving it', () => {
+  const turned = lookAt(camera, [500, 300, 2000]);
+  assert.deepEqual(turned.position, camera.position);
+  assert.deepEqual(turned.target, [500, 300, 2000]);
+  assert.equal(lookAt(camera, camera.position), camera, 'a point at the eye is ignored');
 });

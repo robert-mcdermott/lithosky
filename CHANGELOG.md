@@ -1,5 +1,109 @@
 # Changelog
 
+## 0.5.0 — First Light
+
+The first public release. It gathers Wave 4 (the visual core) and Wave 5 (the studio).
+The development entries below record each slice. See
+[the release notes](docs/release-notes/0.5.0.md).
+
+- Scene format version 1 is frozen. `tests/fixtures/v1/` holds every built-in scene and
+  a minimal one, and every future build must open them. A test fails if the schema
+  removes or narrows anything.
+- New product site in `site/`, with a gallery rendered by the app through
+  `bench/gallery.mjs`. A manual **Publish site** workflow puts it on GitHub Pages.
+- The packaged README describes the new studio.
+- The release packaging workflow defaults to 0.5.0.
+
+## 0.5.0-dev.4 — wave 5 slice 4 (local development)
+
+- Canyon country, a second landform (Terrain lab → Landform):
+  - a high plateau broken into mesas, buttes and benches
+  - a main gorge with a river along the view
+  - stepped walls: each rock formation stands as a cliff or weathers back into a
+    ledge
+  - distant mountain ranges on the horizon
+  - rock colour bands follow the same formations, so each cliff keeps its tone
+  - erosion keeps canyon cliffs steep
+- Storm clouds: towering cloud gathers into separate cells. Towers billow and narrow
+  as they climb, and grow smooth, flat anvils that drift downwind. Low cover leaves
+  a few lone thunderheads.
+- Sky colour (Light lab): changes how the air scatters light, from deep blue
+  through Earth to golden, and the haze over distant land follows.
+- Fog and clouds on open-sky rays stop at the distant ground, which removes a hazy
+  band at the horizon.
+- Forest clings to steeper slopes in wet climates. Level ground no longer shows rock
+  bands.
+- Thirteen built-in scenes, with new thumbnails:
+  - new: Canyon at dawn, Thunderhead, Red planet, Winter fjord, Forest lake and Mesas
+  - H4 is now a true canyon
+  - H3 has cool shadows and a dawn-lit wall
+  - H5 has backlit storm towers
+- `bench/hero.mjs --only` renders any preset by id (or `all`).
+
+## 0.5.0-dev.3 — wave 5 slice 3 (local development)
+
+- Framing:
+  - the image shape is part of the scene: 16:9, 3:2, 4:5 (portrait), 1:1 or 21:9
+  - the view shows that frame, as large as fits, on a dark mat
+  - a narrower frame slides clear of the open drawer
+  - renders save in the scene's shape, not the window's
+- Framing guides (rule of thirds or golden ratio), from the Camera lab or the G key.
+- Saved views:
+  - the Camera lab keeps a strip of camera bookmarks, each rendered as a thumbnail
+  - clicking a view flies the camera there
+  - double-click a name to rename it; × removes it
+  - views are saved with the scene (up to 24)
+- First run:
+  - a welcome card offers the built-in scenes and the three steps (pick, shape,
+    render)
+  - a tip then points at the labs
+  - Help can show the welcome again
+- Each lab's ? explains it in a line, and every control has a hover hint.
+- Plain-language labels, for example:
+  - Mountain height, River carving, Loose rock
+  - Cloud shape (flat, heaped, towering), High wisps
+  - Brightness, Dark corners, Film grain, Zoom
+- The status shows passes instead of samples.
+
+## 0.5.0-dev.2 — wave 5 slice 2 (local development)
+
+- Values are tactile:
+  - drag any value sideways to change it (Shift for fine)
+  - click a value to type a number; units are understood, so "60" in a percentage
+    means 60%
+- Light lab:
+  - a sky dome: drag the sun around the compass and toward the zenith
+  - a wedge on the dome shows which way the camera looks
+  - Option/Alt-drag in the view, or the target button, puts the sun where you point
+- Double-click the terrain to orbit around that point. The view turns to it smoothly.
+- Every lab except Scenes has a Randomize button. It's seeded, undoable, and changes
+  only that lab's settings, within ranges that tend to make good pictures.
+- Render happens in place:
+  - the image refines in the viewport, with a progress ring, time left and Cancel
+  - the PNG then saves
+  - the view keeps its own refinement, because exports use a tracer of their own
+- Region renders: press R (or the Region button) and drag a box. The box renders at
+  full output resolution, up to 1024 samples, over the view until anything changes.
+
+## 0.5.0-dev.1 — wave 5 slice 1 (local development)
+
+- A new studio layout: the image fills the window, with a thin top bar and a rail of
+  seven labs: Scenes, Terrain, Light, Sky, Ground & water, Camera and Image. One drawer
+  opens at a time, with a gallery first, then a few controls; rarely used options are
+  folded under Advanced.
+- Galleries are rendered by the real renderer:
+  - Light (time of day), Sky (clouds), Ground (biomes), Camera (lenses) and Image
+    (looks) show the current view with each choice applied
+  - they render in the background without disturbing the view's refinement
+  - Scenes shows thumbnails rendered through the export path
+- Top bar: the title, undo and redo, a File menu (New scene, Open, Save), a help
+  popover and the Render button. Render picks size and quality, then saves a PNG.
+- Keyboard: 1–7 open labs, Esc closes the drawer, H hides the interface.
+- Restyled controls:
+  - each value sits above a full-width slider, rounded and with units
+  - switches replace checkboxes
+- Exports and thumbnails no longer disturb the view's exposure.
+
 ## 0.4.0-dev.6 — wave 4 slice 6 (local development)
 
 - Terrain materials placed by the landform (erosion and exposure masks):

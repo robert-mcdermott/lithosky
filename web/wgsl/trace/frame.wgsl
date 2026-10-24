@@ -23,10 +23,14 @@ struct Frame {
     bounces: u32,
     seed: u32,
     sunRadius: f32,
+    // The part of the view this image covers, in view coordinates: offset xy, scale zw.
+    // (0, 0, 1, 1) is the whole view; a region render covers a smaller window.
+    window: vec4f,
 }
 
 fn cameraDirection(ndc: vec2f) -> vec3f {
-    let right = frame.cameraRight * (ndc.x * frame.tanHalfFov * frame.aspect);
-    let up = frame.cameraUp * (ndc.y * frame.tanHalfFov);
+    let view = frame.window.xy + ndc * frame.window.zw;
+    let right = frame.cameraRight * (view.x * frame.tanHalfFov * frame.aspect);
+    let up = frame.cameraUp * (view.y * frame.tanHalfFov);
     return normalize(frame.cameraForward + right + up);
 }

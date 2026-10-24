@@ -11,27 +11,112 @@
 </head>
 <body>
   <canvas id="view" tabindex="0" aria-label="Landscape view. Drag to orbit, Shift-drag to pan, scroll to zoom, W A S D to move."></canvas>
+  <svg id="guides" class="guides" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <g class="guide-thirds">
+      <line x1="33.333" y1="0" x2="33.333" y2="100"></line>
+      <line x1="66.667" y1="0" x2="66.667" y2="100"></line>
+      <line x1="0" y1="33.333" x2="100" y2="33.333"></line>
+      <line x1="0" y1="66.667" x2="100" y2="66.667"></line>
+    </g>
+    <g class="guide-golden">
+      <line x1="38.197" y1="0" x2="38.197" y2="100"></line>
+      <line x1="61.803" y1="0" x2="61.803" y2="100"></line>
+      <line x1="0" y1="38.197" x2="100" y2="38.197"></line>
+      <line x1="0" y1="61.803" x2="100" y2="61.803"></line>
+    </g>
+  </svg>
 
-  <header class="bar">
-    <span class="brand">lithosky</span>
+  <header class="bar chrome">
+    <span class="brand" id="brand">lithosky</span>
     <input id="title" class="title" aria-label="Scene title" maxlength="80" spellcheck="false">
-    <nav class="actions" aria-label="File">
-      <button type="button" id="new-scene">New</button>
-      <button type="button" id="open-scene">Open…</button>
-      <button type="button" id="save-scene">Save</button>
-      <button type="button" id="export-image" class="primary">Export image</button>
-    </nav>
-    <nav class="actions" aria-label="History">
-      <button type="button" id="undo" aria-keyshortcuts="Meta+Z Control+Z">Undo</button>
-      <button type="button" id="redo" aria-keyshortcuts="Meta+Shift+Z Control+Shift+Z">Redo</button>
-    </nav>
     <output id="status" class="status" aria-live="polite">Starting WebGPU…</output>
-    <button type="button" id="toggle-panel" class="panel-toggle" aria-controls="panel" aria-expanded="true">Controls</button>
+    <div class="bar-actions">
+      <span id="history-buttons" class="button-group"></span>
+      <div class="menu">
+        <button type="button" id="file-menu" class="menu-button" aria-haspopup="menu" aria-expanded="false" aria-controls="file-items">File</button>
+        <div id="file-items" class="menu-items" role="menu" hidden>
+          <button type="button" role="menuitem" id="new-scene">New scene</button>
+          <button type="button" role="menuitem" id="open-scene">Open…</button>
+          <button type="button" role="menuitem" id="save-scene">Save<kbd>⌘S</kbd></button>
+        </div>
+      </div>
+      <span id="help-button-slot"></span>
+      <span id="region-button-slot"></span>
+      <button type="button" id="render" class="primary render-button">Render</button>
+    </div>
   </header>
 
-  <aside id="panel" class="panel" aria-label="Scene controls"></aside>
+  <div id="marquee" class="marquee" hidden></div>
+  <div id="region-frame" class="region-frame" hidden>
+    <span id="region-label" class="region-label"></span>
+    <span id="region-clear-slot"></span>
+  </div>
 
-  <p class="hint">Drag to orbit · Shift-drag to pan · Scroll to zoom · W A S D to move</p>
+  <nav id="rail" class="rail chrome" aria-label="Labs"></nav>
+
+  <aside id="drawer" class="drawer chrome" aria-labelledby="drawer-title" hidden>
+    <header class="drawer-head">
+      <h2 id="drawer-title"></h2>
+      <span class="drawer-actions">
+        <span id="drawer-help-slot"></span>
+        <span id="drawer-randomize-slot"></span>
+        <span id="drawer-close-slot"></span>
+      </span>
+    </header>
+    <div id="drawer-body" class="drawer-body"></div>
+  </aside>
+
+  <section id="help" class="popover help" aria-label="Help" hidden>
+    <h2>Getting started</h2>
+    <p class="help-intro">Pick a scene, change the light, sky and ground in the labs on the left, then press Render.</p>
+    <button type="button" id="show-welcome" class="button">Show the welcome again</button>
+    <h2>Moving around</h2>
+    <dl>
+      <dt>Drag</dt><dd>Orbit</dd>
+      <dt>Shift-drag or right-drag</dt><dd>Pan</dd>
+      <dt>Scroll</dt><dd>Zoom</dd>
+      <dt>W A S D, Q E</dt><dd>Fly</dd>
+      <dt>Double-click</dt><dd>Orbit around that point</dd>
+      <dt>⌥-drag</dt><dd>Place the sun</dd>
+      <dt>R, then drag</dt><dd>Preview an area at full quality</dd>
+      <dt>G</dt><dd>Framing guides</dd>
+    </dl>
+    <h2>Values</h2>
+    <dl>
+      <dt>Drag a value</dt><dd>Adjust (⇧ for fine)</dd>
+      <dt>Click a value</dt><dd>Type a number</dd>
+    </dl>
+    <h2>Shortcuts</h2>
+    <dl>
+      <dt>1 – 7</dt><dd>Open a lab</dd>
+      <dt>Esc</dt><dd>Close the lab</dd>
+      <dt>H</dt><dd>Hide or show the interface</dd>
+      <dt>⌘Z, ⇧⌘Z</dt><dd>Undo, redo</dd>
+      <dt>⌘S</dt><dd>Save</dd>
+    </dl>
+  </section>
+
+  <section id="welcome" class="welcome" aria-labelledby="welcome-title" hidden>
+    <div class="welcome-card">
+      <h1 id="welcome-title">Welcome to Lithosky</h1>
+      <p>Pick a landscape to start from. You can change everything afterwards.</p>
+      <div id="welcome-scenes" class="welcome-scenes"></div>
+      <ol class="welcome-steps">
+        <li><strong>Pick a scene</strong>, or keep the one behind this card.</li>
+        <li><strong>Shape it</strong> in the labs on the left: light, sky, ground and camera.</li>
+        <li><strong>Render</strong> saves a full-quality picture.</li>
+      </ol>
+      <div class="welcome-actions">
+        <button type="button" id="welcome-close" class="button">Keep this scene</button>
+      </div>
+    </div>
+  </section>
+
+  <aside id="tip" class="tip" role="status" hidden>
+    <p>Open a lab to change the light, sky, ground and camera. Drag a value to adjust it.</p>
+    <button type="button" id="tip-close" class="button">Got it</button>
+  </aside>
+
   <p id="message" class="message" role="alert" hidden></p>
 
   <section id="recovery" class="recovery" hidden aria-label="Recovered work">
@@ -40,30 +125,34 @@
     <button type="button" id="dismiss-recovery">Start fresh</button>
   </section>
 
-  <dialog id="export-dialog" class="dialog">
-    <form method="dialog">
-      <h2>Export image</h2>
-      <label>Size
-        <select id="export-size">
-          <option value="1920">1920 px</option>
-          <option value="2560" selected>2560 px</option>
-          <option value="3840">3840 px (4K)</option>
-        </select>
-      </label>
-      <label>Quality
-        <select id="export-samples">
-          <option value="64">Draft · 64 samples</option>
-          <option value="256" selected>Good · 256 samples</option>
-          <option value="1024">Final · 1024 samples</option>
-        </select>
-      </label>
-      <progress id="export-progress" max="1" value="0" hidden></progress>
-      <div class="dialog-actions">
-        <button value="cancel" id="export-cancel">Cancel</button>
-        <button type="button" id="export-start" class="primary">Render and save</button>
+  <section id="render-options" class="popover render-options" aria-label="Render options" hidden>
+    <div class="field">
+      <span class="field-name" id="export-size-name">Size</span>
+      <div class="segmented" role="radiogroup" aria-labelledby="export-size-name">
+        <label><input type="radio" name="export-size" value="1920"><span>1920 px</span></label>
+        <label><input type="radio" name="export-size" value="2560" checked><span>2560 px</span></label>
+        <label><input type="radio" name="export-size" value="3840"><span>4K</span></label>
       </div>
-    </form>
-  </dialog>
+    </div>
+    <div class="field">
+      <span class="field-name" id="export-samples-name">Quality</span>
+      <div class="segmented" role="radiogroup" aria-labelledby="export-samples-name">
+        <label><input type="radio" name="export-samples" value="64"><span>Draft</span></label>
+        <label><input type="radio" name="export-samples" value="256" checked><span>Good</span></label>
+        <label><input type="radio" name="export-samples" value="1024"><span>Final</span></label>
+      </div>
+    </div>
+    <button type="button" id="render-start" class="primary wide">Render and save PNG</button>
+  </section>
+
+  <section id="render-progress" class="render-progress" aria-live="polite" hidden>
+    <svg class="ring" viewBox="0 0 36 36" aria-hidden="true">
+      <circle class="ring-track" cx="18" cy="18" r="15"></circle>
+      <circle id="render-ring" class="ring-fill" cx="18" cy="18" r="15"></circle>
+    </svg>
+    <span id="render-text"></span>
+    <button type="button" id="render-cancel">Cancel</button>
+  </section>
 
   <input id="scene-file" type="file" accept=".lithosky,application/json,application/zip" hidden>
   <input id="heightmap-file" type="file" accept=".png,.heightmap,application/zip" hidden>

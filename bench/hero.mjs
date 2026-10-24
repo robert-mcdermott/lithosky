@@ -3,7 +3,7 @@
 // own export path and composes a contact sheet for slice reviews.
 //
 //   go build -o bin/lithosky . && ./bin/lithosky --window=browser --no-open --port 8123
-//   node bench/hero.mjs --url http://127.0.0.1:8123 [--label w4s3] [--samples 256] [--only H1,H3]
+//   node bench/hero.mjs --url http://127.0.0.1:8123 [--label w4s3] [--samples 256] [--only H1,H3|all]
 //
 // Each shot renders at 1920 px wide with --samples samples (default 256). Writes PNGs,
 // contact-sheet.png and timings.json to bench/out/<label>/ (git-ignored). Needs Playwright
@@ -40,9 +40,9 @@ const only = option('only', '')
 const outDir = path.resolve('bench/out', label);
 fs.mkdirSync(outDir, { recursive: true });
 
+// The hero shots by default; --only picks any presets by id (all for every preset).
 const presets = JSON.parse(fs.readFileSync('web/scenes/presets.json', 'utf8'))
-  .filter(preset => /^H\d$/.test(preset.id))
-  .filter(preset => only.length === 0 || only.includes(preset.id));
+  .filter(preset => (only.length === 0 ? /^H\d$/.test(preset.id) : only.includes('all') || only.includes(preset.id)));
 
 async function openStudio(browser) {
   // A 16:9 viewport, so exports come out 1920 x 1080.

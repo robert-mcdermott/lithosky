@@ -1,0 +1,398 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lithosky scene, version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "title",
+    "terrain",
+    "camera",
+    "sun",
+    "atmosphere",
+    "image"
+  ],
+  "properties": {
+    "format": {
+      "type": "string",
+      "enum": [
+        "lithosky"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "terrain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "relief",
+        "drainage",
+        "rills",
+        "talus"
+      ],
+      "properties": {
+        "landform": {
+          "type": "string",
+          "enum": [
+            "alpine",
+            "canyon"
+          ]
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        },
+        "relief": {
+          "type": "number",
+          "minimum": 200,
+          "maximum": 8000
+        },
+        "drainage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "rills": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "talus": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "heightmap": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "asset",
+            "resolution"
+          ],
+          "properties": {
+            "asset": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "resolution": {
+              "type": "integer",
+              "enum": [
+                128,
+                256,
+                512,
+                1024,
+                2048
+              ]
+            }
+          }
+        }
+      }
+    },
+    "camera": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "position",
+        "target",
+        "focalLength"
+      ],
+      "properties": {
+        "position": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": -250000,
+            "maximum": 250000
+          }
+        },
+        "target": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": -250000,
+            "maximum": 250000
+          }
+        },
+        "focalLength": {
+          "type": "number",
+          "minimum": 10,
+          "maximum": 300
+        }
+      }
+    },
+    "sun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "elevation",
+        "azimuth"
+      ],
+      "properties": {
+        "elevation": {
+          "type": "number",
+          "minimum": -10,
+          "maximum": 90
+        },
+        "azimuth": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360
+        }
+      }
+    },
+    "atmosphere": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "haze",
+        "fog"
+      ],
+      "properties": {
+        "haze": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "fog": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "tint": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      }
+    },
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "exposure",
+        "look"
+      ],
+      "properties": {
+        "exposure": {
+          "type": "number",
+          "minimum": -6,
+          "maximum": 6
+        },
+        "look": {
+          "type": "string",
+          "enum": [
+            "none",
+            "punchy",
+            "cinematic",
+            "soft",
+            "mono"
+          ]
+        },
+        "autoExposure": {
+          "type": "boolean"
+        },
+        "bloom": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "warmth": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "vignette": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "grain": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "aspect": {
+          "type": "string",
+          "enum": [
+            "16:9",
+            "3:2",
+            "4:5",
+            "1:1",
+            "21:9"
+          ]
+        }
+      }
+    },
+    "clouds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage",
+        "type",
+        "altitude",
+        "thickness",
+        "density",
+        "cirrus",
+        "seed"
+      ],
+      "properties": {
+        "coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "type": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "altitude": {
+          "type": "number",
+          "minimum": 300,
+          "maximum": 9000
+        },
+        "thickness": {
+          "type": "number",
+          "minimum": 100,
+          "maximum": 10000
+        },
+        "density": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "cirrus": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4294967295
+        }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "biome",
+        "snowLine",
+        "treeLine",
+        "moisture",
+        "strata"
+      ],
+      "properties": {
+        "biome": {
+          "type": "string",
+          "enum": [
+            "alpine",
+            "desert",
+            "volcanic",
+            "arctic",
+            "alien"
+          ]
+        },
+        "snowLine": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9000
+        },
+        "treeLine": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 9000
+        },
+        "moisture": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "strata": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "water": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "waves"
+      ],
+      "properties": {
+        "waves": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "cameras": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 24,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "position",
+          "target",
+          "focalLength"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "position": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -250000,
+              "maximum": 250000
+            }
+          },
+          "target": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "type": "number",
+              "minimum": -250000,
+              "maximum": 250000
+            }
+          },
+          "focalLength": {
+            "type": "number",
+            "minimum": 10,
+            "maximum": 300
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,17 +1,17 @@
 # Packaging and release readiness
 
-Nothing has been released. Wave 4 is tagged v0.4.0 when it completes but is not
-published. The first public release is First Light (v0.5.0) at the end of Wave 5, as
-the [roadmap](../ROADMAP.md) describes. The current source is `0.4.0-dev.3`. Packages
-are unsigned and not notarized.
+The first public release is First Light (v0.5.0), at the end of Wave 5 (see the
+[roadmap](../ROADMAP.md)). The source is `0.5.0`. v0.4.0 was tagged but not published.
+Packages are unsigned and not notarized. The release notes are in
+[release-notes/0.5.0.md](release-notes/0.5.0.md).
 
 ## Local packages
 
 From the repository root, with Go 1.26+ installed:
 
 ```sh
-go run ./tools/release --version 0.4.0-dev.3 --out dist/releases/0.4.0-dev.3
-go run ./tools/release --verify dist/releases/0.4.0-dev.3
+go run ./tools/release --version 0.5.0 --out dist/releases/0.5.0
+go run ./tools/release --verify dist/releases/0.5.0
 ```
 
 The destination must not exist. Use a fresh directory for a second build. The
@@ -29,8 +29,8 @@ The default creates six archives:
 | Windows | amd64, arm64 | zip |
 
 Every archive has one top-level `lithosky-VERSION-OS-ARCH/` directory containing
-one executable, LICENSE, NOTICE, GO-LICENSE, README.md, CHANGELOG.md, BUILD.json
-and three starter scene files. The executable embeds all runtime web assets.
+one executable, LICENSE, NOTICE, GO-LICENSE, README.md (from `docs/distribution.md`),
+CHANGELOG.md, BUILD.json and every built-in scene as a `.lithosky` file. The executable embeds all runtime web assets.
 The browser remains an installed prerequisite. Binary builds use `CGO_ENABLED=0`,
 `-trimpath`, `-buildvcs=false`, and an explicit version; archive ordering, modes
 and timestamps are stable. Reproducibility requires identical source, toolchain
@@ -57,23 +57,45 @@ The Check workflow runs on macOS, Windows and Linux. The manual **Package
 development or release candidate** workflow requires all three native smoke jobs
 and the JavaScript tests before creating archives.
 It retains native smoke JSON reports. Uploads are CI artifacts for review, not
-GitHub Releases. Native Windows/Linux results are pending.
+GitHub Releases.
 
-## Remaining release gates
+## Evidence for 0.5.0
 
-Before tagging the first public release, record evidence for the actual release commit:
+Recorded on 2026-10-24 for the W5.S5 changes:
 
-- Green native CI smoke on macOS, Windows and Linux, with its workflow run ID.
-- Extract the matching archive on a clean user profile on each OS with a compatible
-  browser installed. Launch its real app window; verify no address bar, correct
-  close behavior, and temporary-profile cleanup.
-- Select each preset, orbit/pan/zoom, save/open, edit/undo and recover after an
-  interrupted session. Export a PNG. Record OS, architecture, browser, GPU,
-  dimensions and sample count.
-- Run archive verification and review all license notices. Confirm no private
-  research, local recovery files, credentials or unrelated assets are included.
-- Rebuild the product site from real renders (W5.S4), then create the release and tag
-  as separate authorized actions.
+- **Native CI smoke.** The Check workflow (Go tests including the native smoke test,
+  `go vet`, the JavaScript tests and a build) passed on macOS, Windows and Linux for
+  every Wave 5 slice. The latest is run 39903802028 (W5.S4), with all three jobs green.
+  The release commit needs its own green run.
+- **Archives.** All six archives were built and verified locally with the release
+  tool (see the W5.S5 notes in the changelog).
+- **Format.** Scene format v1 is frozen and guarded by `tests/format.test.mjs` and the
+  Go corpus test.
 
-Native Windows/Linux acceptance is still open. Broader hardware testing and signing
-remain documented distribution limits.
+## Before tagging (the owner's checks)
+
+On the actual release commit:
+
+1. **CI.** Confirm green Check runs on macOS, Windows and Linux, and run the
+   **Package development or release candidate** workflow with version `0.5.0`.
+2. **A real app window on each OS.** On Windows and Linux (and macOS), extract the
+   matching archive on a clean user profile with Chrome or Edge installed.
+   - Launch the app window and check there's no address bar.
+   - Check that closing the window stops the app and removes the temporary profile.
+3. **The studio on each OS.**
+   - Pick a scene from the welcome card, and orbit, pan and zoom.
+   - Open each lab, drag a value, and undo it.
+   - Save and open a scene.
+   - Kill the app and confirm recovery offers the work back.
+   - Render a PNG. Record the OS, architecture, browser, GPU, size and samples.
+4. **Archive contents.** Run archive verification and review the licence notices.
+   Confirm no private research, recovery files, credentials or unrelated files are
+   included.
+5. **Gates.**
+   - Three first-time users (W5.S3).
+   - Preset sign-off and hero scores (W5.S4).
+6. **Publish.** Merge `wave5`, tag `v0.5.0`, create the GitHub release with the
+   archives, `SHA256SUMS` and the release notes, and run **Publish site**. These are
+   separate, deliberate actions.
+
+Signing and broader hardware testing remain documented distribution limits.

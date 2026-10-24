@@ -1,0 +1,137 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lithosky — landscapes worth sharing</title>
+  <meta name="description" content="Lithosky is a free, local landscape studio. Eroded mountains, canyon country, luminous skies and real clouds, path traced on your GPU.">
+  <meta property="og:title" content="Lithosky — landscapes worth sharing">
+  <meta property="og:description" content="A free, local landscape studio, path traced on your GPU.">
+  <meta property="og:image" content="gallery/hero.jpg">
+  <link rel="icon" href="favicon.svg">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 19.5 9 9l3.5 5.5L15 11l6.5 8.5z"/><circle cx="17" cy="5.5" r="2"/></svg>
+      lithosky
+    </a>
+    <nav aria-label="Sections">
+      <a href="#gallery">Gallery</a>
+      <a href="#features">Features</a>
+      <a href="#download">Download</a>
+      <a href="https://github.com/robert-mcdermott/lithosky">GitHub</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <img src="gallery/hero.jpg" alt="A canyon at sunset: stepped mesa walls frame a winding river under a soft evening sky." width="2400" height="1350">
+    <div class="hero-text">
+      <h1>Landscapes worth sharing.</h1>
+      <p>Lithosky is a free landscape studio that runs on your computer. Eroded mountains,
+        canyon country, luminous skies and real clouds, path traced on your GPU.</p>
+      <div class="actions">
+        <a class="primary" href="https://github.com/robert-mcdermott/lithosky/releases">Download v0.5.0</a>
+        <a class="secondary" href="#gallery">See the gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery" class="section">
+    <h2>Made in Lithosky</h2>
+    <p class="lead">Every image here is one of the built-in scenes, rendered by the app itself.
+      Open any of them in the studio and make it yours.</p>
+    <div class="gallery">
+      <figure><a href="gallery/H4.jpg"><img src="gallery/H4.jpg" alt="Canyon at sunset" loading="lazy" width="1600" height="900"></a><figcaption>Canyon at sunset</figcaption></figure>
+      <figure><a href="gallery/H1.jpg"><img src="gallery/H1.jpg" alt="Alpine lake, golden hour" loading="lazy" width="1600" height="900"></a><figcaption>Alpine lake, golden hour</figcaption></figure>
+      <figure><a href="gallery/red-planet.jpg"><img src="gallery/red-planet.jpg" alt="Red planet" loading="lazy" width="1600" height="900"></a><figcaption>Red planet</figcaption></figure>
+      <figure><a href="gallery/H5.jpg"><img src="gallery/H5.jpg" alt="Stormy shore" loading="lazy" width="1600" height="900"></a><figcaption>Stormy shore</figcaption></figure>
+      <figure><a href="gallery/winter-fjord.jpg"><img src="gallery/winter-fjord.jpg" alt="Winter fjord" loading="lazy" width="1600" height="900"></a><figcaption>Winter fjord</figcaption></figure>
+      <figure><a href="gallery/canyon-dawn.jpg"><img src="gallery/canyon-dawn.jpg" alt="Canyon at dawn" loading="lazy" width="1600" height="900"></a><figcaption>Canyon at dawn</figcaption></figure>
+      <figure><a href="gallery/H2.jpg"><img src="gallery/H2.jpg" alt="Snow peaks" loading="lazy" width="1600" height="900"></a><figcaption>Snow peaks</figcaption></figure>
+      <figure><a href="gallery/desert-mesas.jpg"><img src="gallery/desert-mesas.jpg" alt="Mesas" loading="lazy" width="1600" height="900"></a><figcaption>Mesas</figcaption></figure>
+      <figure><a href="gallery/H3.jpg"><img src="gallery/H3.jpg" alt="Misty valley at dawn" loading="lazy" width="1600" height="900"></a><figcaption>Misty valley at dawn</figcaption></figure>
+      <figure><a href="gallery/thunderhead.jpg"><img src="gallery/thunderhead.jpg" alt="Thunderhead" loading="lazy" width="1600" height="900"></a><figcaption>Thunderhead</figcaption></figure>
+      <figure><a href="gallery/forest-lake.jpg"><img src="gallery/forest-lake.jpg" alt="Forest lake, morning" loading="lazy" width="1600" height="900"></a><figcaption>Forest lake, morning</figcaption></figure>
+      <figure><a href="gallery/H6.jpg"><img src="gallery/H6.jpg" alt="Imagined world" loading="lazy" width="1600" height="900"></a><figcaption>Imagined world</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="section studio">
+    <div>
+      <h2>The image is the interface</h2>
+      <p>The picture fills the window. Seven labs open beside it: scenes, terrain, light, sky,
+        ground and water, camera and image. Each starts with a gallery that shows your own view
+        with every choice applied, rendered live.</p>
+      <p>Drag any value to adjust it. Drag the sun across a sky dome, or point at the sky to put
+        it there. Press Render and watch the final image refine in place.</p>
+    </div>
+    <img src="gallery/studio.jpg" alt="The Lithosky studio: a lake valley fills the window, with the Light lab open beside it showing time-of-day thumbnails and a sun dome." loading="lazy" width="1600" height="1000">
+  </section>
+
+  <section id="features" class="section">
+    <h2>What's inside</h2>
+    <div class="features">
+      <article>
+        <h3>Eroded terrain</h3>
+        <p>Rivers carve valley networks, droplets cut gullies and scree piles below cliffs, all
+          simulated on the GPU in a few seconds.</p>
+      </article>
+      <article>
+        <h3>Canyon country</h3>
+        <p>Plateaus break into mesas and buttes, and every slope steps into cliffs and ledges
+          banded by its rock layers.</p>
+      </article>
+      <article>
+        <h3>A physical sky</h3>
+        <p>Sunlight scatters through the atmosphere, haze softens distant ridges, and the air's
+          colour can run from deep blue to an alien gold.</p>
+      </article>
+      <article>
+        <h3>Real clouds</h3>
+        <p>Volumetric clouds from fair-weather heaps to storm towers with anvils. They glow at
+          the edges, cast shadows and show in the water.</p>
+      </article>
+      <article>
+        <h3>Ground and water</h3>
+        <p>Rock, scree, meadow, forest, sand and snow go where the landform puts them. Lakes
+          reflect the sky and ripple in the wind.</p>
+      </article>
+      <article>
+        <h3>Local and private</h3>
+        <p>One small program, no account, no telemetry and nothing downloaded at run time. Your
+          scenes stay on your computer.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section steps">
+    <h2>From launch to a picture in minutes</h2>
+    <ol>
+      <li><strong>Pick a scene.</strong> Start from one of thirteen built-in landscapes.</li>
+      <li><strong>Shape it.</strong> Change the light, the sky, the ground and the camera in the labs.</li>
+      <li><strong>Render.</strong> Save a full-quality PNG up to 4K, in the shape you framed.</li>
+    </ol>
+  </section>
+
+  <section id="download" class="section download">
+    <h2>Download</h2>
+    <p>Lithosky 0.5.0 runs on macOS, Windows and Linux (Intel and ARM). It needs a recent
+      Chromium-family browser (Chrome, Edge, Brave or Chromium) with WebGPU and graphics
+      acceleration; the browser draws the window.</p>
+    <div class="actions">
+      <a class="primary" href="https://github.com/robert-mcdermott/lithosky/releases">Get Lithosky</a>
+      <a class="secondary" href="https://github.com/robert-mcdermott/lithosky">Source code</a>
+    </div>
+    <p class="note">Packages aren't signed yet, so your system may ask you to approve the app
+      the first time. Lithosky is free and open source under the Apache 2.0 licence.</p>
+  </section>
+
+  <footer class="foot">
+    <span>Lithosky 0.5.0 · First Light</span>
+    <span>Images on this page were rendered by Lithosky.</span>
+  </footer>
+</body>
+</html>

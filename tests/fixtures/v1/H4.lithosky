@@ -1,0 +1,62 @@
+{
+  "format": "lithosky",
+  "version": 1,
+  "title": "Canyon at sunset",
+  "terrain": {
+    "landform": "canyon",
+    "seed": 7741,
+    "relief": 1800,
+    "drainage": 2.5,
+    "rills": 1.5,
+    "talus": 1
+  },
+  "camera": {
+    "position": [
+      500,
+      2500,
+      6400
+    ],
+    "target": [
+      -300,
+      800,
+      -1200
+    ],
+    "focalLength": 24
+  },
+  "sun": {
+    "elevation": 4,
+    "azimuth": 255
+  },
+  "atmosphere": {
+    "haze": 1.2,
+    "fog": 0.2
+  },
+  "image": {
+    "exposure": 0.0,
+    "look": "punchy",
+    "autoExposure": true,
+    "bloom": 0.35,
+    "warmth": 0.25,
+    "vignette": 0.25,
+    "grain": 0.1
+  },
+  "clouds": {
+    "coverage": 0.5,
+    "type": 0.22,
+    "altitude": 5200,
+    "thickness": 650,
+    "density": 0.8,
+    "cirrus": 0.2,
+    "seed": 41
+  },
+  "surface": {
+    "biome": "desert",
+    "snowLine": 9000,
+    "treeLine": 400,
+    "moisture": 0.1,
+    "strata": 0.95
+  },
+  "water": {
+    "waves": 0.1
+  }
+}
