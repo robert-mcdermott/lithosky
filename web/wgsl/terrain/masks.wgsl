@@ -9,9 +9,12 @@
 //   r = sky openness over about 500 m (1 on open crests, low in gorges and hollows)
 //   g = wetness: high flow on gentle ground, and ground just above the water line
 //   b, a = unused
+// forest: the land's inputs to forest cover (see terrain/forest.wgsl)
 
 #include "common/constants.wgsl"
 #include "terrain/grid.wgsl"
+#include "terrain/noise.wgsl"
+#include "terrain/forest.wgsl"
 
 struct MaskParams {
     grid: FieldGrid,
@@ -32,6 +35,7 @@ struct MaskParams {
 @group(0) @binding(4) var masks: texture_storage_2d<rgba16float, write>;
 @group(0) @binding(5) var<storage, read> drainage: array<f32>;
 @group(0) @binding(6) var exposure: texture_storage_2d<rgba16float, write>;
+@group(0) @binding(7) var forest: texture_storage_2d<rgba16float, write>;
 
 const OPENNESS_DIRECTIONS: u32 = 8u;
 const OPENNESS_STEPS: u32 = 6u;
@@ -96,4 +100,15 @@ fn buildMasks(@builtin(global_invocation_id) id: vec3u) {
     let shoreline = 1.0 - smoothstep(0.0, 6.0, aboveWater);
     let wet = saturate(water * 1.4 - slope * 1.5) + shoreline * step(0.0, aboveWater);
     textureStore(exposure, id.xy, vec4f(openness(cell), saturate(wet), 0.0, 0.0));
+
+    // The same slope measure the materials use: 1 - normal.y.
+    let tilt = 1.0 - inverseSqrt(1.0 + slope * slope);
+    let shore = smoothstep(0.5, 2.5, aboveWater);
+    let world = gridWorld(id.xy, params.grid);
+    textureStore(forest, id.xy, vec4f(
+        forestSteepness(tilt, fine),
+        forestGround(tilt, water, max(net, 0.0)) * shore,
+        fbm(world / 300.0, 3u, 419u),
+        fbm(world / 260.0, 3u, 401u),
+    ));
 }

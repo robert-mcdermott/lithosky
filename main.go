@@ -25,7 +25,7 @@ import (
 //go:embed web
 var embedded embed.FS
 
-var version = "0.6.0-dev.1"
+var version = "0.6.0-dev.2"
 
 func main() {
 	if err := run(); err != nil {

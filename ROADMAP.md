@@ -5,7 +5,7 @@ Wave 4–10 plan, which remains in git history.
 
 **Status:** Waves 4 and 5 are merged and tagged (v0.4.0 and v0.5.0, First Light).
 Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1 (distribution)
-is done; W6.S2 (forests) is next.
+and W6.S2 (forests) are done; W6.S3 (shrubs, grass and ground cover) is next.
 
 ## North star
 
@@ -780,6 +780,45 @@ Tasks:
 - The site is live.
 
 ### W6.S2: Forests
+
+**Done.** H1 and H3 read as forested at 1:1 (side-by-sides with Wave 5 are in
+`bench/out/w6s2/compare/`). The draft scores put H3's materials at 4, waiting for the
+owner (`bench/hero/scores.md`).
+
+- **Trees in the traversal.** Each level-0 near cell (7.8 m) may hold one tree. Its
+  position and spread come from a hash of the cell; whether it grows, its height and
+  its kind come from a tree map. Crowns lean over the eight neighbouring cells. Each
+  canopy texel records which neighbouring trees reach its cell, and the heightfield
+  traversal tests only those, keeping the nearest crown hit until the ray reaches it.
+- **Forest bake** (`web/render/forest.js`, `web/wgsl/trace/canopy.wgsl`, about 5 ms):
+  - plants the tree map from the terrain's forest map (slope, drainage, scree, shore,
+    clearing and tree-line noise, baked with the masks) and the scene's surface
+  - builds a canopy pyramid, the higher of the ground and any crown over each cell, which
+    the near traversal uses instead of the ground pyramid
+  - runs when the terrain or surface changes. The view's tracer, exports and region
+    renders share one forest, and variant thumbnails have their own.
+- **Shapes and shading.** Conifer cones and broadleaf ellipsoids, sized by density,
+  altitude and biome (`conifers` share in the biome table). Trunks appear once they're
+  a couple of pixels wide. Crowns wider than a few pixels are porous: rays march into
+  them against the cloud detail noise. Foliage is shaded with clump-tilted normals and
+  darker inner and lower foliage. Broadleaf crowns pass light to their shaded side.
+- **Placement change.** The drainage term now only clears stream channels (flow above
+  0.7), so valley floors carry forest. This applies to the painted canopy too.
+- **Cost.** Measured as the fastest of five runs, trees on against off, 64 spp at
+  1920×1080: +36% on H1, +37% on H3 and +37% on Forest lake. That is a little over the
+  +30% aim. The timings on this machine varied by up to 2× between runs. Trees are left
+  out of fog shadows, second bounces and bounce-point sun rays, and shadow rays stop at
+  the first crown.
+
+Not done, or different from the plan:
+
+- Trees don't fade into the painted canopy with distance. They're traced across the
+  whole 16 km near tile and stop at its edge, where the far field's painted canopy
+  takes over. In the heroes that edge is about 8–15 km out, where a tree is under two
+  pixels wide.
+- Shapes are still simple up close: no branch tiers or drooping skirts, and no snow on
+  branches. W6.S4's lab is the place for species variety.
+- Trees vanish while the terrain builds and return when the bake runs.
 
 Tasks:
 

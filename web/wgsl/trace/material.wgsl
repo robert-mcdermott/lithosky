@@ -5,30 +5,18 @@
 //   scree    on talus slopes where material was deposited
 //   gravel   wet stream beds along the drainage network
 //   meadow   gentle ground below the grass line, lusher where it is wet
-//   forest   gentle ground below the tree line, with crowns and clearings
+//   forest   gentle ground below the tree line, with clearings: traced trees over a
+//            needle floor on the near tile, painted crowns on the far field
 //   sand     shores and dry washes
 //   snow     above the snow line, held on gentle, shaded (north-facing) and hollow ground
 // Each material also returns a roughness and a wetness for specular shading.
-// Including modules declare `surface`, `fields`, `masks`, `exposureMasks` and `skySampler`.
+// Including modules declare `surface`, `fields`, `masks`, `exposureMasks` and `skySampler`,
+// and include trace/trees.wgsl (forestDensity).
 
 #include "terrain/noise.wgsl"
 #include "terrain/strata.wgsl"
-
-struct Surface {
-    rockDark: vec4f,
-    rockLight: vec4f,
-    band: vec4f,
-    scree: vec4f,
-    soilLush: vec4f,
-    soilDry: vec4f,
-    forest: vec4f,
-    sand: vec4f,
-    snow: vec4f,
-    // snow line (m), tree line (m), moisture (0..1), water waves (0..1)
-    limits: vec4f,
-    // x: formation thickness (m), matching the canyon landform's ledges
-    strata: vec4f,
-}
+#include "terrain/forest.wgsl"
+#include "trace/surface_params.wgsl"
 
 struct Landform {
     slope: f32,
@@ -92,8 +80,9 @@ fn bedTone(phase: f32, salt: u32) -> f32 {
 }
 
 // `detailed` adds the fine texture camera rays see; bounce and reflection rays skip it, since
-// they only need the material's average colour and roughness.
-fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool) -> Material {
+// they only need the material's average colour and roughness. Under `trees` the forest is
+// traced, so the ground there is the forest floor.
+fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, trees: bool) -> Material {
     let variation = fbm(world.xz / 260.0, 3u, 401u);
     let grain = fbm(world.xz / 37.0, 2u, 409u);
     let patches = fbm(world.xz / 300.0, 3u, 419u);
@@ -138,24 +127,27 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool) 
     // Grass in tussocks and dry patches at a few scales, so meadows keep texture up close.
     let grassTone = saturate(dryness + dryPatches * 0.35 - 0.1);
     let meadow = mix(surface.soilLush.rgb, surface.soilDry.rgb, grassTone) * (0.7 + 0.3 * fleck + 0.35 * tussocks);
-    let forest = surface.forest.rgb * mix(0.55, 1.7, crowns);
+    var forest = surface.forest.rgb * mix(0.55, 1.7, crowns);
+    if (trees) {
+        // Needles, leaf litter and moss.
+        forest = mix(surface.soilDry.rgb, surface.soilLush.rgb, 0.5) * (0.4 + 0.25 * fleck + 0.15 * tussocks);
+    }
     let gravel = surface.scree.rgb * 0.32 * (0.8 + 0.4 * fleck);
     let sand = surface.sand.rgb * (0.88 + 0.24 * grain);
 
     let ridge = max(-land.fine, 0.0);
     let hollow = max(land.fine, 0.0);
-    let steep = land.slope + ridge * 0.06 - hollow * 0.04;
+    let steep = forestSteepness(land.slope, land.fine);
     let screeWeight = saturate(land.sediment * 2.5) * (1.0 - smoothstep(0.26, 0.4, land.slope));
     let meadowHeight = 1.0 - smoothstep(grassLine - 200.0, grassLine + 200.0, land.height + grain * 250.0);
     // Rock pokes through thin soil on ridges and knolls.
     let outcrop = smoothstep(0.3, 0.55, knolls * 0.6 + ridge * 2.5 + land.erosion * 0.4);
     let meadowWeight = (1.0 - smoothstep(0.1, 0.22, steep)) * meadowHeight * (0.35 + 0.65 * moisture) * (1.0 - 0.85 * outcrop);
-    let forestHeight = 1.0 - smoothstep(treeLine - 200.0, treeLine + 150.0, land.height + variation * 350.0);
-    let clearings = smoothstep(-0.15, 0.05, patches + (crowns - 0.5) * 0.15 + (moisture - 0.5) * 0.3);
-    let forestCover = clearings * (1.0 - smoothstep(0.35, 0.6, land.flow)) * surface.forest.w;
-    // In wet climates trees cling to steeper slopes.
-    let forestSlope = 1.0 - smoothstep(0.2 + 0.1 * moisture, 0.32 + 0.1 * moisture, steep);
-    let forestWeight = forestSlope * forestHeight * forestCover * (1.0 - screeWeight * 0.7);
+    let forestLand = vec4f(steep, forestGround(land.slope, land.flow, land.sediment), patches, variation);
+    var forestWeight = forestDensity(forestLand, land.height, crowns - 0.5);
+    if (trees) {
+        forestWeight = treeChance(forestWeight);
+    }
     let gravelWeight = smoothstep(0.72, 0.95, land.flow) * (1.0 - smoothstep(0.04, 0.12, land.slope)) * 0.8;
     let shore = 1.0 - smoothstep(0.5, 4.0, land.height - fields.waterLevel + grain * 2.0);
     // Dry washes only where the climate is dry; wetter biomes grow meadow on the same fans.

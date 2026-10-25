@@ -19,6 +19,7 @@ export const BIOMES = Object.freeze({
     sand: [0.3, 0.27, 0.21],
     snow: [0.86, 0.88, 0.92],
     forestAmount: 1,
+    conifers: 0.75,
     snowAmount: 1,
   },
   desert: {
@@ -33,6 +34,7 @@ export const BIOMES = Object.freeze({
     sand: [0.7, 0.5, 0.31],
     snow: [0.85, 0.84, 0.82],
     forestAmount: 0.08,
+    conifers: 0.2,
     snowAmount: 0,
   },
   volcanic: {
@@ -47,6 +49,7 @@ export const BIOMES = Object.freeze({
     sand: [0.045, 0.043, 0.042],
     snow: [0.85, 0.87, 0.9],
     forestAmount: 0.4,
+    conifers: 0.7,
     snowAmount: 1,
   },
   arctic: {
@@ -61,6 +64,7 @@ export const BIOMES = Object.freeze({
     sand: [0.25, 0.24, 0.22],
     snow: [0.88, 0.9, 0.94],
     forestAmount: 0,
+    conifers: 1,
     snowAmount: 1,
   },
   alien: {
@@ -75,6 +79,7 @@ export const BIOMES = Object.freeze({
     sand: [0.55, 0.45, 0.65],
     snow: [0.78, 0.9, 0.96],
     forestAmount: 0.6,
+    conifers: 0,
     snowAmount: 1,
   },
 });
@@ -90,8 +95,8 @@ function strataThickness(terrain) {
   return terrain?.landform === 'canyon' ? terrain.relief / CANYON_FORMATIONS : STRATA_THICKNESS;
 }
 
-// Writes the surface uniform (11 vec4) for a scene: palette, limits, water waves and the
-// thickness of rock formations.
+// Writes the surface uniform (11 vec4) for a scene: palette, limits, water waves, the
+// thickness of rock formations and the biome's share of conifers.
 export function surfaceUniform(scene) {
   const settings = surfaceSettingsOf(scene);
   const biome = BIOMES[settings.biome] ?? BIOMES.alpine;
@@ -106,6 +111,6 @@ export function surfaceUniform(scene) {
     .f32(...biome.sand, 0)
     .f32(...biome.snow, biome.snowAmount)
     .f32(settings.snowLine, settings.treeLine, settings.moisture, settings.waves)
-    .f32(strataThickness(scene.terrain), 0, 0, 0)
+    .f32(strataThickness(scene.terrain), biome.conifers, 0, 0)
     .buffer;
 }

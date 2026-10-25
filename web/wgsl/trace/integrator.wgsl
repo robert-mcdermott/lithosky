@@ -38,6 +38,10 @@
 @group(0) @binding(19) var cloudSampler: sampler;
 @group(0) @binding(20) var exposureMasks: texture_2d<f32>;
 @group(0) @binding(21) var<uniform> surface: Surface;
+// The near tile's trees, one packed tree per cell, and the highest ground or crown per cell
+// with its mips (canopy.wgsl).
+@group(0) @binding(22) var treeMap: texture_2d<u32>;
+@group(0) @binding(23) var canopy: texture_2d<f32>;
 
 const SKY_DEPTH: f32 = 300000.0;
 
@@ -83,6 +87,11 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
     var rayDirection = direction;
     for (var bounce = 0u; bounce <= frame.bounces; bounce++) {
         let effort = select(BOUNCE_EFFORT, 1.0, bounce == 0u);
+        // Trees take part in camera rays, their sun shadows and the first bounce. Light
+        // that arrives after two bounces, and sunlight at bounce points, hardly changes
+        // with them, and tracing trees costs a walk through the canopy per ray.
+        treesWanted = bounce < 2u;
+        rayFootprint = select(vec2f(BIG, 0.0), vec2f(0.0, footprintSlope()), bounce == 0u);
         let hit = traceScene(rayOrigin, rayDirection, MAX_DISTANCE, effort);
         if (bounce == 0u) {
             let water = waterDistance(rayOrigin, rayDirection);
@@ -117,7 +126,7 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
             break;
         }
         let position = rayOrigin + rayDirection * hit.t;
-        let point = shadePoint(position, hit.field, hit.t, bounce == 0u);
+        let point = shadeHit(position, hit, hit.t, bounce == 0u);
         if (bounce == 0u) {
             firstAlbedo = point.albedo;
             firstNormal = point.normal;
@@ -131,7 +140,9 @@ fn tracePath(origin: vec3f, direction: vec3f) -> vec3f {
             throughput *= aerial.transmittance * fog.transmittance;
             frontClouds = traceClouds(rayOrigin, rayDirection, hit.t, CLOUD_VIEW_STEPS);
         }
+        treesWanted = bounce == 0u;
         var direct = throughput * directSun(point, hit.t, -rayDirection);
+        treesWanted = true;
         if (bounce > 0u) {
             direct = limitLuminance(direct, INDIRECT_LIMIT);
         }

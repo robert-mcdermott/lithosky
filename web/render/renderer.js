@@ -11,6 +11,7 @@ import { Terrain } from '../terrain/terrain.js';
 import { cameraFrame, sunDirection, viewRay } from './camera.js';
 import { Clouds } from './clouds.js';
 import { Display } from './display.js';
+import { Forest } from './forest.js';
 import { Post } from './post.js';
 import { SUN_ANGULAR_RADIUS, Sky } from './sky.js';
 import { Tracer } from './tracer.js';
@@ -67,8 +68,8 @@ export class Renderer {
       Post.create(device),
       Clouds.create(device),
     ]);
-    const sky = await Sky.create(device, tracer.frameBuffer);
-    return new Renderer({ adapter, device, canvas, terrain, tracer, sky, display, post, clouds }, scene);
+    const [sky, forest] = await Promise.all([Sky.create(device, tracer.frameBuffer), Forest.create(device, terrain)]);
+    return new Renderer({ adapter, device, canvas, terrain, tracer, sky, display, post, clouds, forest }, scene);
   }
 
   constructor(parts, scene) {
@@ -83,7 +84,8 @@ export class Renderer {
     });
     this.clouds.update(scene);
     this.tracer.writeSurface(scene);
-    this.tracer.bind(this.terrain, this.sky, this.clouds);
+    this.forest.update(scene);
+    this.tracer.bind(this.terrain, this.sky, this.clouds, this.forest);
     this.stats = {
       adapter: this.adapter.info?.description || this.adapter.info?.vendor || 'unknown',
       samples: 0,
@@ -150,6 +152,7 @@ export class Renderer {
     const surfaceChanged = surfaceOf(previous) !== surfaceOf(scene);
     if (surfaceChanged) {
       this.tracer.writeSurface(scene);
+      this.forest.update(scene);
     }
     if (skyChanged || cameraChanged) {
       this.skyDirty = true;
@@ -222,7 +225,7 @@ export class Renderer {
     }
     if (!this.regionParts) {
       const tracer = new Tracer(this.device, this.tracer.pipeline);
-      tracer.bind(this.terrain, this.sky, this.clouds);
+      tracer.bind(this.terrain, this.sky, this.clouds, this.forest);
       this.regionParts = { tracer, display: new Display(this.device, this.display.context, this.display.pipelines) };
     }
     const output = this.outputSize();
@@ -404,7 +407,7 @@ export class Renderer {
     this.post.saveMeter();
     const size = sizeForLongEdge(aspectOf(this.scene), longEdge);
     const tracer = new Tracer(this.device, this.tracer.pipeline);
-    tracer.bind(this.terrain, this.sky, this.clouds);
+    tracer.bind(this.terrain, this.sky, this.clouds, this.forest);
     tracer.writeSurface(this.scene);
     tracer.setSize(...size);
     try {
@@ -492,7 +495,9 @@ export class Renderer {
     this.post.saveMeter();
     if (!this.thumbnailTracer) {
       this.thumbnailTracer = new Tracer(this.device, this.tracer.pipeline);
-      this.thumbnailTracer.bind(this.terrain, this.sky, this.clouds);
+      // Variants can change the biome and tree line, so they plant their own trees.
+      this.thumbnailForest = new Forest(this.device, this.terrain, this.forest.pipelines);
+      this.thumbnailTracer.bind(this.terrain, this.sky, this.clouds, this.thumbnailForest);
     }
     const tracer = this.thumbnailTracer;
     tracer.setSize(width, height);
@@ -512,6 +517,7 @@ export class Renderer {
           this.scene = scene;
           this.clouds.update(scene);
           tracer.writeSurface(scene);
+          this.thumbnailForest.update(scene);
           const view = { ...this.view(width / height), viewMode: VIEW_MODES.image };
           this.rebuildSky(view);
           for (let index = 0; index < samples; index++) {

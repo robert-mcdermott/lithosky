@@ -123,3 +123,38 @@ New presets (drafts for the owner's sign-off):
 
 Average H1–H6: 3.8, up from 3.7. Below the First Light target (no score below 4 on
 H1–H4): H3 materials.
+
+## W6.S2: forests
+
+Rendered 2026-10-25 with `node bench/hero.mjs --label w6s2 --only H1,H2,H3,H4,H5,H6,forest-lake`
+(1920×1080, 256 spp, Apple M4, Chrome). 1:1 side-by-sides against W5.S4 for H1 and H3
+are in `bench/out/w6s2/compare/`. Claude drafted these scores; **the owner confirms or
+adjusts them to close the W6.S2 gate.**
+
+| Criterion | H1 | H2 | H3 | H4 | H5 | H6 |
+|---|---|---|---|---|---|---|
+| Landform | 4 | 4 | 4 | 5 | 3 | 3 |
+| Sky | 4 | 4 | 4 | 4 | 4 | 3 |
+| Depth/atmosphere | 4 | 4 | 4 | 4 | 4 | 3 |
+| Light and shadow | 4 | 4 | 4 | 4 | 5 | 3 |
+| Materials | 5 | 4 | 4 | 4 | 3 | 3 |
+| Water | 4 | — | 4 | 4 | 4 | — |
+| Noise and artifacts | 4 | 4 | 4 | 4 | 4 | 4 |
+| Composition | 4 | 4 | 4 | 4 | 4 | 3 |
+
+Notes:
+
+- **H3:** the lower walls on both sides are forest down to the shore. At 1:1 they are
+  individual conifers in stands broken by clearings and rock, where they were flat dark
+  ground. The upper walls stay bare rock above the tree line. Materials: 3 → 4.
+- **H1:** the lakeside floor and lower slopes carry forest with cast shadows in the low
+  sun. The right shore keeps a meadow strip. Materials: 4 → 5.
+- **H2, H4, H5:** no visible change (H2's slopes are above the tree line, H4 is
+  desert, H5 is arctic).
+- **H6:** the Imagined biome's magenta broadleaf canopy now reads as a forest of
+  separate crowns.
+- **Forest lake:** forested slopes with spiky conifer silhouettes on the ridgelines.
+
+Average H1–H6: 3.9, up from 3.8. No score is below 4 on H1–H4: the First Light target is
+met in this draft.
+

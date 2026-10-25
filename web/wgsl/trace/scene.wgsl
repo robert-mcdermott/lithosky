@@ -1,33 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
-// The scene is two traced heightfields: the eroded near tile and a coarse far field that
-// continues the same generator to the horizon. A ray uses the far field everywhere outside
-// the near tile's footprint and the near tile inside it.
-// Including modules declare `fields`, the near/far height and pyramid textures, `masks`
-// and `skySampler`.
+// The scene is two traced heightfields: the eroded near tile, with its trees, and a coarse
+// far field that continues the same generator to the horizon. A ray uses the far field
+// everywhere outside the near tile's footprint and the near tile inside it.
+// Including modules declare `fields`, the near/far height and pyramid textures, `treeMap`,
+// `canopy`, `masks`, `surface` and `skySampler`.
 
+#include "trace/fields.wgsl"
 #include "trace/heightfield.wgsl"
-
-struct Fields {
-    near: FieldGrid,
-    far: FieldGrid,
-    nearLevels: u32,
-    farLevels: u32,
-    nearSteps: u32,
-    farSteps: u32,
-    waterLevel: f32,
-    // Height (m) of the planet's ground beyond the far field: the landform's typical level.
-    horizonHeight: f32,
-    padding1: f32,
-    padding2: f32,
-}
+#include "trace/trees.wgsl"
 
 const FIELD_NEAR: u32 = 0u;
 const FIELD_FAR: u32 = 1u;
 const FIELD_NONE: u32 = 2u;
+const FIELD_TREE: u32 = 3u;
 
 struct SceneHit {
     t: f32,
     field: u32,
+    // The near cell whose tree was hit (FIELD_TREE only).
+    tree: vec2i,
 }
 
 // Parametric span [t0, t1] of the ray over the near tile's footprint (empty when t0 >= t1).
@@ -52,18 +43,18 @@ fn nearSpan(origin: vec3f, direction: vec3f, tMax: f32) -> vec2f {
 }
 
 fn traceNear(origin: vec3f, direction: vec3f, t0: f32, t1: f32, steps: u32) -> f32 {
-    return traceField(nearPyramid, nearHeight, fields.near, fields.nearLevels, origin, direction, t0, t1, steps);
+    return traceField(nearPyramid, canopy, nearHeight, fields.near, fields.nearLevels, origin, direction, t0, t1, steps, treesEnabled());
 }
 
 fn traceFar(origin: vec3f, direction: vec3f, t0: f32, t1: f32, steps: u32) -> f32 {
-    return traceField(farPyramid, farHeight, fields.far, fields.farLevels, origin, direction, t0, t1, steps);
+    return traceField(farPyramid, farPyramid, farHeight, fields.far, fields.farLevels, origin, direction, t0, t1, steps, false);
 }
 
 fn sceneHit(t: f32, field: u32) -> SceneHit {
     if (t >= 0.0) {
-        return SceneHit(t, field);
+        return SceneHit(t, field, NOWHERE);
     }
-    return SceneHit(t, FIELD_NONE);
+    return SceneHit(t, FIELD_NONE, NOWHERE);
 }
 
 // `effort` scales the step budgets: 1 for camera and bounce rays, less for shadow rays.
@@ -77,10 +68,13 @@ fn traceScene(origin: vec3f, direction: vec3f, tMax: f32, effort: f32) -> SceneH
     if (span.x > 0.0) {
         let before = traceFar(origin, direction, 0.0, span.x, farSteps);
         if (before >= 0.0) {
-            return SceneHit(before, FIELD_FAR);
+            return SceneHit(before, FIELD_FAR, NOWHERE);
         }
     }
     let inside = traceNear(origin, direction, span.x, span.y, nearSteps);
+    if (inside >= 0.0 && treeHit) {
+        return SceneHit(inside, FIELD_TREE, treeBestCell);
+    }
     if (inside >= 0.0 || inside == TRACE_EXHAUSTED) {
         return sceneHit(inside, FIELD_NEAR);
     }

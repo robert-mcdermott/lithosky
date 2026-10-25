@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0-dev.2 — wave 6 slice 2 (local development)
+
+- **Traced forests.** The near tile (16 km) grows procedural trees that the path tracer
+  intersects directly: conifers (cones) and broadleaf trees (ellipsoids), with trunks
+  up close. Each 7.8 m terrain cell may hold one tree, placed and sized from a hash of
+  the cell, so no geometry is stored. Crowns lean over neighbouring cells, so forests
+  close up without a visible grid.
+- **Placement** follows the land and the scene: slope, drainage, scree, the shore,
+  clearings, the tree line and moisture, with smaller trees towards the tree line.
+  Each biome sets its share of conifers (alpine 75%, Imagined 0%); conifers take over
+  near the tree line. Valley floors now carry forest down to the streams, which stay
+  bare.
+- **Light.** Trees cast and receive soft sun shadows, darken the forest floor below
+  them and show in lake reflections. Broadleaf crowns pass some light to their shaded
+  side. Near crowns are porous: rays pass through gaps between clumps of foliage,
+  which gives ragged silhouettes and dappled shadows.
+- The ground under traced trees is a needle-and-litter forest floor. The far field
+  keeps the painted canopy.
+- **Speed.** A forest bake (about 5 ms) runs once the terrain is built and whenever
+  the biome, tree line or moisture changes. It packs each cell's tree into a tree map
+  and builds a canopy pyramid that bounds the crowns, so rays only descend into the
+  canopy where trees stand. Trees cost about +35% per sample on the forested heroes
+  (H1, H3, Forest lake).
+- Exports, region renders and variant thumbnails all trace the trees. Thumbnails
+  re-bake for each variant's biome and tree line.
+
 ## 0.6.0-dev.1 — wave 6 slice 1 (local development)
 
 - Releases are now six standalone executables (`lithosky-OS-ARCH`, with `.exe` on
