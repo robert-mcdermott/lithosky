@@ -425,13 +425,14 @@ function Invoke-LithoskyInstall {
     }
 }
 
-if ($MyInvocation.InvocationName -ne '.') {
-    $arguments = @{}
-    if ($Version) { $arguments['Version'] = $Version }
-    if ($InstallDir) { $arguments['InstallDir'] = $InstallDir }
-    if ($Repository) { $arguments['Repository'] = $Repository }
-    if ($Architecture) { $arguments['Architecture'] = $Architecture }
-    if ($From) { $arguments['From'] = $From }
-    if ($NoPathUpdate) { $arguments['NoPathUpdate'] = $true }
-    Invoke-LithoskyInstall @arguments
-}
+# Always install. Code piped into Invoke-Expression sees its caller's invocation, so a
+# guard on $MyInvocation (to let the file be dot-sourced for its functions) would skip
+# the install whenever the one-liner runs inside a dot-sourced script, as CI steps are.
+$arguments = @{}
+if ($Version) { $arguments['Version'] = $Version }
+if ($InstallDir) { $arguments['InstallDir'] = $InstallDir }
+if ($Repository) { $arguments['Repository'] = $Repository }
+if ($Architecture) { $arguments['Architecture'] = $Architecture }
+if ($From) { $arguments['From'] = $From }
+if ($NoPathUpdate) { $arguments['NoPathUpdate'] = $true }
+Invoke-LithoskyInstall @arguments
