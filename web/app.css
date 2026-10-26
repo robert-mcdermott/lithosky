@@ -233,6 +233,15 @@ button:disabled {
   text-overflow: ellipsis;
 }
 
+.live-quality {
+  flex: none;
+  font-size: 12px;
+}
+
+.segmented.live-quality span {
+  padding: 0.22rem 0.6rem;
+}
+
 .bar-actions {
   display: flex;
   align-items: center;

@@ -51,6 +51,10 @@ Some properties of the tracer and frame loop:
   texture and detail normals; bounce and reflection rays use the average material.
 - **Responsive loop.** Frames are queued without CPU waits. While the camera moves the
   image renders at half resolution, then refines.
+- **Live budget.** The view traces to its live quality's target (Draft: 1280 px, one
+  bounce, 32 passes; Full: 1920 px, two bounces, 512 passes; `LIVE_QUALITY` in
+  `renderer.js`). It then runs a few post frames for auto-exposure and submits nothing
+  until the scene, view or window changes. Hidden windows skip frames.
 - **Export.** Export renders the same scene at the chosen size and sample count through
   the same kernels, then reads back once.
 

@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 import { denoiseMix } from '../web/render/post.js';
 import { BIOMES, BIOME_IDS, surfaceUniform } from '../web/render/biomes.js';
+import { LIVE_QUALITY } from '../web/render/renderer.js';
 import { CLOUD_DEFAULTS, IMAGE_DEFAULTS, SURFACE_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, surfaceSettingsOf } from '../web/scene/document.js';
 
 test('denoising fades out as samples accumulate', () => {
@@ -80,3 +81,17 @@ test('sky colour 0 is Earth\'s Rayleigh scattering, and the tint shifts it betwe
   assert.ok(deep[2] / deep[0] > earth[2] / earth[0], 'lower tints are bluer');
   assert.ok(golden[0] > golden[2], 'the highest tint scatters red more than blue');
 });
+
+test('the live view stops at a finite target, and Draft costs less than Full', () => {
+  const { draft, full } = LIVE_QUALITY;
+  for (const quality of [draft, full]) {
+    assert.ok(Number.isInteger(quality.samples) && quality.samples > 0);
+  }
+  assert.ok(draft.longEdge < full.longEdge);
+  assert.ok(draft.bounces < full.bounces);
+  assert.ok(draft.samples < full.samples);
+  const html = fs.readFileSync('web/index.html', 'utf8');
+  const choices = [...html.matchAll(/name="live-quality" value="(\w+)"/g)].map(match => match[1]);
+  assert.deepEqual(choices, Object.keys(LIVE_QUALITY));
+});
+

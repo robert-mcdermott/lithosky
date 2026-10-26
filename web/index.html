@@ -30,6 +30,11 @@
     <span class="brand" id="brand">lithosky</span>
     <input id="title" class="title" aria-label="Scene title" maxlength="80" spellcheck="false">
     <output id="status" class="status" aria-live="polite">Starting WebGPU…</output>
+    <div class="segmented live-quality" role="radiogroup" aria-label="Live view quality"
+         title="Draft refines the view quickly at lower resolution; Full matches the final render's light. Either stops when done, so the GPU rests until you change something.">
+      <label><input type="radio" name="live-quality" value="draft"><span>Draft</span></label>
+      <label><input type="radio" name="live-quality" value="full"><span>Full</span></label>
+    </div>
     <div class="bar-actions">
       <span id="history-buttons" class="button-group"></span>
       <div class="menu">
@@ -80,6 +85,7 @@
       <dt>⌥-drag</dt><dd>Place the sun</dd>
       <dt>R, then drag</dt><dd>Preview an area at full quality</dd>
       <dt>G</dt><dd>Framing guides</dd>
+      <dt>F</dt><dd>Live view: Draft or Full</dd>
     </dl>
     <h2>Values</h2>
     <dl>

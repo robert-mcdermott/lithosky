@@ -4,8 +4,9 @@ Updated 2026-10-24. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Waves 4 and 5 are merged and tagged (v0.4.0 and v0.5.0, First Light).
-Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1 (distribution)
-and W6.S2 (forests) are done; W6.S3 (shrubs, grass and ground cover) is next.
+Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1 (distribution),
+W6.S2 (forests) and W6.S3 (live view budget) are done; W6.S4 (shrubs, grass and ground
+cover) is next.
 
 ## North star
 
@@ -702,9 +703,10 @@ the pattern proven in cytoweave and proteoscope.
 |---|---|---|
 | W6.S1 | Distribution | Executable releases with `SHA256SUMS`, tag-driven draft releases, one-line installers, and a site that deploys |
 | W6.S2 | Forests | Instanced procedural trees traced in the renderer, placed by landform and biome |
-| W6.S3 | Shrubs, grass and ground cover | Near-field grass and shrubs, meadow detail, distance blending |
-| W6.S4 | Vegetation lab and painting | Density, species and size controls, and a brush to paint or clear vegetation |
-| W6.S5 | Release v0.6.0 | Hero rescoring (H3 to target), presets and gallery with vegetation, shipped through the new pipeline |
+| W6.S3 | Live view budget | The view stops tracing when done; Draft and Full live quality; no work while hidden |
+| W6.S4 | Shrubs, grass and ground cover | Near-field grass and shrubs, meadow detail, distance blending |
+| W6.S5 | Vegetation lab and painting | Density, species and size controls, and a brush to paint or clear vegetation |
+| W6.S6 | Release v0.6.0 | Hero rescoring (H3 to target), presets and gallery with vegetation, shipped through the new pipeline |
 
 ### W6.S1: Distribution
 
@@ -817,7 +819,7 @@ Not done, or different from the plan:
   takes over. In the heroes that edge is about 8–15 km out, where a tree is under two
   pixels wide.
 - Shapes are still simple up close: no branch tiers or drooping skirts, and no snow on
-  branches. W6.S4's lab is the place for species variety.
+  branches. W6.S5's lab is the place for species variety.
 - Trees vanish while the terrain builds and return when the bake runs.
 
 Tasks:
@@ -834,7 +836,37 @@ Tasks:
 **Gate:** H1 and H3 read as forested up close at 1:1, and H3's materials score at
 least 4.
 
-### W6.S3: Shrubs, grass and ground cover
+### W6.S3: Live view budget
+
+**Done.** Added after the owner noticed that adjusting settings kept the GPU path-tracing
+flat out. The live view never stopped: after any edit it accumulated samples
+indefinitely, ramping up to 12 per frame at 1920 px.
+
+- **Stops when done.** The view traces to its quality's sample target. A few more
+  frames of post-processing let auto-exposure settle, and then it submits no GPU
+  work until something changes. Display-only edits (exposure, look) draw once
+  without tracing. Region renders still refine while the view is idle.
+- **Draft and Full** (top bar, or F; remembered per viewer):
+
+  | | Long edge | Bounces | Target |
+  |---|---|---|---|
+  | Draft (default) | 1280 px | 1 | 32 passes |
+  | Full | 1920 px | 2 | 512 passes |
+
+  Camera moves render at half size in either mode. Render, and region previews, keep
+  the export's full quality.
+- **Headroom.** At most 8 samples per frame, growing only while frames finish within
+  20 ms. A hidden or minimised window does no work and redraws when shown.
+- **Checked in the app** (H1): Draft finished 2.3 s after the terrain build, and the
+  GPU then got no submissions over 3 s idle. An exposure change drew once without new
+  samples. A hidden window got no submissions over 2 s and resumed when shown. After an
+  export the view settled and went idle again.
+
+**Gate:** with nothing changing, the view stops submitting GPU work after reaching its
+target; Draft reaches its target in about a second or two after an edit on the
+development Mac.
+
+### W6.S4: Shrubs, grass and ground cover
 
 Tasks:
 
@@ -844,7 +876,7 @@ Tasks:
 
 **Gate:** 1:1 foreground crops of meadows read as grass, not noise.
 
-### W6.S4: Vegetation lab and painting
+### W6.S5: Vegetation lab and painting
 
 Tasks:
 
@@ -858,7 +890,7 @@ Tasks:
 **Gate:** the owner can clear a meadow or plant a forest edge without leaving the
 view.
 
-### W6.S5: Release v0.6.0
+### W6.S6: Release v0.6.0
 
 Tasks:
 

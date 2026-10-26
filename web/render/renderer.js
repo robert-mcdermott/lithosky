@@ -2,6 +2,8 @@
 // The viewport renderer: one persistent WebGPU device driving terrain builds, sky LUTs, the
 // progressive path tracer and the display. Frames are queued without CPU waits; completion
 // callbacks only bound how far ahead the CPU runs, so edits show up within a frame or two.
+// The view stops tracing at its live quality's sample target, and the GPU idles until
+// something changes or the window is shown again.
 
 import { createDevice } from '../gpu/device.js';
 import { PLACEMENT } from '../terrain/placement.js';
@@ -17,11 +19,16 @@ import { SUN_ANGULAR_RADIUS, Sky } from './sky.js';
 import { Tracer } from './tracer.js';
 
 const MAX_FRAMES_IN_FLIGHT = 2;
-const MAX_SAMPLES_PER_FRAME = 12;
+// Samples per frame grow while frames finish quickly and shrink when they lag, up to this
+// cap, which leaves the GPU some room for the rest of the desktop.
+const MAX_SAMPLES_PER_FRAME = 8;
+const FAST_FRAME_MS = 20;
+const SLOW_FRAME_MS = 45;
 const TERRAIN_STAGES_PER_FRAME = 4;
-// Longest edge of the settled image; camera moves render at half that.
-const VIEW_LONG_EDGE = 1920;
+// Camera moves render at half the settled size.
 const MOVING_SCALE = 0.5;
+// Frames of post-processing after the last sample, so auto-exposure finishes easing.
+const SETTLE_FRAMES = 30;
 const SETTLE_MS = 180;
 const EXPORT_BATCH = 8;
 // A region renders at full output resolution up to this many samples, a few per frame.
@@ -37,6 +44,14 @@ const FOG_FALLOFF = 1 / 180;
 const FOG_DENSITY = 1 / 8000;
 const SUN_ILLUMINANCE = [1, 1, 1];
 const BOUNCES = 2;
+
+// The live view's quality. Draft is for working: a smaller image, one bounce, done in about
+// a second. Full matches the export's light. Either stops at its sample target; Render makes
+// the final image.
+export const LIVE_QUALITY = Object.freeze({
+  draft: { longEdge: 1280, bounces: 1, samples: 32 },
+  full: { longEdge: 1920, bounces: BOUNCES, samples: 512 },
+});
 
 export const VIEW_MODES = Object.freeze({ image: 0, albedo: 1, flow: 2, sediment: 3, curvature: 4, normals: 5 });
 
@@ -95,8 +110,14 @@ export class Renderer {
       building: true,
       progress: 0,
       renderSize: [1, 1],
+      quality: 'draft',
+      target: LIVE_QUALITY.draft.samples,
     };
+    this.quality = 'draft';
     this.sampleIndex = 0;
+    this.settleFrames = 0;
+    // A display-only change (exposure, look) waits to be drawn.
+    this.presentDirty = false;
     this.resetTime = performance.now();
     this.samplesPerFrame = 1;
     this.framesInFlight = 0;
@@ -106,6 +127,10 @@ export class Renderer {
     this.buildStart = performance.now();
     this.terrain.generate(this.terrain.settings);
     this.frame = this.frame.bind(this);
+    // Hidden windows skip frames; draw the view again when it comes back.
+    document.addEventListener('visibilitychange', () => {
+      this.presentDirty ||= !document.hidden;
+    });
   }
 
   // Called with stats after each frame and on state changes.
@@ -160,6 +185,7 @@ export class Renderer {
     if (moving) {
       this.movingUntil = performance.now() + SETTLE_MS;
     }
+    this.presentDirty = true;
     if (skyChanged || cameraChanged || fogChanged || cloudsChanged || surfaceChanged) {
       this.resetAccumulation();
     }
@@ -199,6 +225,18 @@ export class Renderer {
   setViewMode(mode) {
     this.viewMode = mode;
     this.resetAccumulation();
+  }
+
+  // 'draft' or 'full' (LIVE_QUALITY).
+  setQuality(quality) {
+    if (!LIVE_QUALITY[quality] || quality === this.quality) {
+      return;
+    }
+    this.quality = quality;
+    this.stats.quality = quality;
+    this.stats.target = LIVE_QUALITY[quality].samples;
+    this.resetAccumulation();
+    this.emit();
   }
 
   resetAccumulation() {
@@ -267,7 +305,8 @@ export class Renderer {
     return [width, height];
   }
 
-  view(aspect) {
+  // `bounces` defaults to the export's; the live view passes its quality's.
+  view(aspect, bounces = BOUNCES) {
     const scene = this.scene;
     return {
       camera: cameraFrame(scene.camera, aspect),
@@ -278,7 +317,7 @@ export class Renderer {
       fogHeight: FOG_HEIGHT,
       fogFalloff: FOG_FALLOFF,
       viewMode: this.viewMode,
-      bounces: BOUNCES,
+      bounces,
       seed: scene.terrain.seed,
     };
   }
@@ -306,7 +345,7 @@ export class Renderer {
   }
 
   renderSize(output, now) {
-    const settled = fitLongEdge(output[0], output[1], VIEW_LONG_EDGE);
+    const settled = fitLongEdge(output[0], output[1], LIVE_QUALITY[this.quality].longEdge);
     if (now < this.movingUntil) {
       return settled.map(value => Math.max(1, Math.round(value * MOVING_SCALE)));
     }
@@ -316,9 +355,9 @@ export class Renderer {
   adaptSamples(latency) {
     if (this.terrain.busy) {
       this.samplesPerFrame = 1;
-    } else if (latency < 25 && this.samplesPerFrame < MAX_SAMPLES_PER_FRAME) {
+    } else if (latency < FAST_FRAME_MS && this.samplesPerFrame < MAX_SAMPLES_PER_FRAME) {
       this.samplesPerFrame++;
-    } else if (latency > 60 && this.samplesPerFrame > 1) {
+    } else if (latency > SLOW_FRAME_MS && this.samplesPerFrame > 1) {
       this.samplesPerFrame--;
     }
   }
@@ -328,7 +367,7 @@ export class Renderer {
       return;
     }
     requestAnimationFrame(this.frame);
-    if (this.framesInFlight >= MAX_FRAMES_IN_FLIGHT) {
+    if (document.hidden || this.framesInFlight >= MAX_FRAMES_IN_FLIGHT) {
       return;
     }
     const output = this.syncCanvas();
@@ -351,25 +390,45 @@ export class Renderer {
         });
       }
     }
-    const view = this.view(size[0] / size[1]);
+    const quality = LIVE_QUALITY[this.quality];
+    const view = this.view(size[0] / size[1], quality.bounces);
     if (this.skyDirty) {
       this.skyDirty = false;
       this.rebuildSky(view);
       this.resetAccumulation();
     }
-    for (let i = 0; i < this.samplesPerFrame; i++) {
-      this.tracer.sample(view, this.sampleIndex);
-      this.sampleIndex++;
+    // While the terrain builds, every frame restarts the image, so it keeps tracing.
+    const count = this.terrain.busy
+      ? this.samplesPerFrame
+      : Math.min(this.samplesPerFrame, quality.samples - this.sampleIndex);
+    let posted = count > 0;
+    if (posted) {
+      for (let i = 0; i < count; i++) {
+        this.tracer.sample(view, this.sampleIndex);
+        this.sampleIndex++;
+      }
+      this.settleFrames = SETTLE_FRAMES;
+    } else if (this.settleFrames > 0) {
+      this.settleFrames--;
+      posted = true;
     }
-    this.display.bind(this.post.run(this.tracer, this.sampleIndex), this.post);
+    const regionLive = this.region && !this.terrain.busy && this.region.shown !== REGION_SAMPLES;
+    if (!posted && !this.presentDirty && !regionLive) {
+      return;
+    }
+    if (posted) {
+      this.display.bind(this.post.run(this.tracer, this.sampleIndex), this.post);
+    }
+    this.presentDirty = false;
     this.display.present(this.image());
     if (this.region && !this.terrain.busy) {
       this.renderRegion(size[0] / size[1]);
     }
-    this.trackCompletion(size);
+    this.trackCompletion(size, count > 0);
   }
 
-  trackCompletion(size) {
+  // `traced` frames added samples; only they move the time and rate shown.
+  trackCompletion(size, traced) {
     this.framesInFlight++;
     const submitted = this.sampleIndex;
     const epoch = this.resetTime;
@@ -377,9 +436,11 @@ export class Renderer {
     this.device.queue.onSubmittedWorkDone().then(() => {
       this.framesInFlight--;
       const finished = performance.now();
-      this.adaptSamples(finished - submittedAt);
+      if (traced) {
+        this.adaptSamples(finished - submittedAt);
+      }
       this.stats.progress = this.terrain.progress;
-      if (epoch === this.resetTime) {
+      if (traced && epoch === this.resetTime) {
         const seconds = (finished - epoch) / 1000;
         this.stats.samples = submitted;
         this.stats.seconds = seconds;
@@ -438,7 +499,9 @@ export class Renderer {
   // frame loop and applies any edit made meanwhile.
   finishSideRender() {
     this.post.restoreMeter();
-    this.rebuildSky(this.view(this.tracer.width / this.tracer.height));
+    this.rebuildSky(this.view(this.tracer.width / this.tracer.height, LIVE_QUALITY[this.quality].bounces));
+    // Draws the view's own image again, even if it had finished tracing.
+    this.settleFrames = SETTLE_FRAMES;
     this.sideRender = false;
     this.paused = false;
     requestAnimationFrame(this.frame);

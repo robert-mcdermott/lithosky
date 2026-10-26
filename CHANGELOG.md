@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.6.0-dev.3 — wave 6 slice 3 (local development)
+
+- **The live view stops when it's done.** It used to keep path-tracing indefinitely
+  after every edit, keeping the GPU busy. Now it traces to a sample target, lets
+  auto-exposure settle, and does no GPU work until something changes. Exposure and
+  look changes redraw without re-tracing.
+- **Draft and Full live quality**, in the top bar (or press F), remembered between
+  sessions:
+  - **Draft** (default): 1280 px, one bounce, 32 passes, finished in about a second or
+    two after an edit
+  - **Full:** 1920 px, two bounces like the final render, 512 passes
+
+  Render and the region preview (R) still produce full quality.
+- The view takes at most 8 samples per frame, which leaves the GPU room for the rest of
+  the desktop, and does nothing while the window is hidden or minimised.
+- The status shows progress towards the target (`18 / 32 passes`) and `done` when the
+  view has stopped.
+
 ## 0.6.0-dev.2 — wave 6 slice 2 (local development)
 
 - **Traced forests.** The near tile (16 km) grows procedural trees that the path tracer

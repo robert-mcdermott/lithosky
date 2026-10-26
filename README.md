@@ -12,7 +12,9 @@ Highlights:
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
   and talus. Two landforms: alpine ranges, or canyon country with mesas and stepped,
   layered walls.
-- **Rendering.** The path-traced view fills the window and refines in about a second.
+- **Rendering.** The path-traced view fills the window, refines in about a second and
+  then stops, leaving the GPU idle. A Draft/Full switch trades speed for the final
+  render's light; Render makes the final image.
 - **Sky.** A physical sky with aerial perspective and an adjustable air colour.
   Volumetric clouds, from fair-weather heaps to storm towers with anvils, shadow the
   land.

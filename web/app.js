@@ -157,6 +157,20 @@ async function start() {
   const renderer = await Renderer.create(canvas, history.value);
   renderer.start();
 
+  // Live view quality (Draft or Full), remembered for this viewer.
+  const qualityInputs = [...document.querySelectorAll('input[name="live-quality"]')];
+  function setLiveQuality(quality) {
+    renderer.setQuality(quality);
+    remember('liveQuality', quality);
+    for (const input of qualityInputs) {
+      input.checked = input.value === quality;
+    }
+  }
+  setLiveQuality(remembered('liveQuality', 'draft') === 'full' ? 'full' : 'draft');
+  for (const input of qualityInputs) {
+    input.addEventListener('change', () => setLiveQuality(input.value));
+  }
+
   const autosave = new Autosave(async (scene, revision) => {
     const response = await api('/api/autosave', {
       method: 'PUT',
@@ -851,8 +865,11 @@ async function start() {
       $('status').textContent = `Building terrain ${Math.round(stats.progress * 100)}%`;
     } else {
       const rate = (stats.pathsPerSecond / 1e6).toFixed(0);
-      $('status').textContent = `${stats.samples} passes · ${stats.seconds.toFixed(1)} s`;
-      $('status').title = `Each pass adds one sample per pixel. ${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
+      const seconds = `${stats.seconds.toFixed(1)} s`;
+      $('status').textContent = stats.samples >= stats.target
+        ? `${stats.samples} passes · ${seconds} · done`
+        : `${stats.samples} / ${stats.target} passes · ${seconds}`;
+      $('status').title = `Each pass adds one sample per pixel. The view stops after ${stats.target} and the GPU rests until you change something; Render makes the final image. ${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
     }
   });
 
@@ -900,6 +917,8 @@ async function start() {
         setRegionMode(!regionMode);
       } else if (key === 'g') {
         setGuides(GUIDE_MODES[(GUIDE_MODES.indexOf(guideMode) + 1) % GUIDE_MODES.length]);
+      } else if (key === 'f') {
+        setLiveQuality(renderer.quality === 'full' ? 'draft' : 'full');
       } else if (key === 'h') {
         document.body.classList.toggle('chrome-hidden');
         layoutFrame();
