@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-// The seven labs. Each is a drawer: a gallery first, then a few controls, with rarely used
+// The eight labs. Each is a drawer: a gallery first, then a few controls, with rarely used
 // options folded away. Galleries whose choices keep the terrain show the current view with
 // each choice applied (`variants`); the Scenes gallery uses thumbnails shipped with the app.
 
 import { VIEW_MODES } from '../render/renderer.js';
-import { BIOME, LENS, LIGHT, LOOK, SKY } from '../scene/variants.js';
-import { button, choice, element, fold, gallery, heading, iconButton, parseNumber, segmented, toggle } from './controls.js';
+import { BIOME, LENS, LIGHT, LOOK, PLANTS, SKY } from '../scene/variants.js';
+import { button, choice, element, fold, gallery, heading, iconButton, parseNumber, segmented, slider, toggle } from './controls.js';
 import { SUN_LIMITS, sunDome } from './sundome.js';
 
 // Display formats with the matching parser for typed values (the controls show rounded
@@ -21,6 +21,8 @@ const kilometres = unit(v => `${(v / 1000).toFixed(1)} km`, text => {
   return /km/i.test(text) || number < 100 ? number * 1000 : number;
 });
 const signed = unit(v => `${v > 0 ? '+' : ''}${Math.round(v * 100)}`, text => parseNumber(text) / 100);
+const leafToNeedle = unit(v => `${v < -0.05 ? 'More broadleaf' : v > 0.05 ? 'More conifers' : 'Biome mix'} · ${v > 0 ? '+' : ''}${Math.round(v * 100)}`,
+  text => parseNumber(text) / 100);
 const exposure = unit(v => `${v > 0 ? '+' : ''}${v.toFixed(1)} EV`);
 const millimetres = unit(v => `${Math.round(v)} mm`);
 const skyColour = unit(v => `${v < -0.3 ? 'Deep blue' : v < 0.25 ? 'Earth' : v < 0.7 ? 'Pale' : 'Golden'} · ${Math.round(v * 100)}`,
@@ -48,7 +50,7 @@ const GUIDES = [
 
 // studio: { history, edit, replace, validate, bind(fn), sliderFor(spec), gesture(change),
 // viewHeading(camera), presets, actions: { erodeMore, importHeightmap, proceduralTerrain,
-// setViewMode, placeSun, placingSun, flyTo, guides, setGuides } }.
+// setViewMode, placeSun, placingSun, flyTo, guides, setGuides, brush, setBrush, clearPaint } }.
 export function buildLabs(studio) {
   const { edit, bind, sliderFor } = studio;
 
@@ -228,6 +230,48 @@ export function buildLabs(studio) {
     sliderFor({ path: 'water.waves', label: 'Waves', hint: 'Wind on the water, from glassy to choppy', min: 0, max: 1, step: 0.01, live: true, ...percent }),
   );
 
+  // --- Plants ----------------------------------------------------------------------------
+  // The brush paints in the view: left-drag plants, clears or restores the land's own cover;
+  // right- or ⇧-drag still moves the camera.
+  const brushMode = segmented({
+    label: 'Brush',
+    options: [
+      ['off', 'Off', 'Drag moves the camera'],
+      ['plant', 'Plant', 'Drag in the view to plant forest'],
+      ['clear', 'Clear', 'Drag in the view to clear trees and shrubs'],
+      ['restore', 'Restore', 'Drag in the view to return the land to its own cover'],
+    ],
+  }, mode => studio.actions.setBrush({ mode }));
+  bind(() => brushMode.set(studio.actions.brush().mode));
+  const brushSize = slider({
+    label: 'Brush size', hint: 'Radius of the brush on the ground', min: 30, max: 1500, step: 10, ...metres,
+  }, { begin: () => {}, input: size => studio.actions.setBrush({ size }), end: () => {} });
+  bind(() => brushSize.set(studio.actions.brush().size));
+  const paintRow = element('div', 'row');
+  const clearPaint = button('Remove all painting', studio.actions.clearPaint);
+  bind(scene => {
+    clearPaint.disabled = !scene.vegetation?.paint;
+  });
+  paintRow.append(clearPaint);
+  const plants = lab({
+    id: 'plants',
+    title: 'Plants',
+    icon: 'plants',
+    help: 'Forests, shrubs and grass, where the land and the biome let them grow. Paint with the brush to plant or clear in places.',
+    galleryTitle: 'Vegetation',
+    ...variantGallery(PLANTS),
+  },
+    sliderFor({ path: 'vegetation.forest', label: 'Forest', hint: 'How much of the land the forest covers, compared with the biome', min: 0, max: 2, step: 0.05, ...times }),
+    sliderFor({ path: 'vegetation.size', label: 'Tree size', hint: 'Height of the trees and shrubs', min: 0.5, max: 1.6, step: 0.05, ...times }),
+    sliderFor({ path: 'vegetation.conifers', label: 'Tree mix', hint: 'From broadleaf trees to conifers; conifers still take over near the tree line', min: -1, max: 1, step: 0.05, ...leafToNeedle }),
+    sliderFor({ path: 'vegetation.scrub', label: 'Shrubs', hint: 'Bushes between the forest and above it, compared with the biome', min: 0, max: 2, step: 0.05, ...times }),
+    sliderFor({ path: 'vegetation.grass', label: 'Grass', hint: 'Height of the meadow grass, compared with the biome', min: 0, max: 2.5, step: 0.05, ...times }),
+    heading('Paint'),
+    brushMode.node,
+    brushSize.node,
+    paintRow,
+  );
+
   // --- Camera ----------------------------------------------------------------------------
   const lenses = variantGallery(LENS);
   lenses.gallery.node.classList.add('three');
@@ -338,5 +382,5 @@ export function buildLabs(studio) {
     imageMore.node,
   );
 
-  return [scenes, terrain, light, sky, ground, camera, image];
+  return [scenes, terrain, light, sky, ground, plants, camera, image];
 }

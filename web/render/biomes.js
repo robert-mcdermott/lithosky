@@ -4,7 +4,7 @@
 // Colours are linear albedo.
 
 import { StructWriter } from '../gpu/struct.js';
-import { surfaceSettingsOf } from '../scene/document.js';
+import { surfaceSettingsOf, vegetationOf } from '../scene/document.js';
 
 export const BIOMES = Object.freeze({
   alpine: {
@@ -96,6 +96,9 @@ export const BIOMES = Object.freeze({
 
 export const BIOME_IDS = Object.keys(BIOMES);
 
+// Size of the surface uniform (trace/surface_params.wgsl).
+export const SURFACE_BYTES = 192;
+
 // Rock formations are this thick by default; canyon country steps into CANYON_FORMATIONS
 // ledges over its relief (as in terrain/generator.wgsl), and the bands follow them.
 const STRATA_THICKNESS = 34;
@@ -105,23 +108,29 @@ function strataThickness(terrain) {
   return terrain?.landform === 'canyon' ? terrain.relief / CANYON_FORMATIONS : STRATA_THICKNESS;
 }
 
-// Writes the surface uniform (11 vec4) for a scene: palette, limits, water waves, the
-// thickness of rock formations, and the biome's share of conifers, scrub amount and grass
-// height (m).
+// Grass heights pack into centimetres up to this (trace/trees.wgsl packReach).
+const MAX_GRASS = 1.27;
+
+// Writes the surface uniform (12 vec4) for a scene: palette, limits, water waves, the
+// thickness of rock formations, and the vegetation: the biome's forest amount, share of
+// conifers, scrub amount and grass height (m) as the scene adjusts them, and tree size.
 export function surfaceUniform(scene) {
   const settings = surfaceSettingsOf(scene);
   const biome = BIOMES[settings.biome] ?? BIOMES.alpine;
-  return new StructWriter(176)
+  const plants = vegetationOf(scene);
+  const conifers = Math.min(1, Math.max(0, biome.conifers + plants.conifers));
+  return new StructWriter(SURFACE_BYTES)
     .f32(...biome.rockDark, settings.strata)
     .f32(...biome.rockLight, 0)
     .f32(...biome.band, 0)
     .f32(...biome.scree, 0)
     .f32(...biome.soilLush, 0)
     .f32(...biome.soilDry, 0)
-    .f32(...biome.forest, biome.forestAmount)
+    .f32(...biome.forest, biome.forestAmount * plants.forest)
     .f32(...biome.sand, 0)
     .f32(...biome.snow, biome.snowAmount)
     .f32(settings.snowLine, settings.treeLine, settings.moisture, settings.waves)
-    .f32(strataThickness(scene.terrain), biome.conifers, biome.scrub, biome.grass)
+    .f32(strataThickness(scene.terrain), conifers, biome.scrub * plants.scrub, Math.min(MAX_GRASS, biome.grass * plants.grass))
+    .f32(plants.size, 0, 0, 0)
     .buffer;
 }

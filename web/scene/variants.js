@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-// Gallery choices that keep the terrain: times of day, skies, biomes, lenses and looks.
+// Gallery choices that keep the terrain: times of day, skies, biomes, vegetation, lenses and
+// looks.
 // Each option is [id, label, value]; `apply(scene, value)` returns a new scene with that
 // choice made, and `current(scene)` names the option the scene matches, if any.
 
 import { BIOMES, BIOME_IDS } from '../render/biomes.js';
+import { vegetationOf } from './document.js';
 
 const matches = (settings, wanted) => Object.entries(wanted).every(([key, value]) => settings?.[key] === value);
 
@@ -43,6 +45,21 @@ export const BIOME = {
   options: BIOME_IDS.map(id => [id, BIOMES[id].name, id]),
   apply: (scene, biome) => ({ ...scene, surface: { ...scene.surface, biome } }),
   current: scene => scene.surface?.biome,
+};
+
+// What grows and how much, relative to the biome's own vegetation: its natural cover, the
+// two kinds of forest, or more open land. A choice keeps the scene's paint.
+export const PLANTS = {
+  options: [
+    ['natural', 'Natural', { forest: 1, size: 1, conifers: 0, scrub: 1, grass: 1 }],
+    ['conifer', 'Conifer forest', { forest: 1.6, size: 1.1, conifers: 1, scrub: 0.5, grass: 0.8 }],
+    ['broadleaf', 'Broadleaf woods', { forest: 1.1, size: 1.1, conifers: -1, scrub: 0.8, grass: 1.2 }],
+    ['meadows', 'Meadows', { forest: 0.25, size: 1, conifers: 0, scrub: 0.6, grass: 1.5 }],
+    ['scrub', 'Scrubland', { forest: 0.15, size: 0.9, conifers: 0, scrub: 2, grass: 0.6 }],
+    ['bare', 'Bare', { forest: 0, size: 1, conifers: 0, scrub: 0, grass: 0 }],
+  ],
+  apply: (scene, plants) => ({ ...scene, vegetation: { ...scene.vegetation, ...plants } }),
+  current: scene => PLANTS.options.find(([, , plants]) => matches(vegetationOf(scene), plants))?.[0],
 };
 
 export const LENS = {

@@ -168,7 +168,8 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, 
     let forestLand = vec4f(steep, forestGround(land.slope, land.flow, land.sediment), patches, variation);
     var forestWeight = forestDensity(forestLand, land.height, crowns - 0.5);
     if (trees) {
-        forestWeight = treeChance(forestWeight);
+        // The cover the bake planted, so painted clearings and stands show in the ground.
+        forestWeight = forestCoverAt(world.xz);
     }
     // Shrubs too small to trace darken the ground in their colour.
     var scrubWeight = shrubChance(scrubDensity(forestLand, land.height, treeChance(forestWeight), crowns - 0.5)) * SCRUB_COVER;

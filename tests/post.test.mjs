@@ -63,7 +63,7 @@ test('the surface uniform carries the scene limits and waves', () => {
   scene.surface = { ...SURFACE_DEFAULTS, snowLine: 3000, moisture: 0.8 };
   scene.water = { waves: 0.6 };
   const floats = new Float32Array(surfaceUniform(scene));
-  assert.equal(floats.length, 44);
+  assert.equal(floats.length, 48);
   assert.equal(floats[36], 3000);
   assert.ok(Math.abs(floats[38] - 0.8) < 1e-6);
   assert.ok(Math.abs(floats[39] - 0.6) < 1e-6);
@@ -75,6 +75,18 @@ test('the surface uniform carries the scene limits and waves', () => {
   assert.ok(Math.abs(floats[43] - BIOMES.alpine.grass) < 1e-6);
   scene.surface = { ...scene.surface, biome: 'alien' };
   assert.equal(new Float32Array(surfaceUniform(scene))[41], 0);
+});
+
+test('vegetation settings scale the biome\'s forest, shrubs and grass, and set tree size', () => {
+  const scene = defaultScene();
+  scene.surface = { ...SURFACE_DEFAULTS, biome: 'alpine' };
+  scene.vegetation = { forest: 0.5, size: 1.4, conifers: 0.5, scrub: 2, grass: 10 };
+  const floats = new Float32Array(surfaceUniform(scene));
+  assert.ok(Math.abs(floats[27] - BIOMES.alpine.forestAmount * 0.5) < 1e-6, 'forest amount');
+  assert.equal(floats[41], 1, 'the conifer share is clamped to 1');
+  assert.ok(Math.abs(floats[42] - BIOMES.alpine.scrub * 2) < 1e-6, 'scrub');
+  assert.ok(Math.abs(floats[43] - 1.27) < 1e-6, 'grass stops at the 1.27 m the reach map holds');
+  assert.ok(Math.abs(floats[44] - 1.4) < 1e-6, 'tree size');
 });
 
 test('sky colour 0 is Earth\'s Rayleigh scattering, and the tint shifts it between blue and gold', async () => {

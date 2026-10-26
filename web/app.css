@@ -89,6 +89,7 @@ body {
 }
 
 #view.placing-sun,
+#view.painting,
 #view.drawing-region {
   cursor: crosshair;
 }
@@ -1285,6 +1286,23 @@ kbd {
 .marquee {
   border: 1px dashed var(--accent);
   background: rgba(232, 173, 95, 0.08);
+}
+
+/* The vegetation brush: its radius on the ground under the pointer. */
+.brush-cursor {
+  --radius: 24px;
+  position: fixed;
+  width: calc(var(--radius) * 2);
+  height: calc(var(--radius) * 2);
+  margin: calc(var(--radius) * -1) 0 0 calc(var(--radius) * -1);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.brush-cursor[hidden] {
+  display: none;
 }
 
 .region-frame {

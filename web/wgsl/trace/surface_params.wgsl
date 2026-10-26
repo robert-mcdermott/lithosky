@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// The scene's surface uniform: the biome palette, its limits and the water's waves.
+// The scene's surface uniform: the biome palette, its limits, the water's waves and the
+// vegetation (biomes.js surfaceUniform).
 
 struct Surface {
     rockDark: vec4f,
@@ -16,6 +17,8 @@ struct Surface {
     limits: vec4f,
     // x: formation thickness (m), matching the canyon landform's ledges
     // y: share of conifers below the tree line (they take over near it)
-    // z: scrub amount (0..1); w: meadow grass height (m)
+    // z: scrub amount; w: meadow grass height (m)
     strata: vec4f,
+    // x: tree size (a multiplier)
+    plants: vec4f,
 }

@@ -10,7 +10,7 @@
 
 import { bindGroup, computePipeline, storageBuffer, uniformBuffer } from '../gpu/device.js';
 import { StructWriter } from '../gpu/struct.js';
-import { surfaceUniform } from './biomes.js';
+import { SURFACE_BYTES, surfaceUniform } from './biomes.js';
 import { AERIAL_DISTANCE } from './sky.js';
 
 let tracers = 0;
@@ -30,7 +30,7 @@ export class Tracer {
     this.pipeline = pipeline;
     this.frameBuffer = uniformBuffer(device, 'frame', 144);
     this.fieldsBuffer = uniformBuffer(device, 'fields', 64);
-    this.surfaceBuffer = uniformBuffer(device, 'surface', 176);
+    this.surfaceBuffer = uniformBuffer(device, 'surface', SURFACE_BYTES);
     // What the fields uniform tells the shader: whether it may trace the forest's trees.
     this.canopyReady = false;
     this.capacity = 0;

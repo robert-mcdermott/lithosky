@@ -84,6 +84,22 @@ export const RANDOMIZERS = {
     };
   },
 
+  // Vegetation settings; the scene's paint stays.
+  plants(scene, random) {
+    const { between } = tools(random);
+    return {
+      ...scene,
+      vegetation: {
+        ...scene.vegetation,
+        forest: between(0.2, 1.8, 0.05),
+        size: between(0.75, 1.35, 0.05),
+        conifers: between(-0.6, 0.6, 0.05),
+        scrub: between(0, 1.8, 0.05),
+        grass: between(0.3, 2, 0.05),
+      },
+    };
+  },
+
   camera(scene, random) {
     const { pick } = tools(random);
     return { ...scene, camera: { ...scene.camera, focalLength: pick([18, 21, 24, 28, 35, 50, 70, 85]) } };

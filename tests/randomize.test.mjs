@@ -25,6 +25,7 @@ const OWNS = {
   light: ['sun', 'atmosphere'],
   sky: ['clouds'],
   ground: ['surface', 'water'],
+  plants: ['vegetation'],
   camera: ['camera'],
   image: ['image'],
 };

@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.6.0-dev.5 — wave 6 slice 5 (local development)
+
+- **Plants lab** (the eighth lab, key 6):
+  - **Gallery** rendered from your view: Natural, Conifer forest, Broadleaf woods,
+    Meadows, Scrubland, Bare.
+  - **Sliders:** Forest, Tree size, Tree mix (broadleaf to conifer), Shrubs and Grass,
+    each relative to the biome's own vegetation.
+  - **Randomize** draws new vegetation settings.
+  - Saved as an optional `vegetation` group in the scene (format v1, additive). Scenes
+    without it look as before.
+- **Paint vegetation in the view.** In the Plants lab, pick Plant, Clear or Restore,
+  then drag:
+  - **Plant** grows full forest wherever a tree can stand.
+  - **Clear** removes trees and shrubs, leaving meadow.
+  - **Restore** returns the land to its own cover.
+
+  Right- or ⇧-drag still moves the camera. A circle shows the brush on the ground. Each
+  stroke is one undo step. The paint is a 512 × 512 mask over the near tile, stored
+  run-length encoded in the scene (`vegetation.paint`). Ground colour follows the
+  painted cover too.
+- **Close-range foliage.** Trees and shrubs within about 100 m are made of individual
+  leaves and needle clusters: discs facing every way in a 16 cm grid inside the crown.
+  Conifers grow in tiers of branches and broadleaf crowns in lumps. Near crowns let light
+  through their gaps and shade themselves.
+- About 1–7% more per sample than 0.6.0-dev.4 on H1, H3, Forest lake and Meadow.
+
 ## 0.6.0-dev.4 — wave 6 slice 4 (local development)
 
 - **Meadow grass near the camera.** Grass is now a traced layer over meadow ground,

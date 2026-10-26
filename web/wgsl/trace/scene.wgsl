@@ -18,8 +18,10 @@ const FIELD_GRASS: u32 = 4u;
 struct SceneHit {
     t: f32,
     field: u32,
-    // The near cell whose tree was hit (FIELD_TREE only).
+    // The near cell whose tree was hit, and the leaf's normal facing the ray when a close-up
+    // crown hit struck one (FIELD_TREE only; zero otherwise).
     tree: vec2i,
+    leaf: vec3f,
 }
 
 // Parametric span [t0, t1] of the ray over the near tile's footprint (empty when t0 >= t1).
@@ -53,9 +55,9 @@ fn traceFar(origin: vec3f, direction: vec3f, t0: f32, t1: f32, steps: u32) -> f3
 
 fn sceneHit(t: f32, field: u32) -> SceneHit {
     if (t >= 0.0) {
-        return SceneHit(t, field, NOWHERE);
+        return SceneHit(t, field, NOWHERE, vec3f(0.0));
     }
-    return SceneHit(t, FIELD_NONE, NOWHERE);
+    return SceneHit(t, FIELD_NONE, NOWHERE, vec3f(0.0));
 }
 
 // `effort` scales the step budgets: 1 for camera and bounce rays, less for shadow rays.
@@ -69,15 +71,15 @@ fn traceScene(origin: vec3f, direction: vec3f, tMax: f32, effort: f32) -> SceneH
     if (span.x > 0.0) {
         let before = traceFar(origin, direction, 0.0, span.x, farSteps);
         if (before >= 0.0) {
-            return SceneHit(before, FIELD_FAR, NOWHERE);
+            return SceneHit(before, FIELD_FAR, NOWHERE, vec3f(0.0));
         }
     }
     let inside = traceNear(origin, direction, span.x, span.y, nearSteps);
     if (inside >= 0.0 && treeHit) {
-        return SceneHit(inside, FIELD_TREE, treeBestCell);
+        return SceneHit(inside, FIELD_TREE, treeBestCell, treeBestLeaf);
     }
     if (inside >= 0.0 && grassHit) {
-        return SceneHit(inside, FIELD_GRASS, NOWHERE);
+        return SceneHit(inside, FIELD_GRASS, NOWHERE, vec3f(0.0));
     }
     if (inside >= 0.0 || inside == TRACE_EXHAUSTED) {
         return sceneHit(inside, FIELD_NEAR);

@@ -4,9 +4,9 @@ Updated 2026-10-24. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Waves 4 and 5 are merged and tagged (v0.4.0 and v0.5.0, First Light).
-Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1 (distribution),
-W6.S2 (forests), W6.S3 (live view budget) and W6.S4 (shrubs, grass and ground cover) are
-done; W6.S5 (vegetation lab and painting) is next.
+Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1–W6.S5
+(distribution, forests, live view budget, grass and shrubs, vegetation lab and painting)
+are done; W6.S6 (release v0.6.0) is next.
 
 ## North star
 
@@ -921,6 +921,53 @@ Tasks:
 **Gate:** 1:1 foreground crops of meadows read as grass, not noise.
 
 ### W6.S5: Vegetation lab and painting
+
+**Done.** Checked in the app: a Clear stroke across H1's lakeside forest saved its paint
+and undid and redid as one step, and a Plant stroke added to it. A render before and after
+painting is in `bench/out/w6s5/` (`paint-h1-*.png`), with the eye-level foliage close-up
+(`foliage-close.png`). The gate is the owner's to confirm.
+
+- **Plants lab** (`web/ui/labs.js`, the eighth lab):
+  - a gallery of vegetation choices from the current view: Natural, Conifer forest,
+    Broadleaf woods, Meadows, Scrubland and Bare (`PLANTS` in `web/scene/variants.js`)
+  - sliders for forest, tree size, tree mix, shrubs and grass
+  - Randomize
+  - Brush (Off, Plant, Clear, Restore), brush size, and Remove all painting
+- **Scene.** An optional `vegetation` group holds biome-relative multipliers (forest,
+  size, scrub, grass) and a conifer shift. The surface uniform grew a `plants` vec4 (tree
+  size); the rest scale the biome's values.
+- **Paint** (`web/scene/paint.js`):
+  - **Mask:** 512 × 512 over the near tile (31 m texels), 16 levels with 8 neutral.
+  - **Storage:** run-length encoded with varint runs, in base64 in
+    `vegetation.paint.data`, capped at 96 KB to fit the 128 KiB scene. Inline storage
+    rather than a stored asset keeps autosave, recovery, undo and project files working
+    with no new plumbing.
+  - **Bake:** samples it bilinearly. Plant raises density towards full where a tree can
+    stand; Clear lowers tree and shrub cover. The reach map's spare bits carry each
+    cell's final tree cover, which the ground's forest floor follows.
+- **Brush** (`web/app.js`):
+  - Left-drag paints at the picked ground point, with dabs filling the gaps along the
+    stroke. The view shows the stroke live, at its moving size.
+  - Release turns the stroke into one undo step.
+  - The cursor circle is sized from the picked distance. Esc or leaving the lab turns the
+    brush off.
+- **Close-range foliage** (`traceLeaves` in `web/wgsl/trace/trees.wgsl`):
+  - While a pixel is under 6 cm, rays walk a 3D grid of 16 cm cells inside the crown
+    (12 cm for conifer needle clusters).
+  - Each cell may hold a leaf disc with its own orientation, more often in the crown's
+    clumps. Conifer branches grow in tiers and spokes; broadleaf crowns gather in lumps.
+  - Leaf hits shade with their own normal and tone, pass light through when backlit, and
+    trace their own crown in shadow rays.
+- **Cost.** Timed alternately against the 0.6.0-dev.4 commit, 64 spp: H1 +3%, H3 +1%,
+  Forest lake +7%, Meadow +3%.
+
+Not done, or limited:
+
+- Painting edits the near tile only (16 km). The far field keeps the biome's painted
+  forest.
+- Trees between about 100 m and 1 km keep the clump look: no leaves, but no longer smooth
+  shapes either.
+- The variant thumbnails are small for judging vegetation, which shows more in the view.
 
 Tasks:
 

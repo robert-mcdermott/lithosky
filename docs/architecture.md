@@ -48,6 +48,10 @@ Some properties of the tracer and frame loop:
   - Plants appear in camera rays, sun shadows, the first bounce and reflections, but not
     in fog shadows, later bounces or bounce-point sun rays. Shrubs and grass also need a
     pixel footprint, so bounce rays skip them.
+  - Within about 100 m crowns are made of leaves: rays walk a 3D grid of small cells
+    inside the crown, each holding at most one leaf disc.
+  - The bake applies the scene's vegetation settings and its paint mask, a 512 × 512
+    texture over the near tile.
   - Until the forest bake is ready (while the terrain builds), the ground paints the
     forest instead.
 - **Lighting.** Sun next-event estimation uses the finite solar disk. Bounces sample the
@@ -67,7 +71,7 @@ Some properties of the tracer and frame loop:
 ## Studio
 
 `web/app.js` wires the scene, history, autosave, navigation, files and export to the
-interface: a top bar, a rail of seven labs and one drawer at a time. The canvas takes the
+interface: a top bar, a rail of eight labs and one drawer at a time. The canvas takes the
 scene's image shape (`image.aspect`), as large as fits below the top bar. A narrower frame
 slides clear of the rail and an open drawer without changing size, so the render carries
 on. Framing guides are an SVG overlay on the same box. A first run (no recovery records)
@@ -80,7 +84,8 @@ opens a welcome card with the scenes.
 | `web/ui/thumbnails.js` | Gallery thumbnails cached by scene |
 | `web/ui/sundome.js` | The sky dome in the Light lab: drag the sun; the wedge shows the view |
 | `web/scene/randomize.js` | Seeded, per-lab Randomize, limited to each lab's settings |
-| `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, lenses and looks |
+| `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, vegetation, lenses and looks |
+| `web/scene/paint.js` | The vegetation paint mask: run-length encoding for the scene, and the brush's dabs |
 | `web/ui/icons.js` | Line icons |
 
 Gallery thumbnails come from the real renderer. `Renderer.renderVariants` traces small

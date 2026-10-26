@@ -78,8 +78,10 @@ fn shadePoint(position: vec3f, field: u32, depth: f32, primary: bool) -> Surface
 }
 
 // Shading for a plant hit: bark on a trunk; on a crown, the shape's normal tilted by foliage
-// clumps, and a per-plant tone.
-fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
+// clumps, and a per-plant tone. A close-up hit on a leaf (`leaf`, its normal) shades as that
+// leaf with its own tone, and the crown shades itself through its gaps rather than being
+// skipped by its shadow ray.
+fn shadeTree(position: vec3f, cell: vec2i, leaf: vec3f) -> SurfacePoint {
     let tree = treeAt(cell);
     let base = tree.base;
     var point: SurfacePoint;
@@ -122,10 +124,19 @@ fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
         leaves = select(surface.forest.rgb * vec3f(3.4, 3.8, 2.6), shrubColour(), tree.kind == KIND_SHRUB);
     }
     let clump = textureSampleLevel(detailNoise, cloudSampler, position / 6.0, 0.0);
+    let tone = treeRandom(cell, 0x51EDu).w;
+    if (dot(leaf, leaf) > 0.0) {
+        point.normal = leaf;
+        let shade = unitFloat(pcg3d(bitcast<vec3u>(vec3i(floor(position / 0.12)))).x);
+        point.albedo = leaves * mix(0.6, 1.0, rise) * mix(0.7, 1.3, shade) * (0.75 + 0.5 * tone);
+        point.roughness = 0.6;
+        point.tree = NOWHERE;
+        point.foliage = select(1.0, 0.5, tree.kind == KIND_CONIFER);
+        return point;
+    }
     point.normal = normalize(normal + (clump.rgb - 0.5) * 1.4);
     // Lower and inner foliage sits in the crown's own shade, which its shadow rays skip.
     let shade = mix(0.45, 1.0, rise) * mix(0.6, 1.25, clump.r) * mix(1.0, 0.35, crownDepth(tree, position));
-    let tone = treeRandom(cell, 0x51EDu).w;
     point.albedo = leaves * shade * (0.75 + 0.5 * tone);
     // Broad leaves let more light through than needles.
     point.foliage = select(1.0, 0.5, tree.kind == KIND_CONIFER);
@@ -158,7 +169,7 @@ fn shadeGrass(position: vec3f) -> SurfacePoint {
 
 fn shadeHit(position: vec3f, hit: SceneHit, depth: f32, primary: bool) -> SurfacePoint {
     if (hit.field == FIELD_TREE) {
-        return shadeTree(position, hit.tree);
+        return shadeTree(position, hit.tree, hit.leaf);
     }
     if (hit.field == FIELD_GRASS) {
         return shadeGrass(position);

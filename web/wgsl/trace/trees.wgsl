@@ -169,9 +169,15 @@ fn packTree(base: f32, height: f32, kind: u32) -> vec2u {
 
 // A reach map texel (r32uint): bits 0-8 mark the trees and bits 9-17 the shrubs whose crowns
 // reach the cell, bit (dy + 1) * 3 + dx + 1 for the plant at (dx, dy); bits 18-24 hold the
-// cell's grass height in centimetres.
-fn packReach(trees: u32, shrubs: u32, grass: f32) -> u32 {
-    return trees | (shrubs << 9u) | (min(u32(round(grass * 100.0)), 127u) << 18u);
+// cell's grass height in centimetres and bits 25-31 its tree cover (treeChance, with the
+// paint) in 127ths, which the ground's forest floor follows.
+fn packReach(trees: u32, shrubs: u32, grass: f32, cover: f32) -> u32 {
+    return trees | (shrubs << 9u) | (min(u32(round(grass * 100.0)), 127u) << 18u)
+        | (u32(round(saturate(cover) * 127.0)) << 25u);
+}
+
+fn reachCover(bits: u32) -> f32 {
+    return f32(bits >> 25u) / 127.0;
 }
 
 fn reachTrees(bits: u32) -> u32 {
@@ -184,6 +190,16 @@ fn reachShrubs(bits: u32) -> u32 {
 
 fn reachGrass(bits: u32) -> f32 {
     return f32((bits >> 18u) & 0x7Fu) * 0.01;
+}
+
+// The near tile's tree cover at `world`, blended between cell centres.
+fn forestCoverAt(world: vec2f) -> f32 {
+    let grid = (world - fields.near.origin) / fields.near.spacing - 0.5;
+    let cell = vec2i(floor(grid));
+    let f = grid - floor(grid);
+    let top = mix(reachCover(cellReach(cell)), reachCover(cellReach(cell + vec2i(1, 0))), f.x);
+    let bottom = mix(reachCover(cellReach(cell + vec2i(0, 1))), reachCover(cellReach(cell + vec2i(1, 1))), f.x);
+    return mix(top, bottom, f.y);
 }
 
 fn cellReach(cell: vec2i) -> u32 {
@@ -253,6 +269,17 @@ const SHRUB_FOOTPRINT: f32 = 0.8;
 const CROWN_STEPS: u32 = 6u;
 // Clumps about a metre across: the cloud detail noise tiles every 4 m.
 const FOLIAGE_TILE: f32 = 4.0;
+// Close up, once a pixel is under FINE_FOLIAGE (m), a crown is made of leaves: rays walk a 3D
+// grid of LEAF_CELL squares inside it (needle clusters on conifers are three quarters the
+// size), and each square may hold one leaf, a disc facing its own way. Where leaves grow
+// follows the crown's clumps, with conifer branches in tiers and broadleaf crowns in lumps.
+const FINE_FOLIAGE: f32 = 0.06;
+const LEAF_CELL: f32 = 0.16;
+const LEAF_STEPS: u32 = 96u;
+
+// The leaf the last close-up crown hit struck, facing the ray; zero when it wasn't a leaf.
+var<private> leafNormal: vec3f;
+var<private> treeBestLeaf: vec3f;
 
 fn trunkRadius(tree: Tree) -> f32 {
     if (tree.kind == KIND_SHRUB) {
@@ -274,13 +301,84 @@ fn crownDepth(tree: Tree, p: vec3f) -> f32 {
     return saturate(1.0 - length(q) / tree.radius);
 }
 
-// Foliage at `p`: clumps from the cloud detail noise, denser towards the crown's axis.
-// Shrub twigs clump at under a third of the size.
-fn foliageAt(tree: Tree, p: vec3f) -> bool {
+// Foliage clumps at `p` from the cloud detail noise: x is the clump value, y the threshold
+// it must pass, which is lower towards the crown's axis. Shrub twigs clump at under a third
+// of the size. `fine` adds the close-up structure: conifer branches in tiers and broadleaf
+// crowns in lumps.
+fn foliageClump(tree: Tree, p: vec3f, fine: bool) -> vec2f {
     let tile = select(FOLIAGE_TILE, FOLIAGE_TILE * 0.3, tree.kind == KIND_SHRUB);
     let detail = textureSampleLevel(detailNoise, cloudSampler, p / tile, 0.0);
     let clump = detail.g * 0.7 + detail.b * 0.3;
-    return clump > mix(0.55, 0.28, crownDepth(tree, p));
+    let depth = crownDepth(tree, p);
+    var threshold = mix(0.55, 0.28, depth);
+    if (fine) {
+        if (tree.kind == KIND_CONIFER) {
+            // Whorls of branches: each tier droops to a dense lower edge, and between tiers and
+            // spokes the crown's surface is notched.
+            let below = tree.base + tree.height - p.y;
+            let tier = below / max(0.07 * tree.height, 0.5);
+            let droop = smoothstep(0.2, 0.9, fract(tier));
+            let around = atan2(p.z - tree.centre.y, p.x - tree.centre.x);
+            let spokes = 0.5 + 0.5 * cos(around * 7.0 + floor(tier) * 2.3);
+            threshold += (1.0 - depth) * ((1.0 - droop) * 0.3 + (1.0 - spokes) * 0.18);
+        } else {
+            threshold += (0.5 - detail.r) * 0.3 * (1.0 - depth);
+        }
+    }
+    return vec2f(clump, select(threshold, 2.0, depth <= 0.0));
+}
+
+fn foliageAt(tree: Tree, p: vec3f) -> bool {
+    let clump = foliageClump(tree, p, false);
+    return clump.x > clump.y;
+}
+
+// First leaf the ray meets in the crown over [entry, exit], or TRACE_MISS (sets leafNormal).
+fn traceLeaves(tree: Tree, origin: vec3f, direction: vec3f, entry: f32, exit: f32) -> f32 {
+    let size = select(LEAF_CELL, LEAF_CELL * 0.75, tree.kind == KIND_CONIFER);
+    let start = origin + direction * entry;
+    var cell = vec3i(floor(start / size));
+    let stepping = vec3i(sign(direction));
+    let moving = abs(direction) > vec3f(1e-6);
+    let inverse = select(vec3f(0.0), 1.0 / direction, moving);
+    let edge = (vec3f(cell) + select(vec3f(0.0), vec3f(1.0), direction > vec3f(0.0))) * size;
+    var next = select(vec3f(BIG), (edge - origin) * inverse, moving);
+    let delta = select(vec3f(BIG), abs(size * inverse), moving);
+    for (var i = 0u; i < LEAF_STEPS; i++) {
+        let pick = unitFloat4(pcg4d(vec4u(bitcast<vec3u>(cell), 0x1EAFu)));
+        let centre = (vec3f(cell) + 0.25 + 0.5 * pick.xyz) * size;
+        let clump = foliageClump(tree, centre, true);
+        if (pick.w < smoothstep(clump.y - 0.08, clump.y + 0.08, clump.x)) {
+            // Leaves face every way, a little more often up and out.
+            let facing = unitFloat4(pcg4d(vec4u(bitcast<vec3u>(cell), 0xFACEu)));
+            let normal = normalize(facing.xyz - 0.5 + vec3f(0.0, 0.25, 0.0)
+                + normalize(vec3f(centre.x - tree.centre.x, 0.0, centre.z - tree.centre.y) + vec3f(1e-4)) * 0.2);
+            let across = dot(direction, normal);
+            if (abs(across) > 1e-4) {
+                let t = dot(centre - origin, normal) / across;
+                let point = origin + direction * t;
+                if (t >= entry && t <= exit && length(point - centre) < size * (0.35 + 0.2 * facing.w)) {
+                    leafNormal = normal * -sign(across);
+                    return t;
+                }
+            }
+        }
+        let nearest = min(next.x, min(next.y, next.z));
+        if (nearest > exit) {
+            break;
+        }
+        if (next.x <= nearest) {
+            cell.x += stepping.x;
+            next.x += delta.x;
+        } else if (next.y <= nearest) {
+            cell.y += stepping.y;
+            next.y += delta.y;
+        } else {
+            cell.z += stepping.z;
+            next.z += delta.z;
+        }
+    }
+    return TRACE_MISS;
 }
 
 // Entry and exit distances of the ray through the crown's shape (relative to `closest`), or
@@ -382,6 +480,14 @@ fn intersectTree(tree: Tree, origin: vec3f, direction: vec3f, tMin: f32) -> f32 
         return entry;
     }
     let exit = min(span.y, best);
+    if (footprint < FINE_FOLIAGE) {
+        let leaf = traceLeaves(tree, origin, direction, entry, exit);
+        if (leaf >= 0.0) {
+            return leaf;
+        }
+        leafNormal = vec3f(0.0);
+        return select(TRACE_MISS, best, best < BIG);
+    }
     let step = (exit - entry) / f32(CROWN_STEPS);
     for (var i = 0u; i < CROWN_STEPS; i++) {
         let t = entry + step * (f32(i) + 0.5);
@@ -415,10 +521,12 @@ fn testTree(cell: vec2i, origin: vec3f, direction: vec3f, tMin: f32, shrub: bool
             return;
         }
     }
+    leafNormal = vec3f(0.0);
     let t = intersectTree(tree, origin, direction, tMin);
     if (t >= 0.0 && t < treeBest) {
         treeBest = t;
         treeBestCell = cell;
+        treeBestLeaf = leafNormal;
     }
 }
 

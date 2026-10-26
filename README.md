@@ -27,7 +27,9 @@ Highlights:
   meadows grow tussocky grass with individual blades that leans with the wind.
 - **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
 
-- **Studio.** Seven labs, each a drawer with a rendered gallery and a few controls.
+- **Studio.** Eight labs, each a drawer with a rendered gallery and a few controls. The
+  Plants lab sets how much grows and has a brush to plant or clear vegetation in the
+  view.
 
 The product page is in `site/`.
 

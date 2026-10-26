@@ -114,6 +114,7 @@ export class Renderer {
       target: LIVE_QUALITY.draft.samples,
     };
     this.quality = 'draft';
+    this.paint = null;
     this.sampleIndex = 0;
     this.settleFrames = 0;
     // A display-only change (exposure, look) waits to be drawn.
@@ -172,8 +173,10 @@ export class Renderer {
     if (cloudsChanged) {
       this.clouds.update(scene);
     }
-    // The surface uniform also carries the formation thickness, which follows the terrain.
-    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null, s.terrain.landform ?? null, s.terrain.relief]);
+    // The surface uniform also carries the formation thickness, which follows the terrain, and
+    // the vegetation settings (the paint arrives through setPaint).
+    const surfaceOf = s => JSON.stringify([s.surface ?? null, s.water ?? null, s.terrain.landform ?? null, s.terrain.relief,
+      { ...s.vegetation, paint: null }]);
     const surfaceChanged = surfaceOf(previous) !== surfaceOf(scene);
     if (surfaceChanged) {
       this.tracer.writeSurface(scene);
@@ -224,6 +227,19 @@ export class Renderer {
 
   setViewMode(mode) {
     this.viewMode = mode;
+    this.resetAccumulation();
+  }
+
+  // The vegetation paint's levels (scene/paint.js), or null for none: the view's plants and
+  // the variant thumbnails' are re-planted with it. While `moving` (a brush stroke) the view
+  // renders at its moving size.
+  setPaint(levels, { moving = false } = {}) {
+    this.paint = levels;
+    this.forest.setPaint(levels);
+    this.thumbnailForest?.setPaint(levels);
+    if (moving) {
+      this.movingUntil = performance.now() + SETTLE_MS;
+    }
     this.resetAccumulation();
   }
 
@@ -560,6 +576,7 @@ export class Renderer {
       this.thumbnailTracer = new Tracer(this.device, this.tracer.pipeline);
       // Variants can change the biome and tree line, so they plant their own trees.
       this.thumbnailForest = new Forest(this.device, this.terrain, this.forest.pipelines);
+      this.thumbnailForest.setPaint(this.paint ?? null);
       this.thumbnailTracer.bind(this.terrain, this.sky, this.clouds, this.thumbnailForest);
     }
     const tracer = this.thumbnailTracer;
