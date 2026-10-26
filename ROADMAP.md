@@ -5,8 +5,8 @@ Wave 4–10 plan, which remains in git history.
 
 **Status:** Waves 4 and 5 are merged and tagged (v0.4.0 and v0.5.0, First Light).
 Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1 (distribution),
-W6.S2 (forests) and W6.S3 (live view budget) are done; W6.S4 (shrubs, grass and ground
-cover) is next.
+W6.S2 (forests), W6.S3 (live view budget) and W6.S4 (shrubs, grass and ground cover) are
+done; W6.S5 (vegetation lab and painting) is next.
 
 ## North star
 
@@ -868,6 +868,50 @@ development Mac.
 
 ### W6.S4: Shrubs, grass and ground cover
 
+**Done.** The new Meadow, evening preset puts the camera at eye level in a meadow. Its
+1:1 foreground and middle-distance crops are in `bench/out/w6s4/compare/` for the
+owner's judgement.
+
+- **Grass** (`web/wgsl/trace/grass.wgsl`) is a layer over meadow ground near the camera.
+  - Its height comes from the biome, gentle ground below the grass line, moisture and
+    tree cover. It's baked per cell into the reach map and runs bilinearly across each
+    cell.
+  - Tussocks with gaps and blade-sized strands come from the cloud detail noise. Each
+    pattern blends two rotated lookups, which hides the noise's tiling.
+  - **Blades:** while a pixel is under about 4 mm, rays walk a 1.8 cm grid in root space
+    (the ray's ground position less the wind's lean at its height). Blades stand upright
+    there and the ray stays straight, so each square costs one thin-cone test. Each
+    blade has its own lean and height.
+  - **Layer:** beyond that, free-flight sampling at about the blades' mean free path
+    (5 cm), thinning towards the tips. The handover distance varies per ray, so it has no
+    edge.
+  - The layer fades out between 5 and 14 cm pixel footprints. The ground under traced
+    grass turns to dark thatch. Grass shadows itself (shadow rays sample it too) and
+    glows when backlit.
+- **Shrubs** are a third plant kind in the tree map: low, wide porous ellipsoids planted
+  where no tree grows (`scrubDensity`). Each is traced until its radius is under about a
+  pixel. Each shrub hands over at its own distance to the painted scrub in the ground
+  material, so there's no seam.
+- **Bake changes.**
+  - The tree map is now `rg32uint` (exact base height, kind and height in centimetres),
+    so small shrubs neither float nor sink.
+  - A reach map (`r32uint`) says which trees and shrubs reach each cell and holds its
+    grass height.
+  - The canopy pyramid is a plain bound again, including the grass.
+- **Meadow material.** It has wind streaks, and meadow dryness is a shared function, so
+  blades and the material agree on colour.
+- **Cost.** Each build was timed alternately against the 0.6.0-dev.3 commit, 64 spp at
+  1920×1080: H1 +12%, H3 +10%, Forest lake +9%. None of these shots trace grass. The
+  Meadow preset costs about the same per sample as H1.
+
+Not done, or limited:
+
+- Trees and shrubs within about 30 m look crude: blotchy crowns made of flat foliage
+  clumps, with no branch or leaf detail. Close-range foliage belongs to W6.S5.
+- Grass height and scrub amount come from the biome alone. W6.S5 adds controls.
+- Plant placement shifts slightly between builds of the same scene, because droplet
+  erosion isn't bit-for-bit repeatable (a known terrain limit).
+
 Tasks:
 
 - Grass and shrubs near the camera (procedural blades and clumps or shells),
@@ -886,6 +930,9 @@ Tasks:
   - Randomize
 - A brush that paints or clears vegetation in the view, stored in the scene as
   an asset. This is additive in format v1, like heightmaps.
+
+- Close-range foliage for trees and shrubs: finer clumps, leaf and needle texture and
+  better crown silhouettes within about 30 m (seen in W6.S4's eye-level shots).
 
 **Gate:** the owner can clear a meadow or plant a forest edge without leaving the
 view.

@@ -21,9 +21,10 @@ Highlights:
 - **Ground and water.** Materials placed by the landform: banded strata, scree,
   meadow, forest, gravel, sand and snow. Five biomes; wet ground and snow catch
   specular light; lakes have wind waves and shoreline foam.
-- **Forests.** Path-traced conifer and broadleaf trees across the near 16 km, placed
-  by slope, drainage, clearings, the tree line and the biome. They cast shadows and
-  show in the water.
+- **Forests, scrub and grass.** Path-traced conifer and broadleaf trees across the near
+  16 km, placed by slope, drainage, clearings, the tree line and the biome. They cast
+  shadows and show in the water. Shrubs fill the gaps and dry country. Near the camera,
+  meadows grow tussocky grass with individual blades that leans with the wind.
 - **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
 
 - **Studio.** Seven labs, each a drawer with a rendered gallery and a few controls.

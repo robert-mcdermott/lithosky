@@ -24,7 +24,7 @@ Everything visual runs in WebGPU on one persistent device:
 | `web/terrain/` | Generates and erodes the terrain on the GPU (see its README); `web/wgsl/terrain/strata.wgsl` holds the rock formations the canyon landform and the materials share |
 | `web/render/renderer.js` | The frame loop: terrain build stages, sky LUTs, tracing and display |
 | `web/render/tracer.js` | The progressive path tracer: one full-frame sample per dispatch into a GPU accumulation buffer |
-| `web/render/forest.js` | The near tile's trees: bakes a tree map and a canopy pyramid from the terrain's forest map and the scene's surface (`web/wgsl/trace/canopy.wgsl`); the tree shapes and their traversal are in `web/wgsl/trace/trees.wgsl` |
+| `web/render/forest.js` | The near tile's plants: bakes a tree map, a reach map and a canopy pyramid from the terrain's forest map and the scene's surface (`web/wgsl/trace/canopy.wgsl`). The tree and shrub shapes and their traversal are in `web/wgsl/trace/trees.wgsl`, the grass in `web/wgsl/trace/grass.wgsl` |
 | `web/render/sky.js` | Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and aerial perspective |
 | `web/render/clouds.js` | Cloud noise textures and weather map (generated on the GPU); the cloud march, lighting and shadows are in `web/wgsl/clouds/` |
 | `web/render/biomes.js` | Biome palettes and limits, written to one surface uniform; the landform-driven materials that read it are in `web/wgsl/trace/material.wgsl` |
@@ -37,13 +37,19 @@ Some properties of the tracer and frame loop:
 
 - **No triangles.** The tracer intersects the heightfields directly: min/max mip
   pyramids skip empty space, then exact bilinear-patch hits.
-- **Trees.** Each near cell may hold one procedural tree (a cone or an ellipsoid, plus
-  a trunk up close), placed by a hash of the cell. The near traversal uses the canopy
-  pyramid to bound the crowns, and at level 0 it tests the trees whose crowns reach the
-  cell. Near crowns are porous: rays march through clumps of foliage. Trees appear in
-  camera rays, sun shadows, the first bounce and reflections, but not in fog shadows,
-  later bounces or bounce-point sun rays. Until the forest bake is ready (while the
-  terrain builds), the ground paints the forest instead.
+- **Plants.** Each near cell may hold one procedural tree or shrub (a cone or an
+  ellipsoid, plus a trunk on trees up close), placed by a hash of the cell.
+  - The near traversal uses the canopy pyramid to bound crowns and grass. At level 0 it
+    tests the plants the reach map lists for the cell, and the grass.
+  - Near crowns are porous: rays march through clumps of foliage. Shrubs are traced only
+    while they span a pixel or two; the ground paints them beyond.
+  - Grass is traced near the camera: individual blades within a few metres, then a
+    sampled layer that fades into the meadow material.
+  - Plants appear in camera rays, sun shadows, the first bounce and reflections, but not
+    in fog shadows, later bounces or bounce-point sun rays. Shrubs and grass also need a
+    pixel footprint, so bounce rays skip them.
+  - Until the forest bake is ready (while the terrain builds), the ground paints the
+    forest instead.
 - **Lighting.** Sun next-event estimation uses the finite solar disk. Bounces sample the
   sky-view LUT, and haze uses the aerial-perspective LUT at true kilometre distances.
 - **Materials.** Erosion and exposure masks place each layer; surfaces shade with

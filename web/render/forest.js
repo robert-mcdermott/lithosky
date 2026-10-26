@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-// The scene's trees on the near tile: a tree map (one packed tree per cell) and the canopy
-// pyramid that bounds the crowns, baked on the GPU from the terrain's forest map and the
-// scene's surface (trace/canopy.wgsl). The view's tracer, exports and region renders share
-// them. A bake runs before the next sample once the terrain has finished building, and
-// again whenever the terrain is rebuilt or the surface changes.
+// The scene's plants on the near tile, baked on the GPU from the terrain's forest map and the
+// scene's surface (trace/canopy.wgsl):
+//   treeMap  one tree or shrub per cell (base height, kind, height)
+//   reachMap which trees and shrubs reach each cell, and its grass height
+//   canopy   the pyramid bounding the ground, grass and crowns
+// The view's tracer, exports and region renders share them. A bake runs before the next
+// sample once the terrain has finished building, and again whenever the terrain is rebuilt
+// or the surface changes.
 
 import { bindGroup, computePipeline, dispatch2d, storageTexture, uniformBuffer } from '../gpu/device.js';
 import { NEAR_LEVELS, NEAR_SIZE } from '../terrain/terrain.js';
@@ -24,7 +27,8 @@ export class Forest {
     this.fieldsBuffer = uniformBuffer(device, 'forest fields', 64);
     this.surfaceBuffer = uniformBuffer(device, 'forest surface', 176);
     const size = [NEAR_SIZE, NEAR_SIZE];
-    this.treeMap = storageTexture(device, 'tree map', size, 'r32uint');
+    this.treeMap = storageTexture(device, 'tree map', size, 'rg32uint');
+    this.reachMap = storageTexture(device, 'reach map', size, 'r32uint');
     this.canopy = storageTexture(device, 'canopy', size, 'r32float', { mipLevelCount: NEAR_LEVELS });
     // The terrain version of the last bake; -1 forces the next one.
     this.bakedVersion = -1;
@@ -40,7 +44,8 @@ export class Forest {
       null, null, this.treeMap.createView(),
     ], 'plant trees');
     this.canopyGroups = [bindGroup(this.device, bakeCanopy, [
-      this.fieldsBuffer, null, terrain.nearHeight.createView(), null, level(0), null, null, this.treeMap.createView(),
+      this.fieldsBuffer, this.surfaceBuffer, terrain.nearHeight.createView(), terrain.forest.createView(), level(0),
+      null, null, this.treeMap.createView(), null, null, this.reachMap.createView(),
     ], 'canopy')];
     for (let index = 1; index < NEAR_LEVELS; index++) {
       this.canopyGroups.push(bindGroup(this.device, reduceCanopy, [null, null, null, null, level(index), level(index - 1)], 'canopy reduce'));

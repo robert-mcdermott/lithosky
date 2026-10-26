@@ -69,6 +69,22 @@ fn forestCrowns(world: vec2f) -> f32 {
     return smoothstep(-0.1, 0.25, fbm(world / 8.0, 2u, 443u));
 }
 
+// How parched the meadow is (0 lush, 1 dry): drier towards and above the grass line, in dry
+// climates and on dry ground. `grain` and `fleck` are the material's noise.
+fn meadowDryness(height: f32, wetness: f32, grain: f32, fleck: f32) -> f32 {
+    let grassLine = surface.limits.y + 550.0;
+    return saturate((height - grassLine + 900.0) / 1300.0 + grain * 0.8 + fleck * 0.3
+        + 0.5 - surface.limits.z - wetness * 0.8);
+}
+
+// Shrub foliage: the biome's forest green, dried towards its soil.
+fn shrubColour() -> vec3f {
+    return mix(surface.forest.rgb * 3.0, surface.soilDry.rgb, 0.35);
+}
+
+// Share of the ground shrubs cover where every cell holds one, for the painted scrub.
+const SCRUB_COVER: f32 = 0.2;
+
 // Tone (0..1) of the sedimentary bed at stratigraphic position `phase`, counted in beds. Each
 // bed has its own tone, grading into the next only at its top, so contacts read as lines.
 fn bedTone(phase: f32, salt: u32) -> f32 {
@@ -80,9 +96,10 @@ fn bedTone(phase: f32, salt: u32) -> f32 {
 }
 
 // `detailed` adds the fine texture camera rays see; bounce and reflection rays skip it, since
-// they only need the material's average colour and roughness. Under `trees` the forest is
-// traced, so the ground there is the forest floor.
-fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, trees: bool) -> Material {
+// they only need the material's average colour and roughness. Under `trees` the plants are
+// traced: the ground under the forest is the forest floor, and shrubs are painted only where
+// a pixel (`footprint` metres) is too coarse to trace them.
+fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, trees: bool, footprint: f32) -> Material {
     let variation = fbm(world.xz / 260.0, 3u, 401u);
     let grain = fbm(world.xz / 37.0, 2u, 409u);
     let patches = fbm(world.xz / 300.0, 3u, 419u);
@@ -122,11 +139,16 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, 
     rock *= 1.0 - 0.35 * smoothstep(0.25, 0.6, land.flow);
 
     let scree = surface.scree.rgb * (0.82 + 0.36 * fleck);
-    let dryness = saturate((land.height - grassLine + 900.0) / 1300.0 + grain * 0.8 + fleck * 0.3
-        + 0.5 - moisture - land.wetness * 0.8);
-    // Grass in tussocks and dry patches at a few scales, so meadows keep texture up close.
-    let grassTone = saturate(dryness + dryPatches * 0.35 - 0.1);
-    let meadow = mix(surface.soilLush.rgb, surface.soilDry.rgb, grassTone) * (0.7 + 0.3 * fleck + 0.35 * tussocks);
+    let dryness = meadowDryness(land.height, land.wetness, grain, fleck);
+    // Grass in tussocks and dry patches at a few scales, so meadows keep texture up close,
+    // combed into streaks by the wind.
+    var combed = 0.5;
+    if (detailed) {
+        combed = smoothstep(-0.4, 0.4, fbm((mat2x2f(0.94, 0.34, -0.34, 0.94) * world.xz) / vec2f(26.0, 6.0), 2u, 461u));
+    }
+    let grassTone = saturate(dryness + dryPatches * 0.35 - 0.1 + (combed - 0.5) * 0.2);
+    let meadow = mix(surface.soilLush.rgb, surface.soilDry.rgb, grassTone) * (0.7 + 0.3 * fleck + 0.35 * tussocks)
+        * (0.86 + 0.28 * combed);
     var forest = surface.forest.rgb * mix(0.55, 1.7, crowns);
     if (trees) {
         // Needles, leaf litter and moss.
@@ -147,6 +169,11 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, 
     var forestWeight = forestDensity(forestLand, land.height, crowns - 0.5);
     if (trees) {
         forestWeight = treeChance(forestWeight);
+    }
+    // Shrubs too small to trace darken the ground in their colour.
+    var scrubWeight = shrubChance(scrubDensity(forestLand, land.height, treeChance(forestWeight), crowns - 0.5)) * SCRUB_COVER;
+    if (trees) {
+        scrubWeight *= smoothstep(1.0, 2.6, footprint);
     }
     let gravelWeight = smoothstep(0.72, 0.95, land.flow) * (1.0 - smoothstep(0.04, 0.12, land.slope)) * 0.8;
     let shore = 1.0 - smoothstep(0.5, 4.0, land.height - fields.waterLevel + grain * 2.0);
@@ -169,6 +196,7 @@ fn terrainMaterial(world: vec3f, normal: vec3f, land: Landform, detailed: bool, 
     roughness = mix(roughness, 0.92, meadowWeight);
     albedo = mix(albedo, forest, forestWeight);
     roughness = mix(roughness, 0.95, forestWeight);
+    albedo = mix(albedo, shrubColour() * 0.6, scrubWeight);
     albedo = mix(albedo, gravel, gravelWeight);
     albedo = mix(albedo, sand, sandWeight);
     roughness = mix(roughness, 0.7, sandWeight);

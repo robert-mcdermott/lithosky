@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// Shading a terrain or tree hit: material, detail normal, and sun next-event estimation over
-// the finite solar disk (soft shadows). Including modules declare the tracer bindings.
+// Shading a terrain, plant or grass hit: material, detail normal, and sun next-event
+// estimation over the finite solar disk (soft shadows). Including modules declare the
+// tracer bindings.
 
 const MAX_DISTANCE: f32 = 250000.0;
 const SHADOW_DISTANCE: f32 = 60000.0;
@@ -46,17 +47,26 @@ fn shadePoint(position: vec3f, field: u32, depth: f32, primary: bool) -> Surface
     point.land = landformAt(position, baseNormal, field);
     point.foliage = 0.0;
     point.tree = NOWHERE;
-    let material = terrainMaterial(position, baseNormal, point.land, primary, field == FIELD_NEAR && treesEnabled());
+    let footprint = pixelFootprint(depth);
+    let material = terrainMaterial(position, baseNormal, point.land, primary, field == FIELD_NEAR && treesEnabled(),
+        select(BIG, footprint, primary));
     point.albedo = material.albedo;
     point.roughness = material.roughness;
     point.wetness = material.wetness;
     point.snow = material.snow;
+    // Under traced grass the ground is dead thatch, mostly hidden and shaded.
+    if (primary && field == FIELD_NEAR && treesEnabled() && footprint < GRASS_FAR) {
+        let grid = (position.xz - fields.near.origin) / fields.near.spacing;
+        let cell = vec2i(floor(grid));
+        let grass = patchHeight(cellGrass(cell, cellReach(cell)), grid - vec2f(cell));
+        let thatch = saturate(grass / 0.1) * (1.0 - smoothstep(GRASS_NEAR, GRASS_FAR, footprint));
+        point.albedo = mix(point.albedo, surface.soilDry.rgb * 0.4, thatch);
+    }
     var coarsest = 2.0 * fields.near.spacing;
     if (field == FIELD_FAR) {
         coarsest = 2.0 * fields.far.spacing;
     }
     let rockiness = saturate(point.land.slope * 4.0);
-    let footprint = pixelFootprint(depth);
     var detail = vec2f(0.0);
     if (primary) {
         let bare = (1.0 - point.snow) * (1.0 - 0.6 * point.wetness);
@@ -67,8 +77,8 @@ fn shadePoint(position: vec3f, field: u32, depth: f32, primary: bool) -> Surface
     return point;
 }
 
-// Shading for a tree hit: bark on the trunk; on the crown, the shape's normal tilted by
-// foliage clumps, and a per-tree tone.
+// Shading for a plant hit: bark on a trunk; on a crown, the shape's normal tilted by foliage
+// clumps, and a per-plant tone.
 fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
     let tree = treeAt(cell);
     let base = tree.base;
@@ -80,7 +90,8 @@ fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
     point.tree = cell;
     point.land = landformAt(position, vec3f(0.0, 1.0, 0.0), FIELD_NEAR);
     let axis = position.xz - tree.centre;
-    if (dot(axis, axis) < pow(trunkRadius(tree) * 1.05, 2.0) && position.y < base + TRUNK_TOP * tree.height) {
+    let trunk = trunkRadius(tree);
+    if (trunk > 0.0 && dot(axis, axis) < pow(trunk * 1.05, 2.0) && position.y < base + TRUNK_TOP * tree.height) {
         point.normal = normalize(vec3f(axis.x, 0.0, axis.y) + vec3f(1e-4, 0.0, 0.0));
         point.albedo = vec3f(0.07, 0.055, 0.042) * (0.8 + 0.4 * fract(position.y * 1.7));
         point.foliage = 0.0;
@@ -90,7 +101,7 @@ fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
     // 0 at the bottom of the crown, 1 at its top.
     var rise: f32;
     var leaves: vec3f;
-    if (tree.conifer) {
+    if (tree.kind == KIND_CONIFER) {
         let crown = CONIFER_CROWN * tree.height;
         let p = position - vec3f(tree.centre.x, base + tree.height, tree.centre.y);
         let k = tree.radius / crown;
@@ -102,12 +113,13 @@ fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
         rise = saturate(1.0 + p.y / crown);
         leaves = surface.forest.rgb * 2.4;
     } else {
-        let centre = vec3f(tree.centre.x, base + BROADLEAF_CENTRE * tree.height, tree.centre.y);
+        let shape = ellipsoidShape(tree);
+        let centre = vec3f(tree.centre.x, base + shape.x * tree.height, tree.centre.y);
         let p = position - centre;
-        let depth = BROADLEAF_DEPTH * tree.height;
+        let depth = shape.y * tree.height;
         normal = normalize(vec3f(p.x / (tree.radius * tree.radius), p.y / (depth * depth), p.z / (tree.radius * tree.radius)));
         rise = saturate(0.5 + 0.5 * p.y / depth);
-        leaves = surface.forest.rgb * vec3f(3.4, 3.8, 2.6);
+        leaves = select(surface.forest.rgb * vec3f(3.4, 3.8, 2.6), shrubColour(), tree.kind == KIND_SHRUB);
     }
     let clump = textureSampleLevel(detailNoise, cloudSampler, position / 6.0, 0.0);
     point.normal = normalize(normal + (clump.rgb - 0.5) * 1.4);
@@ -116,13 +128,40 @@ fn shadeTree(position: vec3f, cell: vec2i) -> SurfacePoint {
     let tone = treeRandom(cell, 0x51EDu).w;
     point.albedo = leaves * shade * (0.75 + 0.5 * tone);
     // Broad leaves let more light through than needles.
-    point.foliage = select(1.0, 0.5, tree.conifer);
+    point.foliage = select(1.0, 0.5, tree.kind == KIND_CONIFER);
+    return point;
+}
+
+// Shading for a grass hit. Blades face every way and lean with the wind, so each hit takes a
+// random blade; lower blades are darker and the tips dry first.
+fn shadeGrass(position: vec3f) -> SurfacePoint {
+    var point: SurfacePoint;
+    point.position = position;
+    point.land = landformAt(position, vec3f(0.0, 1.0, 0.0), FIELD_NEAR);
+    let grid = (position.xz - fields.near.origin) / fields.near.spacing;
+    let cell = vec2i(floor(grid));
+    let height = patchHeight(cellGrass(cell, cellReach(cell)), grid - vec2f(cell));
+    let clumps = grassClumps(position.xz);
+    let rise = saturate((position.y - sceneHeight(position.xz)) / max(grassTop(position.xz, height), 0.02));
+    let angle = random1() * TWO_PI;
+    point.normal = normalize(vec3f(cos(angle) + GRASS_LEAN.x, 0.35 + 0.65 * random1(), sin(angle) + GRASS_LEAN.y));
+    let grain = fbm(position.xz / 37.0, 2u, 409u);
+    let dry = saturate(meadowDryness(position.y, point.land.wetness, grain, 0.0) + rise * 0.25 + (clumps.y - 0.5) * 0.4);
+    point.albedo = mix(surface.soilLush.rgb, surface.soilDry.rgb, dry) * mix(0.7, 1.6, rise) * mix(0.8, 1.15, clumps.y);
+    point.roughness = 0.6;
+    point.wetness = 0.0;
+    point.snow = 0.0;
+    point.foliage = 1.0;
+    point.tree = NOWHERE;
     return point;
 }
 
 fn shadeHit(position: vec3f, hit: SceneHit, depth: f32, primary: bool) -> SurfacePoint {
     if (hit.field == FIELD_TREE) {
         return shadeTree(position, hit.tree);
+    }
+    if (hit.field == FIELD_GRASS) {
+        return shadeGrass(position);
     }
     return shadePoint(position, hit.field, depth, primary);
 }

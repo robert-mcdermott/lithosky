@@ -38,10 +38,11 @@
 @group(0) @binding(19) var cloudSampler: sampler;
 @group(0) @binding(20) var exposureMasks: texture_2d<f32>;
 @group(0) @binding(21) var<uniform> surface: Surface;
-// The near tile's trees, one packed tree per cell, and the highest ground or crown per cell
-// with its mips (canopy.wgsl).
+// The near tile's plants (canopy.wgsl): one tree or shrub per cell, the highest ground,
+// grass or crown per cell with its mips, and which plants reach each cell.
 @group(0) @binding(22) var treeMap: texture_2d<u32>;
 @group(0) @binding(23) var canopy: texture_2d<f32>;
+@group(0) @binding(24) var reachMap: texture_2d<u32>;
 
 const SKY_DEPTH: f32 = 300000.0;
 

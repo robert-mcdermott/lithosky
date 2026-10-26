@@ -3,7 +3,7 @@
 // far field that continues the same generator to the horizon. A ray uses the far field
 // everywhere outside the near tile's footprint and the near tile inside it.
 // Including modules declare `fields`, the near/far height and pyramid textures, `treeMap`,
-// `canopy`, `masks`, `surface` and `skySampler`.
+// `canopy`, `reachMap`, `masks`, `surface` and `skySampler`.
 
 #include "trace/fields.wgsl"
 #include "trace/heightfield.wgsl"
@@ -13,6 +13,7 @@ const FIELD_NEAR: u32 = 0u;
 const FIELD_FAR: u32 = 1u;
 const FIELD_NONE: u32 = 2u;
 const FIELD_TREE: u32 = 3u;
+const FIELD_GRASS: u32 = 4u;
 
 struct SceneHit {
     t: f32,
@@ -74,6 +75,9 @@ fn traceScene(origin: vec3f, direction: vec3f, tMax: f32, effort: f32) -> SceneH
     let inside = traceNear(origin, direction, span.x, span.y, nearSteps);
     if (inside >= 0.0 && treeHit) {
         return SceneHit(inside, FIELD_TREE, treeBestCell);
+    }
+    if (inside >= 0.0 && grassHit) {
+        return SceneHit(inside, FIELD_GRASS, NOWHERE);
     }
     if (inside >= 0.0 || inside == TRACE_EXHAUSTED) {
         return sceneHit(inside, FIELD_NEAR);

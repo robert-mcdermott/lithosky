@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.6.0-dev.4 — wave 6 slice 4 (local development)
+
+- **Meadow grass near the camera.** Grass is now a traced layer over meadow ground,
+  shaped into tussocks with gaps and leaning with the wind.
+  - Within a few metres, rays meet individual blades: one per 1.8 cm square, tapered
+    and each with its own lean.
+  - Further out, the same grass is a soft, self-shadowing layer that rays sample
+    collisions through. Backlit grass glows.
+  - The grass fades into the meadow material once a pixel spans more than a few
+    centimetres, so high views cost nothing extra.
+- **Shrubs** grow where the forest leaves room: in patches between stands, densest in
+  the belt around the tree line, and far above it in dry climates (desert scrub). They
+  are low, porous clumps, traced while they span a few pixels and painted into the ground
+  beyond.
+- **Wind-combed meadows.** The meadow material gains streaks along the wind.
+- Each biome sets a scrub amount and a grass height (alpine 0.5 and 0.4 m, desert 0.8
+  and 0.25 m, arctic 0.6 and 0.15 m). Snow covers both above the snow line.
+- New preset **Meadow, evening**: eye level in H1's lakeside meadow, backlit by a low
+  sun, with conifers along the shore.
+- On the hero shots, which see no traced grass, this costs 9–12% per sample over
+  0.6.0-dev.3. The plant bake still takes about 5 ms.
+
 ## 0.6.0-dev.3 — wave 6 slice 3 (local development)
 
 - **The live view stops when it's done.** It used to keep path-tracing indefinitely

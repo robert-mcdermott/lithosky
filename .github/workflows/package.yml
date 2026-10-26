@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version to build (no v prefix), such as 0.6.0-dev.3
+        description: Version to build (no v prefix), such as 0.6.0-dev.4
         required: true
-        default: 0.6.0-dev.3
+        default: 0.6.0-dev.4
 permissions:
   contents: read
 jobs:

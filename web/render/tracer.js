@@ -134,6 +134,7 @@ export class Tracer {
       this.surfaceBuffer,
       this.forest.treeMap.createView(),
       this.forest.canopy.createView(),
+      this.forest.reachMap.createView(),
     ], 'tracer');
   }
 

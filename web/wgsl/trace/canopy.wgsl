@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // The forest bake, run when the terrain or the scene's surface changes:
-//   plantTrees    decides each near cell's tree from the forest map and the surface, and
-//                 packs it into the tree map (trees.wgsl)
-//   bakeCanopy    for each cell, the higher of its ground and the highest point of any crown
-//                 over it (a crown leaning in from a neighbour only counts as high as its
-//                 shape stands over the cell's edge), carrying which of the 3 x 3 trees
-//                 reach the cell (packCanopy in trees.wgsl)
+//   plantTrees    decides each near cell's tree, or else its shrub, from the forest map and
+//                 the surface, and writes it to the tree map (trees.wgsl)
+//   bakeCanopy    for each cell, the reach map (which of the 3 x 3 trees and shrubs reach
+//                 the cell, and its grass height) and the canopy bound: the higher of the
+//                 ground plus the grass over it and the highest point of any crown over it. A
+//                 crown leaning in from a neighbour only counts as high as its shape stands
+//                 over the cell's edge.
 //   reduceCanopy  each higher level takes the highest of 2 x 2 children
-// Rays then only descend into the canopy where trees actually stand.
+// Rays then only descend into the canopy where something actually stands.
 
 #include "trace/trees.wgsl"
 
@@ -17,36 +18,46 @@
 @group(0) @binding(3) var forestMap: texture_2d<f32>;
 @group(0) @binding(4) var canopyOut: texture_storage_2d<r32float, write>;
 @group(0) @binding(5) var sourceLevel: texture_2d<f32>;
-@group(0) @binding(6) var treeOut: texture_storage_2d<r32uint, write>;
+@group(0) @binding(6) var treeOut: texture_storage_2d<rg32uint, write>;
 @group(0) @binding(7) var treeMap: texture_2d<u32>;
-// The tracer's foliage noise (trees.wgsl); the bake never samples it.
+// The tracer's foliage noise and reach map (trees.wgsl); the bake never reads them.
 @group(0) @binding(8) var detailNoise: texture_3d<f32>;
 @group(0) @binding(9) var cloudSampler: sampler;
+@group(0) @binding(10) var reachOut: texture_storage_2d<r32uint, write>;
+@group(0) @binding(11) var reachMap: texture_2d<u32>;
 
-// The packed tree for `cell`, or 0 when nothing grows there.
-fn growTree(cell: vec2i) -> u32 {
+// The plant for `cell`, packed (zero when nothing grows there).
+fn growTree(cell: vec2i) -> vec2u {
     let last = i32(fields.near.size) - 2;
     if (any(cell > vec2i(last))) {
-        return 0u;
+        return vec2u(0u);
     }
     let land = textureLoad(forestMap, cell, 0);
-    if (!forestPossible(land)) {
-        return 0u;
-    }
     let ground = textureLoad(nearHeight, cell, 0).r;
     let pick = treeRandom(cell, TREE_SALT);
-    let density = forestDensity(land, ground, pick.w - 0.5);
-    if (pick.x >= treeChance(density)) {
-        return 0u;
+    let shape = treeRandom(cell, SHAPE_SALT);
+    let centre = treeCentre(cell, pick);
+    var density = 0.0;
+    if (forestPossible(land)) {
+        density = forestDensity(land, ground, pick.w - 0.5);
     }
-    let shape = treeRandom(cell, 0x51EDu);
-    // Smaller where cover thins and towards the tree line; conifers take over near it.
-    let treeLine = surface.limits.y;
-    let altitude = 1.0 - smoothstep(treeLine - 900.0, treeLine + 150.0, ground);
-    let height = mix(9.0, 24.0, shape.x) * (0.55 + 0.45 * density) * (0.45 + 0.55 * altitude);
-    let coniferChance = mix(surface.strata.y, 1.0, smoothstep(treeLine - 700.0, treeLine - 150.0, ground));
-    let base = bilinearHeight(nearHeight, fields.near, treeCentre(cell, pick)) - 0.3;
-    return packTree(base, height, shape.z < coniferChance);
+    let forest = treeChance(density);
+    if (pick.x < forest) {
+        // Smaller where cover thins and towards the tree line; conifers take over near it.
+        let treeLine = surface.limits.y;
+        let altitude = 1.0 - smoothstep(treeLine - 900.0, treeLine + 150.0, ground);
+        let height = mix(9.0, 24.0, shape.x) * (0.55 + 0.45 * density) * (0.45 + 0.55 * altitude);
+        let coniferChance = mix(surface.strata.y, 1.0, smoothstep(treeLine - 700.0, treeLine - 150.0, ground));
+        let base = bilinearHeight(nearHeight, fields.near, centre) - 0.3;
+        return packTree(base, height, select(KIND_BROADLEAF, KIND_CONIFER, shape.z < coniferChance));
+    }
+    let scrub = scrubDensity(land, ground, forest, pick.w - 0.5);
+    if (shape.y < shrubChance(scrub)) {
+        let height = mix(0.5, 2.0, shape.x) * (0.65 + 0.35 * scrub);
+        let base = bilinearHeight(nearHeight, fields.near, centre) - 0.1;
+        return packTree(base, height, KIND_SHRUB);
+    }
+    return vec2u(0u);
 }
 
 @compute @workgroup_size(8, 8)
@@ -55,7 +66,7 @@ fn plantTrees(@builtin(global_invocation_id) id: vec3u) {
     if (id.x >= size.x || id.y >= size.y) {
         return;
     }
-    textureStore(treeOut, vec2i(id.xy), vec4u(growTree(vec2i(id.xy)), 0u, 0u, 0u));
+    textureStore(treeOut, vec2i(id.xy), vec4u(growTree(vec2i(id.xy)), 0u, 0u));
 }
 
 fn groundHigh(cell: vec2i) -> f32 {
@@ -67,6 +78,18 @@ fn groundHigh(cell: vec2i) -> f32 {
     return max(max(h00, h10), max(h01, h11));
 }
 
+// The grass on `cell`, thinned where the forest stands.
+fn plantGrass(cell: vec2i) -> f32 {
+    let land = textureLoad(forestMap, cell, 0);
+    let ground = textureLoad(nearHeight, cell, 0).r;
+    var forest = 0.0;
+    if (forestPossible(land)) {
+        forest = treeChance(forestDensity(land, ground, 0.0));
+    }
+    let grass = grassHeight(land, ground, forest);
+    return select(0.0, grass, grass >= 0.03);
+}
+
 @compute @workgroup_size(8, 8)
 fn bakeCanopy(@builtin(global_invocation_id) id: vec3u) {
     let size = textureDimensions(canopyOut);
@@ -75,15 +98,19 @@ fn bakeCanopy(@builtin(global_invocation_id) id: vec3u) {
     }
     let cell = vec2i(id.xy);
     let ground = groundHigh(cell);
+    let grass = plantGrass(cell);
+    // The grass over the cell blends towards its +x, +z and diagonal neighbours' (grass.wgsl).
+    let tallest = max(max(grass, plantGrass(cell + vec2i(1, 0))), max(plantGrass(cell + vec2i(0, 1)), plantGrass(cell + vec2i(1, 1))));
     let low = fields.near.origin + vec2f(cell) * fields.near.spacing;
     let high = low + vec2f(fields.near.spacing);
-    var top = ground;
-    var reaching = 0u;
+    var top = ground + tallest + select(0.0, 0.01, tallest > 0.0);
+    var trees = 0u;
+    var shrubs = 0u;
     for (var dy = -1; dy <= 1; dy++) {
         for (var dx = -1; dx <= 1; dx++) {
             let neighbour = cell + vec2i(dx, dy);
             let tree = plantedTree(neighbour, treeRandom(neighbour, TREE_SALT));
-            if (tree.height <= 0.0) {
+            if (tree.kind == KIND_NONE) {
                 continue;
             }
             // How far the crown's axis stands from the cell.
@@ -92,17 +119,24 @@ fn bakeCanopy(@builtin(global_invocation_id) id: vec3u) {
                 continue;
             }
             var crown: f32;
-            if (tree.conifer) {
+            if (tree.kind == KIND_CONIFER) {
                 crown = tree.base + tree.height - reach * (CONIFER_CROWN * tree.height / tree.radius);
             } else {
+                let shape = ellipsoidShape(tree);
                 let falloff = sqrt(1.0 - (reach / tree.radius) * (reach / tree.radius));
-                crown = tree.base + (BROADLEAF_CENTRE + BROADLEAF_DEPTH * falloff) * tree.height;
+                crown = tree.base + (shape.x + shape.y * falloff) * tree.height;
             }
-            top = max(top, crown + 0.05);
-            reaching |= 1u << u32((dy + 1) * 3 + dx + 1);
+            top = max(top, max(crown + 0.05, ground + 0.01));
+            let bit = 1u << u32((dy + 1) * 3 + dx + 1);
+            if (tree.kind == KIND_SHRUB) {
+                shrubs |= bit;
+            } else {
+                trees |= bit;
+            }
         }
     }
-    textureStore(canopyOut, cell, vec4f(packCanopy(top, reaching), 0.0, 0.0, 0.0));
+    textureStore(canopyOut, cell, vec4f(top, 0.0, 0.0, 0.0));
+    textureStore(reachOut, cell, vec4u(packReach(trees, shrubs, grass), 0u, 0u, 0u));
 }
 
 @compute @workgroup_size(8, 8)

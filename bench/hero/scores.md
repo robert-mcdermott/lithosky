@@ -158,3 +158,19 @@ Notes:
 Average H1–H6: 3.9, up from 3.8. No score is below 4 on H1–H4: the First Light target is
 met in this draft.
 
+## W6.S4: grass and shrubs
+
+Rendered 2026-10-26 with `node bench/hero.mjs --label w6s4 --only H1,H2,H3,H4,H5,H6,forest-lake,meadow`
+(1920×1080, 256 spp, Apple M4, Chrome). The hero shots look as in W6.S2, because their
+cameras are too high for traced grass, and the scores are unchanged. The slice's gate is
+the new **Meadow, evening** preset. Its 1:1 crops are
+`bench/out/w6s4/compare/meadow-foreground-1to1.png` and `meadow-middle-1to1.png`.
+**The owner judges whether the foreground reads as grass.**
+
+Draft notes on Meadow, evening:
+
+- Backlit grass glows through the tussocks, and blade strands show in the lowest rows.
+- Long shadows of the shoreline conifers fall across the meadow.
+- The conifers read well as silhouettes against the lake. Close trees on the left are
+  blotchy (a W6.S5 item).
+

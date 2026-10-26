@@ -52,6 +52,9 @@ test('every biome in the schema has a complete palette', () => {
       assert.ok(biome[key].every(value => value >= 0 && value <= 1), `${id}.${key} is an albedo`);
     }
     assert.ok(biome.conifers >= 0 && biome.conifers <= 1, `${id}.conifers is a share`);
+    assert.ok(biome.scrub >= 0 && biome.scrub <= 1, `${id}.scrub is an amount`);
+    // Grass heights are stored in centimetres up to 127 (trace/trees.wgsl packReach).
+    assert.ok(biome.grass >= 0 && biome.grass <= 1.27, `${id}.grass is a height in metres`);
   }
 });
 
@@ -65,8 +68,11 @@ test('the surface uniform carries the scene limits and waves', () => {
   assert.ok(Math.abs(floats[38] - 0.8) < 1e-6);
   assert.ok(Math.abs(floats[39] - 0.6) < 1e-6);
   assert.equal(surfaceSettingsOf(defaultScene()).biome, 'alpine');
-  // strata.y: the biome's share of conifers, which the tree bake reads.
+  // strata.yzw: the biome's share of conifers, scrub amount and grass height, which the plant
+  // bake reads.
   assert.ok(Math.abs(floats[41] - BIOMES.alpine.conifers) < 1e-6);
+  assert.ok(Math.abs(floats[42] - BIOMES.alpine.scrub) < 1e-6);
+  assert.ok(Math.abs(floats[43] - BIOMES.alpine.grass) < 1e-6);
   scene.surface = { ...scene.surface, biome: 'alien' };
   assert.equal(new Float32Array(surfaceUniform(scene))[41], 0);
 });

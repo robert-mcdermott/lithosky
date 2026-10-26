@@ -16,5 +16,6 @@ struct Surface {
     limits: vec4f,
     // x: formation thickness (m), matching the canyon landform's ledges
     // y: share of conifers below the tree line (they take over near it)
+    // z: scrub amount (0..1); w: meadow grass height (m)
     strata: vec4f,
 }

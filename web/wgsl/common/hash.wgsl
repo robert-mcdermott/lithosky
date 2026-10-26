@@ -46,3 +46,7 @@ fn unitFloat(value: u32) -> f32 {
 fn unitFloat2(value: vec2u) -> vec2f {
     return vec2f(value >> vec2u(8u)) * (1.0 / 16777216.0);
 }
+
+fn unitFloat4(value: vec4u) -> vec4f {
+    return vec4f(value >> vec4u(8u)) * (1.0 / 16777216.0);
+}
