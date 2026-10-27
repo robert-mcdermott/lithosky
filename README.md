@@ -5,8 +5,8 @@ executable serves the app and opens it in a desktop-style browser window. Everyt
 renders on your GPU with WebGPU. There are no accounts, telemetry or remote assets.
 Original code and content are Apache-2.0.
 
-**Status:** First Light (v0.5.0), the first public release, closes Wave 5 (the studio).
-See the [release notes](docs/release-notes/0.5.0.md) and the [roadmap](ROADMAP.md).
+**Status:** v0.6.0, Forests and meadows, closes Wave 6 (vegetation and distribution).
+See the [release notes](docs/release-notes/0.6.0.md) and the [roadmap](ROADMAP.md).
 Highlights:
 
 - **Terrain.** Generated and eroded on the GPU, with stream-power drainage, droplets
@@ -26,7 +26,6 @@ Highlights:
   shadows and show in the water. Shrubs fill the gaps and dry country. Near the camera,
   meadows grow tussocky grass with individual blades that leans with the wind.
 - **Image.** A GPU denoiser, glow, auto-exposure and photographic looks.
-
 - **Studio.** Eight labs, each a drawer with a rendered gallery and a few controls. The
   Plants lab sets how much grows and has a brush to plant or clear vegetation in the
   view.
@@ -83,11 +82,12 @@ applied, rendered by the real renderer. The dice in a drawer's header randomizes
 
 | Lab | Gallery | Controls |
 |---|---|---|
-| Scenes | 13 built-in scenes | |
+| Scenes | 14 built-in scenes | |
 | Terrain | | landform (alpine or canyon), variation, mountain height, river carving, gullies, loose rock, Erode more; heightmap import under Advanced |
 | Light | time of day | a sky dome to drag the sun around, sun height and direction, haze, valley fog, sky colour |
 | Sky | cloud types | cover, cloud shape (flat to towering), cloud base, thickness, density, high wisps, New clouds |
 | Ground & water | biomes | snow line, tree line, moisture, rock layers, waves |
+| Plants | natural, conifer forest, broadleaf woods, meadows, scrubland, bare | forest, tree size, tree mix, shrubs, grass; a brush to plant, clear or restore vegetation |
 | Camera | lenses, saved views | zoom, image shape, framing guides (thirds, golden ratio), Save this view |
 | Image | looks | auto brightness, brightness, warmth, glow, dark corners, film grain; debug views under Advanced |
 
@@ -99,9 +99,11 @@ applied, rendered by the real renderer. The dice in a drawer's header randomizes
 | W A S D, Q E | Fly |
 | Double-click | Orbit around the point under the pointer |
 | Option/Alt-drag | Place the sun where you point |
+| Drag, with a Plants brush picked | Paint vegetation (Esc puts the brush down) |
 | R, then drag | Preview an area at full quality |
 | G | Cycle framing guides |
-| 1–7 | Open a lab |
+| F | Switch the live view between Draft and Full |
+| 1–8 | Open a lab |
 | Esc | Close the lab |
 | H | Hide or show the interface |
 | Cmd/Ctrl+Z, Shift+Cmd/Ctrl+Z | Undo, redo |

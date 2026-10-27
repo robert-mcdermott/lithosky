@@ -1,12 +1,12 @@
 # Lithosky roadmap
 
-Updated 2026-10-24. The course correction after Wave 3 replaced the previous
+Updated 2026-10-26. The course correction after Wave 3 replaced the previous
 Wave 4–10 plan, which remains in git history.
 
 **Status:** Waves 4 and 5 are merged and tagged (v0.4.0 and v0.5.0, First Light).
-Wave 6 (vegetation and distribution) is in progress on `wave6`. W6.S1–W6.S5
-(distribution, forests, live view budget, grass and shrubs, vegetation lab and painting)
-are done; W6.S6 (release v0.6.0) is next.
+Wave 6 (vegetation and distribution) is finished on `wave6`: W6.S1–W6.S5 are done, and
+W6.S6 has the 0.6.0-rc.1 release candidate ready to tag. v0.6.0 follows once the owner
+has checked the candidate's installers and confirmed the hero scores.
 
 ## North star
 
@@ -985,6 +985,34 @@ Tasks:
 view.
 
 ### W6.S6: Release v0.6.0
+
+**Release candidate ready (0.6.0-rc.1).**
+
+- **Heroes.** Rendered again with all of Wave 6 (`bench/out/w6s6/`). H1–H4 look as in
+  W6.S2, because their cameras are too high for traced grass and leaves. The draft scores
+  in `bench/hero/scores.md` have no score below 4 on H1–H4.
+- **Presets.** The scenes are unchanged: each grows its biome's vegetation without
+  settings of its own. Denser forest for Forest lake made no visible difference at its
+  distance. The Scenes thumbnails are rendered again, with vegetation.
+- **Site.**
+  - The gallery is rendered again, with Meadow, evening in place of Forest lake (the
+    fourth lake valley), keeping a full grid.
+  - The studio screenshot shows the eight-lab rail.
+  - The text covers forests, meadows and the Plants lab.
+- **Release notes** in `docs/release-notes/0.6.0.md`.
+- **Release workflow.** A candidate such as `v0.6.0-rc.1` uses those notes. Its install
+  commands name the tag and fetch the installers from it, because a prerelease is never
+  "latest" and `main` gets the installers only at the merge.
+- **Checked here.** `tools/release` builds and verifies the six rc.1 executables, and
+  `install.sh --from` installs them on macOS. Go and JS tests pass.
+
+Still the owner's steps:
+
+1. Tag `v0.6.0-rc.1` on `wave6`, review the draft and publish it as a prerelease.
+2. Install it with its release page's commands on macOS, Linux and Windows. Then launch
+   it, open a scene, edit, save, recover and render. This is also W6.S1's gate.
+3. Confirm the hero scores.
+4. Then 0.6.0: set the version, merge `wave6` to `main`, tag `v0.6.0` and publish.
 
 Tasks:
 

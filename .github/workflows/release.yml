@@ -48,12 +48,26 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # The release notes for this version if there are any, else its changelog section.
+          # The release notes for this version if there are any, else for the release a
+          # candidate leads to (0.6.0 for 0.6.0-rc.1), else its changelog section.
+          base="${VERSION%%-*}"
           if [ -f "docs/release-notes/$VERSION.md" ]; then
             tail -n +2 "docs/release-notes/$VERSION.md" > notes.md
+          elif [ "$base" != "$VERSION" ] && [ -f "docs/release-notes/$base.md" ]; then
+            printf 'A release candidate for Lithosky %s, for testing before the release.\n' "$base" > notes.md
+            tail -n +2 "docs/release-notes/$base.md" >> notes.md
           else
             awk -v heading="## $VERSION " 'index($0, heading) == 1 { found = 1; next } /^## / && found { exit } found' CHANGELOG.md > notes.md
           fi
+          # A prerelease is never "latest", so its install commands name it and use its own
+          # installers.
+          sh_install="curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/$GITHUB_REPOSITORY/main/install.sh | sh"
+          ps_install="irm https://raw.githubusercontent.com/$GITHUB_REPOSITORY/main/install.ps1 | iex"
+          case "$VERSION" in *-*)
+            sh_install="curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF_NAME/install.sh | LITHOSKY_VERSION=$GITHUB_REF_NAME sh"
+            ps_install="& ([scriptblock]::Create((irm https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_REF_NAME/install.ps1))) -Version $GITHUB_REF_NAME"
+            ;;
+          esac
           cat >> notes.md <<NOTES
 
           ## Install
@@ -61,13 +75,13 @@ jobs:
           macOS and Linux:
 
           \`\`\`sh
-          curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/$GITHUB_REPOSITORY/main/install.sh | sh
+          $sh_install
           \`\`\`
 
           Windows (PowerShell):
 
           \`\`\`powershell
-          irm https://raw.githubusercontent.com/$GITHUB_REPOSITORY/main/install.ps1 | iex
+          $ps_install
           \`\`\`
 
           The installers check each download against \`SHA256SUMS\` before installing. To

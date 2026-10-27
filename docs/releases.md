@@ -60,12 +60,15 @@ uncommitted changes.
 4. The **Release** workflow checks that the tag, `main.go` and the changelog agree,
    runs the tests, builds and verifies the six executables, and creates a **draft**
    release with them, `SHA256SUMS`, the notes and install instructions. A version
-   with a hyphen, such as `0.6.0-rc.1`, becomes a prerelease.
+   with a hyphen, such as `0.6.0-rc.1`, becomes a prerelease. Its notes come from
+   `docs/release-notes/0.6.0.md` when it has none of its own, and its install commands
+   name the tag and fetch the installers from it.
 5. Review the draft, then check it from a clean user profile on each OS. Run
-   `install.sh` or `install.ps1` with `--version`/`-Version` set to the tag (a draft's
-   files can't be downloaded anonymously yet, so use `--from` on files you
-   downloaded). Then launch the app window, open a scene, edit, save, recover and
-   render.
+   `install.sh` or `install.ps1` with `--version`/`-Version` set to the tag. A draft's
+   files can't be downloaded anonymously, so either use `--from` on files you
+   downloaded, or test a release candidate: publish it (a prerelease never becomes
+   "latest") and use the install commands on its release page. Then launch the app
+   window, open a scene, edit, save, recover and render.
 6. Publish the draft. The installers' default, "latest", now installs it, and CI's
    installer job starts testing the published release.
 

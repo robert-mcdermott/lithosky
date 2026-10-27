@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.6.0-rc.1 — release candidate for 0.6.0, Forests and meadows
+
+The candidate for 0.6.0, which gathers Wave 6 (vegetation and distribution). The
+development entries below record each slice. See
+[the release notes](docs/release-notes/0.6.0.md).
+
+- The Scenes thumbnails and the site gallery are rendered again, now with vegetation.
+  The site gallery swaps Forest lake for Meadow, evening, and the site describes
+  forests, meadows and the Plants lab.
+- A release candidate's draft uses the notes of the release it leads to, and its install
+  commands name the candidate and use its own installers (a prerelease is never
+  "latest").
+- The hero shots are rescored with vegetation (`bench/hero/scores.md`).
+
 ## 0.6.0-dev.5 — wave 6 slice 5 (local development)
 
 - **Plants lab** (the eighth lab, key 6):

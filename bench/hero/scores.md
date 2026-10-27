@@ -174,3 +174,34 @@ Draft notes on Meadow, evening:
 - The conifers read well as silhouettes against the lake. Close trees on the left are
   blotchy (a W6.S5 item).
 
+
+## W6.S6: release v0.6.0
+
+Rendered 2026-10-26 with `node bench/hero.mjs --label w6s6 --only H1,H2,H3,H4,H5,H6,forest-lake,meadow`
+(1920×1080, 256 spp, Apple M4, Chrome), with all of Wave 6 (0.6.0-rc.1). Claude drafted
+these scores; **the owner confirms or adjusts them to close Wave 6.**
+
+| Criterion | H1 | H2 | H3 | H4 | H5 | H6 |
+|---|---|---|---|---|---|---|
+| Landform | 4 | 4 | 4 | 5 | 3 | 3 |
+| Sky | 4 | 4 | 4 | 4 | 4 | 3 |
+| Depth/atmosphere | 4 | 4 | 4 | 4 | 4 | 3 |
+| Light and shadow | 4 | 4 | 4 | 4 | 5 | 3 |
+| Materials | 5 | 4 | 4 | 4 | 3 | 3 |
+| Water | 4 | — | 4 | 4 | 4 | — |
+| Noise and artifacts | 4 | 4 | 4 | 4 | 4 | 4 |
+| Composition | 4 | 4 | 4 | 4 | 4 | 3 |
+
+Notes:
+
+- **H1–H4** look as they did in W6.S2. Their cameras are too far from the ground for the
+  traced grass (W6.S4) and leaves (W6.S5). Stands, clearings and shadows match W6.S2 at
+  1:1, apart from the small shifts every terrain build makes.
+- **Meadow, evening:** the near conifers on the left now show tiers of branches instead
+  of the blotchy clumps noted in W6.S4. Some mid-distance conifer tips look stippled
+  against the bright sky, where the leaves take over from the clumps.
+- **H5 and H6** keep their 3s. They're outside the gate and wait for oceans (H5) and
+  imagined worlds (H6) after Wave 6.
+
+Average H1–H6: 3.9, unchanged. No score is below 4 on H1–H4: the First Light target, and
+this slice's gate, are met in this draft.
