@@ -1,101 +1,118 @@
-# Packaging and release readiness
+# Releases
 
-The first public release is First Light (v0.5.0), at the end of Wave 5 (see the
-[roadmap](../ROADMAP.md)). The source is `0.5.0`. v0.4.0 was tagged but not published.
-Packages are unsigned and not notarized. The release notes are in
-[release-notes/0.5.0.md](release-notes/0.5.0.md).
+From v0.6.0, a Lithosky release is six standalone executables and a `SHA256SUMS`
+manifest, attached to a GitHub release. The installers (`install.sh` and `install.ps1`,
+see [Installing](INSTALLING.md)) download the file for the computer, check it against
+the manifest and its own version, and install it. v0.5.0 (First Light) and earlier
+shipped archives instead.
 
-## Local packages
+Packages aren't signed or notarized; that's a documented distribution limit.
 
-From the repository root, with Go 1.26+ installed:
+## Release files
+
+| File | Built for |
+| --- | --- |
+| `lithosky-darwin-arm64`, `lithosky-darwin-amd64` | macOS on Apple silicon and Intel |
+| `lithosky-linux-amd64`, `lithosky-linux-arm64` | Linux on x64 and ARM64 |
+| `lithosky-windows-amd64.exe`, `lithosky-windows-arm64.exe` | Windows on x64 and ARM64 |
+| `SHA256SUMS` | SHA-256 of each file, in `sha256sum` format |
+
+Each executable embeds the web app, shaders, built-in scenes and its licence notices.
+`lithosky --licenses` prints LICENSE, NOTICE and the Go runtime's licence
+(`third_party/GO-LICENSE`).
+
+## Building locally
+
+From the repository root, with the Go version in `go.mod`:
 
 ```sh
-go run ./tools/release --version 0.5.0 --out dist/releases/0.5.0
-go run ./tools/release --verify dist/releases/0.5.0
+go run ./tools/release --version 0.6.0 --out dist/releases/0.6.0
+go run ./tools/release --verify dist/releases/0.6.0 --version 0.6.0
 ```
 
-The destination must not exist. Use a fresh directory for a second build. The
-builder stages output and publishes the directory only after all requested builds
-succeed. It never tags, pushes, signs, uploads or publishes. `--targets current`
-packages only the current platform; a comma-separated list such as
-`--targets darwin/arm64,windows/amd64` selects other supported targets.
+**Building.** The destination must not exist. `--targets current` builds only this
+computer's file. Builds use `CGO_ENABLED=0`, `-trimpath`, `-buildvcs=false`, stripped
+symbols and the version set with `-X main.version`. The builder refuses to run if
+`third_party/GO-LICENSE` differs from the toolchain's licence, and warns about
+uncommitted changes.
 
-The default creates six archives:
+**Verifying** checks that:
 
-| Platform | Architectures | Format |
-|---|---|---|
-| macOS (`darwin`) | amd64, arm64 | tar.gz |
-| Linux | amd64, arm64 | tar.gz |
-| Windows | amd64, arm64 | zip |
+- `SHA256SUMS` names every file exactly once with a matching hash, and no other files
+  are present
+- each executable is a Mach-O, ELF or PE file for the CPU its name says
+- each carries the licence notices and the version
+- this computer's executable runs and reports `Lithosky VERSION`
 
-Every archive has one top-level `lithosky-VERSION-OS-ARCH/` directory containing
-one executable, LICENSE, NOTICE, GO-LICENSE, README.md (from `docs/distribution.md`),
-CHANGELOG.md, BUILD.json and every built-in scene as a `.lithosky` file. The executable embeds all runtime web assets.
-The browser remains an installed prerequisite. Binary builds use `CGO_ENABLED=0`,
-`-trimpath`, `-buildvcs=false`, and an explicit version; archive ordering, modes
-and timestamps are stable. Reproducibility requires identical source, toolchain
-and build environment, including relevant Go build flags.
+## Publishing a release
 
-BUILD.json records source commit and dirty status. Do not promote dirty-worktree
-packages to a release; rebuild from the reviewed clean commit. It also records
-the Go toolchain, target and executable hash. SHA256SUMS covers the outer archives.
-The verifier reads both formats without extraction, checks hashes and required
-members, executable mode, build metadata, notices, and schema-valid scene files.
-It rejects missing/extra contents, altered binaries and invalid checksums.
-Checksums are integrity checks, not a publisher signature.
+1. Set `var version` in `main.go` to the release version, such as `0.6.0`.
+2. Add a `## 0.6.0 — …` section to `CHANGELOG.md`. Optionally write
+   `docs/release-notes/0.6.0.md`, which the release page uses instead of the
+   changelog section.
+3. Merge to `main`, then tag and push:
 
-## Automated native smoke
+   ```sh
+   git tag v0.6.0
+   git push origin v0.6.0
+   ```
 
-`go test ./...` builds the executable for the current OS and runs it outside the
-checkout with disposable recovery storage. It verifies version, every embedded
-asset, authenticated autosave and recovery after process interruption. A helper
-process verifies app-window URL/profile arguments, server shutdown after the
-window process exits, and profile removal. That helper does not test a real
-browser or GPU.
+4. The **Release** workflow checks that the tag, `main.go` and the changelog agree,
+   runs the tests, builds and verifies the six executables, and creates a **draft**
+   release with them, `SHA256SUMS`, the notes and install instructions. A version
+   with a hyphen, such as `0.6.0-rc.1`, becomes a prerelease. Its notes come from
+   `docs/release-notes/0.6.0.md` when it has none of its own, and its install commands
+   name the tag and fetch the installers from it.
+5. Review the draft, then check it from a clean user profile on each OS. Run
+   `install.sh` or `install.ps1` with `--version`/`-Version` set to the tag. A draft's
+   files can't be downloaded anonymously, so either use `--from` on files you
+   downloaded, or test a release candidate: publish it (a prerelease never becomes
+   "latest") and use the install commands on its release page. Then launch the app
+   window, open a scene, edit, save, recover and render.
+6. Publish the draft. The installers' default, "latest", now installs it, and CI's
+   installer job starts testing the published release.
 
-The Check workflow runs on macOS, Windows and Linux. The manual **Package
-development or release candidate** workflow requires all three native smoke jobs
-and the JavaScript tests before creating archives.
-It retains native smoke JSON reports. Uploads are CI artifacts for review, not
-GitHub Releases.
+**Package a development build** (a manual workflow) builds the same files as CI
+artifacts without a tag, for testing between releases.
 
-## Evidence for 0.5.0
+## Installer checks in CI
 
-Recorded on 2026-10-24 for the W5.S5 changes:
+The **Check** workflow's installer job runs on macOS, Linux and Windows for every push:
 
-- **Native CI smoke.** The Check workflow (Go tests including the native smoke test,
-  `go vet`, the JavaScript tests and a build) passed on macOS, Windows and Linux for
-  every Wave 5 slice. The latest is run 39903802028 (W5.S4), with all three jobs green.
-  The release commit needs its own green run.
-- **Archives.** All six archives were built and verified locally with the release
-  tool (see the W5.S5 notes in the changelog).
-- **Format.** Scene format v1 is frozen and guarded by `tests/format.test.mjs` and the
-  Go corpus test.
+- It builds that commit's executable.
+- It installs it with `install.sh`, or with `install.ps1` under both Windows
+  PowerShell and PowerShell 7 piped into `Invoke-Expression`, using `--from`/`-From`.
+- It confirms that a tampered copy is refused and nothing is installed.
+- Once a published release has standalone executables, it also installs the latest
+  release from GitHub.
 
-## Before tagging (the owner's checks)
+## The product site
 
-On the actual release commit:
+`site/` is a static page. **Publish site** deploys it to GitHub Pages whenever `site/`
+changes on `main`, and when started by hand. Pages must be switched on once, with
+GitHub Actions as the source. Use **Settings → Pages → Build and deployment → Source:
+GitHub Actions**, or:
 
-1. **CI.** Confirm green Check runs on macOS, Windows and Linux, and run the
-   **Package development or release candidate** workflow with version `0.5.0`.
-2. **A real app window on each OS.** On Windows and Linux (and macOS), extract the
-   matching archive on a clean user profile with Chrome or Edge installed.
-   - Launch the app window and check there's no address bar.
-   - Check that closing the window stops the app and removes the temporary profile.
-3. **The studio on each OS.**
-   - Pick a scene from the welcome card, and orbit, pan and zoom.
-   - Open each lab, drag a value, and undo it.
-   - Save and open a scene.
-   - Kill the app and confirm recovery offers the work back.
-   - Render a PNG. Record the OS, architecture, browser, GPU, size and samples.
-4. **Archive contents.** Run archive verification and review the licence notices.
-   Confirm no private research, recovery files, credentials or unrelated files are
-   included.
-5. **Gates.**
-   - Three first-time users (W5.S3).
-   - Preset sign-off and hero scores (W5.S4).
-6. **Publish.** Merge `wave5`, tag `v0.5.0`, create the GitHub release with the
-   archives, `SHA256SUMS` and the release notes, and run **Publish site**. These are
-   separate, deliberate actions.
+```sh
+gh api -X POST repos/robert-mcdermott/lithosky/pages -f build_type=workflow
+```
 
-Signing and broader hardware testing remain documented distribution limits.
+Without that, `actions/configure-pages` fails with "Get Pages site failed … Not Found",
+which is what happened to the first deploy of the 0.5.0 site.
+
+`bench/gallery.mjs` renders the gallery images (see the README).
+
+## Evidence for v0.5.0
+
+Native CI smoke passed on macOS, Windows and Linux for every Wave 5 slice (the last
+before the release was run 39903802028). The archives were built and verified locally.
+Scene format v1 is frozen and guarded by `tests/format.test.mjs` and the Go corpus test.
+
+## Limits
+
+- No code signing or notarization yet. Browser-downloaded files are flagged by
+  macOS and Windows; the installers avoid that, as [Installing](INSTALLING.md)
+  explains.
+- The checksum catches damaged or substituted files, but not someone able to
+  replace both the executable and `SHA256SUMS` in a release.
+- Hardware testing beyond CI and the owner's checks is limited.

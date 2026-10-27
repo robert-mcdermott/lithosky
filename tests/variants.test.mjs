@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 import { SURFACE_DEFAULTS, WATER_DEFAULTS, cloudSettingsOf, imageSettingsOf, terrainSettingsOf, validateScene } from '../web/scene/document.js';
-import { BIOME, LENS, LIGHT, LOOK, SKY } from '../web/scene/variants.js';
+import { BIOME, LENS, LIGHT, LOOK, PLANTS, SKY } from '../web/scene/variants.js';
 
 const schema = JSON.parse(fs.readFileSync('internal/scene/schema.json', 'utf8'));
 const presets = JSON.parse(fs.readFileSync('web/scenes/presets.json', 'utf8'));
@@ -22,7 +22,7 @@ function validate(scene) {
   return valid;
 }
 
-const GALLERIES = { LIGHT, SKY, BIOME, LENS, LOOK };
+const GALLERIES = { LIGHT, SKY, BIOME, PLANTS, LENS, LOOK };
 
 test('gallery options make valid scenes that read back as selected', () => {
   for (const preset of presets) {

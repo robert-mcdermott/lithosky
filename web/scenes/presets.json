@@ -722,6 +722,71 @@
     }
   },
   {
+    "id": "meadow",
+    "name": "Meadow, evening",
+    "scene": {
+      "format": "lithosky",
+      "version": 1,
+      "title": "Meadow, evening",
+      "terrain": {
+        "seed": 1847,
+        "relief": 3200,
+        "drainage": 1,
+        "rills": 1,
+        "talus": 1
+      },
+      "camera": {
+        "position": [
+          -713.1,
+          225.2,
+          5001.9
+        ],
+        "target": [
+          -688.1,
+          220.2,
+          4901.9
+        ],
+        "focalLength": 24
+      },
+      "sun": {
+        "elevation": 12,
+        "azimuth": 355
+      },
+      "atmosphere": {
+        "haze": 1.6,
+        "fog": 0.5
+      },
+      "image": {
+        "exposure": 0.0,
+        "look": "punchy",
+        "autoExposure": true,
+        "bloom": 0.35,
+        "warmth": 0.15,
+        "vignette": 0.25,
+        "grain": 0.1
+      },
+      "clouds": {
+        "coverage": 0.22,
+        "type": 0.45,
+        "altitude": 4200,
+        "thickness": 1500,
+        "density": 0.9,
+        "cirrus": 0.6,
+        "seed": 11
+      },
+      "surface": {
+        "biome": "alpine",
+        "snowLine": 2100,
+        "treeLine": 1250,
+        "moisture": 0.6,
+        "strata": 0.4
+      },
+      "water": {
+        "waves": 0.08
+      }
+    }
+  },
+  {
     "id": "desert-mesas",
     "name": "Mesas",
     "scene": {

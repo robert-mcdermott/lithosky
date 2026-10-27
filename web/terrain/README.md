@@ -63,6 +63,10 @@ cliffs survive.
 | `farHeight`, `farPyramid` | 4096² far-field heights and their min/max mips |
 | `masks` (rgba16float) | flow (drainage area or droplet water, log), signed deposition, fine curvature, broad curvature |
 | `exposure` (rgba16float) | sky openness over about 500 m, wetness |
+| `forest` (rgba16float) | the land's inputs to forest cover: steepness, ground (stream beds, scree and shore excluded), clearing and tree-line noise (`../wgsl/terrain/forest.wgsl`) |
+
+`version` counts rebuilds of the near heights and masks, so the renderer's forest knows
+when to re-plant its trees.
 
 ## Limits
 

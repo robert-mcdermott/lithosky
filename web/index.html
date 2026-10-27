@@ -30,6 +30,11 @@
     <span class="brand" id="brand">lithosky</span>
     <input id="title" class="title" aria-label="Scene title" maxlength="80" spellcheck="false">
     <output id="status" class="status" aria-live="polite">Starting WebGPU…</output>
+    <div class="segmented live-quality" role="radiogroup" aria-label="Live view quality"
+         title="Draft refines the view quickly at lower resolution; Full matches the final render's light. Either stops when done, so the GPU rests until you change something.">
+      <label><input type="radio" name="live-quality" value="draft"><span>Draft</span></label>
+      <label><input type="radio" name="live-quality" value="full"><span>Full</span></label>
+    </div>
     <div class="bar-actions">
       <span id="history-buttons" class="button-group"></span>
       <div class="menu">
@@ -47,6 +52,7 @@
   </header>
 
   <div id="marquee" class="marquee" hidden></div>
+  <div id="brush" class="brush-cursor" hidden></div>
   <div id="region-frame" class="region-frame" hidden>
     <span id="region-label" class="region-label"></span>
     <span id="region-clear-slot"></span>
@@ -80,6 +86,8 @@
       <dt>⌥-drag</dt><dd>Place the sun</dd>
       <dt>R, then drag</dt><dd>Preview an area at full quality</dd>
       <dt>G</dt><dd>Framing guides</dd>
+      <dt>F</dt><dd>Live view: Draft or Full</dd>
+      <dt>Plants lab brush</dt><dd>Drag to plant or clear; right-drag still orbits</dd>
     </dl>
     <h2>Values</h2>
     <dl>
@@ -88,7 +96,7 @@
     </dl>
     <h2>Shortcuts</h2>
     <dl>
-      <dt>1 – 7</dt><dd>Open a lab</dd>
+      <dt>1 – 8</dt><dd>Open a lab</dd>
       <dt>Esc</dt><dd>Close the lab</dd>
       <dt>H</dt><dd>Hide or show the interface</dd>
       <dt>⌘Z, ⇧⌘Z</dt><dd>Undo, redo</dd>

@@ -135,6 +135,21 @@ export const WATER_DEFAULTS = Object.freeze({
   waves: 0.15,
 });
 
+// Vegetation relative to the biome's own: forest density, tree size and shrubs and grass as
+// multipliers, and a shift in the share of conifers. scene.vegetation.paint (scene/paint.js)
+// clears or plants in places.
+export const VEGETATION_DEFAULTS = Object.freeze({
+  forest: 1,
+  size: 1,
+  conifers: 0,
+  scrub: 1,
+  grass: 1,
+});
+
+export function vegetationOf(scene) {
+  return { ...VEGETATION_DEFAULTS, ...scene.vegetation };
+}
+
 // Surface settings plus the water's wave strength, as the material shader reads them.
 export function surfaceSettingsOf(scene) {
   return { ...SURFACE_DEFAULTS, ...scene.surface, ...WATER_DEFAULTS, ...scene.water };

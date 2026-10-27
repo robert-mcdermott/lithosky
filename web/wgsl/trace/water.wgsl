@@ -56,13 +56,14 @@ fn hazeOver(radiance: vec3f, viewDirection: vec3f, waterDepth: f32, span: f32) -
 }
 
 fn reflectionRadiance(origin: vec3f, direction: vec3f, viewDirection: vec3f, waterDepth: f32) -> vec3f {
+    rayFootprint = vec2f(pixelFootprint(waterDepth), footprintSlope());
     let hit = traceScene(origin, direction, MAX_DISTANCE, BOUNCE_EFFORT);
     if (hit.field == FIELD_NONE) {
         let sky = skyRadiance(direction) + sunDisk(direction);
         let layer = traceClouds(origin, direction, MAX_DISTANCE, REFLECTION_CLOUD_STEPS);
         return limitLuminance(sky * layer.transmittance + layer.inscatter, REFLECTION_LIMIT);
     }
-    let point = shadePoint(origin + direction * hit.t, hit.field, waterDepth + hit.t, false);
+    let point = shadeHit(origin + direction * hit.t, hit, waterDepth + hit.t, false);
     let skyLight = cloudySky(normalize(point.normal + vec3f(0.0, 1.0, 0.0))) * 0.8;
     let lit = directSun(point, waterDepth + hit.t, -direction) + point.albedo * skyLight;
     return hazeOver(lit, viewDirection, waterDepth, hit.t);
@@ -78,7 +79,9 @@ fn shadeWater(position: vec3f, direction: vec3f, depth: f32) -> vec3f {
     let lifted = position + vec3f(0.0, 0.05, 0.0);
     let mirror = reflectionRadiance(lifted, reflected, direction, depth);
 
+    anyHit = true;
     let shadow = traceScene(lifted, frame.sunDirection, SHADOW_DISTANCE, SHADOW_EFFORT);
+    anyHit = false;
     let sunVisible = select(0.0, 1.0, shadow.field == FIELD_NONE && shadow.t != TRACE_EXHAUSTED);
     let sunlight = sunlightAt(position) * max(frame.sunDirection.y, 0.0) * sunVisible * cloudShadow(position);
     let irradiance = sunlight + cloudySky(vec3f(0.0, 1.0, 0.0)) * PI * 0.6;

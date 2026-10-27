@@ -1,5 +1,141 @@
 # Changelog
 
+## 0.6.0 — Forests and meadows
+
+Gathers Wave 6 (vegetation and distribution), and is the first release with standalone
+executables and one-line installers. The development entries below record each slice.
+See [the release notes](docs/release-notes/0.6.0.md).
+
+- The Scenes thumbnails and the site gallery are rendered again, now with vegetation.
+  The site gallery swaps Forest lake for Meadow, evening, and the site describes
+  forests, meadows and the Plants lab.
+- A release candidate's draft (a tag such as `v0.7.0-rc.1`) uses the notes of the
+  release it leads to. Its install commands name the candidate and use its own
+  installers, since a prerelease is never "latest".
+- The hero shots are rescored with vegetation (`bench/hero/scores.md`).
+
+## 0.6.0-dev.5 — wave 6 slice 5 (local development)
+
+- **Plants lab** (the eighth lab, key 6):
+  - **Gallery** rendered from your view: Natural, Conifer forest, Broadleaf woods,
+    Meadows, Scrubland, Bare.
+  - **Sliders:** Forest, Tree size, Tree mix (broadleaf to conifer), Shrubs and Grass,
+    each relative to the biome's own vegetation.
+  - **Randomize** draws new vegetation settings.
+  - Saved as an optional `vegetation` group in the scene (format v1, additive). Scenes
+    without it look as before.
+- **Paint vegetation in the view.** In the Plants lab, pick Plant, Clear or Restore,
+  then drag:
+  - **Plant** grows full forest wherever a tree can stand.
+  - **Clear** removes trees and shrubs, leaving meadow.
+  - **Restore** returns the land to its own cover.
+
+  Right- or ⇧-drag still moves the camera. A circle shows the brush on the ground. Each
+  stroke is one undo step. The paint is a 512 × 512 mask over the near tile, stored
+  run-length encoded in the scene (`vegetation.paint`). Ground colour follows the
+  painted cover too.
+- **Close-range foliage.** Trees and shrubs within about 100 m are made of individual
+  leaves and needle clusters: discs facing every way in a 16 cm grid inside the crown.
+  Conifers grow in tiers of branches and broadleaf crowns in lumps. Near crowns let light
+  through their gaps and shade themselves.
+- About 1–7% more per sample than 0.6.0-dev.4 on H1, H3, Forest lake and Meadow.
+
+## 0.6.0-dev.4 — wave 6 slice 4 (local development)
+
+- **Meadow grass near the camera.** Grass is now a traced layer over meadow ground,
+  shaped into tussocks with gaps and leaning with the wind.
+  - Within a few metres, rays meet individual blades: one per 1.8 cm square, tapered
+    and each with its own lean.
+  - Further out, the same grass is a soft, self-shadowing layer that rays sample
+    collisions through. Backlit grass glows.
+  - The grass fades into the meadow material once a pixel spans more than a few
+    centimetres, so high views cost nothing extra.
+- **Shrubs** grow where the forest leaves room: in patches between stands, densest in
+  the belt around the tree line, and far above it in dry climates (desert scrub). They
+  are low, porous clumps, traced while they span a few pixels and painted into the ground
+  beyond.
+- **Wind-combed meadows.** The meadow material gains streaks along the wind.
+- Each biome sets a scrub amount and a grass height (alpine 0.5 and 0.4 m, desert 0.8
+  and 0.25 m, arctic 0.6 and 0.15 m). Snow covers both above the snow line.
+- New preset **Meadow, evening**: eye level in H1's lakeside meadow, backlit by a low
+  sun, with conifers along the shore.
+- On the hero shots, which see no traced grass, this costs 9–12% per sample over
+  0.6.0-dev.3. The plant bake still takes about 5 ms.
+
+## 0.6.0-dev.3 — wave 6 slice 3 (local development)
+
+- **The live view stops when it's done.** It used to keep path-tracing indefinitely
+  after every edit, keeping the GPU busy. Now it traces to a sample target, lets
+  auto-exposure settle, and does no GPU work until something changes. Exposure and
+  look changes redraw without re-tracing.
+- **Draft and Full live quality**, in the top bar (or press F), remembered between
+  sessions:
+  - **Draft** (default): 1280 px, one bounce, 32 passes, finished in about a second or
+    two after an edit
+  - **Full:** 1920 px, two bounces like the final render, 512 passes
+
+  Render and the region preview (R) still produce full quality.
+- The view takes at most 8 samples per frame, which leaves the GPU room for the rest of
+  the desktop, and does nothing while the window is hidden or minimised.
+- The status shows progress towards the target (`18 / 32 passes`) and `done` when the
+  view has stopped.
+
+## 0.6.0-dev.2 — wave 6 slice 2 (local development)
+
+- **Traced forests.** The near tile (16 km) grows procedural trees that the path tracer
+  intersects directly: conifers (cones) and broadleaf trees (ellipsoids), with trunks
+  up close. Each 7.8 m terrain cell may hold one tree, placed and sized from a hash of
+  the cell, so no geometry is stored. Crowns lean over neighbouring cells, so forests
+  close up without a visible grid.
+- **Placement** follows the land and the scene: slope, drainage, scree, the shore,
+  clearings, the tree line and moisture, with smaller trees towards the tree line.
+  Each biome sets its share of conifers (alpine 75%, Imagined 0%); conifers take over
+  near the tree line. Valley floors now carry forest down to the streams, which stay
+  bare.
+- **Light.** Trees cast and receive soft sun shadows, darken the forest floor below
+  them and show in lake reflections. Broadleaf crowns pass some light to their shaded
+  side. Near crowns are porous: rays pass through gaps between clumps of foliage,
+  which gives ragged silhouettes and dappled shadows.
+- The ground under traced trees is a needle-and-litter forest floor. The far field
+  keeps the painted canopy.
+- **Speed.** A forest bake (about 5 ms) runs once the terrain is built and whenever
+  the biome, tree line or moisture changes. It packs each cell's tree into a tree map
+  and builds a canopy pyramid that bounds the crowns, so rays only descend into the
+  canopy where trees stand. Trees cost about +35% per sample on the forested heroes
+  (H1, H3, Forest lake).
+- Exports, region renders and variant thumbnails all trace the trees. Thumbnails
+  re-bake for each variant's biome and tree line.
+
+## 0.6.0-dev.1 — wave 6 slice 1 (local development)
+
+- Releases are now six standalone executables (`lithosky-OS-ARCH`, with `.exe` on
+  Windows) and a `SHA256SUMS` manifest. They replace the tar.gz/zip archives.
+  `tools/release` builds and verifies that layout. The verifier checks each
+  executable's format and CPU, notices, version and checksum, and refuses
+  unlisted, missing or altered files.
+- `lithosky --licenses` prints LICENSE, NOTICE and the Go runtime's licence
+  (`third_party/GO-LICENSE`), which every executable now carries.
+- One-line installers:
+  - `install.sh` (`curl … | sh`) for macOS and Linux
+  - `install.ps1` (`irm … | iex`) for Windows
+
+  They verify the checksum and the executable's version before an atomic install
+  for the current user, with no admin rights needed. `--from`/`-From` installs from
+  downloaded files and clears the browser download flag after checking.
+- Pushing a `v*` tag runs the new **Release** workflow:
+  - it checks the tag against `main.go` and the changelog, then tests, builds and
+    verifies
+  - it creates a draft release with the executables, `SHA256SUMS`, the notes and
+    install instructions
+- CI tests both installers on macOS, Linux and Windows (including a tampered file
+  being refused), and installs the latest published release once one has
+  standalone executables.
+- **Publish site** deploys when `site/` changes on `main`. It failed before because
+  Pages was never switched on for the repository; `docs/releases.md` has the
+  one-time command.
+- New `docs/INSTALLING.md`. The README and the site's Download section show the
+  one-line installs. The archive README (`docs/distribution.md`) is gone.
+
 ## 0.5.0 — First Light
 
 The first public release. It gathers Wave 4 (the visual core) and Wave 5 (the studio).

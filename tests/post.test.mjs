@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 import { denoiseMix } from '../web/render/post.js';
 import { BIOMES, BIOME_IDS, surfaceUniform } from '../web/render/biomes.js';
+import { LIVE_QUALITY } from '../web/render/renderer.js';
 import { CLOUD_DEFAULTS, IMAGE_DEFAULTS, SURFACE_DEFAULTS, cloudSettingsOf, defaultScene, imageSettingsOf, surfaceSettingsOf } from '../web/scene/document.js';
 
 test('denoising fades out as samples accumulate', () => {
@@ -50,6 +51,10 @@ test('every biome in the schema has a complete palette', () => {
       assert.equal(biome[key].length, 3, `${id}.${key}`);
       assert.ok(biome[key].every(value => value >= 0 && value <= 1), `${id}.${key} is an albedo`);
     }
+    assert.ok(biome.conifers >= 0 && biome.conifers <= 1, `${id}.conifers is a share`);
+    assert.ok(biome.scrub >= 0 && biome.scrub <= 1, `${id}.scrub is an amount`);
+    // Grass heights are stored in centimetres up to 127 (trace/trees.wgsl packReach).
+    assert.ok(biome.grass >= 0 && biome.grass <= 1.27, `${id}.grass is a height in metres`);
   }
 });
 
@@ -58,11 +63,30 @@ test('the surface uniform carries the scene limits and waves', () => {
   scene.surface = { ...SURFACE_DEFAULTS, snowLine: 3000, moisture: 0.8 };
   scene.water = { waves: 0.6 };
   const floats = new Float32Array(surfaceUniform(scene));
-  assert.equal(floats.length, 44);
+  assert.equal(floats.length, 48);
   assert.equal(floats[36], 3000);
   assert.ok(Math.abs(floats[38] - 0.8) < 1e-6);
   assert.ok(Math.abs(floats[39] - 0.6) < 1e-6);
   assert.equal(surfaceSettingsOf(defaultScene()).biome, 'alpine');
+  // strata.yzw: the biome's share of conifers, scrub amount and grass height, which the plant
+  // bake reads.
+  assert.ok(Math.abs(floats[41] - BIOMES.alpine.conifers) < 1e-6);
+  assert.ok(Math.abs(floats[42] - BIOMES.alpine.scrub) < 1e-6);
+  assert.ok(Math.abs(floats[43] - BIOMES.alpine.grass) < 1e-6);
+  scene.surface = { ...scene.surface, biome: 'alien' };
+  assert.equal(new Float32Array(surfaceUniform(scene))[41], 0);
+});
+
+test('vegetation settings scale the biome\'s forest, shrubs and grass, and set tree size', () => {
+  const scene = defaultScene();
+  scene.surface = { ...SURFACE_DEFAULTS, biome: 'alpine' };
+  scene.vegetation = { forest: 0.5, size: 1.4, conifers: 0.5, scrub: 2, grass: 10 };
+  const floats = new Float32Array(surfaceUniform(scene));
+  assert.ok(Math.abs(floats[27] - BIOMES.alpine.forestAmount * 0.5) < 1e-6, 'forest amount');
+  assert.equal(floats[41], 1, 'the conifer share is clamped to 1');
+  assert.ok(Math.abs(floats[42] - BIOMES.alpine.scrub * 2) < 1e-6, 'scrub');
+  assert.ok(Math.abs(floats[43] - 1.27) < 1e-6, 'grass stops at the 1.27 m the reach map holds');
+  assert.ok(Math.abs(floats[44] - 1.4) < 1e-6, 'tree size');
 });
 
 test('sky colour 0 is Earth\'s Rayleigh scattering, and the tint shifts it between blue and gold', async () => {
@@ -75,3 +99,17 @@ test('sky colour 0 is Earth\'s Rayleigh scattering, and the tint shifts it betwe
   assert.ok(deep[2] / deep[0] > earth[2] / earth[0], 'lower tints are bluer');
   assert.ok(golden[0] > golden[2], 'the highest tint scatters red more than blue');
 });
+
+test('the live view stops at a finite target, and Draft costs less than Full', () => {
+  const { draft, full } = LIVE_QUALITY;
+  for (const quality of [draft, full]) {
+    assert.ok(Number.isInteger(quality.samples) && quality.samples > 0);
+  }
+  assert.ok(draft.longEdge < full.longEdge);
+  assert.ok(draft.bounces < full.bounces);
+  assert.ok(draft.samples < full.samples);
+  const html = fs.readFileSync('web/index.html', 'utf8');
+  const choices = [...html.matchAll(/name="live-quality" value="(\w+)"/g)].map(match => match[1]);
+  assert.deepEqual(choices, Object.keys(LIVE_QUALITY));
+});
+

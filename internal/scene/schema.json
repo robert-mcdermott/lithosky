@@ -347,6 +347,59 @@
         }
       }
     },
+    "vegetation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "forest": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "size": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1.6
+        },
+        "conifers": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "scrub": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "grass": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2.5
+        },
+        "paint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "resolution",
+            "data"
+          ],
+          "properties": {
+            "resolution": {
+              "type": "integer",
+              "enum": [
+                512
+              ]
+            },
+            "data": {
+              "type": "string",
+              "minLength": 4,
+              "maxLength": 98304
+            }
+          }
+        }
+      }
+    },
     "cameras": {
       "type": "array",
       "minItems": 0,

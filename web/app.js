@@ -6,10 +6,16 @@
 import { advance, distanceToTarget, dolly, lookAt, orbit, pan, sunAngles, tanHalfFov, viewHeading, viewRay } from './render/camera.js';
 import { Renderer } from './render/renderer.js';
 import { Autosave } from './scene/autosave.js';
-import { ATMOSPHERE_DEFAULTS, SURFACE_DEFAULTS, WATER_DEFAULTS, aspectOf, cloudSettingsOf, defaultScene, imageSettingsOf, validateScene } from './scene/document.js';
+import {
+  ATMOSPHERE_DEFAULTS, SURFACE_DEFAULTS, VEGETATION_DEFAULTS, WATER_DEFAULTS, aspectOf, cloudSettingsOf, defaultScene,
+  imageSettingsOf, validateScene,
+} from './scene/document.js';
 import { History } from './scene/history.js';
+import { PAINT_LIMIT, PAINT_SIZE, decodePaint, encodePaint, isNeutral, neutralPaint, paintDab, paintTexel } from './scene/paint.js';
 import { RANDOMIZERS, randomize } from './scene/randomize.js';
 import { importHeightmap, loadHeightmap } from './terrain/heightmap.js';
+import { PLACEMENT } from './terrain/placement.js';
+import { NEAR_EXTENT } from './terrain/terrain.js';
 import { element, gallery, iconButton, slider } from './ui/controls.js';
 import { icon } from './ui/icons.js';
 import { buildLabs } from './ui/labs.js';
@@ -116,6 +122,7 @@ async function start() {
     valid.surface = { ...SURFACE_DEFAULTS, ...valid.surface };
     valid.water = { ...WATER_DEFAULTS, ...valid.water };
     valid.atmosphere = { ...ATMOSPHERE_DEFAULTS, ...valid.atmosphere };
+    valid.vegetation = { ...VEGETATION_DEFAULTS, ...valid.vegetation };
     return valid;
   };
   const history = new History(presets[0]?.scene ?? defaultScene(), validate);
@@ -157,6 +164,20 @@ async function start() {
   const renderer = await Renderer.create(canvas, history.value);
   renderer.start();
 
+  // Live view quality (Draft or Full), remembered for this viewer.
+  const qualityInputs = [...document.querySelectorAll('input[name="live-quality"]')];
+  function setLiveQuality(quality) {
+    renderer.setQuality(quality);
+    remember('liveQuality', quality);
+    for (const input of qualityInputs) {
+      input.checked = input.value === quality;
+    }
+  }
+  setLiveQuality(remembered('liveQuality', 'draft') === 'full' ? 'full' : 'draft');
+  for (const input of qualityInputs) {
+    input.addEventListener('change', () => setLiveQuality(input.value));
+  }
+
   const autosave = new Autosave(async (scene, revision) => {
     const response = await api('/api/autosave', {
       method: 'PUT',
@@ -186,7 +207,33 @@ async function start() {
     }
   }
 
+  // The vegetation paint follows the scene the same way: decoded when its data changes.
+  let paintData = null;
+  let paintLevels = null;
+  function syncPaint(scene) {
+    const data = scene.vegetation?.paint?.data ?? null;
+    if (data === paintData) {
+      return;
+    }
+    paintData = data;
+    try {
+      paintLevels = data ? decodePaint(data) : null;
+    } catch (error) {
+      paintLevels = null;
+      showMessage(error);
+    }
+    renderer.setPaint(paintLevels);
+  }
+
   const bindings = [];
+
+  // The vegetation brush's state (see the brush below), which the Plants lab shows.
+  const brush = {
+    mode: 'off',
+    size: Math.min(1500, Math.max(30, Number(remembered('brushSize', 200)) || 200)),
+  };
+  let stroke = null;
+  let brushDistance = null;
 
   function apply({ moving = false, save = true } = {}) {
     const scene = history.value;
@@ -198,6 +245,7 @@ async function start() {
       bind(scene);
     }
     void syncHeightmap(scene);
+    syncPaint(scene);
     if (save) {
       autosave.enqueue(scene);
     }
@@ -351,6 +399,11 @@ async function start() {
         delete draft.terrain.heightmap;
       }),
       setViewMode: mode => renderer.setViewMode(mode),
+      brush: () => brush,
+      setBrush,
+      clearPaint: () => edit(draft => {
+        delete draft.vegetation.paint;
+      }),
     },
   });
 
@@ -380,6 +433,9 @@ async function start() {
 
   let openLab = null;
   function showLab(lab) {
+    if (lab.id !== 'plants') {
+      setBrush({ mode: 'off' });
+    }
     openLab = lab;
     $('drawer-title').textContent = lab.title;
     randomizeButton.hidden = !RANDOMIZERS[lab.id];
@@ -396,6 +452,7 @@ async function start() {
     layoutFrame();
   }
   function closeLab() {
+    setBrush({ mode: 'off' });
     openLab = null;
     drawer.hidden = true;
     layoutFrame();
@@ -476,6 +533,10 @@ async function start() {
       startMarquee(event);
       return;
     }
+    if (brush.mode !== 'off' && event.button === 0 && !event.shiftKey && !event.altKey) {
+      startStroke(event);
+      return;
+    }
     canvas.classList.add('dragging');
     drag = { x: event.clientX, y: event.clientY, panning: event.shiftKey || event.button === 2, sun: placingSun || event.altKey };
     history.begin();
@@ -501,6 +562,13 @@ async function start() {
       moveMarquee(event);
       return;
     }
+    if (brush.mode !== 'off') {
+      hoverBrush(event);
+    }
+    if (stroke) {
+      queueDab(event);
+      return;
+    }
     if (!drag) {
       return;
     }
@@ -523,6 +591,10 @@ async function start() {
       finishMarquee();
       return;
     }
+    if (stroke) {
+      finishStroke();
+      return;
+    }
     if (drag) {
       const placed = drag.sun && placingSun;
       drag = null;
@@ -537,6 +609,114 @@ async function start() {
   };
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
+
+  // The vegetation brush (Plants lab). A stroke paints into a copy of the scene's paint, shown
+  // live, and lands as one undo step when the button is released.
+  const METRES_PER_TEXEL = NEAR_EXTENT / PAINT_SIZE;
+  function setBrush(change) {
+    Object.assign(brush, change);
+    if (change.size !== undefined) {
+      remember('brushSize', brush.size);
+    }
+    canvas.classList.toggle('painting', brush.mode !== 'off');
+    $('brush').hidden = brush.mode === 'off' || brushDistance === null;
+    sizeBrush();
+    for (const bind of bindings) {
+      bind(history.value);
+    }
+  }
+  const viewUv = event => {
+    const box = canvas.getBoundingClientRect();
+    return [(event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height];
+  };
+  // The cursor circle: the brush's radius at the ground under the pointer, in pixels.
+  function sizeBrush() {
+    if (brushDistance === null) {
+      return;
+    }
+    const pixels = brush.size / brushDistance * canvas.clientHeight / (2 * tanHalfFov(history.value.camera.focalLength, aspect()));
+    $('brush').style.setProperty('--radius', `${Math.max(4, Math.min(2000, pixels))}px`);
+  }
+  let hovering = false;
+  async function hoverBrush(event) {
+    $('brush').style.left = `${event.clientX}px`;
+    $('brush').style.top = `${event.clientY}px`;
+    if (hovering) {
+      return;
+    }
+    hovering = true;
+    const point = await renderer.pick(...viewUv(event));
+    hovering = false;
+    if (point) {
+      const camera = history.value.camera.position;
+      brushDistance = Math.hypot(point[0] - camera[0], point[1] - camera[1], point[2] - camera[2]);
+      $('brush').hidden = brush.mode === 'off';
+      sizeBrush();
+    }
+  }
+  function startStroke(event) {
+    stroke = { levels: paintLevels ? paintLevels.slice() : neutralPaint(), last: null, pending: null, busy: false, changed: false };
+    history.begin();
+    startInteraction();
+    queueDab(event);
+  }
+  // Picks are asynchronous: only the latest pointer position waits while one is in flight.
+  function queueDab(event) {
+    stroke.pending = viewUv(event);
+    if (!stroke.busy) {
+      void pumpDabs(stroke);
+    }
+  }
+  async function pumpDabs(current) {
+    current.busy = true;
+    while (current.pending) {
+      const uv = current.pending;
+      current.pending = null;
+      const point = await renderer.pick(...uv);
+      if (point && stroke === current) {
+        dabAt(current, point);
+      }
+    }
+    current.busy = false;
+  }
+  // Dabs along the way from the last one, so a quick stroke leaves no gaps.
+  function dabAt(current, point) {
+    const radius = brush.size / METRES_PER_TEXEL;
+    const [x, y] = paintTexel(point[0], point[2], PLACEMENT.nearOrigin, NEAR_EXTENT);
+    const [lx, ly] = current.last ?? [x, y];
+    const steps = Math.max(1, Math.ceil(Math.hypot(x - lx, y - ly) / Math.max(radius * 0.4, 0.5)));
+    let changed = false;
+    for (let i = 1; i <= steps; i++) {
+      changed = paintDab(current.levels, lx + (x - lx) * i / steps, ly + (y - ly) * i / steps, radius, brush.mode) || changed;
+    }
+    current.last = [x, y];
+    if (changed) {
+      current.changed = true;
+      renderer.setPaint(current.levels, { moving: true });
+    }
+  }
+  function finishStroke() {
+    const current = stroke;
+    stroke = null;
+    if (current.changed) {
+      const data = isNeutral(current.levels) ? null : encodePaint(current.levels);
+      if (data && data.length > PAINT_LIMIT) {
+        renderer.setPaint(paintLevels);
+        showMessage(new Error('The scene has too much painting to save. Restore or remove some first.'));
+      } else {
+        edit(draft => {
+          if (data) {
+            draft.vegetation.paint = { resolution: PAINT_SIZE, data };
+          } else {
+            delete draft.vegetation.paint;
+          }
+        });
+      }
+    }
+    history.end();
+    apply();
+    endInteraction();
+  }
 
   // Region renders: R (or the Region button), then drag a box. The box renders at full
   // resolution over the view until the scene or camera changes.
@@ -851,8 +1031,11 @@ async function start() {
       $('status').textContent = `Building terrain ${Math.round(stats.progress * 100)}%`;
     } else {
       const rate = (stats.pathsPerSecond / 1e6).toFixed(0);
-      $('status').textContent = `${stats.samples} passes · ${stats.seconds.toFixed(1)} s`;
-      $('status').title = `Each pass adds one sample per pixel. ${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
+      const seconds = `${stats.seconds.toFixed(1)} s`;
+      $('status').textContent = stats.samples >= stats.target
+        ? `${stats.samples} passes · ${seconds} · done`
+        : `${stats.samples} / ${stats.target} passes · ${seconds}`;
+      $('status').title = `Each pass adds one sample per pixel. The view stops after ${stats.target} and the GPU rests until you change something; Render makes the final image. ${rate} M paths/s at ${stats.renderSize.join(' × ')} on ${stats.adapter}`;
     }
   });
 
@@ -889,6 +1072,8 @@ async function start() {
         closePopups();
         if (placingSun) {
           setPlacingSun(false);
+        } else if (brush.mode !== 'off') {
+          setBrush({ mode: 'off' });
         } else if (regionMode) {
           setRegionMode(false);
         } else if (renderer.region) {
@@ -900,6 +1085,8 @@ async function start() {
         setRegionMode(!regionMode);
       } else if (key === 'g') {
         setGuides(GUIDE_MODES[(GUIDE_MODES.indexOf(guideMode) + 1) % GUIDE_MODES.length]);
+      } else if (key === 'f') {
+        setLiveQuality(renderer.quality === 'full' ? 'draft' : 'full');
       } else if (key === 'h') {
         document.body.classList.toggle('chrome-hidden');
         layoutFrame();

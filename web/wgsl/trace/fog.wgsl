@@ -58,7 +58,10 @@ fn fogScatter(origin: vec3f, direction: vec3f, depth: f32) -> FogSample {
     let position = origin + direction * t;
 
     var sun = vec3f(0.0);
+    // Trees would barely change the fog's light, and it would cost a forest walk per sample.
+    treesWanted = false;
     let shadow = traceScene(position, frame.sunDirection, FOG_SHADOW_DISTANCE, FOG_SHADOW_EFFORT);
+    treesWanted = true;
     if (shadow.field == FIELD_NONE) {
         let phase = henyeyGreenstein(dot(direction, frame.sunDirection), FOG_ANISOTROPY);
         sun = sunlightAt(position) * phase * cloudShadow(position);

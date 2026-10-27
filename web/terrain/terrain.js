@@ -240,6 +240,8 @@ export class Terrain {
     this.job = null;
     this.jobLength = 1;
     this.jobDone = 0;
+    // Counts rebuilds of the near heights and masks, so tracers know when to re-bake trees.
+    this.version = 0;
     this.createResources();
     this.createBindGroups();
   }
@@ -260,6 +262,7 @@ export class Terrain {
     this.nearPyramid = storageTexture(device, 'near pyramid', nearSize, 'rg32float', { mipLevelCount: NEAR_LEVELS });
     this.masks = storageTexture(device, 'masks', nearSize, 'rgba16float');
     this.exposure = storageTexture(device, 'exposure masks', nearSize, 'rgba16float');
+    this.forest = storageTexture(device, 'forest map', nearSize, 'rgba16float');
     this.farHeight = storageTexture(device, 'far height', farSize, 'r32float');
     this.farPyramid = storageTexture(device, 'far pyramid', farSize, 'rg32float', { mipLevelCount: FAR_LEVELS });
     this.nearShape = uniformBuffer(device, 'near shape', 64);
@@ -345,7 +348,7 @@ export class Terrain {
       ]),
       masks: bindGroup(device, p.masks, [
         this.maskParams, nearHeightView, this.sediment, this.flow, this.masks.createView(),
-        this.drainage, this.exposure.createView(),
+        this.drainage, this.exposure.createView(), this.forest.createView(),
       ]),
     };
     this.createGenerateGroup();
@@ -441,6 +444,7 @@ export class Terrain {
 
   // Resolve fixed-point heights, then rebuild masks and the near pyramid.
   encodeRebuild(pass) {
+    this.version++;
     dispatch2d(pass, this.pipelines.resolve, this.groups.resolve, NEAR_SIZE, NEAR_SIZE);
     dispatch2d(pass, this.pipelines.masks, this.groups.masks, NEAR_SIZE, NEAR_SIZE);
     this.encodePyramid(pass, this.nearPyramidGroups, NEAR_SIZE);

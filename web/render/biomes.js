@@ -4,7 +4,7 @@
 // Colours are linear albedo.
 
 import { StructWriter } from '../gpu/struct.js';
-import { surfaceSettingsOf } from '../scene/document.js';
+import { surfaceSettingsOf, vegetationOf } from '../scene/document.js';
 
 export const BIOMES = Object.freeze({
   alpine: {
@@ -19,6 +19,9 @@ export const BIOMES = Object.freeze({
     sand: [0.3, 0.27, 0.21],
     snow: [0.86, 0.88, 0.92],
     forestAmount: 1,
+    conifers: 0.75,
+    scrub: 0.5,
+    grass: 0.4,
     snowAmount: 1,
   },
   desert: {
@@ -33,6 +36,9 @@ export const BIOMES = Object.freeze({
     sand: [0.7, 0.5, 0.31],
     snow: [0.85, 0.84, 0.82],
     forestAmount: 0.08,
+    conifers: 0.2,
+    scrub: 0.8,
+    grass: 0.25,
     snowAmount: 0,
   },
   volcanic: {
@@ -47,6 +53,9 @@ export const BIOMES = Object.freeze({
     sand: [0.045, 0.043, 0.042],
     snow: [0.85, 0.87, 0.9],
     forestAmount: 0.4,
+    conifers: 0.7,
+    scrub: 0.45,
+    grass: 0.3,
     snowAmount: 1,
   },
   arctic: {
@@ -61,6 +70,9 @@ export const BIOMES = Object.freeze({
     sand: [0.25, 0.24, 0.22],
     snow: [0.88, 0.9, 0.94],
     forestAmount: 0,
+    conifers: 1,
+    scrub: 0.6,
+    grass: 0.15,
     snowAmount: 1,
   },
   alien: {
@@ -75,11 +87,17 @@ export const BIOMES = Object.freeze({
     sand: [0.55, 0.45, 0.65],
     snow: [0.78, 0.9, 0.96],
     forestAmount: 0.6,
+    conifers: 0,
+    scrub: 0.6,
+    grass: 0.5,
     snowAmount: 1,
   },
 });
 
 export const BIOME_IDS = Object.keys(BIOMES);
+
+// Size of the surface uniform (trace/surface_params.wgsl).
+export const SURFACE_BYTES = 192;
 
 // Rock formations are this thick by default; canyon country steps into CANYON_FORMATIONS
 // ledges over its relief (as in terrain/generator.wgsl), and the bands follow them.
@@ -90,22 +108,29 @@ function strataThickness(terrain) {
   return terrain?.landform === 'canyon' ? terrain.relief / CANYON_FORMATIONS : STRATA_THICKNESS;
 }
 
-// Writes the surface uniform (11 vec4) for a scene: palette, limits, water waves and the
-// thickness of rock formations.
+// Grass heights pack into centimetres up to this (trace/trees.wgsl packReach).
+const MAX_GRASS = 1.27;
+
+// Writes the surface uniform (12 vec4) for a scene: palette, limits, water waves, the
+// thickness of rock formations, and the vegetation: the biome's forest amount, share of
+// conifers, scrub amount and grass height (m) as the scene adjusts them, and tree size.
 export function surfaceUniform(scene) {
   const settings = surfaceSettingsOf(scene);
   const biome = BIOMES[settings.biome] ?? BIOMES.alpine;
-  return new StructWriter(176)
+  const plants = vegetationOf(scene);
+  const conifers = Math.min(1, Math.max(0, biome.conifers + plants.conifers));
+  return new StructWriter(SURFACE_BYTES)
     .f32(...biome.rockDark, settings.strata)
     .f32(...biome.rockLight, 0)
     .f32(...biome.band, 0)
     .f32(...biome.scree, 0)
     .f32(...biome.soilLush, 0)
     .f32(...biome.soilDry, 0)
-    .f32(...biome.forest, biome.forestAmount)
+    .f32(...biome.forest, biome.forestAmount * plants.forest)
     .f32(...biome.sand, 0)
     .f32(...biome.snow, biome.snowAmount)
     .f32(settings.snowLine, settings.treeLine, settings.moisture, settings.waves)
-    .f32(strataThickness(scene.terrain), 0, 0, 0)
+    .f32(strataThickness(scene.terrain), conifers, biome.scrub * plants.scrub, Math.min(MAX_GRASS, biome.grass * plants.grass))
+    .f32(plants.size, 0, 0, 0)
     .buffer;
 }

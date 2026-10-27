@@ -288,6 +288,33 @@ img {
   color: var(--muted);
 }
 
+.install {
+  max-width: 52rem;
+  margin: 1.4rem 0;
+}
+
+.install h3 {
+  margin: 1rem 0 0.4rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.install pre {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.install code,
+.download p code {
+  font: 0.88rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--ink);
+}
+
 .download .note {
   margin-top: 1.4rem;
   color: var(--faint);

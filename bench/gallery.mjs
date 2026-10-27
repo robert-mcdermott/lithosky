@@ -37,7 +37,8 @@ const only = option('only', '')
 const LONG_EDGE = 1600;
 // The hero image at the top of the page, and its size.
 const HERO = { id: 'H4', longEdge: 2400 };
-const SKIP = new Set(['overview']);
+// Scenes the page leaves out, so the gallery stays a full grid.
+const SKIP = new Set(['overview', 'forest-lake']);
 const outDir = path.resolve('site/gallery');
 fs.mkdirSync(outDir, { recursive: true });
 

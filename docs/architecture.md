@@ -24,6 +24,7 @@ Everything visual runs in WebGPU on one persistent device:
 | `web/terrain/` | Generates and erodes the terrain on the GPU (see its README); `web/wgsl/terrain/strata.wgsl` holds the rock formations the canyon landform and the materials share |
 | `web/render/renderer.js` | The frame loop: terrain build stages, sky LUTs, tracing and display |
 | `web/render/tracer.js` | The progressive path tracer: one full-frame sample per dispatch into a GPU accumulation buffer |
+| `web/render/forest.js` | The near tile's plants: bakes a tree map, a reach map and a canopy pyramid from the terrain's forest map and the scene's surface (`web/wgsl/trace/canopy.wgsl`). The tree and shrub shapes and their traversal are in `web/wgsl/trace/trees.wgsl`, the grass in `web/wgsl/trace/grass.wgsl` |
 | `web/render/sky.js` | Physical sky LUTs (Hillaire 2020): transmittance, multiple scattering, sky view and aerial perspective |
 | `web/render/clouds.js` | Cloud noise textures and weather map (generated on the GPU); the cloud march, lighting and shadows are in `web/wgsl/clouds/` |
 | `web/render/biomes.js` | Biome palettes and limits, written to one surface uniform; the landform-driven materials that read it are in `web/wgsl/trace/material.wgsl` |
@@ -36,6 +37,23 @@ Some properties of the tracer and frame loop:
 
 - **No triangles.** The tracer intersects the heightfields directly: min/max mip
   pyramids skip empty space, then exact bilinear-patch hits.
+- **Plants.** Each near cell may hold one procedural tree or shrub (a cone or an
+  ellipsoid, plus a trunk on trees up close), placed by a hash of the cell.
+  - The near traversal uses the canopy pyramid to bound crowns and grass. At level 0 it
+    tests the plants the reach map lists for the cell, and the grass.
+  - Near crowns are porous: rays march through clumps of foliage. Shrubs are traced only
+    while they span a pixel or two; the ground paints them beyond.
+  - Grass is traced near the camera: individual blades within a few metres, then a
+    sampled layer that fades into the meadow material.
+  - Plants appear in camera rays, sun shadows, the first bounce and reflections, but not
+    in fog shadows, later bounces or bounce-point sun rays. Shrubs and grass also need a
+    pixel footprint, so bounce rays skip them.
+  - Within about 100 m crowns are made of leaves: rays walk a 3D grid of small cells
+    inside the crown, each holding at most one leaf disc.
+  - The bake applies the scene's vegetation settings and its paint mask, a 512 × 512
+    texture over the near tile.
+  - Until the forest bake is ready (while the terrain builds), the ground paints the
+    forest instead.
 - **Lighting.** Sun next-event estimation uses the finite solar disk. Bounces sample the
   sky-view LUT, and haze uses the aerial-perspective LUT at true kilometre distances.
 - **Materials.** Erosion and exposure masks place each layer; surfaces shade with
@@ -43,13 +61,17 @@ Some properties of the tracer and frame loop:
   texture and detail normals; bounce and reflection rays use the average material.
 - **Responsive loop.** Frames are queued without CPU waits. While the camera moves the
   image renders at half resolution, then refines.
+- **Live budget.** The view traces to its live quality's target (Draft: 1280 px, one
+  bounce, 32 passes; Full: 1920 px, two bounces, 512 passes; `LIVE_QUALITY` in
+  `renderer.js`). It then runs a few post frames for auto-exposure and submits nothing
+  until the scene, view or window changes. Hidden windows skip frames.
 - **Export.** Export renders the same scene at the chosen size and sample count through
   the same kernels, then reads back once.
 
 ## Studio
 
 `web/app.js` wires the scene, history, autosave, navigation, files and export to the
-interface: a top bar, a rail of seven labs and one drawer at a time. The canvas takes the
+interface: a top bar, a rail of eight labs and one drawer at a time. The canvas takes the
 scene's image shape (`image.aspect`), as large as fits below the top bar. A narrower frame
 slides clear of the rail and an open drawer without changing size, so the render carries
 on. Framing guides are an SVG overlay on the same box. A first run (no recovery records)
@@ -62,7 +84,8 @@ opens a welcome card with the scenes.
 | `web/ui/thumbnails.js` | Gallery thumbnails cached by scene |
 | `web/ui/sundome.js` | The sky dome in the Light lab: drag the sun; the wedge shows the view |
 | `web/scene/randomize.js` | Seeded, per-lab Randomize, limited to each lab's settings |
-| `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, lenses and looks |
+| `web/scene/variants.js` | Gallery choices that keep the terrain: times of day, skies, biomes, vegetation, lenses and looks |
+| `web/scene/paint.js` | The vegetation paint mask: run-length encoding for the scene, and the brush's dabs |
 | `web/ui/icons.js` | Line icons |
 
 Gallery thumbnails come from the real renderer. `Renderer.renderVariants` traces small

@@ -3,13 +3,20 @@
 // buffer. Nothing is read back; the display pass reads the same buffer. The buffer is sized
 // for the largest image; each sample may render a smaller image into its top-left part
 // (the display stretches it), which keeps camera moves responsive.
+//
+// Trees come from a Forest (forest.js): the view's, shared with exports and region renders,
+// or the variant thumbnails' own. Until its bake is ready, a tracer paints the forest on
+// the ground instead.
 
 import { bindGroup, computePipeline, storageBuffer, uniformBuffer } from '../gpu/device.js';
 import { StructWriter } from '../gpu/struct.js';
-import { surfaceUniform } from './biomes.js';
+import { SURFACE_BYTES, surfaceUniform } from './biomes.js';
 import { AERIAL_DISTANCE } from './sky.js';
 
 let tracers = 0;
+
+// Byte offset of `canopyReady` in the fields uniform (trace/fields.wgsl).
+const CANOPY_READY_OFFSET = 56;
 
 export class Tracer {
   static async create(device) {
@@ -23,7 +30,9 @@ export class Tracer {
     this.pipeline = pipeline;
     this.frameBuffer = uniformBuffer(device, 'frame', 144);
     this.fieldsBuffer = uniformBuffer(device, 'fields', 64);
-    this.surfaceBuffer = uniformBuffer(device, 'surface', 176);
+    this.surfaceBuffer = uniformBuffer(device, 'surface', SURFACE_BYTES);
+    // What the fields uniform tells the shader: whether it may trace the forest's trees.
+    this.canopyReady = false;
     this.capacity = 0;
     this.accumulation = null;
     this.guides = null;
@@ -68,17 +77,29 @@ export class Tracer {
     this.device.queue.writeBuffer(this.surfaceBuffer, 0, surfaceUniform(scene));
   }
 
-  bind(terrain, sky, clouds) {
+  bind(terrain, sky, clouds, forest) {
     this.terrain = terrain;
     this.sky = sky;
     this.clouds = clouds;
+    this.forest = forest;
     this.writeFields();
     this.createGroup();
   }
 
-  // Grids, water level and horizon height; rewritten when the terrain is rebuilt.
+  // Grids, water level and horizon height; rewritten when the terrain is rebuilt, which
+  // also turns the trees off until the forest's next bake.
   writeFields() {
     this.device.queue.writeBuffer(this.fieldsBuffer, 0, this.terrain.fieldsUniform());
+    this.canopyReady = false;
+  }
+
+  // Lets the next samples trace the forest's trees once its bake is ready.
+  prepareTrees(encoder) {
+    const ready = this.forest.prepare(encoder);
+    if (ready !== this.canopyReady) {
+      this.device.queue.writeBuffer(this.fieldsBuffer, CANOPY_READY_OFFSET, new Uint32Array([ready ? 1 : 0]));
+      this.canopyReady = ready;
+    }
   }
 
   createGroup() {
@@ -111,6 +132,9 @@ export class Tracer {
       clouds.sampler,
       terrain.exposure.createView(),
       this.surfaceBuffer,
+      this.forest.treeMap.createView(),
+      this.forest.canopy.createView(),
+      this.forest.reachMap.createView(),
     ], 'tracer');
   }
 
@@ -134,6 +158,7 @@ export class Tracer {
   sample(view, sampleIndex) {
     this.writeFrame(view, sampleIndex);
     const encoder = this.device.createCommandEncoder({ label: 'trace sample' });
+    this.prepareTrees(encoder);
     const pass = encoder.beginComputePass({ label: 'trace sample' });
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.group);

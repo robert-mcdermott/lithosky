@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // Direct heightfield ray tracing: a min/max pyramid skips empty space, then each level-0
-// cell is intersected exactly as a bilinear patch. No triangles are built.
+// cell is intersected exactly as a bilinear patch. No triangles are built. With plants, a
+// canopy pyramid (the ground or the crowns and grass over it, whichever is higher) bounds
+// the skips instead, and level-0 cells also test the grass and the plants growing in and
+// around them (trees.wgsl, grass.wgsl).
 
 #include "common/constants.wgsl"
 #include "terrain/grid.wgsl"
@@ -51,15 +54,28 @@ fn firstRoot(a: f32, b: f32, c: f32, limit: f32) -> f32 {
     return TRACE_MISS;
 }
 
-// Exact hit with the bilinear patch over level-0 `cell`. `start` is the ray's grid position
-// at the cell entry, `slope` its grid units per metre, `y0` its height there.
-fn intersectPatch(heights: texture_2d<f32>, size: u32, cell: vec2i, start: vec2f, slope: vec2f,
-                  y0: f32, dy: f32, limit: f32) -> f32 {
-    let h00 = loadVertex(heights, cell, size);
-    let h10 = loadVertex(heights, cell + vec2i(1, 0), size);
-    let h01 = loadVertex(heights, cell + vec2i(0, 1), size);
-    let h11 = loadVertex(heights, cell + vec2i(1, 1), size);
-    let local = start - vec2f(cell);
+// The corner heights of level-0 `cell`'s patch: (h00, h10, h01, h11).
+fn loadPatch(heights: texture_2d<f32>, size: u32, cell: vec2i) -> vec4f {
+    return vec4f(
+        loadVertex(heights, cell, size),
+        loadVertex(heights, cell + vec2i(1, 0), size),
+        loadVertex(heights, cell + vec2i(0, 1), size),
+        loadVertex(heights, cell + vec2i(1, 1), size),
+    );
+}
+
+// The patch's height at `local` (0..1 across the cell).
+fn patchHeight(corners: vec4f, local: vec2f) -> f32 {
+    return mix(mix(corners.x, corners.y, local.x), mix(corners.z, corners.w, local.x), local.y);
+}
+
+// Exact hit with a level-0 patch. `local` is the ray's position in the cell at its entry,
+// `slope` its grid units per metre, `y0` its height there.
+fn intersectPatch(corners: vec4f, local: vec2f, slope: vec2f, y0: f32, dy: f32, limit: f32) -> f32 {
+    let h00 = corners.x;
+    let h10 = corners.y;
+    let h01 = corners.z;
+    let h11 = corners.w;
     let ex = h10 - h00;
     let ez = h01 - h00;
     let twist = h00 - h10 - h01 + h11;
@@ -74,8 +90,13 @@ fn intersectPatch(heights: texture_2d<f32>, size: u32, cell: vec2i, start: vec2f
 }
 
 // First hit distance in [tStart, tEnd], TRACE_MISS, or TRACE_EXHAUSTED when out of steps.
-fn traceField(pyramid: texture_2d<f32>, heights: texture_2d<f32>, grid: FieldGrid, levels: u32,
-              origin: vec3f, direction: vec3f, tStart: f32, tEnd: f32, maxSteps: u32) -> f32 {
+// With `trees`, sets `treeHit` when the hit is a crown and `grassHit` when it is grass.
+fn traceField(pyramid: texture_2d<f32>, canopy: texture_2d<f32>, heights: texture_2d<f32>,
+              grid: FieldGrid, levels: u32, origin: vec3f, direction: vec3f, tStart: f32,
+              tEnd: f32, maxSteps: u32, trees: bool) -> f32 {
+    treeHit = false;
+    grassHit = false;
+    treeBest = BIG;
     let gridOrigin = (origin.xz - grid.origin) / grid.spacing;
     let gridSlope = direction.xz / grid.spacing;
     let extent = f32(grid.size - 1u);
@@ -98,7 +119,10 @@ fn traceField(pyramid: texture_2d<f32>, heights: texture_2d<f32>, grid: FieldGri
     }
     // Clip to the slab below the highest point.
     let top = levels - 1u;
-    let highest = textureLoad(pyramid, vec2i(0), top).g;
+    var highest = textureLoad(pyramid, vec2i(0), top).g;
+    if (trees) {
+        highest = textureLoad(canopy, vec2i(0), top).r;
+    }
     if (direction.y > 0.0) {
         t1 = min(t1, (highest - origin.y) / direction.y);
     } else if (direction.y < 0.0 && origin.y > highest) {
@@ -114,6 +138,10 @@ fn traceField(pyramid: texture_2d<f32>, heights: texture_2d<f32>, grid: FieldGri
     var level = min(top, 6u);
     for (var iteration = 0u; iteration < maxSteps; iteration++) {
         if (t >= t1) {
+            if (treeBest <= t1) {
+                treeHit = true;
+                return treeBest;
+            }
             return TRACE_MISS;
         }
         let cellSize = f32(1u << level);
@@ -122,10 +150,15 @@ fn traceField(pyramid: texture_2d<f32>, heights: texture_2d<f32>, grid: FieldGri
         let boundary = (cell + select(vec2f(0.0), vec2f(1.0), gridSlope > vec2f(0.0))) * cellSize;
         let crossing = select(vec2f(BIG), (boundary - gridOrigin) * inverse, moving);
         let tExit = min(min(crossing.x, crossing.y), t1);
-        let bounds = textureLoad(pyramid, vec2i(cell), level).rg;
+        var ceiling: f32;
+        if (trees) {
+            ceiling = textureLoad(canopy, vec2i(cell), level).r;
+        } else {
+            ceiling = textureLoad(pyramid, vec2i(cell), level).g;
+        }
         // A straight ray is lowest at one end of its span inside the cell.
         let rayLow = min(origin.y + direction.y * t, origin.y + direction.y * tExit);
-        if (rayLow > bounds.y) {
+        if (rayLow > ceiling) {
             t = tExit;
             level = min(level + 1u, top);
             continue;
@@ -134,10 +167,49 @@ fn traceField(pyramid: texture_2d<f32>, heights: texture_2d<f32>, grid: FieldGri
             level -= 1u;
             continue;
         }
-        let y0 = origin.y + direction.y * t;
-        let s = intersectPatch(heights, grid.size, vec2i(cell), position, gridSlope, y0, direction.y, tExit - t);
-        if (s >= 0.0) {
-            return t + s;
+        var ground = ceiling;
+        var reaching = 0u;
+        var grass = vec4f(0.0);
+        if (trees) {
+            ground = textureLoad(pyramid, vec2i(cell), 0).g;
+            // The canopy rises above the ground only where grass or a crown reaches the cell.
+            if (ceiling > ground) {
+                reaching = cellReach(vec2i(cell));
+                if (footprintAt(t) < GRASS_FAR) {
+                    grass = cellGrass(vec2i(cell), reaching);
+                }
+            }
+        }
+        let tallest = max(max(grass.x, grass.y), max(grass.z, grass.w));
+        var hit = BIG;
+        var grassy = false;
+        if (rayLow <= ground + tallest) {
+            let corners = loadPatch(heights, grid.size, vec2i(cell));
+            if (rayLow <= ground) {
+                let y0 = origin.y + direction.y * t;
+                let s = intersectPatch(corners, position - cell, gridSlope, y0, direction.y, tExit - t);
+                if (s >= 0.0) {
+                    hit = t + s;
+                }
+            }
+            if (tallest > 0.0) {
+                let blade = marchGrass(origin, direction, t, min(hit, tExit), corners, grass, gridOrigin, gridSlope, cell);
+                if (blade < hit) {
+                    hit = blade;
+                    grassy = true;
+                }
+            }
+        }
+        if ((reaching & 0x3FFFFu) != 0u) {
+            visitTrees(vec2i(cell), reaching, origin, direction, t0, t);
+            if (treeBest < hit && (treeBest <= tExit || (anyHit && treeBest <= t1))) {
+                treeHit = true;
+                return treeBest;
+            }
+        }
+        if (hit < BIG) {
+            grassHit = grassy;
+            return hit;
         }
         t = tExit;
         level = min(1u, top);
