@@ -178,7 +178,7 @@ Draft notes on Meadow, evening:
 ## W6.S6: release v0.6.0
 
 Rendered 2026-10-26 with `node bench/hero.mjs --label w6s6 --only H1,H2,H3,H4,H5,H6,forest-lake,meadow`
-(1920×1080, 256 spp, Apple M4, Chrome), with all of Wave 6 (0.6.0-rc.1). Claude drafted
+(1920×1080, 256 spp, Apple M4, Chrome), with all of Wave 6 (0.6.0). Claude drafted
 these scores; **the owner confirms or adjusts them to close Wave 6.**
 
 | Criterion | H1 | H2 | H3 | H4 | H5 | H6 |
