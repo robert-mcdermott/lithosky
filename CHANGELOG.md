@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **No more terrain spikes on large GPUs.** Droplet erosion runs each batch in slices of
+  8192 droplets. A GPU that ran a whole batch at once (such as an RTX 5090) let many
+  droplets erode the same stale height, which grew into columns kilometres tall.
+- **Faster start after the first.** The app window keeps its browser profile in the user
+  cache folder, so compiled WebGPU shaders are reused: on Windows the start drops from
+  about 20 s to under a second. A second Lithosky, or a profile still held by an orphaned
+  window, falls back to a temporary profile.
+- Temporary window profiles are removed reliably on Windows, where the browser's crash
+  handler briefly kept a file open after the window closed.
+
 ## 0.6.0 — Forests and meadows
 
 Gathers Wave 6 (vegetation and distribution), and is the first release with standalone

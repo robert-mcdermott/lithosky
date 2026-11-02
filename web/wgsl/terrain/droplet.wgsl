@@ -2,7 +2,10 @@
 // GPU droplet hydraulic erosion after H. T. Beyer, "Implementation of a method for hydraulic
 // erosion" (2015): sediment capacity grows with slope, speed and water.
 // Each invocation runs one droplet. Heights and sediment are 16.16 fixed-point metres
-// updated with atomics; concurrent droplets may read slightly stale heights, which is fine.
+// updated with atomics; concurrent droplets may read slightly stale heights, which is fine
+// while few run at once. Each droplet can remove the whole drop ahead of it, so when many
+// share a cell's stale height they overshoot and the error feeds back into spikes and pits.
+// A batch is therefore dispatched as sequential slices, starting at `slice.first`.
 
 #include "common/constants.wgsl"
 #include "common/hash.wgsl"
@@ -26,10 +29,18 @@ struct DropletParams {
     flowWeight: f32,
 }
 
+struct DropletSlice {
+    first: u32,
+    padding0: u32,
+    padding1: u32,
+    padding2: u32,
+}
+
 @group(0) @binding(0) var<uniform> params: DropletParams;
 @group(0) @binding(1) var<storage, read_write> heightFixed: array<atomic<i32>>;
 @group(0) @binding(2) var<storage, read_write> sediment: array<atomic<i32>>;
 @group(0) @binding(3) var<storage, read_write> flow: array<atomic<u32>>;
+@group(0) @binding(4) var<uniform> slice: DropletSlice;
 
 fn cellIndex(cell: vec2i) -> u32 {
     let clamped = clamp(cell, vec2i(0), vec2i(i32(params.size) - 1));
@@ -108,10 +119,11 @@ fn slopeAt(position: vec2f, footprint: f32) -> vec2f {
 
 @compute @workgroup_size(64)
 fn erode(@builtin(global_invocation_id) id: vec3u) {
-    if (id.x >= params.dropletCount) {
+    let droplet = slice.first + id.x;
+    if (droplet >= params.dropletCount) {
         return;
     }
-    let random = pcg3d(vec3u(id.x, params.batchSeed, 0x2545F491u));
+    let random = pcg3d(vec3u(droplet, params.batchSeed, 0x2545F491u));
     let limit = f32(params.size) - 2.0;
     var position = vec2f(1.0) + unitFloat2(random.xy) * (limit - 1.0);
     var direction = vec2f(0.0);
@@ -126,7 +138,7 @@ fn erode(@builtin(global_invocation_id) id: vec3u) {
         direction = direction * params.inertia - gradient * (1.0 - params.inertia);
         let directionLength = length(direction);
         if (directionLength < 1e-6) {
-            let angle = unitFloat(pcg2d(vec2u(id.x, life)).x) * TWO_PI;
+            let angle = unitFloat(pcg2d(vec2u(droplet, life)).x) * TWO_PI;
             direction = vec2f(cos(angle), sin(angle));
         } else {
             direction = direction / directionLength;

@@ -4,8 +4,15 @@
 
 One Go executable embeds the web app (`web/`) with `embed.FS`. It serves it on an
 ephemeral `127.0.0.1` port and opens an installed Chromium-family browser in app-window
-mode with a temporary profile. When that window closes, the server stops and the profile
-is removed.
+mode. When that window closes, the server stops.
+
+The window keeps its own browser profile in the user cache folder
+(`Lithosky/window-profile`), so the browser's compiled WebGPU shaders survive between
+runs: the path tracer takes about 20 s to compile on Direct3D 12 and well under a second
+from that cache. A lock file holds the profile while a window uses it. A second Lithosky,
+or one started while an orphaned window still has the profile open, uses a temporary
+profile instead, removed when its window closes. A browser started on a profile that is
+already open would hand its window to that process and exit, stopping the server.
 
 | Option | Effect |
 |---|---|

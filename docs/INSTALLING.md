@@ -257,6 +257,13 @@ which you can delete as well:
 - Linux: `~/.config/Lithosky`
 - Windows: `%AppData%\Lithosky`
 
+Its app window keeps a browser profile, mostly compiled shaders, in your user cache
+folder. Deleting it only makes the next start slower:
+
+- macOS: `~/Library/Caches/Lithosky`
+- Linux: `~/.cache/Lithosky`
+- Windows: `%LocalAppData%\Lithosky`
+
 Scenes you saved stay wherever you saved them.
 
 ## Building from source

@@ -88,6 +88,11 @@ const DROPLETS = {
   maxSpeed: 8,
 };
 
+// Droplets per dispatch. A large GPU runs a whole batch at once, and so many droplets on
+// stale heights make erosion blow up into spikes (droplet.wgsl); slices bound that.
+const DROPLETS_PER_SLICE = 1 << 13;
+const DROPLET_SLICES = DROPLETS.perBatch / DROPLETS_PER_SLICE;
+
 const FLOW_WEIGHT = 64;
 const THERMAL_ITERATIONS = 2;
 
@@ -273,6 +278,11 @@ export class Terrain {
     this.sourceParams = uniformBuffer(device, 'source params', 16);
     this.sourceHeight = this.createSourceTexture(2, new Float32Array(4));
     this.dropletParams = uniformBuffer(device, 'droplet params', 64);
+    this.dropletSlices = Array.from({ length: DROPLET_SLICES }, (_, index) => {
+      const buffer = uniformBuffer(device, `droplet slice ${index}`, 16);
+      device.queue.writeBuffer(buffer, 0, new StructWriter(16).u32(index * DROPLETS_PER_SLICE, 0, 0, 0).buffer);
+      return buffer;
+    });
     this.thermalParams = uniformBuffer(device, 'thermal params', 32);
     this.resolveParams = uniformBuffer(device, 'resolve params', 48);
     this.maskParams = uniformBuffer(device, 'mask params', 48);
@@ -339,7 +349,9 @@ export class Terrain {
         this.nearCoarseParams, this.baseHeight, null, null, near.area[c], near.carving,
         null, null, null, this.heightFixed, this.drainage,
       ])),
-      erode: bindGroup(device, p.erode, [this.dropletParams, this.heightFixed, this.sediment, this.flow]),
+      erode: this.dropletSlices.map(slice => bindGroup(device, p.erode, [
+        this.dropletParams, this.heightFixed, this.sediment, this.flow, slice,
+      ])),
       relax: bindGroup(device, p.relax, [
         this.thermalParams, this.heightSnapshot, this.sedimentSnapshot, this.heightFixed, this.sediment,
       ]),
@@ -601,8 +613,10 @@ export class Terrain {
       const encoder = this.device.createCommandEncoder({ label: 'droplets' });
       const droplets = encoder.beginComputePass({ label: 'droplets' });
       droplets.setPipeline(this.pipelines.erode);
-      droplets.setBindGroup(0, this.groups.erode);
-      droplets.dispatchWorkgroups(DROPLETS.perBatch / 64);
+      for (const group of this.groups.erode) {
+        droplets.setBindGroup(0, group);
+        droplets.dispatchWorkgroups(DROPLETS_PER_SLICE / 64);
+      }
       droplets.end();
       for (let k = 0; k < THERMAL_ITERATIONS; k++) {
         encoder.copyBufferToBuffer(this.heightFixed, 0, this.heightSnapshot, 0, bytes);

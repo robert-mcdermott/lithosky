@@ -97,7 +97,13 @@ func run() error {
 	fmt.Printf("Lithosky %s\n%s\nLocal preview studio · Ctrl+C to stop\n", version, url)
 	var closed <-chan struct{}
 	if !*noOpen {
-		windowHandle, err := desktop.Open(url, *window, *browser)
+		// The window's browser profile lives in the user cache folder, where it keeps the
+		// compiled WebGPU shaders; without one the window starts from a temporary profile.
+		profile := ""
+		if cache, err := os.UserCacheDir(); err == nil {
+			profile = filepath.Join(cache, "Lithosky", "window-profile")
+		}
+		windowHandle, err := desktop.Open(url, *window, *browser, profile)
 		if err != nil {
 			return err
 		}

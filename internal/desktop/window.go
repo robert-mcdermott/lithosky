@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 )
 
 type Window struct {
@@ -19,7 +20,9 @@ type Window struct {
 func (w *Window) Close() { w.close() }
 
 // Open never silently replaces an app window with a normal browser tab.
-func Open(url, mode, override string) (*Window, error) {
+// In app mode the window reuses the browser profile at `profile`, so the browser's compiled
+// WebGPU shaders survive between runs; "" or a profile in use falls back to a temporary one.
+func Open(url, mode, override, profile string) (*Window, error) {
 	if mode == "browser" {
 		var command string
 		var args []string
@@ -48,13 +51,13 @@ func Open(url, mode, override string) (*Window, error) {
 	if browser == "" {
 		return nil, errors.New("no app-window browser found; install a compatible Chromium-family browser, use --browser /path/to/executable, or choose --window=browser / --no-open")
 	}
-	profile, err := os.MkdirTemp("", "lithosky-window-")
+	profile, release, err := claimProfile(profile)
 	if err != nil {
 		return nil, err
 	}
 	cmd := exec.Command(browser, appArguments(url, profile)...)
 	if err := cmd.Start(); err != nil {
-		_ = os.RemoveAll(profile)
+		release()
 		return nil, fmt.Errorf("open app window: %w", err)
 	}
 	done := make(chan struct{})
@@ -68,15 +71,47 @@ func Open(url, mode, override string) (*Window, error) {
 				_ = cmd.Process.Kill()
 				<-done
 			}
-			_ = os.RemoveAll(profile)
+			release()
 		})
 	}}, nil
+}
+
+// claimProfile locks the persistent profile for this window, or makes a temporary one when
+// there is none or another Lithosky or an orphaned browser still holds it. A browser started
+// on a profile that is already open hands the window to that process and exits at once,
+// which would stop the server. `release` unlocks the profile or removes the temporary one.
+func claimProfile(persistent string) (profile string, release func(), err error) {
+	if persistent != "" && os.MkdirAll(persistent, 0o700) == nil {
+		if unlock, err := lockFile(filepath.Join(persistent, "lithosky.lock")); err == nil {
+			if !browserHolds(persistent) {
+				return persistent, unlock, nil
+			}
+			unlock()
+		}
+	}
+	profile, err = os.MkdirTemp("", "lithosky-window-")
+	if err != nil {
+		return "", nil, err
+	}
+	return profile, func() { removeProfile(profile) }, nil
+}
+
+// removeProfile retries for a few seconds: on Windows the browser's crash handler keeps a
+// file in the profile open for a moment after the browser itself exits.
+func removeProfile(profile string) {
+	for attempt := 0; attempt < 20; attempt++ {
+		if os.RemoveAll(profile) == nil {
+			return
+		}
+		time.Sleep(250 * time.Millisecond)
+	}
 }
 
 func appArguments(url, profile string) []string {
 	return []string{"--app=" + url, "--user-data-dir=" + profile,
 		"--no-first-run", "--no-default-browser-check", "--disable-background-networking",
-		"--disable-sync", "--disable-extensions", "--disable-component-update", "--window-size=1440,960"}
+		"--disable-sync", "--disable-extensions", "--disable-component-update", "--hide-crash-restore-bubble",
+		"--window-size=1440,960"}
 }
 
 func findBrowser() string {

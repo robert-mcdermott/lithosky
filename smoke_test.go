@@ -202,7 +202,13 @@ func TestStandaloneBinary(t *testing.T) {
 		t.Fatal(err)
 	}
 	marker := filepath.Join(dir, "browser-arguments.json")
-	p = start([]string{"--browser", helper}, []string{"LITHOSKY_SMOKE_BROWSER=" + marker})
+	// The window's persistent profile goes under the user cache folder; keep it in the test.
+	cacheEnv := map[string]string{"windows": "LocalAppData", "darwin": "HOME"}[runtime.GOOS]
+	if cacheEnv == "" {
+		cacheEnv = "XDG_CACHE_HOME"
+	}
+	cacheRoot := filepath.Join(dir, "cache")
+	p = start([]string{"--browser", helper}, []string{"LITHOSKY_SMOKE_BROWSER=" + marker, cacheEnv + "=" + cacheRoot})
 	var args []string
 	for range 500 {
 		if data, err := os.ReadFile(marker); err == nil && json.Unmarshal(data, &args) == nil {
@@ -223,8 +229,11 @@ func TestStandaloneBinary(t *testing.T) {
 	if !app || profile == "" {
 		t.Fatalf("missing app-window isolation: %v", args)
 	}
+	if !strings.HasPrefix(profile, cacheRoot) || filepath.Base(profile) != "window-profile" {
+		t.Fatalf("browser profile %q is not the persistent one under %q", profile, cacheRoot)
+	}
 	if _, err := os.Stat(profile); err != nil {
-		t.Fatal("missing temporary browser profile", err)
+		t.Fatal("missing browser profile", err)
 	}
 	if err := os.WriteFile(marker+".close", nil, 0600); err != nil {
 		t.Fatal(err)
@@ -234,7 +243,8 @@ func TestStandaloneBinary(t *testing.T) {
 	case <-time.After(10 * time.Second):
 		t.Fatal("server did not exit when browser closed")
 	}
-	if _, err := os.Stat(profile); !os.IsNotExist(err) {
-		t.Fatal("temporary profile remains", err)
+	// The profile and its shader caches stay for the next window.
+	if _, err := os.Stat(profile); err != nil {
+		t.Fatal("persistent profile removed", err)
 	}
 }

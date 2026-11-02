@@ -31,7 +31,9 @@ mask textures come out. Everything runs in WebGPU compute, and the CPU only queu
    valleys while hillslopes barely change.
 4. **Apply.** The carving is upsampled onto the 2048² tile.
 5. **Droplets.** 1.6 M fine droplets with talus relaxation cut gullies and leave scree and
-   deposits.
+   deposits. Each batch of 131 072 runs as slices of 8192: a GPU large enough to run a
+   whole batch at once lets many droplets erode the same stale height, which overshoots
+   and grows into spikes.
 6. **Resolve.** Heights are resolved, then the masks and min/max pyramid are rebuilt.
 
 The procedural generator has two landforms (`landform` in the settings).
